@@ -1,0 +1,63 @@
+{% extends 'master/base.html' %}
+
+{% block title %}
+  {% if request.resolver_match.url_name == 'updateproject' %}
+    Update Project
+  {% else %}  
+    Create Project
+  {% endif %} 
+{% endblock title %}
+
+{% block dashboard_title1 %}
+  {% if request.resolver_match.url_name == 'updateproject' %}
+    Update Project
+  {% else %}  
+    Create Project
+  {% endif %} 
+{% endblock dashboard_title1 %}
+
+{% block dashboard_title2 %}
+  {% if request.resolver_match.url_name == 'updateproject' %}
+    Edit Project
+  {% else %}  
+    Add Project
+  {% endif %}
+{% endblock dashboard_title2 %}
+
+{% block content %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    <div class="card-body">
+                        {% load crispy_forms_tags %}
+
+                        <form action="{% if request.resolver_match.url_name == 'updateproject' %}{% url 'updateproject' project.id %}{% else %}{% url 'addproject' %}{% endif %}" method="POST" class="form-group" enctype="multipart/form-data">
+                            {% csrf_token %}
+                              {{ form|crispy }}
+
+                              {% if request.resolver_match.url_name == 'updateproject' %}
+                                <button type="submit" class="btn btn-success">Update Project</button>
+                              {% else %}  
+                                <button type="submit" class="btn btn-success">Add Project</button>
+                              {% endif %}  
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock content %}
+
+{% block script %}
+<script>
+        $(function () {
+          $('#usersTable').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+          });
+        });
+      </script>
+{% endblock script %}
