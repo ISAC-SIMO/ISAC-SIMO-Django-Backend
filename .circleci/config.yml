@@ -26,7 +26,7 @@ jobs:
       
       - run:
           name: Wait for db
-          command: dockerize -wait tcp://localhost:5432 -timeout 1m
+          command: dockerize -wait tcp://localhost:3306 -timeout 2m
 
       - run:
           name: Install global dotenv and DATABASE_URL
