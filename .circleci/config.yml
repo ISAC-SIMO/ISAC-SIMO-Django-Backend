@@ -48,10 +48,16 @@ jobs:
             - ./venv
 
       - run:
-          name: Running app
+          name: Running Migration
           command: |
             . venv/bin/activate
             python3 manage.py migrate
+
+      - run:
+          name: Running Server
+          background: true
+          command: |
+            . venv/bin/activate
             python3 manage.py runserver
 
       - run:
