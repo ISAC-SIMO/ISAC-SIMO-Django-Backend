@@ -8,7 +8,7 @@ jobs:
         environment:
           MYSQL_ALLOW_EMPTY_PASSWORD: yes
           MYSQL_USER: root
-          MYSQL_ROOT_PASSWORD: ''
+          MYSQL_ROOT_PASSWORD: root
           MYSQL_DATABASE: isac
 
     working_directory: ~/isac
@@ -34,7 +34,8 @@ jobs:
             pip3 install --user python-dotenv
             pip3 install --user django
           environment:
-            DATABASE_URL: mysql://root@localhost:3306/isac
+            # Note: Make sure to also set DATABASE_URL in circleci env variables
+            DATABASE_URL: mysql://root:root@localhost:3306/isac
 
       - run:
           name: venv setup
