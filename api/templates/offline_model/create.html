@@ -40,9 +40,11 @@
                                   <div class="">
                                       <select name="offline_model_labels" multiple id="id_offline_model_labels" class="form-control">
                                           <option></option>
-                                          {% for offlineModelLabel in offlineModelLabels %}
-                                              <option value="{{offlineModelLabel}}" selected>{{offlineModelLabel}}</option>
-                                          {% endfor %}
+                                          {% if offlineModelLabels %}
+                                            {% for offlineModelLabel in offlineModelLabels %}
+                                                <option value="{{offlineModelLabel}}" selected>{{offlineModelLabel}}</option>
+                                            {% endfor %}
+                                          {% endif %}
                                       </select>
                                   </div>
                                   <small class=" form-text text-muted">
@@ -114,5 +116,12 @@
                 {id: 'py', text: '.py (python3)'},
             ]
         })
+
+        {% if request.resolver_match.url_name == 'offline.model.edit' %}
+          {% if offlineModel and offlineModel.model_format %}
+            $('#id_model_format').val('{{offlineModel.model_format}}');
+            $('#id_model_format').trigger('change');
+          {% endif %}
+        {% endif %}
     </script>
 {% endblock script %}

@@ -726,12 +726,12 @@ def offlineModelEdit(request, id):
                 if request.FILES.get('file', False):
                     try:
                         if not os.path.exists(offlineModelFile):
-                            os.remove(os.environ.get('PROJECT_FOLDER','') + offlineModelFile)
+                            os.remove(os.environ.get('PROJECT_FOLDER','') + '/' + offlineModelFile)
                         else:
                             os.remove(offlineModelFile)
                     except Exception as e:
-                        print('Failed to remove old Offline Model File')
-                        messages.info('Failed to remove old Offline Model File')
+                        print('Failed to remove old Offline Model File: ' + str(offlineModelFile))
+                        messages.info(request, 'Failed to remove old Offline Model File')
 
                 instance = form.save(commit=False)
                 instance.offline_model_labels = json.dumps(request.POST.getlist('offline_model_labels'))
