@@ -37,7 +37,7 @@
                                 <tr>
                                     <td>{{object_type.name|title}}</td>
                                     <td>{{object_type.project.project_name|title|default:'<i class="fas fa-exclamation-triangle text-warning"></i> &nbsp; No Project'}}</td>
-                                    <td>{{object_type.created_by.full_name|default:''}}</td>
+                                    <td>{{object_type.created_by.full_name|default:'User'}}</td>
                                     {% if user.is_admin %}
                                     <td class="table-options" style="min-width: 95px;">
                                         <a onclick="deleteDataWriteConfirm(event, 'form-{{ object_type.id }}', 'Object Type')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.delete' object_type.id %}" class="btn text-secondary px-0">

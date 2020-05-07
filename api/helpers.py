@@ -527,9 +527,13 @@ def quick_test_offline_image(image_file, classifier):
         try:
             print('----running saved offline model .py------')
             print(str(saved_model))
-            import importlib
+            import importlib, inspect
             loader = importlib.machinery.SourceFileLoader('model', saved_model)
             handle = loader.load_module('model')
+            print('----required import modules in .py----')
+            print([str(i[0]) for i in inspect.getmembers(handle, inspect.ismodule )])
+            print('--------------------------------------')
+
             result = handle.run(img, offlineModelLabels) # Saved Model .py must have run function (see readme.md in /api)
             if type(result) is not list or len(result) <= 0:
                 result = [[]]

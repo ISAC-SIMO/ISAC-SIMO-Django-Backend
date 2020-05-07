@@ -35,7 +35,7 @@
                                     <td title="{{model.offline_model_labels|default:"No Labels Provided"}}" data-toggle="tooltip" data-placement="right">{{model.name}}</td>
                                     <td>{{model.model_type|title}}</td>
                                     <td>{{model.model_format}}</td>
-                                    <td>{{model.created_by.full_name}}</td>
+                                    <td>{{model.created_by.full_name|default:'User'}}</td>
                                     <td>{{model.created_at}}</td>
                                     {% if user.is_admin %}
                                     <td class="table-options" style="min-width: 95px;">
@@ -49,6 +49,11 @@
                                             <a title="Download {{model.filename}}" data-toggle="tooltip" data-placement="top" href="{{model.file.url}}" download class="btn text-secondary px-0">
                                                 <i class="fas fa-file-download text-info"></i>
                                             </a>
+                                            {% if model.model_format in 'py' %}
+                                                <a title="Check Dependencies" data-toggle="tooltip" data-placement="top" onclick="atopost(event, '{% url 'offline.model.dependencies' model.id %}', '{{csrf_token}}')" href="#!" class="btn text-secondary px-0">
+                                                    <i class="fas fa-code-branch text-info"></i>
+                                                </a>
+                                            {% endif %}
                                         {% endif %}
                                         <form action="{% url 'offline.model.delete' model.id %}" method="POST" id="offline-model-{{ model.id }}" class="d-inline">
                                             {% csrf_token %}

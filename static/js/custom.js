@@ -159,6 +159,34 @@ function simpleConfirm(event, to, text, download){
     $('.swal2-cancel').focus();
 }
 
+function atopost(event, to, csrf_token){
+    event.preventDefault();
+    Pace.restart();
+    $.ajax({
+        type: "POST",
+        url: to,
+        data: {'csrfmiddlewaretoken': csrf_token},
+        dataType: "json",
+        success: function(res) {
+            Swal.fire({
+                'title': res.message?res.message:'Success',
+                'html': res.data
+            })
+        },
+        error: function(err) {
+            if(err.responseJSON){
+                Swal.fire({
+                    'title': err.responseJSON.message?err.responseJSON.message:'Failed',
+                })
+            }else{
+                Swal.fire({
+                    'title': 'Failed',
+                })
+            }
+        },
+    });
+}
+
 // TO TIGGER SWAL INPUT FOR go/nogo verify and type
 function verifyImage(event, id, result, score, object_type, verified, url, retrained, pipeline_status, csrf){
     var html = '<form action="'+url+'" id="image_file_verify" method="POST">'+

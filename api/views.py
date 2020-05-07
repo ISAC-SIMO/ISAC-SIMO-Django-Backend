@@ -742,7 +742,7 @@ def offlineModelEdit(request, id):
                 return render(request,"offline_model/create.html",{'form':form, 'offlineModel':offlineModel})
 
         return redirect("offline.model.list")
-    except(Projects.DoesNotExist):
+    except(OfflineModel.DoesNotExist):
         messages.error(request, "Invalid Offline Model attempted to Edit")
         return redirect("offline.model.list")
 
@@ -760,9 +760,37 @@ def offlineModelDelete(request, id):
         else:
             messages.error(request, 'Failed to Delete!')
             return redirect('offline.model.list')
-    except(Projects.DoesNotExist):
+    except(OfflineModel.DoesNotExist):
         messages.error(request, "Invalid Offline Model attempted to Delete")
         return redirect("offline.model.list")
+
+#############################################
+# SHOW .py Offline Local Model Dependencies #
+@user_passes_test(is_admin, login_url=login_url)
+def offlineModelDependencies(request, id):
+    try:
+        if request.method == "POST":
+            offlineModel = OfflineModel.objects.get(id=id)
+            saved_model = None
+            if not os.path.exists(os.path.join('media/offline_models/')):
+                saved_model = os.environ.get('PROJECT_FOLDER','') + '/media/offline_models/'+offlineModel.filename()
+            else:
+                saved_model = os.path.join('media/offline_models/', offlineModel.filename())
+            
+            if offlineModel.model_format in ('py') and saved_model:
+                import importlib, inspect
+                loader = importlib.machinery.SourceFileLoader('model', saved_model)
+                handle = loader.load_module('model')
+                deps = ', '.join(str(i[0]) for i in inspect.getmembers(handle, inspect.ismodule ))
+                return JsonResponse({'message':'Dependencies Loaded', 'data':deps}, status=200)
+            else:
+                return JsonResponse({'message':'Invalid Type (Dependencies can be checked only with py format)'}, status=404)
+        else:
+            return JsonResponse({'message':'Invalid Request'}, status=404)
+    except(OfflineModel.DoesNotExist):
+        return JsonResponse({'message':'Offline Model Not Found'}, status=404)
+    except Exception as e:
+        return JsonResponse({'message':'Failed to Check Dependencies'}, status=500)
 
 #########################
 # Clean Temporary Files #
@@ -874,7 +902,7 @@ def terminal(request):
     if request.method == "GET":
         return render(request, 'terminal.html', {'cmd_list':cmd_list})
     elif request.method == "POST":
-        print('User id ' + str(request.user.id) + ' - ' + request.user.full_name + ' accessed the terminal')
+        print('User id ' + str(request.user.id) + ' - ' + str(request.user.full_name) + ' accessed the terminal')
         cmd = request.POST.get('cmd','')
         # Split multiline to single line
         cmd = cmd.splitlines()[0]
