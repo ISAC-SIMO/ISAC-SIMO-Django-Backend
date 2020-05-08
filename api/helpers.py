@@ -7,6 +7,7 @@ from importlib import reload
 from zipfile import ZipFile
 
 import filetype
+import mistune
 import requests
 from django.conf import settings
 from django.core.files.uploadedfile import InMemoryUploadedFile
@@ -25,6 +26,8 @@ import random
 from api.models import Classifier
 from django.contrib import messages
 from projects.models import Projects
+from django.http import HttpResponse
+from django.shortcuts import redirect
 
 
 def reload_classifier_list():
@@ -1205,3 +1208,24 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
     else:
         print('FAILED TO TEST - Check Token, Classifier ids and file existence.')
         return False
+
+# request: html request, path: path to file (e.g. api/README.md)[Never use '/' before the path like /api]
+def markdownToHtml(request=None, path=None, title="Information Document"):
+    try:
+        if path:
+            if not os.path.exists(os.path.join(path)):
+                location = os.environ.get('PROJECT_FOLDER','') + '/' + path
+            else:
+                location = os.path.join('api/README.md')
+            
+            html = '<html><head><title>'+title+'</title><meta charset="utf-8"><link rel="icon" type="image/png" href="/static/dist/img/favicon-32x32.png" sizes="32x32" /><link rel="icon" type="image/png" href="/static/dist/img/favicon-16x16.png" sizes="16x16" /></head><link rel="stylesheet" href="/static/dist/css/adminlte.min.css"/><body class="p-3">'
+            html = html + mistune.html(open(location, "r").read())
+            html = html + '</body></html>'
+            return HttpResponse(html, 'text/html')
+        else:
+            return redirect('dashboard')
+    except Exception as e:
+        print(e)
+        if request:
+            messages.info(request, 'Failed to open Readme Help')
+        return redirect('offline.model.create')

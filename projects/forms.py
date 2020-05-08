@@ -29,6 +29,6 @@ class ProjectForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(ProjectForm, self).__init__(*args, **kwargs)
         self.fields['detect_model'].help_text = 'Make sure the Objects for this model are created <a href="/app/watson/object/list">Here</a><br/>And add required Classifiers for those model <a href="/app/watson/classifier/create">Here</a>'
-        self.fields['offline_model'].help_text = 'If Offline Model is provided it is given 1st priority. <br/>Add Offline Model <a href="/app/offline_model/create">Here</a>'
+        self.fields['offline_model'].help_text = 'If Offline Object-Detect Model is provided it is given 1st priority over online model. <br/>Add Offline Model <a href="/app/offline_model/create">Here</a>'
         self.fields['offline_model'].queryset = OfflineModel.objects.filter(model_type='OBJECT_DETECT')
         self.fields['offline_model'].empty_label = ''

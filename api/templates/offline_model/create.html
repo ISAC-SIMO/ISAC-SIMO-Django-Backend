@@ -30,7 +30,7 @@
                 <div class="card">
                     <div class="card-body">
                         {% load crispy_forms_tags %}
-
+                        <a href="{% url 'offline.model.readme' %}" target="_blank"><button title="Click to View useful Info" data-toggle="tooltip" data-placement="left" class="btn btn-sm px-0 text-info float-right"><i class="fa fa-question-circle"></i> Readme</button></a>
                         <form action="{% if request.resolver_match.url_name == 'offline.model.edit' %}{% url 'offline.model.edit' offlineModel.id %}{% else %}{% url 'offline.model.create' %}{% endif %}" method="POST" class="form-group" enctype="multipart/form-data">
                             {% csrf_token %}
                               {{ form|crispy }}

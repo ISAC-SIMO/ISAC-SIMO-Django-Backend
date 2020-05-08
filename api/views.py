@@ -9,6 +9,7 @@ from http.client import HTTPResponse
 from importlib import reload
 
 import filetype
+import mistune
 from django.conf import settings
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -26,9 +27,7 @@ from rest_framework.response import Response
 
 import isac_simo.classifier_list as classifier_list
 from api.forms import OfflineModelForm
-from api.helpers import (classifier_detail, create_classifier, object_detail,
-                         quick_test_image, quick_test_offline_image,
-                         retrain_image, test_image)
+from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_image, quick_test_offline_image, retrain_image, test_image
 from api.models import Classifier, ObjectType, OfflineModel
 from api.serializers import (ImageSerializer, UserSerializer,
                              VideoFrameSerializer)
@@ -791,6 +790,12 @@ def offlineModelDependencies(request, id):
         return JsonResponse({'message':'Offline Model Not Found'}, status=404)
     except Exception as e:
         return JsonResponse({'message':'Failed to Check Dependencies'}, status=500)
+
+###########################################
+# View Readme md file from /api/README.md #
+@user_passes_test(is_admin, login_url=login_url)
+def offlineModelReadme(request):
+    return markdownToHtml(request, 'api/README.md', 'README.md - Offline Model & API')
 
 #########################
 # Clean Temporary Files #

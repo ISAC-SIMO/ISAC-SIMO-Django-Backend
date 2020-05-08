@@ -84,3 +84,4 @@ git+https://github.com/robolyst/streetview#egg=streetview
 # tensorflow==2.2.0rc3
 Theano==1.0.4
 Keras==2.3.1
+mistune==2.0.0a4
