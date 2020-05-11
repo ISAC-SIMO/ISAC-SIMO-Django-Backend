@@ -220,20 +220,40 @@ def detect_image(image_file, detect_model, offline=False):
             allDetected = []
             if res.get('data', False) and len(res.get('data')) > 0: # If res.data exists
                 resdata = sorted(res.get('data'), key=itemgetter('score'), reverse=True)
-                allDetected.append({ # add 0th item to default image_file
-                    "object_type": resdata[0].get('class'),
-                    'image_file': image_file,
-                    'temp_image': file_url,
-                })
 
-                for data in resdata[1:]: # from 1 (0 already added with default image_file above)
+                i = 0
+                for data in resdata:
                     try:
                         if data.get('class', False) and data.get('score', False) and float(data.get('score')) >= MIN_SCORE_REQUIRED:
+                            # Open the file_url image
                             img = Image.open(file_url)
                             img = img.convert('RGB')
                             w, h = img.size
                             if data.get('location', False) and data.get('location').get('left', False) and data.get('location').get('top', False) and data.get('location').get('width', False) and data.get('location').get('height', False):
                                 img = img.crop(( data.get('location').get('left'), data.get('location').get('top'), data.get('location').get('width'), data.get('location').get('height') ))
+                                # Crop if required
+                            # Save to temporary for temp use
+                            filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
+                            if not os.path.exists(os.path.join('media/temp/')):
+                                saveto = os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename
+                            else:
+                                saveto = os.path.join('media/temp/', filename)
+                            
+                            img.save(saveto, format='JPEG', quality=90)
+
+                            # Only for 1st detect (update original image_file & for other new other_image_file is created)
+                            if i == 0:
+                                allDetected.append({ # add 0th item to default image_file
+                                    "object_type": data.get('class'),
+                                    'image_file': image_file,
+                                    'temp_image': saveto,
+                                })
+                                i += 1
+                                continue
+
+                            i += 1
+
+                            # In Memory image used to create ImageFile Model for new detect model result
                             output = io.BytesIO()
                             img.save(output, format='JPEG', quality=90)
                             output.seek(0)
@@ -245,13 +265,6 @@ def detect_image(image_file, detect_model, offline=False):
                             }
                             other_image_file = ImageFile.objects.create(image=image_file.image, file=memImage, object_type=data.get('class'), pipeline_status=json.dumps(pipeline_status))
 
-                            filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
-                            if not os.path.exists(os.path.join('media/temp/')):
-                                saveto = os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename
-                            else:
-                                saveto = os.path.join('media/temp/', filename)
-                            
-                            img.save(saveto, format='JPEG', quality=90)
                             img.close()
 
                             allDetected.append({
@@ -267,11 +280,7 @@ def detect_image(image_file, detect_model, offline=False):
             # Loop End for all score
             print(allDetected)
 
-            return {
-                'object_type': res.get('result',''),
-                'image_file': image_file,
-                'temp_image': file_url,
-            }
+            return allDetected
             
         else:
             return False
@@ -346,13 +355,11 @@ def detect_image(image_file, detect_model, offline=False):
                             # MULTIPLE OBJECT_TYPE ARE DETECTED THEN ALL ARE CROPPED AND SAVED AS IMAGE_FILE
                             # Loop through all ...[objects]
                             allDetected = []
-                            allDetected.append({ # add 0th item to default image_file
-                                'object_type': sorted_by_score[0]['object'].lower(),
-                                'image_file': image_file,
-                                'temp_image': saveto,
-                            })
+                            resized_image_open.close()
+                            os.remove(saveto)
+                            i = 0
 
-                            for data in sorted_by_score[1:]: # from 1 (0 already added with default image_file above)
+                            for data in sorted_by_score: # from 1 (0 already added with default image_file above)
                                 try:
                                     if data.get('object', False) and data.get('score', False) and float(data.get('score')) >= MIN_SCORE_REQUIRED:
                                         img = Image.open(file_url)
@@ -360,6 +367,28 @@ def detect_image(image_file, detect_model, offline=False):
                                         w, h = img.size
                                         if data.get('location', False) and data.get('location').get('left', False) and data.get('location').get('top', False) and data.get('location').get('width', False) and data.get('location').get('height', False):
                                             img = img.crop(( data.get('location').get('left'), data.get('location').get('top'), data.get('location').get('width'), data.get('location').get('height') ))
+                                        
+                                        filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
+                                        if not os.path.exists(os.path.join('media/temp/')):
+                                            saveto = os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename
+                                        else:
+                                            saveto = os.path.join('media/temp/', filename)
+                                        
+                                        img.save(saveto, format='JPEG', quality=90)
+
+                                        # Only for 1st detect (update original image_file & for other new other_image_file is created)
+                                        if i == 0:
+                                            allDetected.append({ # add 0th item to default image_file
+                                                'object_type': sorted_by_score[0]['object'].lower(),
+                                                'image_file': image_file,
+                                                'temp_image': saveto,
+                                            })
+                                            i += 1
+                                            continue
+
+                                        i += 1
+
+                                        # In Memory image used to create ImageFile Model for new detect model result
                                         output = io.BytesIO()
                                         img.save(output, format='JPEG', quality=90)
                                         output.seek(0)
@@ -370,6 +399,7 @@ def detect_image(image_file, detect_model, offline=False):
                                             'result': data.get('object')
                                         }
                                         other_image_file = ImageFile.objects.create(image=image_file.image, file=memImage, object_type=data.get('object'), pipeline_status=json.dumps(pipeline_status))
+
                                         img.close()
 
                                         allDetected.append({
@@ -386,11 +416,7 @@ def detect_image(image_file, detect_model, offline=False):
                             print(allDetected)
                             
                             # Return Object detected type
-                            return {
-                                'object_type': sorted_by_score[0]['object'].lower(),
-                                'image_file': image_file,
-                                'temp_image': saveto,
-                            }
+                            return allDetected
             
             resized_image_open.close()
             os.remove(saveto)
@@ -411,150 +437,170 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
     if not detected_as:
         detected_as = detect_image(image_file, detect_model, offline=offline)
     
-    if not detected_as:
+    if not detected_as or len(detected_as) <= 0:
         if save_to_path:
             os.remove(save_to_path)
         return False
-    
-    object_type = detected_as.get('object_type')
-    image_file = detected_as.get('image_file')
-    save_to_path = detected_as.get('temp_image')
-    
-    print('Trying ' + str(classifier_index) + ' No. Classifier for ' + object_type)
-    # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
-    check_and_get_classifier_ids = classifier_list.searchList(project,object_type,index=classifier_index)
-    classifier = Classifier.objects.filter(name=check_and_get_classifier_ids).all().first()
-    # IF Offline Model is in this Classifier
-    if classifier and classifier.offline_model:
-        res = test_offline_image(save_to_path, classifier.offline_model)
-        print(res)
-        if res:
-            pipeline_status = {}
-            try:
-                pipeline_status = json.loads(image_file.pipeline_status)
-            except Exception as e:
-                pipeline_status = {}
 
-            if res.get('score',False) and res.get('result',False): # Set Score and Result/Class
-                image_file.score = res.get('score')
-                image_file.result = res.get('result')
-                pipeline_status[check_and_get_classifier_ids] = {
-                    'score': res.get('score'),
-                    'result': res.get('result')
-                }
-                image_file.pipeline_status = json.dumps(pipeline_status)
-                image_file.tested = True
-                image_file.save()
-
-            # If nogo/nogos then run with next model pipe lopping through available classifier list
-            if res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos':
-                if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                    print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                    test_image(image_file, title, description, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file
-                else:
-                    print('No more Nogo pipeline')
-
-            if(classifier_index <= 0):
-                os.remove(save_to_path)
-            return True
-    
-    # Else IF Not Test in Online Model
-    elif ( os.path.exists(save_to_path) and settings.IBM_API_KEY 
-        and classifier_index < classifier_list.lenList(project,object_type)
-        and check_and_get_classifier_ids ):
-
-        # Authenticate the IBM Watson API
-        api_token = str(settings.IBM_API_KEY)
-        classifier_ids = check_and_get_classifier_ids
-        post_data = {'classifier_ids': classifier_ids, 'threshold': '0.6'}
-        auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-        print(auth_base)
-
-        post_header = {'Accept':'application/json','Authorization':auth_base}
+    failed = 0
+    passed = 0
+    for single_detected_as in detected_as:
+        object_type = single_detected_as.get('object_type')
+        image_file = single_detected_as.get('image_file')
+        save_to_path = single_detected_as.get('temp_image')
         
-        # Open the Temporarily Resized Image (save_to_path from param comes if looped through - NOTE: now comes from detected_at directly)
-        if save_to_path: # Comes from param on next recursion
-            resized_image_open = open(save_to_path, 'rb')
-        
-        post_files = {
-            'images_file': resized_image_open,
-        }
-
-        # Call the API
-        response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classify?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
-        status = response.status_code
-        try:
-            content = response.json()
-        except ValueError:
-            # IBM Response is BAD
-            print('IBM Response was BAD - (e.g. image too large)')
-            return False
-        
-        print(status)
-        print(content)
-        # If success save the data
-        if(status == 200 or status == '200' or status == 201 or status == '201'):
-            if(content['images'][0]['classifiers'][0]['classes']):
-                sorted_by_score = sorted(content['images'][0]['classifiers'][0]['classes'], key=lambda k: k['score'], reverse=True)
-                print(sorted_by_score)
-
+        print('Trying ' + str(classifier_index) + ' No. Classifier for ' + object_type)
+        # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
+        check_and_get_classifier_ids = classifier_list.searchList(project,object_type,index=classifier_index)
+        classifier = Classifier.objects.filter(name=check_and_get_classifier_ids).all().first()
+        # IF Offline Model is in this Classifier
+        if classifier and classifier.offline_model:
+            res = test_offline_image(save_to_path, classifier.offline_model)
+            print(res)
+            if res:
                 pipeline_status = {}
                 try:
                     pipeline_status = json.loads(image_file.pipeline_status)
                 except Exception as e:
                     pipeline_status = {}
 
-                if(sorted_by_score and sorted_by_score[0]): # Set Score and Result/Class
-                    image_file.score = sorted_by_score[0]['score']
-                    image_file.result = sorted_by_score[0]['class']
+                if res.get('score',False) and res.get('result',False): # Set Score and Result/Class
+                    image_file.score = res.get('score')
+                    image_file.result = res.get('result')
                     pipeline_status[check_and_get_classifier_ids] = {
-                        'score': sorted_by_score[0]['score'],
-                        'result': sorted_by_score[0]['class']
+                        'score': res.get('score'),
+                        'result': res.get('result')
                     }
                     image_file.pipeline_status = json.dumps(pipeline_status)
-                
-                image_file.tested = True
-                image_file.save()
+                    image_file.tested = True
+                    image_file.save()
 
                 # If nogo/nogos then run with next model pipe lopping through available classifier list
-                # NOTE: later classifier_list.py shall contain the recursion_list to hold results that might require re test
-                # e.g. if recursion_list.get('wall',[]) has nogo/nogos etc. then retest it etc...
-                if sorted_by_score[0]['class'].lower() == 'nogo' or sorted_by_score[0]['class'].lower() == 'nogos':
+                if res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos':
                     if classifier_index + 1 < classifier_list.lenList(project,object_type):
                         print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                        test_image(image_file, title, description, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file
+                        test_image(image_file, title, description, save_to_path, classifier_index + 1, single_detected_as, detect_model, project, offline) #save_to_path=temp file
                     else:
                         print('No more Nogo pipeline')
 
                 if(classifier_index <= 0):
-                    resized_image_open.close()
                     os.remove(save_to_path)
-                return True
+                # return True
+                passed += 1
+                continue
+        
+        # Else IF Not Test in Online Model
+        elif ( os.path.exists(save_to_path) and settings.IBM_API_KEY 
+            and classifier_index < classifier_list.lenList(project,object_type)
+            and check_and_get_classifier_ids ):
 
-        # visual_recognition = VisualRecognitionV3(
-        #     '2018-03-19',
-        #     iam_apikey='KEY_GOES_HERE'
-        # )
+            # Authenticate the IBM Watson API
+            api_token = str(settings.IBM_API_KEY)
+            classifier_ids = check_and_get_classifier_ids
+            post_data = {'classifier_ids': classifier_ids, 'threshold': '0.6'}
+            auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+            print(auth_base)
 
-        # with open(file_url, 'rb') as images_file:
-        #     classes = visual_recognition.classify(
-        #         images_file,
-        #         threshold='0.6',
-        #     classifier_ids='food').get_result()
-        # print(type(classes))
-        # print(classes['images'][0]['classifiers'][0]['classes'][0]['class'])
-        # print(classes['images'][0]['classifiers'][0]['classes'][0]['score'])
-        # print(json.dumps(classes, indent=2))
+            post_header = {'Accept':'application/json','Authorization':auth_base}
+            
+            # Open the Temporarily Resized Image (save_to_path from param comes if looped through - NOTE: now comes from detected_at directly)
+            if save_to_path: # Comes from param on next recursion
+                resized_image_open = open(save_to_path, 'rb')
+            
+            post_files = {
+                'images_file': resized_image_open,
+            }
 
-        # if classes:
-        #     image_file.tested = True
-        #     image_file.save()
-        #     return True
+            # Call the API
+            response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classify?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
+            status = response.status_code
+            try:
+                content = response.json()
+            except ValueError:
+                # IBM Response is BAD
+                print('IBM Response was BAD - (e.g. image too large)')
+                # return False
+                failed += 1
+                continue
+            
+            print(status)
+            print(content)
+            # If success save the data
+            if(status == 200 or status == '200' or status == 201 or status == '201'):
+                if(content['images'][0]['classifiers'][0]['classes']):
+                    sorted_by_score = sorted(content['images'][0]['classifiers'][0]['classes'], key=lambda k: k['score'], reverse=True)
+                    print(sorted_by_score)
+
+                    pipeline_status = {}
+                    try:
+                        pipeline_status = json.loads(image_file.pipeline_status)
+                    except Exception as e:
+                        pipeline_status = {}
+
+                    if(sorted_by_score and sorted_by_score[0]): # Set Score and Result/Class
+                        image_file.score = sorted_by_score[0]['score']
+                        image_file.result = sorted_by_score[0]['class']
+                        pipeline_status[check_and_get_classifier_ids] = {
+                            'score': sorted_by_score[0]['score'],
+                            'result': sorted_by_score[0]['class']
+                        }
+                        image_file.pipeline_status = json.dumps(pipeline_status)
+                    
+                    image_file.tested = True
+                    image_file.save()
+                    resized_image_open.close()
+
+                    # If nogo/nogos then run with next model pipe lopping through available classifier list
+                    # NOTE: later classifier_list.py shall contain the recursion_list to hold results that might require re test
+                    # e.g. if recursion_list.get('wall',[]) has nogo/nogos etc. then retest it etc...
+                    if sorted_by_score[0]['class'].lower() == 'nogo' or sorted_by_score[0]['class'].lower() == 'nogos':
+                        if classifier_index + 1 < classifier_list.lenList(project,object_type):
+                            print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                            test_image(image_file, title, description, save_to_path, classifier_index + 1, single_detected_as, detect_model, project, offline) #save_to_path=temp file
+                        else:
+                            print('No more Nogo pipeline')
+
+                    if(classifier_index <= 0):
+                        os.remove(save_to_path)
+                    # return True
+                    passed += 1
+                    continue
+
+            # visual_recognition = VisualRecognitionV3(
+            #     '2018-03-19',
+            #     iam_apikey='KEY_GOES_HERE'
+            # )
+
+            # with open(file_url, 'rb') as images_file:
+            #     classes = visual_recognition.classify(
+            #         images_file,
+            #         threshold='0.6',
+            #     classifier_ids='food').get_result()
+            # print(type(classes))
+            # print(classes['images'][0]['classifiers'][0]['classes'][0]['class'])
+            # print(classes['images'][0]['classifiers'][0]['classes'][0]['score'])
+            # print(json.dumps(classes, indent=2))
+
+            # if classes:
+            #     image_file.tested = True
+            #     image_file.save()
+            #     return True
+        else:
+            print('FAILED TO TEST - Check Token, Classifier ids and file existence.')
+            if(classifier_index <= 0):
+                if save_to_path:
+                    os.remove(save_to_path)
+            # return False
+            failed += 1
+            continue
+
+    print('Images tested in all Classifiers looping through all Object Detected')
+    print('Passed: '+str(passed))
+    print('Failed: '+str(failed))
+
+    if passed > 0 and failed < passed:
+        return True
     else:
-        print('FAILED TO TEST - Check Token, Classifier ids and file existence.')
-        if(classifier_index <= 0):
-            if save_to_path:
-                os.remove(save_to_path)
         return False
 
 def quick_test_image(image_file, classifier_ids):
