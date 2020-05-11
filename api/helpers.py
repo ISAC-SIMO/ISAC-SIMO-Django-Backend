@@ -23,11 +23,14 @@ import cv2
 import pathlib
 import numpy as np
 import random
-from api.models import Classifier
+from api.models import Classifier, ImageFile
 from django.contrib import messages
 from projects.models import Projects
 from django.http import HttpResponse
 from django.shortcuts import redirect
+from operator import itemgetter
+import io
+import sys
 
 
 def reload_classifier_list():
@@ -164,7 +167,8 @@ def test_offline_image(image_file, offline_model):
 
         data.append({
             "class": label,
-            "score": r
+            "score": r,
+            "location": result[1][i] if (len(result) > 1 and len(result[1]) > i and type(result[1][i]) == dict) else None
         })
         i += 1
 
@@ -187,6 +191,7 @@ def test_offline_image(image_file, offline_model):
 ## Detect Object ##
 ###################
 def detect_image(image_file, detect_model, offline=False):
+    MIN_SCORE_REQUIRED = 0.5
     # Find Image Path (used to open)
     file_url = str(os.path.abspath(os.path.dirname(__name__))) + image_file.file.url
     if not os.path.exists(file_url):
@@ -200,13 +205,74 @@ def detect_image(image_file, detect_model, offline=False):
         res = test_offline_image(file_url, detect_model)
         if res:
             image_file.object_type = res.get('result','')
+            pipeline_status = {}
+            # Add Pipeline detected detail (Note: old pipeline replaced if new detect model is called upon it)
+            pipeline_status['Detect Model: '] = {
+                'score': res.get('score'),
+                'result': res.get('result')
+            }
+            image_file.pipeline_status = json.dumps(pipeline_status)
             image_file.save()
             print(res.get('result','-Nothing Detected-'))
+
+            # MULTIPLE OBJECT_TYPE ARE DETECTED THEN ALL ARE CROPPED AND SAVED AS IMAGE_FILE
+            # Loop through all data[{class:'',score:''}]
+            allDetected = []
+            if res.get('data', False) and len(res.get('data')) > 0: # If res.data exists
+                resdata = sorted(res.get('data'), key=itemgetter('score'), reverse=True)
+                allDetected.append({ # add 0th item to default image_file
+                    "object_type": resdata[0].get('class'),
+                    'image_file': image_file,
+                    'temp_image': file_url,
+                })
+
+                for data in resdata[1:]: # from 1 (0 already added with default image_file above)
+                    try:
+                        if data.get('class', False) and data.get('score', False) and float(data.get('score')) >= MIN_SCORE_REQUIRED:
+                            img = Image.open(file_url)
+                            img = img.convert('RGB')
+                            w, h = img.size
+                            if data.get('location', False) and data.get('location').get('left', False) and data.get('location').get('top', False) and data.get('location').get('width', False) and data.get('location').get('height', False):
+                                img = img.crop(( data.get('location').get('left'), data.get('location').get('top'), data.get('location').get('width'), data.get('location').get('height') ))
+                            output = io.BytesIO()
+                            img.save(output, format='JPEG', quality=90)
+                            output.seek(0)
+                            memImage = InMemoryUploadedFile(output, 'ImageField', 'temp.jpg', 'image/jpeg', sys.getsizeof(output), None)
+                            pipeline_status = {}
+                            pipeline_status['Detect Model: '] = {
+                                'score': data.get('score'),
+                                'result': data.get('class')
+                            }
+                            other_image_file = ImageFile.objects.create(image=image_file.image, file=memImage, object_type=data.get('class'), pipeline_status=json.dumps(pipeline_status))
+
+                            filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
+                            if not os.path.exists(os.path.join('media/temp/')):
+                                saveto = os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename
+                            else:
+                                saveto = os.path.join('media/temp/', filename)
+                            
+                            img.save(saveto, format='JPEG', quality=90)
+                            img.close()
+
+                            allDetected.append({
+                                "object_type": data.get('class'),
+                                'image_file': other_image_file,
+                                'temp_image': saveto,
+                            })
+                    except Exception as e:
+                        print(e)
+                        print('--failing appending to allDetected other index of detection--')
+                        continue
+            
+            # Loop End for all score
+            print(allDetected)
+
             return {
                 'object_type': res.get('result',''),
                 'image_file': image_file,
                 'temp_image': file_url,
             }
+            
         else:
             return False
     else:
@@ -265,11 +331,59 @@ def detect_image(image_file, detect_model, offline=False):
                     if(content['images'][0]['objects']['collections'][0]['objects']):
                         sorted_by_score = sorted(content['images'][0]['objects']['collections'][0]['objects'], key=lambda k: k['score'], reverse=True)
                         print(sorted_by_score)
-                        if(sorted_by_score and sorted_by_score[0]): # Set Score
+                        if(sorted_by_score and sorted_by_score[0]): # Set Score`
                             image_file.object_type = sorted_by_score[0]['object']
+                            pipeline_status = {}
+                            # Add Pipeline detected detail (Note: old pipeline replaced if new detect model is called upon it)
+                            pipeline_status['Detect Model: '] = {
+                                'score': sorted_by_score[0]['score'],
+                                'result': sorted_by_score[0]['object']
+                            }
+                            image_file.pipeline_status = json.dumps(pipeline_status)
                             image_file.save()
-                            print(sorted_by_score[0]['object'])
                             resized_image_open.close()
+
+                            # MULTIPLE OBJECT_TYPE ARE DETECTED THEN ALL ARE CROPPED AND SAVED AS IMAGE_FILE
+                            # Loop through all ...[objects]
+                            allDetected = []
+                            allDetected.append({ # add 0th item to default image_file
+                                'object_type': sorted_by_score[0]['object'].lower(),
+                                'image_file': image_file,
+                                'temp_image': saveto,
+                            })
+
+                            for data in sorted_by_score[1:]: # from 1 (0 already added with default image_file above)
+                                try:
+                                    if data.get('object', False) and data.get('score', False) and float(data.get('score')) >= MIN_SCORE_REQUIRED:
+                                        img = Image.open(file_url)
+                                        img = img.convert('RGB')
+                                        w, h = img.size
+                                        if data.get('location', False) and data.get('location').get('left', False) and data.get('location').get('top', False) and data.get('location').get('width', False) and data.get('location').get('height', False):
+                                            img = img.crop(( data.get('location').get('left'), data.get('location').get('top'), data.get('location').get('width'), data.get('location').get('height') ))
+                                        output = io.BytesIO()
+                                        img.save(output, format='JPEG', quality=90)
+                                        output.seek(0)
+                                        memImage = InMemoryUploadedFile(output, 'ImageField', 'temp.jpg', 'image/jpeg', sys.getsizeof(output), None)
+                                        pipeline_status = {}
+                                        pipeline_status['Detect Model: '] = {
+                                            'score': data.get('score'),
+                                            'result': data.get('object')
+                                        }
+                                        other_image_file = ImageFile.objects.create(image=image_file.image, file=memImage, object_type=data.get('object'), pipeline_status=json.dumps(pipeline_status))
+                                        img.close()
+
+                                        allDetected.append({
+                                            "object_type": data.get('object'),
+                                            'image_file': other_image_file,
+                                            'temp_image': saveto,
+                                        })
+                                except Exception as e:
+                                    print(e)
+                                    print('--failing appending to allDetected other index of detection [online model]--')
+                                    continue
+                            
+                            # # Loop End for all score
+                            print(allDetected)
                             
                             # Return Object detected type
                             return {
@@ -340,6 +454,8 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                 else:
                     print('No more Nogo pipeline')
 
+            if(classifier_index <= 0):
+                os.remove(save_to_path)
             return True
     
     # Else IF Not Test in Online Model
@@ -436,6 +552,9 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
         #     return True
     else:
         print('FAILED TO TEST - Check Token, Classifier ids and file existence.')
+        if(classifier_index <= 0):
+            if save_to_path:
+                os.remove(save_to_path)
         return False
 
 def quick_test_image(image_file, classifier_ids):
@@ -1218,7 +1337,7 @@ def markdownToHtml(request=None, path=None, title="Information Document"):
             else:
                 location = os.path.join('api/README.md')
             
-            html = '<html><head><title>'+title+'</title><meta charset="utf-8"><link rel="icon" type="image/png" href="/static/dist/img/favicon-32x32.png" sizes="32x32" /><link rel="icon" type="image/png" href="/static/dist/img/favicon-16x16.png" sizes="16x16" /></head><link rel="stylesheet" href="/static/dist/css/adminlte.min.css"/><body class="p-3">'
+            html = '<html><head><title>'+title+'</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/static/dist/img/favicon-32x32.png" sizes="32x32" /><link rel="icon" type="image/png" href="/static/dist/img/favicon-16x16.png" sizes="16x16" /></head><link rel="stylesheet" href="/static/dist/css/adminlte.min.css"/><body class="p-3">'
             html = html + mistune.html(open(location, "r").read())
             html = html + '</body></html>'
             return HttpResponse(html, 'text/html')
