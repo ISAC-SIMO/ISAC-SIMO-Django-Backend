@@ -229,8 +229,8 @@ def detect_image(image_file, detect_model, offline=False):
                             img = Image.open(file_url)
                             img = img.convert('RGB')
                             w, h = img.size
-                            if data.get('location', False) and data.get('location').get('left', False) and data.get('location').get('top', False) and data.get('location').get('width', False) and data.get('location').get('height', False):
-                                img = img.crop(( data.get('location').get('left'), data.get('location').get('top'), data.get('location').get('width'), data.get('location').get('height') ))
+                            if data.get('location', False):
+                                img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('width', w), data.get('location').get('height', h) ))
                                 # Crop if required
                             # Save to temporary for temp use
                             filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
@@ -365,8 +365,8 @@ def detect_image(image_file, detect_model, offline=False):
                                         img = Image.open(file_url)
                                         img = img.convert('RGB')
                                         w, h = img.size
-                                        if data.get('location', False) and data.get('location').get('left', False) and data.get('location').get('top', False) and data.get('location').get('width', False) and data.get('location').get('height', False):
-                                            img = img.crop(( data.get('location').get('left'), data.get('location').get('top'), data.get('location').get('width'), data.get('location').get('height') ))
+                                        if data.get('location', False):
+                                            img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('width', w), data.get('location').get('height', h) ))
                                         
                                         filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
                                         if not os.path.exists(os.path.join('media/temp/')):
