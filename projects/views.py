@@ -10,6 +10,8 @@ from main.models import User
 from .forms import ProjectForm
 from .models import Projects
 import isac_simo.classifier_list as classifier_list
+from api.helpers import quick_test_detect_image
+import json
 
 def reload_classifier_list():
     try:
@@ -90,4 +92,40 @@ def deleteProject(request, id):
             return redirect('viewprojects')
     except(Projects.DoesNotExist):
         messages.error(request, "Invalid Project attempted to Delete")
+        return redirect("viewprojects")
+
+# Test Offline Detect Project
+@user_passes_test(is_admin, login_url=login_url)
+def testOfflineProject(request, id):
+    try:
+        project = Projects.objects.get(id=id)
+        if request.method == "GET":
+            test_result = request.session.pop('test_result', False)
+            return render(request, 'test.html', {"project": project, "test_result": test_result})
+        elif request.method == "POST":
+            try:
+                # IF THIS PROJECT HAS OFFLINE MODEL THEN
+                if project.offline_model:
+                    quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.offline_model, offline=True)
+                # ELSE ONLINE MODEL THEN
+                else:
+                    quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False)
+                
+                if quick_test_image_result and len(quick_test_image_result) > 0:
+                    request.session['test_result'] = json.dumps(quick_test_image_result, indent=4)
+                    messages.success(request, 'Project Detect Model Test Success.')
+                    messages.success(request, 'Score: '+str(quick_test_image_result[0]['pipeline']['score'])+' | Class: '+str(quick_test_image_result[0]['pipeline']['result']))
+                else:
+                    messages.error(request, 'Unable to Test (Make sure Project Model is valid and if online then is in ready state)')
+
+                return redirect('testofflineproject', id=id)
+            except Exception as e:
+                print(e)
+                messages.error(request, 'Project Detect Model Failed')
+                return redirect('testofflineproject', id=id)
+
+        messages.error(request, 'Invalid Project Test Attempt.')
+        return redirect('viewprojects')
+    except(Projects.DoesNotExist):
+        messages.error(request, "Invalid Project attempted to Test")
         return redirect("viewprojects")

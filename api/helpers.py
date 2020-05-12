@@ -741,6 +741,173 @@ def quick_test_offline_image(image_file, classifier):
     # tf.reset_default_graph()
     return {'data':data, 'score':score, 'result':result_type}
 
+# QUICK TEST DETECT MODE:
+def quick_test_detect_image(image_file, detect_model, offline=False):
+    MIN_SCORE_REQUIRED = 0.5
+    # Find Image Path (used to open)
+    file_url = None
+
+    if type(image_file) is InMemoryUploadedFile:
+        file_url = image_file.open()
+    else:
+        file_url = open(image_file.temporary_file_path(), 'rb')
+    print('Detecting Image Object...Test')
+    saveto = None
+
+    # IF Is offline Model and detect model is given (detect_model = offline_model object)
+    if offline and detect_model and file_url:
+        print('Detecting Image Object [Offline Model]...')
+        res = test_offline_image(file_url, detect_model)
+        if res:
+            # MULTIPLE OBJECT_TYPE ARE DETECTED THEN ALL ARE CROPPED AND SAVED AS IMAGE_FILE
+            # Loop through all data[{class:'',score:''}]
+            allDetected = []
+            if res.get('data', False) and len(res.get('data')) > 0: # If res.data exists
+                resdata = sorted(res.get('data'), key=itemgetter('score'), reverse=True)
+
+                i = 0
+                for data in resdata:
+                    try:
+                        if data.get('class', False) and data.get('score', False) and float(data.get('score')) >= MIN_SCORE_REQUIRED:
+                            if not saveto or data.get('location', False):
+                                # Open the file_url image
+                                img = Image.open(file_url)
+                                img = img.convert('RGB')
+                                w, h = img.size
+                                if data.get('location', False):
+                                    img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('width', w), data.get('location').get('height', h) ))
+                                    # Crop if required
+                                # Save to temporary for temp use
+                                filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
+                                if not os.path.exists(os.path.join('media/temp/')):
+                                    saveto = os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename
+                                else:
+                                    saveto = os.path.join('media/temp/', filename)
+                                
+                                img.save(saveto, format='JPEG', quality=90)
+
+                            pipeline_status = {}
+                            pipeline_status = {
+                                'score': data.get('score'),
+                                'result': data.get('class'),
+                                'location': data.get('location',{})
+                            }
+
+                            # Only for 1st detect (update original image_file & for other new other_image_file is created)
+                            allDetected.append({ # add 0th item to default image_file
+                                "object_type": data.get('class'),
+                                'temp_image': saveto+'?'+str(i),
+                                'pipeline': pipeline_status
+                            })
+
+                            i += 1
+                            img.close()
+                    except Exception as e:
+                        print(e)
+                        print('--failing appending to allDetected other index of detection--')
+                        continue
+            
+            # Loop End for all score
+            print(allDetected)
+            return allDetected
+            
+        else:
+            return False
+    else:
+        # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
+        if file_url and settings.IBM_API_KEY and (classifier_list.detect_object_model_id or detect_model):
+            object_id = classifier_list.detect_object_model_id
+            if detect_model:
+                object_id = detect_model
+
+            # Authenticate the IBM Watson API
+            api_token = str(settings.IBM_API_KEY)
+            post_data = {'collection_ids': object_id, 'threshold': '0.6', 'features':'objects'}
+            auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+            post_header = {'Accept':'application/json','Authorization':auth_base}
+            resized_image_open = file_url
+            
+            post_files = {
+                'images_file': resized_image_open,
+            }
+
+            # Call the API
+            response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v4/analyze?version=2019-02-11', files=post_files, headers=post_header, data=post_data)
+            status = response.status_code
+            try:
+                content = response.json()
+            except ValueError:
+                # IBM Response is BAD
+                print('IBM Response was BAD (During Detect) - (e.g. image too large)')
+                return False
+            
+            print(status)
+            print(content)
+            # If success save the data
+            if(status == 200 or status == '200' or status == 201 or status == '201'):
+                if "collections" in content['images'][0]['objects']:
+                    if(content['images'][0]['objects']['collections'][0]['objects']):
+                        sorted_by_score = sorted(content['images'][0]['objects']['collections'][0]['objects'], key=lambda k: k['score'], reverse=True)
+                        print(sorted_by_score)
+                        if(sorted_by_score and sorted_by_score[0]): # Set Score`
+                            # MULTIPLE OBJECT_TYPE ARE DETECTED THEN ALL ARE CROPPED AND SAVED AS IMAGE_FILE
+                            # Loop through all ...[objects]
+                            allDetected = []
+                            i = 0
+
+                            for data in sorted_by_score: # from 1 (0 already added with default image_file above)
+                                try:
+                                    if data.get('object', False) and data.get('score', False) and float(data.get('score')) >= MIN_SCORE_REQUIRED:
+                                        if not saveto or data.get('location', False):
+                                            img = Image.open(file_url)
+                                            img = img.convert('RGB')
+                                            w, h = img.size
+                                            if data.get('location', False):
+                                                img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('width', w), data.get('location').get('height', h) ))
+                                            
+                                            filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
+                                            if not os.path.exists(os.path.join('media/temp/')):
+                                                saveto = os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename
+                                            else:
+                                                saveto = os.path.join('media/temp/', filename)
+                                            
+                                            img.save(saveto, format='JPEG', quality=90)
+                                            img.close()
+
+                                        pipeline_status = {}
+                                        # Add Pipeline detected detail (Note: old pipeline replaced if new detect model is called upon it)
+                                        pipeline_status = {
+                                            'score': data.get('score'),
+                                            'result': data.get('object'),
+                                            'location': data.get('location', {})
+                                        }
+
+                                        # Only for 1st detect (update original image_file & for other new other_image_file is created)
+                                        allDetected.append({ # add 0th item to default image_file
+                                            "object_type": data.get('object'),
+                                            'temp_image': saveto+'?'+str(i),
+                                            'pipeline': pipeline_status
+                                        })
+
+                                        i += 1
+                                except Exception as e:
+                                    print(e)
+                                    print('--failing appending to allDetected other index of detection [online model]--')
+                                    continue
+                            
+                            # # Loop End for all score
+                            print(allDetected)
+                            
+                            # Return Object detected type
+                            return allDetected
+            
+            resized_image_open.close()
+            print('Object Detect False, either bad response, no index, bad format array, sorted score empty etc.')
+            return False
+        else:
+            print('FAILED TO Detect Object - Check Token, Object Detect Model id and file existence.')
+            return False
+
 #################################################
 # ZIP and Pass Images to IBM watson for re-training
 # Funcion receives the image file list, object(wall,rebar,etc.) and result(go,nogo,etc.)

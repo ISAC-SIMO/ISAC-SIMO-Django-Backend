@@ -40,13 +40,16 @@
                                             <a title="Edit" data-toggle="tooltip" data-placement="left" href="{% url 'updateproject' project.id %}" class="btn text-secondary px-0">
                                                 <i class="fa fa-edit"></i>
                                             </a>
-                                            <a onclick="deleteData(event, 'form-{{ project.id }}', 'Project')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'deleteproject' project.id %}" class="btn text-secondary px-0">
+                                            <a onclick="deleteDataWriteConfirm(event, 'form-{{ project.id }}', 'Project')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'deleteproject' project.id %}" class="btn text-secondary px-0">
                                                 <i class="fa fa-trash text-danger"></i>
+                                            </a>
+                                            <a title="Test Image with Detect Model" data-toggle="tooltip" data-placement="left" href="{% url 'testofflineproject' project.id %}" class="btn text-secondary px-0">
+                                                <i class="far fa-file-image text-secondary"></i>
                                             </a>
                                             <a data-html="true" title="View Object Type for {{project.project_name|title}} <br/> {{project.object_types.count}} Detect Object Available" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.list' %}?project={{project.id}}" class="btn text-secondary px-0">
                                                 <i class="fa fa-arrow-right text-info"></i>
                                             </a>
-                                            <form action="{% url 'deleteproject' project.id %}" id="form-{{ project.id }}" method="post" class="d-inline">
+                                            <form action="{% url 'deleteproject' project.id %}" id="form-{{ project.id }}" class="d-inline">
                                                 {% csrf_token %}
                                             </form>
                                         </td>

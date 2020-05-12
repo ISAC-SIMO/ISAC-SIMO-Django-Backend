@@ -1,0 +1,73 @@
+{% extends 'master/base.html' %}
+
+{% block title %} Test Object Detect Model - Single Image Test {% endblock title %}
+{% block dashboard_title1 %} Test Object Detect Model {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} Test Object Detect Model {% endblock dashboard_title2 %}
+{% load static %}
+
+{% block content %}
+    <div class="row">
+        <form action="{% url 'testofflineproject' project.id %}" id="detect_model_form" method="POST" class="col-12" enctype="multipart/form-data">
+            {% csrf_token %}
+            <div class="card">
+                <div class="card-body">
+                    {% if test_result %}
+                        <hr/>
+                        <pre style="border-left: 2px solid salmon;" id="result">{{test_result|default:'No Data'}}</pre>
+                        <hr/>
+                        <div class="form-group mt-1" id="clean-image-btn">
+                            <a href="#!" onclick="simpleConfirm(event,'{% url 'watson.cleantemp' %}','Clean Temporary Files? Make sure no API and process are running at the moment.')" class="ml-2 mt-2 btn btn-danger btn-sm">Clean Temporary Images</a>
+                        </div>
+                    {% endif %}
+
+                    <div class="form-group">
+                        <label for="name" class="col-sm-5 col-md-4 col-form-label">Project:</label>
+                        <div class="col-sm-12 col-md-4">
+                            <h5>{{project.project_name}}</h5>
+                            {% if project.offline_model %}
+                                <small><b>Offline Model:</b> {{project.offline_model.name}}</small>
+                                <br/>
+                                <small><b>Lables:</b> {{project.offline_model.offline_model_labels}}</small>
+                                <br/>
+                                <small><b>Model Format:</b> {{project.offline_model.model_format}}</small>
+                            {% else %}
+                                <small><b>Online Model:</b> {{project.detect_model|default:'Default Detection'}}</small>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="file" class="col-sm-5 col-md-4 col-form-label">Image*</label>
+                        <div class="col-sm-12 col-md-4">
+                            <input type="file" id="file" name="file" required accept="image/x-png,image/jpeg"/>
+                        </div>
+                    </div>
+                    {% if not project.offline_model %}
+                    <small class="col-sm-12 form-text text-muted">
+                        Make sure the Status for this classifier is "ready" <a href="{% url 'watson.object' %}">in here</a>.
+                    </small>
+                    {% endif %}
+                    <hr/>
+                    <div class="form-group">
+                        <button type="submit" id="detect_model_btn" class="ml-2 btn btn-primary">Test Detect Model</button>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+{% endblock content %}
+
+{% block script %}
+    <script>
+        $('#detect_model_form').on('submit', function(event){
+            Pace.restart()
+            $('#detect_model_btn').attr('disabled','disabled')
+        })
+
+        if($('#result').html()){
+            var links = $('#result').html().match(/media\/temp\/[0-9a-z.?]+/g)
+            for(var i = 0 ; i < links.length ; i++){
+                $('#result').html($('#result').html().replace(links[i], '<a href="/'+links[i]+'" target="_blank">Image File</a>'))
+            }
+        }
+    </script>
+{% endblock script %}
