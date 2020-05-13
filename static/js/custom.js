@@ -235,7 +235,7 @@ function verifyImage(event, id, result, score, object_type, verified, url, retra
     $('#test-result').blur()
 }
 
-// Tooltip resets (kinda needed)
+// Tooltip resets (kinda needed) & register serviceworker
 $(function () {
     $(".table-options a").tooltip();
     $("[data-toggle='tooltip']").tooltip();
@@ -262,6 +262,14 @@ $(function () {
                     swInstalling.addEventListener('statechange', evt => {
                         if(swInstalling.state == 'installed'){
                             console.log('new sw version found and installed')
+                            if(localStorage.getItem('not-first-dashboard')){
+                                localStorage.setItem('not-first-dashboard', new Date().toLocaleString())
+                                if(confirm('New Version Available for this application.\nDo you want to reload now?')){
+                                    location.reload()
+                                }
+                            }else{
+                                localStorage.setItem('not-first-dashboard', new Date().toLocaleString())
+                            }
                         }
                     })
                 })

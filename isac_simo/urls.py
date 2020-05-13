@@ -43,7 +43,7 @@ urlpatterns = [
     path('login/<int:id>', views.login_user, name="loginpost"),
     path('register/', views.register, name="register"),
     path('logout/',  views.logout_user, name="logout"),
-    path('dashboard', views.home, name="dashboard"),
+    re_path(r'^dashboard/?$', views.home, name="dashboard"),
     path('pull', views.pull, name="pull"), # Pull used by circleci trigger to deploy
     path('users/', include('main.urls')),
     path('projects/', include('projects.urls')),

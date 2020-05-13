@@ -1,8 +1,9 @@
 /**
- * Version: 0.0.0.2
+ * Version: 0.0.0.3
  */
 
 const STATIC_CACHE = 'STATIC_CACHE_V1'
+const FONT_CACHE = 'FONT_CACHE_V1'
 const OFFLINE_ERROR_RESPONSE = {'data':'', 'error':'No Internet Connection Available'}
 const assets = [
     '/static/plugins/fontawesome-free/css/all.min.css','/static/plugins/pace-progress/themes/purple/pace-theme-minimal.css',
@@ -20,13 +21,13 @@ const assets = [
     '/static/plugins/tempusdominus-bootstrap-4/js/tempusdominus-bootstrap-4.min.js', '/static/plugins/summernote/summernote-bs4.min.js',
     '/static/plugins/overlayScrollbars/js/jquery.overlayScrollbars.min.js', '/static/plugins/datatables/jquery.dataTables.js',
     '/static/plugins/datatables-bs4/js/dataTables.bootstrap4.js', '/static/dist/js/adminlte.js', '/offline',
-    '/static/dist/img/logo.png',
+    '/static/dist/img/logo.png', '/static/plugins/fontawesome-free/webfonts/fa-solid-900.woff',
     'https://unpkg.com/leaflet@1.6.0/dist/leaflet.js', 'https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.css',
     'https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.Default.css', 'https://leaflet.github.io/Leaflet.markercluster/dist/leaflet.markercluster-src.js',
     'https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css', 'https://unpkg.com/leaflet@1.6.0/dist/leaflet.css', 
     'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css', 'https://cdn.jsdelivr.net/npm/vanilla-lazyload@15.1.1/dist/lazyload.min.js',
 ]
-console.log('Service Woker First Installation Initialized')
+console.log('Service Wokrer First Installation Initialized')
 
 self.addEventListener('install', evt => {
     // Precache static asset files
@@ -36,6 +37,7 @@ self.addEventListener('install', evt => {
             cache.addAll(assets).then(res => {
                 console.log('sw is installed')
                 console.log('prefetch cache OK')
+                self.skipWaiting()
             })
         })
         .catch(e => {
@@ -45,7 +47,7 @@ self.addEventListener('install', evt => {
 })
 
 self.addEventListener('activate', evt => {
-    let cacheWhiteList = [STATIC_CACHE]
+    let cacheWhiteList = [STATIC_CACHE, FONT_CACHE]
     let cacheCleared = 0
     evt.waitUntil(
         // USEFUL TO DELETE OLD CACHE //
@@ -60,6 +62,7 @@ self.addEventListener('activate', evt => {
                     })
                 ).then(res => {
                     console.log(`${cacheCleared} Old Cache Cleared...`)
+                    self.clients.claim()
                 })
             })
     )
@@ -129,21 +132,11 @@ self.addEventListener('fetch', evt => {
         }
     }
 
-    // if(['document'].indexOf(evt.request.clone().destination) > -1){
-    //     if(!navigator.onLine){
-    //         evt.respondWith(new Promise((resolve, reject) => {
-    //             caches.match('/offline').then(function(cachedRes) {
-    //                 if(cachedRes){
-    //                     console.log('offline document from cache...')
-    //                     resolve(cachedRes)
-    //                     return;
-    //                 }
-    //             })
-    //         }))
-    //     }
-    // }
+    else if (/fonts.(googleapis|gstatic).com/.test(url.href) || /static\/plugins\/fontawesome-free\/webfonts/.test(url.href)) { // if is google static fonts css or woff,ttf etc files //
+        return handleCacheAndRequest(evt,clonedReq,FONT_CACHE,2880) //ttl 2880 hrs (120 days)
+    }
 
-    if (evt.request.mode === 'navigate') {
+    else if (evt.request.mode === 'navigate') {
         evt.respondWith((async () => {
             try {
                 const preloadResponse = await evt.preloadResponse;
@@ -154,7 +147,6 @@ self.addEventListener('fetch', evt => {
                 const networkResponse = await fetch(evt.request);
                 return networkResponse;
             } catch (error) {
-                console.log('offline document from cache...')
                 const cachedResponse = await caches.match('/offline');
                 return cachedResponse;
             }

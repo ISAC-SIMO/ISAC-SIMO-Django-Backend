@@ -131,7 +131,9 @@ def test_offline_image(image_file, offline_model):
     if offline_model.model_format in ('h5', 'hdf5', 'keras'): # tf.keras models
         try:
             new_model = tf.keras.models.load_model(saved_model)
-            result = new_model.predict(x[np.newaxis, ...]).tolist()
+            result = new_model.predict(x[np.newaxis, ...])
+            if type(result) != list:
+                result = result.tolist()
         except Exception as e:
             img.close()
             print('Failed to run h5,hdf5,kears Offline Model')
@@ -686,7 +688,9 @@ def quick_test_offline_image(image_file, classifier):
     if classifier.offline_model.model_format in ('h5', 'hdf5', 'keras'): # tf.keras models
         try:
             new_model = tf.keras.models.load_model(saved_model)
-            result = new_model.predict(x[np.newaxis, ...]).tolist()
+            result = new_model.predict(x[np.newaxis, ...])
+            if type(result) != list:
+                result = result.tolist()
         except Exception as e:
             print(e)
             print('Failed to run h5,hdf5,kears Offline Model [Quick Test]')
@@ -1326,12 +1330,23 @@ def detect_temp_image(file_url, detect_model, offline=False):
     if offline and detect_model and os.path.exists(file_url):
         print('Detecting Image Object [Offline Model] [TEMP Google Street Images]...')
         res = test_offline_image(file_url, detect_model)
-        if res:
-            return {
-                'object_type': res.get('result',''),
-                'file_url': file_url,
-                'temp_image': file_url,
-            }
+        allDetected = []
+        if res and res.get('data', False) and len(res.get('data')) > 0:
+            resdata = sorted(res.get('data'), key=itemgetter('score'), reverse=True)
+            for data in resdata:
+                pipeline_status = {
+                    'score': data.get('score','0'),
+                    'result': data.get('class','None'),
+                    'location': data.get('location',{})
+                }
+                allDetected.append({ # add 0th item to default image_file
+                    "object_type": data.get('class','None'),
+                    'temp_image': file_url,
+                    'file_url': file_url,
+                    'pipeline': pipeline_status
+                })
+
+            return allDetected
         else:
             return False
     else:
@@ -1393,12 +1408,33 @@ def detect_temp_image(file_url, detect_model, offline=False):
                         print(sorted_by_score)
                         if(sorted_by_score and sorted_by_score[0]): # Set Score
                             resized_image_open.close()
+                            allDetected = []
+
+                            for data in sorted_by_score: # from 1 (0 already added with default image_file above)
+                                try:
+                                    if data.get('object', False) and data.get('score', False):
+                                        pipeline_status = {}
+                                        # Add Pipeline detected detail (Note: old pipeline replaced if new detect model is called upon it)
+                                        pipeline_status = {
+                                            'score': data.get('score','0'),
+                                            'result': data.get('object','None'),
+                                            'location': data.get('location', {})
+                                        }
+
+                                        # Only for 1st detect (update original image_file & for other new other_image_file is created)
+                                        allDetected.append({ # add 0th item to default image_file
+                                            "object_type": data.get('object','None'),
+                                            'temp_image': file_url,
+                                            'file_url': file_url,
+                                            'pipeline': pipeline_status
+                                        })
+
+                                except Exception as e:
+                                    print(e)
+                                    print('--failing appending to allDetected other index of detection [online model]--')
+                                    continue
                             # Return Object detected type
-                            return {
-                                'object_type': sorted_by_score[0]['object'].lower(),
-                                'file_url': file_url,
-                                'temp_image': saveto,
-                            }
+                            return allDetected
             
             resized_image_open.close()
             os.remove(saveto)
@@ -1428,14 +1464,17 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
         detected_as = detect_temp_image(image_file, detect_model, offline=offline)
         print(detected_as)
     
-    if not detected_as:
+    if not detected_as or len(detected_as) <= 0:
         if save_to_path:
             os.remove(save_to_path)
         return False
     
-    object_type = detected_as.get('object_type')
-    image_file = detected_as.get('file_url')
-    save_to_path = detected_as.get('temp_image')
+    failed = 0
+    passed = 0
+
+    object_type = detected_as[0].get('object_type')
+    image_file = detected_as[0].get('file_url')
+    save_to_path = detected_as[0].get('temp_image')
     
     print('Trying ' + str(classifier_index) + ' No. Classifier for ' + object_type)
     # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
@@ -1448,6 +1487,14 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
         if res:
             score = res.get('score','')
             result = res.get('result','')
+            i = 0
+            for specific in detected_as:
+                if i == 0:
+                    pipeline_status['Detected '+specific.get('object_type')] = specific.get('pipeline',{})
+                else:
+                    pipeline_status[str(i)+' - '+'Also Detected '+specific.get('object_type')] = specific.get('pipeline',{})
+                
+                i += 1
             pipeline_status[check_and_get_classifier_ids] = {
                 'score': res.get('score',''),
                 'result': res.get('result','')
@@ -1466,7 +1513,7 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
                 pipeline_status = {}
                 score = None
                 result = None
-                os.remove(save_to_path)
+                # os.remove(save_to_path)
             return {'score': score_copy, 'result': result_copy, 'pipeline_status': pipeline_status_copy}
     
     # Else IF Not Test in Online Model
@@ -1512,6 +1559,14 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
                 result = sorted_by_score[0]['class']
 
                 if(sorted_by_score and sorted_by_score[0]): # Set Score and Result/Class
+                    i = 0
+                    for specific in detected_as:
+                        if i == 0:
+                            pipeline_status['Detected '+specific.get('object_type')] = specific.get('pipeline',{})
+                        else:
+                            pipeline_status[str(i)+' - '+'Also Detected '+specific.get('object_type')] = specific.get('pipeline',{})
+                        
+                        i += 1
                     pipeline_status[check_and_get_classifier_ids] = {
                         'score': sorted_by_score[0]['score'],
                         'result': sorted_by_score[0]['class']
@@ -1535,7 +1590,7 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
                     score = None
                     result = None
                     resized_image_open.close()
-                    os.remove(save_to_path)
+                    # os.remove(save_to_path)
                 return {'score': score_copy, 'result': result_copy, 'pipeline_status': pipeline_status_copy}
     else:
         print('FAILED TO TEST - Check Token, Classifier ids and file existence.')

@@ -61,6 +61,8 @@ INTERNAL_IPS = (
     'localhost'
 )
 
+APPEND_SLASH = True
+
 # Application definition
 
 INSTALLED_APPS = [
