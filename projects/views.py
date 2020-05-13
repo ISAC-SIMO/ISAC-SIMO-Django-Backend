@@ -12,6 +12,7 @@ from .models import Projects
 import isac_simo.classifier_list as classifier_list
 from api.helpers import quick_test_detect_image
 import json
+import os
 
 def reload_classifier_list():
     try:
@@ -104,12 +105,17 @@ def testOfflineProject(request, id):
             return render(request, 'test.html', {"project": project, "test_result": test_result})
         elif request.method == "POST":
             try:
+                if os.environ.get('PROJECT_FOLDER',False):
+                    project_folder = os.environ.get('PROJECT_FOLDER','') + '/'
+                else:
+                    project_folder = ''
+
                 # IF THIS PROJECT HAS OFFLINE MODEL THEN
                 if project.offline_model:
-                    quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.offline_model, offline=True)
+                    quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.offline_model, offline=True, project_folder=project_folder)
                 # ELSE ONLINE MODEL THEN
                 else:
-                    quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False)
+                    quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False, project_folder=project_folder)
                 
                 if quick_test_image_result and len(quick_test_image_result) > 0:
                     request.session['test_result'] = json.dumps(quick_test_image_result, indent=4)

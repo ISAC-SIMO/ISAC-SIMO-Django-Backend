@@ -746,7 +746,7 @@ def quick_test_offline_image(image_file, classifier):
     return {'data':data, 'score':score, 'result':result_type}
 
 # QUICK TEST DETECT MODE:
-def quick_test_detect_image(image_file, detect_model, offline=False):
+def quick_test_detect_image(image_file, detect_model, offline=False, project_folder=''):
     MIN_SCORE_REQUIRED = 0.5
     # Find Image Path (used to open)
     file_url = None
@@ -800,7 +800,7 @@ def quick_test_detect_image(image_file, detect_model, offline=False):
                             # Only for 1st detect (update original image_file & for other new other_image_file is created)
                             allDetected.append({ # add 0th item to default image_file
                                 "object_type": data.get('class'),
-                                'temp_image': saveto+'?'+str(i),
+                                'temp_image': saveto.replace(project_folder,'')+'?'+str(i),
                                 'pipeline': pipeline_status
                             })
 
@@ -889,7 +889,7 @@ def quick_test_detect_image(image_file, detect_model, offline=False):
                                         # Only for 1st detect (update original image_file & for other new other_image_file is created)
                                         allDetected.append({ # add 0th item to default image_file
                                             "object_type": data.get('object'),
-                                            'temp_image': saveto+'?'+str(i),
+                                            'temp_image': saveto.replace(project_folder,'')+'?'+str(i),
                                             'pipeline': pipeline_status
                                         })
 
