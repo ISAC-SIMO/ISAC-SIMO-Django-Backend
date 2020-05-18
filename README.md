@@ -85,6 +85,43 @@ application = StaticFilesHandler(get_wsgi_application())
 
 </details>
 
+#### If Static Files that does not exist e.g. https://example.com/static/bad-directory keeps throwing unhandled error use this temporary fix:
+
+<details>
+    <summary>Click to view</summary>
+
+Inside ```env/lib/python3.7/site-packages/django/core/handlers/base.py``` find ```get_response``` without leading underscore and change it to as below:
+
+```python
+from django.shortcuts import render
+
+def get_response(self, request):
+    """Return an HttpResponse object for the given HttpRequest."""
+    # Setup default url resolver for this thread
+    set_urlconf(settings.ROOT_URLCONF)
+    try:
+        response = self._middleware_chain(request)
+
+        response._closable_objects.append(request)
+
+        # If the exception handler returns a TemplateResponse that has not
+        # been rendered, force it to be rendered.
+        if not getattr(response, 'is_rendered', True) and callable(getattr(response, 'render', None)):
+            response = response.render()
+
+        if response.status_code == 404:
+            logger.warning(
+                'Not Found: %s', request.path,
+                extra={'status_code': 404, 'request': request},
+            )
+
+        return response
+    except:
+        return render(request, '404.html', status=404)
+```
+
+</details>
+
 </details>
 
 ### Note:
