@@ -5,5 +5,5 @@ applications:
   name: isac-simo
   buildpacks: 
    - python_buildpack
-  command: gunicorn isac-simo.wsgi -b 0.0.0.0:$PORT
+  command: gunicorn isac_simo.wsgi -b 0.0.0.0:$PORT
   memory: 2048M
