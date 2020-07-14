@@ -1,0 +1,9 @@
+---
+applications:
+- instances: 1
+  timeout: 180
+  name: isac-simo
+  buildpacks: 
+   - python_buildpack
+  command: gunicorn isac_simo.wsgi -b 0.0.0.0:$PORT
+  memory: 2048M
