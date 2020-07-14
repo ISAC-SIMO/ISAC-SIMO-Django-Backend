@@ -69,11 +69,11 @@ class ImageSerializer(serializers.ModelSerializer):
                                         lat=validated_data.get('lat'),
                                         lng=validated_data.get('lng'),
                                         user_id=user.id,
-                                        project_id=validated_data.get('project_id', None))
+                                        project_id=request.POST.get('project_id', None))
             
             project = None
-            if validated_data.get('project_id', None):
-                project = Projects.objects.filter(id=validated_data.get('project_id')).get()
+            if request.POST.get('project_id', None):
+                project = Projects.objects.filter(id=request.POST.get('project_id')).get()
             if not project:
                 image.delete()
                 error = {'message': 'Invalid Project'}
@@ -121,17 +121,18 @@ class ImageSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError(error)
 
     def update(self, instance, validated_data):
+        request = self.context.get("request")
         instance.title = validated_data.get('title', instance.title)
         instance.description = validated_data.get('description', instance.description)
         instance.lat = validated_data.get('lat', instance.lat)
         instance.lng = validated_data.get('lng', instance.lng)
-        instance.project_id = validated_data.get('project_id', instance.project_id)
+        instance.project_id = request.POST.get('project_id', None)
         
         image_files = self.context.get('view').request.FILES
 
         project = None
-        if validated_data.get('project_id', None):
-            project = Projects.objects.filter(id=validated_data.get('project_id')).get()
+        if request.POST.get('project_id', None):
+            project = Projects.objects.filter(id=request.POST.get('project_id')).get()
         if not project:
             error = {'message': 'Invalid Project'}
             raise serializers.ValidationError(error)
@@ -243,11 +244,11 @@ class VideoFrameSerializer(serializers.ModelSerializer):
                                         lat=validated_data.get('lat'),
                                         lng=validated_data.get('lng'),
                                         user_id=user.id,
-                                        project_id=validated_data.get('project_id', None))
+                                        project_id=request.POST.get('project_id', None))
 
             project = None
-            if validated_data.get('project_id', None):
-                project = Projects.objects.filter(id=validated_data.get('project_id')).get()
+            if request.POST.get('project_id', None):
+                project = Projects.objects.filter(id=request.POST.get('project_id')).get()
             if not project:
                 image.delete()
                 error = {'message': 'Invalid Project'}
