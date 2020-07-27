@@ -6,7 +6,7 @@ from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.deconstruct import deconstructible
 
-from main.models import User
+# from main.models import User
 from projects.models import Projects
 
 
@@ -26,7 +26,7 @@ path_and_rename_offline_models = PathAndRename("offline_models")
 class Image(models.Model):
     title = models.CharField(max_length=255)
     description = models.TextField(max_length=500,blank=True)
-    user = models.ForeignKey(User, on_delete=models.SET_NULL, blank=True, null=True, related_name='user')
+    user = models.ForeignKey("main.User", on_delete=models.SET_NULL, blank=True, null=True, related_name='user')
     lat = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)],max_length=100,null=True,blank=True)
     lng = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)],max_length=100,null=True,blank=True)
     project = models.ForeignKey(Projects, on_delete=models.SET_NULL, blank=True, null=True, related_name='project')
@@ -54,7 +54,7 @@ class ImageFile(models.Model):
 
 class ObjectType(models.Model):
     name = models.CharField(max_length=200)
-    created_by = models.ForeignKey(User, related_name='object_types', on_delete=models.SET_NULL, blank=True, null=True)
+    created_by = models.ForeignKey("main.User", related_name='object_types', on_delete=models.SET_NULL, blank=True, null=True)
     project = models.ForeignKey(Projects, related_name='object_types', on_delete=models.CASCADE, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -70,7 +70,7 @@ class Classifier(models.Model):
     object_type = models.ForeignKey(ObjectType, related_name='classifiers', on_delete=models.SET_NULL, blank=True, null=True)
     order = models.IntegerField("Order", default=0, blank=False, null=False)
     offline_model = models.ForeignKey('OfflineModel', on_delete=models.SET_NULL, related_name='classifiers', blank=True, null=True)
-    created_by = models.ForeignKey(User, related_name='classifiers', on_delete=models.SET_NULL, blank=True, null=True)
+    created_by = models.ForeignKey("main.User", related_name='classifiers', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -86,7 +86,7 @@ class OfflineModel(models.Model):
     model_format = models.CharField(max_length=50)
     file = models.FileField(upload_to=path_and_rename_offline_models)
     offline_model_labels = models.CharField(max_length=200, blank=True, null=True)
-    created_by = models.ForeignKey(User, related_name='offline_models', on_delete=models.SET_NULL, blank=True, null=True)
+    created_by = models.ForeignKey("main.User", related_name='offline_models', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

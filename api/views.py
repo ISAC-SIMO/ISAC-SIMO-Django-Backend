@@ -950,6 +950,7 @@ def terminal(request):
 class ImageView(viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = ImageSerializer
+    permission_classes = [AllowAny]
     # permission_classes = [IsAdminUser]
 
     # TO LIMIT WHAT USER CAN DO - EDIT,SEE,DELETE
@@ -979,11 +980,13 @@ class VideoFrameView(viewsets.ModelViewSet):
     queryset = Image.objects.all()
     serializer_class = VideoFrameSerializer
     http_method_names = ['post', 'head', 'options']
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         if(self.request.user.is_authenticated and self.request.user.is_admin):
             return Image.objects.all()
-        return Image.objects.filter(user_id=self.request.user.id)
+        projects = Projects.objects.filter(users__id=self.request.user.id)
+        return Image.objects.filter(Q(user_id=self.request.user.id) | Q(project__in=projects)).order_by('-created_at').distinct()
 
     def destroy(self, request, *args, **kwargs):
         image = self.get_object()
@@ -1021,18 +1024,31 @@ class UserView(viewsets.ModelViewSet):
 class ProfileView(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
     http_method_names = ['get']
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def get_queryset(self):
         return User.objects.filter(id=self.request.user.id)
 
     def list(self, request, *args, **kwargs):
-        user = get_object_or_404(User, pk=self.request.user.id)
-        return Response({
-            "id": user.id,
-            "full_name": user.full_name,
-            "email": user.email,
-            "user_type": user.user_type,
-            "image": request.scheme + '://' + request.META['HTTP_HOST'] + user.image.url,
-            "projects": user.get_project_json()
-        })
+        user = User.objects.filter(id=self.request.user.id).first()
+        if not user:
+            fake_user = User.objects.first()
+            return Response({
+                "id": 0,
+                "full_name": "Guest",
+                "email": "Guest",
+                "user_type": "Guest",
+                "image": request.scheme + '://' + request.META['HTTP_HOST'] + '/media/user_images/default.png',
+                "projects": [],
+                "object_types": fake_user.get_object_detect_json(),
+            })
+        else:
+            return Response({
+                "id": user.id,
+                "full_name": user.full_name,
+                "email": user.email,
+                "user_type": user.user_type,
+                "image": request.scheme + '://' + request.META['HTTP_HOST'] + user.image.url,
+                "projects": user.get_project_json(),
+                "object_types": user.get_object_detect_json(),
+            })

@@ -11,7 +11,7 @@ from api.helpers import test_image
 
 from main.models import User
 
-from .models import Image, ImageFile
+from .models import Image, ImageFile, ObjectType
 from projects.models import Projects
 
 
@@ -68,15 +68,25 @@ class ImageSerializer(serializers.ModelSerializer):
                                         description=validated_data.get('description'),
                                         lat=validated_data.get('lat'),
                                         lng=validated_data.get('lng'),
-                                        user_id=user.id,
+                                        user_id=(user.id if user else None),
                                         project_id=request.POST.get('project_id', None))
             
             project = None
-            if request.POST.get('project_id', None):
+            object_type = None
+            force_object_type = None
+            # First check if object_type_id is provided
+            if request.POST.get('object_type_id', None):
+                object_type = ObjectType.objects.filter(id=request.POST.get('object_type_id')).get()
+                if object_type:
+                    project = object_type.project
+                    force_object_type = object_type.name.lower()
+            # Else check project_id
+            elif request.POST.get('project_id', None):
                 project = Projects.objects.filter(id=request.POST.get('project_id')).get()
-            if not project:
+            
+            if not project and not object_type:
                 image.delete()
-                error = {'message': 'Invalid Project'}
+                error = {'message': 'Neither Project nor Object Type Were Valid'}
                 raise serializers.ValidationError(error)
 
             e = 0 # Check if files uploaded or Not
@@ -99,7 +109,7 @@ class ImageSerializer(serializers.ModelSerializer):
                     ################
                     ### RUN TEST ###
                     ################
-                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline)
+                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
 
                     u = u + 1
                 except Exception as err:
@@ -131,10 +141,21 @@ class ImageSerializer(serializers.ModelSerializer):
         image_files = self.context.get('view').request.FILES
 
         project = None
-        if request.POST.get('project_id', None):
+        object_type = None
+        force_object_type = None
+        # First check if object_type_id is provided
+        if request.POST.get('object_type_id', None):
+            object_type = ObjectType.objects.filter(id=request.POST.get('object_type_id')).get()
+            if object_type:
+                project = object_type.project
+                force_object_type = object_type.name.lower()
+        # Else check project_id
+        elif request.POST.get('project_id', None):
             project = Projects.objects.filter(id=request.POST.get('project_id')).get()
-        if not project:
-            error = {'message': 'Invalid Project'}
+        
+        if not project and not object_type:
+            image.delete()
+            error = {'message': 'Neither Project nor Object Type Were Valid'}
             raise serializers.ValidationError(error)
         
         if len(image_files) < 8:
@@ -158,7 +179,7 @@ class ImageSerializer(serializers.ModelSerializer):
                     ################
                     ### RUN TEST ###
                     ################
-                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline)
+                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
                     u = u + 1
                 except Exception as err:
                     print(err)
@@ -200,7 +221,7 @@ class VideoFrameSerializer(serializers.ModelSerializer):
         return image.project.project_name if image.project else None
 
     # Function to get the frame image, save to image_file model and test it via ai model
-    def getFrame(self, vidcap, count, sec, image_model, project=None):
+    def getFrame(self, vidcap, count, sec, image_model, project=None, force_object_type=None):
         vidcap.set(cv2.CAP_PROP_POS_MSEC,sec*1000)
         hasFrames,image = vidcap.read()
         if hasFrames:
@@ -227,7 +248,7 @@ class VideoFrameSerializer(serializers.ModelSerializer):
             ################
             ### RUN TEST ###
             ################
-            test = test_image(image_obj, image_model.title, image_model.description, detect_model=detect_model, project=project.unique_name(), offline=offline)
+            test = test_image(image_obj, image_model.title, image_model.description, detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
         return hasFrames
 
     def create(self, validated_data):
@@ -243,15 +264,25 @@ class VideoFrameSerializer(serializers.ModelSerializer):
                                         description=(validated_data.get('description')+' - (Via Video Upload)'),
                                         lat=validated_data.get('lat'),
                                         lng=validated_data.get('lng'),
-                                        user_id=user.id,
+                                        user_id=(user.id if user else None),
                                         project_id=request.POST.get('project_id', None))
 
             project = None
-            if request.POST.get('project_id', None):
+            object_type = None
+            force_object_type = None
+            # First check if object_type_id is provided
+            if request.POST.get('object_type_id', None):
+                object_type = ObjectType.objects.filter(id=request.POST.get('object_type_id')).get()
+                if object_type:
+                    project = object_type.project
+                    force_object_type = object_type.name.lower()
+            # Else check project_id
+            elif request.POST.get('project_id', None):
                 project = Projects.objects.filter(id=request.POST.get('project_id')).get()
-            if not project:
+            
+            if not project and not object_type:
                 image.delete()
-                error = {'message': 'Invalid Project'}
+                error = {'message': 'Neither Project nor Object Type Were Valid'}
                 raise serializers.ValidationError(error)
 
             e = 0 # Check if files uploaded or Not
@@ -295,14 +326,14 @@ class VideoFrameSerializer(serializers.ModelSerializer):
                         vidcap = cv2.VideoCapture(saveto)
                         sec = 0
                         frameRate = 2 # it will capture image in each 2 second
-                        success = self.getFrame(vidcap,count,sec,image,project) # Get frame self function made above
+                        success = self.getFrame(vidcap,count,sec,image,project,force_object_type) # Get frame self function made above
                         while success:
                             if count >= 10: ###### Max 10 images from one video ######
                                 break
                             count = count + 1
                             sec = sec + frameRate
                             sec = round(sec, 2)
-                            success = self.getFrame(vidcap,count,sec,image,project) # Get frame self function made above
+                            success = self.getFrame(vidcap,count,sec,image,project,force_object_type) # Get frame self function made above
 
                         u = u + 1
                         # Destroy/Close Video and remove from temp

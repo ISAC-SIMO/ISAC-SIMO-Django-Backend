@@ -435,14 +435,49 @@ def detect_image(image_file, detect_model, offline=False):
 ####################
 # Default on 1st Image Test check Classifier Ids 1
 # If result is nogo/nogos then run test again with classifier ids 2
-def test_image(image_file, title=None, description=None, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False):
-    if not detected_as:
-        detected_as = detect_image(image_file, detect_model, offline=offline)
-    
-    if not detected_as or len(detected_as) <= 0:
-        if save_to_path:
-            os.remove(save_to_path)
-        return False
+def test_image(image_file, title=None, description=None, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False, force_object_type=None):
+    if force_object_type: # Force object Type by api
+        try:
+            pipeline_status = {}
+            pipeline_status['Force Object Type: '] = {
+                'score': '1',
+                'result': force_object_type
+            }
+            image_file.pipeline_status = json.dumps(pipeline_status)
+            image_file.object_type = force_object_type
+            image_file.save()
+
+            file_url = str(os.path.abspath(os.path.dirname(__name__))) + image_file.file.url
+            if not os.path.exists(file_url):
+                file_url = os.environ.get('PROJECT_FOLDER','') + image_file.file.url
+            saveto = None
+            img = Image.open(file_url)
+            img = img.convert('RGB')
+            # Save to temporary for temp use
+            filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
+            if not os.path.exists(os.path.join('media/temp/')):
+                saveto = os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename
+            else:
+                saveto = os.path.join('media/temp/', filename)
+            img.save(saveto, format='JPEG', quality=90)
+
+            detected_as = [{
+                "object_type": force_object_type,
+                'image_file': image_file,
+                'temp_image': saveto,
+            }]
+        except Exception as e:
+            print(e)
+            print('--error at FORCE OBJECT TYPE image test--')
+            return False
+    else:
+        if not detected_as:
+            detected_as = detect_image(image_file, detect_model, offline=offline)
+        
+        if not detected_as or len(detected_as) <= 0:
+            if save_to_path:
+                os.remove(save_to_path)
+            return False
 
     failed = 0
     passed = 0
@@ -481,7 +516,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                 if res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos':
                     if classifier_index + 1 < classifier_list.lenList(project,object_type):
                         print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                        test_image(image_file, title, description, save_to_path, classifier_index + 1, single_detected_as, detect_model, project, offline) #save_to_path=temp file
+                        test_image(image_file, title, description, save_to_path, classifier_index + 1, single_detected_as, detect_model, project, offline, force_object_type) #save_to_path=temp file
                     else:
                         print('No more Nogo pipeline')
 
@@ -558,7 +593,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     if sorted_by_score[0]['class'].lower() == 'nogo' or sorted_by_score[0]['class'].lower() == 'nogos':
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
                             print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                            test_image(image_file, title, description, save_to_path, classifier_index + 1, single_detected_as, detect_model, project, offline) #save_to_path=temp file
+                            test_image(image_file, title, description, save_to_path, classifier_index + 1, single_detected_as, detect_model, project, offline, force_object_type) #save_to_path=temp file
                         else:
                             print('No more Nogo pipeline')
 

@@ -7,6 +7,7 @@ from django.db import models
 from django.utils.deconstruct import deconstructible
 
 from projects.models import Projects
+from api.models import ObjectType
 
 USER_TYPE = [
     ('user', "User"),
@@ -99,6 +100,15 @@ class User(AbstractBaseUser):
                 'project_desc': project.project_desc
             }]
         return projects
+
+    def get_object_detect_json(self):
+        objects = []
+        for o in ObjectType.objects.order_by('created_at').all():
+            objects = objects + [{
+                'id': o.id,
+                'name': o.name.title(),
+            }]
+        return objects
 
     def has_perm(self, perm, obj=None):
         return True
