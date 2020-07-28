@@ -24,8 +24,8 @@ path_and_rename = PathAndRename("image")
 path_and_rename_offline_models = PathAndRename("offline_models")
 
 class Image(models.Model):
-    title = models.CharField(max_length=255)
-    description = models.TextField(max_length=500,blank=True)
+    title = models.CharField(max_length=255, blank=True, null=True)
+    description = models.TextField(max_length=500, blank=True, null=True)
     user = models.ForeignKey("main.User", on_delete=models.SET_NULL, blank=True, null=True, related_name='user')
     lat = models.FloatField(validators=[MinValueValidator(-90), MaxValueValidator(90)],max_length=100,null=True,blank=True)
     lng = models.FloatField(validators=[MinValueValidator(-180), MaxValueValidator(180)],max_length=100,null=True,blank=True)
