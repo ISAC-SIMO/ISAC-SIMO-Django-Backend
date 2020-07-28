@@ -35,15 +35,18 @@
                         <tbody>
                             {% for object_type in object_types %}
                                 <tr>
-                                    <td>{{object_type.name|title}}</td>
-                                    <td>{{object_type.project.project_name|title|default:'<i class="fas fa-exclamation-triangle text-warning"></i> &nbsp; No Project'}}</td>
+                                    <td data-toggle="tooltip" data-placement="top" title="{{object_type.instruction|default:''}}">{{object_type.name|title}}</td>
+                                    <td>{{object_type.project.project_name|title|default:'GLOBAL Project'}}</td>
                                     <td>{{object_type.created_by.full_name|default:'User'}}</td>
                                     {% if user.is_admin %}
-                                    <td class="table-options" style="min-width: 95px;">
+                                    <td class="table-options" style="min-width: 100px;">
+                                        <a title="View Image" data-toggle="tooltip" data-placement="top" href="#!" onclick="showImagePop(event,'{% if object_type.image %}{{object_type.image.url}}{% else %}/media/object_types/default.jpg{% endif %}')">
+                                            <i class="fa fa-file-image"></i>
+                                        </a>
                                         <a onclick="deleteDataWriteConfirm(event, 'form-{{ object_type.id }}', 'Object Type')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.delete' object_type.id %}" class="btn text-secondary px-0">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <a data-html="true" title="View Classifiers for {{object_type.name|title}} <br/> {{object_type.classifiers.count}} Classifiers Available" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.list' %}?object_type={{object_type.id}}" class="btn text-secondary px-0 pl-2 pr-2">
+                                        <a data-html="true" title="View Classifiers for {{object_type.name|title}} <br/> {{object_type.classifiers.count}} Classifiers Available" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.list' %}?object_type={{object_type.id}}" class="btn text-secondary px-0">
                                             <i class="fa fa-arrow-right text-info"></i>
                                         </a>
                                         <form action="{% url 'watson.object.delete' object_type.id %}" id="form-{{ object_type.id }}" class="d-inline">
@@ -65,7 +68,7 @@
                 </div>
                 <hr style="margin:0.5rem;"/>
                 <div class="card-body pt-0">
-                    <form action="{% url 'watson.object.create' %}" method="POST" id="object_type_create_form" class="d-inline">
+                    <form action="{% url 'watson.object.create' %}" method="POST" id="object_type_create_form" class="d-inline" enctype="multipart/form-data">
                         {% csrf_token %}
                         <div class="form-group mb-0">
                             <label for="object_type" class="col-12 col-form-label">Object Type*</label>
@@ -83,7 +86,20 @@
                                     {% for project in projects %}
                                         <option value="{{project.id}}" title="{{project.project_desc|default:''}} - {{project.detect_model|default:'No Detect Model'}}">{{project.project_name}}</option>
                                     {% endfor %}
+                                    <!-- <option value="0" title="Default Project (Made for Guest User)">Global Project (Guest User)</option> -->
                                 </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="instruction" class="col-12 col-form-label">Instruction</label>
+                            <div class="col-sm-12">
+                                <textarea placeholder="Instruction for Mobile User.&#10;How to take Picture/Video" class="form-control" id="instruction" name="instruction" max="500"></textarea>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="image" class="col-12 col-form-label">Instruction Image</label>
+                            <div class="col-sm-12">
+                                <input type="file" id="image" name="image" accept="image/x-png,image/jpeg"/>
                             </div>
                         </div>
                         <div class="form-group">

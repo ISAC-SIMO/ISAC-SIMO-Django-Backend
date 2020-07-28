@@ -22,6 +22,7 @@ class PathAndRename(object):
 
 path_and_rename = PathAndRename("image")
 path_and_rename_offline_models = PathAndRename("offline_models")
+path_and_rename_object_types = PathAndRename("object_types")
 
 class Image(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True)
@@ -56,6 +57,8 @@ class ObjectType(models.Model):
     name = models.CharField(max_length=200)
     created_by = models.ForeignKey("main.User", related_name='object_types', on_delete=models.SET_NULL, blank=True, null=True)
     project = models.ForeignKey(Projects, related_name='object_types', on_delete=models.CASCADE, blank=True, null=True)
+    image = models.ImageField(upload_to=path_and_rename_object_types, default='object_types/default.jpg', blank=True)
+    instruction = models.TextField(max_length=500, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

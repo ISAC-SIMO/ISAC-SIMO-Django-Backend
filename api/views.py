@@ -640,13 +640,19 @@ def watsonObjectList(request):
 # Watson Object Type Create local
 @user_passes_test(is_admin, login_url=login_url)
 def watsonObjectCreate(request):
-    if(request.method == "POST" and request.POST.get('object_type', False) and request.POST.get('project', False)):
-        check_unique = ObjectType.objects.filter(project=request.POST.get('project')).filter(name=request.POST.get('object_type').lower()).all()
+    if(request.method == "POST" and request.POST.get('object_type', False)):
+        check_unique = None
+        if request.POST.get('project') and request.POST.get('project') != "0":
+            check_unique = ObjectType.objects.filter(project=request.POST.get('project')).filter(name=request.POST.get('object_type').lower()).all()
         if not check_unique:
             object_type = ObjectType()
             object_type.name = request.POST.get('object_type').lower()
-            object_type.project = Projects.objects.filter(id=request.POST.get('project')).get()
+            if request.POST.get('project') and request.POST.get('project') != "0":
+                object_type.project = Projects.objects.filter(id=request.POST.get('project')).get()
             object_type.created_by = request.user
+            object_type.instruction = request.POST.get('instruction')
+            if request.FILES.get('image'):
+                object_type.image = request.FILES.get('image')
             object_type.save()
             messages.success(request, 'Object Type Added')
             reload_classifier_list()
@@ -664,6 +670,8 @@ def watsonObjectDelete(request, id):
     if(request.method == "POST"):
         try:
             object_type = ObjectType.objects.get(id=id)
+            if(object_type.image != 'object_types/default.jpg'):
+                object_type.image.delete()
             object_type.delete()
             messages.success(request, 'Object Type Deleted (Related Classifier are now left without object types)')
             reload_classifier_list()
@@ -1033,6 +1041,10 @@ class ProfileView(mixins.ListModelMixin, viewsets.GenericViewSet):
         user = User.objects.filter(id=self.request.user.id).first()
         if not user:
             fake_user = User.objects.first()
+            object_types = []
+            if fake_user:
+                object_types = fake_user.get_object_detect_json(request)
+            
             return Response({
                 "id": 0,
                 "full_name": "Guest",
@@ -1040,7 +1052,7 @@ class ProfileView(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "user_type": "Guest",
                 "image": request.scheme + '://' + request.META['HTTP_HOST'] + '/media/user_images/default.png',
                 "projects": [],
-                "object_types": fake_user.get_object_detect_json(),
+                "object_types": object_types,
             })
         else:
             return Response({
@@ -1050,5 +1062,5 @@ class ProfileView(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "user_type": user.user_type,
                 "image": request.scheme + '://' + request.META['HTTP_HOST'] + user.image.url,
                 "projects": user.get_project_json(),
-                "object_types": user.get_object_detect_json(),
+                "object_types": user.get_object_detect_json(request),
             })

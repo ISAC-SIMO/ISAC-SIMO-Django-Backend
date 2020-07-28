@@ -101,12 +101,19 @@ class User(AbstractBaseUser):
             }]
         return projects
 
-    def get_object_detect_json(self):
+    def get_object_detect_json(self, request):
         objects = []
+        url = ""
+        if request:
+            url = request.scheme + '://' + request.META['HTTP_HOST']
         for o in ObjectType.objects.order_by('created_at').all():
             objects = objects + [{
                 'id': o.id,
                 'name': o.name.title(),
+                'image': url + str(o.image.url),
+                'default_image': True if "default.jpg" in o.image.url else False,
+                'instruction': o.instruction if o.instruction else "",
+                'aspect': [2, 2],
             }]
         return objects
 
