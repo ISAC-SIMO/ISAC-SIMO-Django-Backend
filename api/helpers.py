@@ -192,7 +192,7 @@ def test_offline_image(image_file, offline_model):
 ###################
 ## Detect Object ##
 ###################
-def detect_image(image_file, detect_model, offline=False):
+def detect_image(image_file, detect_model, offline=False, no_temp=False):
     MIN_SCORE_REQUIRED = 0.5
     # Find Image Path (used to open)
     file_url = str(os.path.abspath(os.path.dirname(__name__))) + image_file.file.url
@@ -345,6 +345,10 @@ def detect_image(image_file, detect_model, offline=False):
                         if(sorted_by_score and sorted_by_score[0]): # Set Score`
                             image_file.object_type = sorted_by_score[0]['object']
                             pipeline_status = {}
+                            try:
+                                pipeline_status = json.loads(image_file.pipeline_status)
+                            except Exception as e:
+                                pipeline_status = {}
                             # Add Pipeline detected detail (Note: old pipeline replaced if new detect model is called upon it)
                             pipeline_status['Detect Model: '] = {
                                 'score': sorted_by_score[0]['score'],
@@ -364,19 +368,20 @@ def detect_image(image_file, detect_model, offline=False):
                             for data in sorted_by_score: # from 1 (0 already added with default image_file above)
                                 try:
                                     if data.get('object', False) and data.get('score', False) and float(data.get('score')) >= MIN_SCORE_REQUIRED:
-                                        img = Image.open(file_url)
-                                        img = img.convert('RGB')
-                                        w, h = img.size
-                                        if data.get('location', False):
-                                            img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('width', w), data.get('location').get('height', h) ))
-                                        
-                                        filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
-                                        if not os.path.exists(os.path.join('media/temp/')):
-                                            saveto = os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename
-                                        else:
-                                            saveto = os.path.join('media/temp/', filename)
-                                        
-                                        img.save(saveto, format='JPEG', quality=90)
+                                        if not no_temp: # Used in object_detect acting as a classifier 
+                                            img = Image.open(file_url)
+                                            img = img.convert('RGB')
+                                            w, h = img.size
+                                            if data.get('location', False):
+                                                img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('width', w), data.get('location').get('height', h) ))
+                                            
+                                            filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
+                                            if not os.path.exists(os.path.join('media/temp/')):
+                                                saveto = os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename
+                                            else:
+                                                saveto = os.path.join('media/temp/', filename)
+                                            
+                                            img.save(saveto, format='JPEG', quality=90)
 
                                         # Only for 1st detect (update original image_file & for other new other_image_file is created)
                                         if i == 0:
@@ -391,24 +396,25 @@ def detect_image(image_file, detect_model, offline=False):
                                         i += 1
 
                                         # In Memory image used to create ImageFile Model for new detect model result
-                                        output = io.BytesIO()
-                                        img.save(output, format='JPEG', quality=90)
-                                        output.seek(0)
-                                        memImage = InMemoryUploadedFile(output, 'ImageField', 'temp.jpg', 'image/jpeg', sys.getsizeof(output), None)
-                                        pipeline_status = {}
-                                        pipeline_status['Detect Model: '] = {
-                                            'score': data.get('score'),
-                                            'result': data.get('object')
-                                        }
-                                        other_image_file = ImageFile.objects.create(image=image_file.image, file=memImage, object_type=data.get('object'), pipeline_status=json.dumps(pipeline_status))
+                                        if not no_temp: # Used in object_detect acting as a classifier 
+                                            output = io.BytesIO()
+                                            img.save(output, format='JPEG', quality=90)
+                                            output.seek(0)
+                                            memImage = InMemoryUploadedFile(output, 'ImageField', 'temp.jpg', 'image/jpeg', sys.getsizeof(output), None)
+                                            pipeline_status = {}
+                                            pipeline_status['Detect Model: '] = {
+                                                'score': data.get('score'),
+                                                'result': data.get('object')
+                                            }
+                                            other_image_file = ImageFile.objects.create(image=image_file.image, file=memImage, object_type=data.get('object'), pipeline_status=json.dumps(pipeline_status))
 
-                                        img.close()
+                                            img.close()
 
-                                        allDetected.append({
-                                            "object_type": data.get('object'),
-                                            'image_file': other_image_file,
-                                            'temp_image': saveto,
-                                        })
+                                            allDetected.append({
+                                                "object_type": data.get('object'),
+                                                'image_file': other_image_file,
+                                                'temp_image': saveto,
+                                            })
                                 except Exception as e:
                                     print(e)
                                     print('--failing appending to allDetected other index of detection [online model]--')
@@ -436,7 +442,7 @@ def detect_image(image_file, detect_model, offline=False):
 # Default on 1st Image Test check Classifier Ids 1
 # If result is nogo/nogos then run test again with classifier ids 2
 def test_image(image_file, title=None, description=None, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False, force_object_type=None):
-    if force_object_type: # Force object Type by api
+    if force_object_type and not detected_as: # Force object Type by api
         try:
             pipeline_status = {}
             pipeline_status['Force Object Type: '] = {
@@ -492,39 +498,116 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
         classifier = Classifier.objects.filter(name=check_and_get_classifier_ids).all().first()
         # IF Offline Model is in this Classifier
         if classifier and classifier.offline_model:
-            res = test_offline_image(save_to_path, classifier.offline_model)
-            print(res)
-            if res:
-                pipeline_status = {}
+            ################# PRE PROCESS ###################
+            if(classifier.offline_model.preprocess and classifier.offline_model.model_format in ('py')): # PREPROCESS
                 try:
-                    pipeline_status = json.loads(image_file.pipeline_status)
-                except Exception as e:
-                    pipeline_status = {}
+                    saved_model = None
+                    if not os.path.exists(os.path.join('media/offline_models/')):
+                        saved_model = os.environ.get('PROJECT_FOLDER','') + '/media/offline_models/'+classifier.offline_model.filename()
+                    else:
+                        saved_model = os.path.join('media/offline_models/', classifier.offline_model.filename())
+                    print('----running PREPROCESS offline model .py------')
+                    import importlib
+                    loader = importlib.machinery.SourceFileLoader('model', saved_model)
+                    handle = loader.load_module('model')
+                    img = cv2.imread(save_to_path)
+                    result = handle.run(img) # Saved Model .py must have run function (see readme.md in /api)
+                    cv2.imwrite(save_to_path, result) # Replace the save to path aka /temp image with preprocessed image
 
-                if res.get('score',False) and res.get('result',False): # Set Score and Result/Class
-                    image_file.score = res.get('score')
-                    image_file.result = res.get('result')
-                    pipeline_status[check_and_get_classifier_ids] = {
-                        'score': res.get('score'),
-                        'result': res.get('result')
+                    pipeline_status = {}
+                    try:
+                        pipeline_status = json.loads(image_file.pipeline_status)
+                    except Exception as e:
+                        pipeline_status = {}
+                    
+                    pipeline_status[classifier.offline_model.name] = {
+                        'score': '1',
+                        'result': 'Pre-Processed Success'
                     }
                     image_file.pipeline_status = json.dumps(pipeline_status)
-                    image_file.tested = True
                     image_file.save()
-
-                # If nogo/nogos then run with next model pipe lopping through available classifier list
-                if res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos':
                     if classifier_index + 1 < classifier_list.lenList(project,object_type):
                         print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                        test_image(image_file, title, description, save_to_path, classifier_index + 1, single_detected_as, detect_model, project, offline, force_object_type) #save_to_path=temp file
+                        test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
                     else:
                         print('No more Nogo pipeline')
+                except Exception as e:
+                    print(e)
+                    print('Failed to run PREPROCESS .py Offline Model')
+            ############ POST PROCESS #######################
+            elif(classifier.offline_model.postprocess and classifier.offline_model.model_format in ('py')): # POSTPROCESS
+                try:
+                    saved_model = None
+                    if not os.path.exists(os.path.join('media/offline_models/')):
+                        saved_model = os.environ.get('PROJECT_FOLDER','') + '/media/offline_models/'+classifier.offline_model.filename()
+                    else:
+                        saved_model = os.path.join('media/offline_models/', classifier.offline_model.filename())
+                    print('----running POSTPROCESS offline model .py------')
+                    import importlib
+                    loader = importlib.machinery.SourceFileLoader('model', saved_model)
+                    handle = loader.load_module('model')
+                    img = cv2.imread(save_to_path)
+                    pipeline_status = {}
+                    try:
+                        pipeline_status = json.loads(image_file.pipeline_status)
+                    except Exception as e:
+                        pipeline_status = {}
+                    result = handle.run(img,pipeline_status,image_file.score,image_file.result) # Saved Model .py must have run function (see readme.md in /api in postprocess classifier section)
+                    
+                    if result.get('score', False) and result.get('result', False):
+                        pipeline_status[classifier.offline_model.name] = {
+                            'score': result.get('score'),
+                            'result': result.get('result')
+                        }
+                        image_file.result = result.get('result')
+                        image_file.score = result.get('score')
+                        image_file.tested = True
+                    
+                    image_file.pipeline_status = json.dumps(pipeline_status)
+                    image_file.save()
+                    if classifier_index + 1 < classifier_list.lenList(project,object_type):
+                        print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                        test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                    else:
+                        print('No more Nogo pipeline')
+                except Exception as e:
+                    print(e)
+                    print('Failed to run POSTPROCESS .py Offline Model')
+            ############# NORMAL PROCESS to return [[]] ##########
+            else:
+                res = test_offline_image(save_to_path, classifier.offline_model)
+                print(res)
+                if res:
+                    pipeline_status = {}
+                    try:
+                        pipeline_status = json.loads(image_file.pipeline_status)
+                    except Exception as e:
+                        pipeline_status = {}
 
-                if(classifier_index <= 0):
-                    os.remove(save_to_path)
-                # return True
-                passed += 1
-                continue
+                    if res.get('score',False) and res.get('result',False): # Set Score and Result/Class
+                        image_file.score = res.get('score')
+                        image_file.result = res.get('result')
+                        pipeline_status[check_and_get_classifier_ids] = {
+                            'score': res.get('score'),
+                            'result': res.get('result')
+                        }
+                        image_file.pipeline_status = json.dumps(pipeline_status)
+                        image_file.tested = True
+                        image_file.save()
+
+                    # If nogo/nogos then run with next model pipe lopping through available classifier list
+                    if res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos':
+                        if classifier_index + 1 < classifier_list.lenList(project,object_type):
+                            print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                        else:
+                            print('No more Nogo pipeline')
+
+            if(classifier_index <= 0):
+                os.remove(save_to_path)
+            # return True
+            passed += 1
+            continue
         
         # Else IF Not Test in Online Model
         elif ( os.path.exists(save_to_path) and settings.IBM_API_KEY 
@@ -593,9 +676,29 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     if sorted_by_score[0]['class'].lower() == 'nogo' or sorted_by_score[0]['class'].lower() == 'nogos':
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
                             print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                            test_image(image_file, title, description, save_to_path, classifier_index + 1, single_detected_as, detect_model, project, offline, force_object_type) #save_to_path=temp file
+                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
                         else:
                             print('No more Nogo pipeline')
+
+                    if(classifier_index <= 0):
+                        os.remove(save_to_path)
+                    # return True
+                    passed += 1
+                    continue
+            elif status == 404:
+                res = detect_image(image_file, detect_model, offline=False, no_temp=True)
+                print(res)
+                resized_image_open.close()
+                if res and len(res) > 0:
+                    image_file.tested = True
+                    image_file.result = res[0].get('object_type','')
+                    image_file.score = 1
+                    image_file.save()
+                    if classifier_index + 1 < classifier_list.lenList(project,object_type):
+                        print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                        test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                    else:
+                        print('No more Nogo pipeline')
 
                     if(classifier_index <= 0):
                         os.remove(save_to_path)
@@ -1064,7 +1167,7 @@ def retrain_image(image_file_list, project, object_type, result, media_folder='i
             os.remove(image)
 
         if(offline > 0 and request):
-            messages.warning(request, str(offline) +' Classifier(s) was Offline Model and got ignored')
+            messages.warning(request, str(offline) +' Classifier(s) found where Offline Model and is ignored. (Offline Model does not require to be re-trained)')
         
         # IF PASSED AT LEAST ONE CLASSIFIER THEN "OK"
         if(passed > 0):
@@ -1640,9 +1743,9 @@ def markdownToHtml(request=None, path=None, title="Information Document"):
             else:
                 location = os.path.join('api/README.md')
             
-            html = '<html><head><title>'+title+'</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/static/dist/img/favicon-32x32.png" sizes="32x32" /><link rel="icon" type="image/png" href="/static/dist/img/favicon-16x16.png" sizes="16x16" /></head><link rel="stylesheet" href="/static/dist/css/adminlte.min.css"/><body class="p-3">'
+            html = '<html><head><title>'+title+'</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/static/dist/img/favicon-32x32.png" sizes="32x32" /><link rel="icon" type="image/png" href="/static/dist/img/favicon-16x16.png" sizes="16x16" /></head><link rel="stylesheet" href="/static/dist/css/adminlte.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/default.min.css"><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js"></script><body class="p-3">'
             html = html + mistune.html(open(location, "r").read())
-            html = html + '</body></html>'
+            html = html + '<script>hljs.initHighlightingOnLoad();</script></body></html>'
             return HttpResponse(html, 'text/html')
         else:
             return redirect('dashboard')

@@ -38,7 +38,7 @@
                               {{ form|crispy }}
 
                               {% if request.resolver_match.url_name == 'images.update' %}
-                              <p><b>Added By User: <a style="color: teal;" href="{% url 'update_user' user_id %}">{{user_name|default:'User'}}</a></b></p>
+                              <p><b>Added By User: <a style="color: teal;" href="{% if user_id > 0 %}{% url 'update_user' user_id %}{% else %}#!{% endif %}">{{user_name|default:'User'}}</a></b></p>
                               {% else %}
                               <p><b>Adding As: <a style="color: teal;" href="#!">{{user.full_name|default:'User'}}</a></b></p>
                               {% endif %}

@@ -150,8 +150,8 @@ def updateImage(request, id=0):
                         can_retrain = True
 
             form = ImageForm(instance=image)
-            user_name = image.user.full_name
-            user_id = image.user.id
+            user_name = image.user.full_name if image.user else 'Guest'
+            user_id = image.user.id if image.user else 0
             return render(request,"add_image.html",{'form':form, 'user_name':user_name, 'user_id':user_id, 'id':id, 'image_files':image_files, 'verified_list':verified_list, 'can_retrain':can_retrain})
         elif request.method == "POST":
             files = request.FILES.getlist('image')
@@ -552,6 +552,10 @@ def watsonClassifierTest(request, id):
 
             # IF THIS CLASSIFIER HAS OFFLINE MODEL THEN
             if classifier.offline_model:
+                # IF IS A PRE / POST TEST
+                if classifier.offline_model.preprocess or classifier.offline_model.postprocess:
+                    messages.info(request, 'Classifier was detected to be Pre-Process/Post-Process Type. (NO RESULT TO SHOW)')
+                    return redirect('watson.classifier.test', id=id)
                 quick_test_image_result = quick_test_offline_image(request.FILES.get('file', False), classifier)
             # ELSE ONLINE MODEL THEN
             else:

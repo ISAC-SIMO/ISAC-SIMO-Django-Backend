@@ -42,7 +42,7 @@ class OfflineModelForm(forms.ModelForm):
     model_format = forms.CharField(widget=forms.Select, initial = 'model_format')
     class Meta:
         model = OfflineModel     
-        fields = ('name', 'model_type', 'model_format', 'file')
+        fields = ('name', 'model_type', 'model_format', 'preprocess', 'postprocess', 'file')
         labels = {
             'model_type':'Model Type',
             'model_format':'Model File Format',
@@ -52,6 +52,8 @@ class OfflineModelForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super(OfflineModelForm, self).__init__(*args, **kwargs)
         self.fields['model_format'].help_text = 'Choose a format or type yourself'
+        self.fields['preprocess'].help_text = 'Mark this Offline Model as Pre-Process (e.g. Gaussian Blur to preprocess the image uploaded)'
+        self.fields['postprocess'].help_text = 'Mark this Offline Model as Post-Process (e.g. Customize the pipeline result or go/nogo result)'
         if self.instance and (self.instance.projects.all().count() or self.instance.classifiers.all().count()): # Done, to check if offline model is linked to projects or classifiers to disable editing object type
             self.fields['model_type'].widget = forms.HiddenInput()
             self.fields['model_format'].help_text = 'Choose a format or type yourself <br/> Model Type is Unable to change because it is used by some projects or classifier actively'

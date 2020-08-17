@@ -30,7 +30,7 @@
                 <div class="card">
                     <div class="card-body">
                         {% load crispy_forms_tags %}
-                        <a href="{% url 'offline.model.readme' %}" target="_blank"><button title="Click to View useful Info" data-toggle="tooltip" data-placement="left" class="btn btn-sm px-0 text-info float-right"><i class="fa fa-question-circle"></i> Readme</button></a>
+                        <a href="{% url 'offline.model.readme' %}" target="_blank"><button title="Click to View useful Info" data-toggle="tooltip" data-placement="left" class="btn btn-sm px-0 text-info float-right"><i class="fa fa-question-circle"></i> Readme for guide and example</button></a>
                         <form action="{% if request.resolver_match.url_name == 'offline.model.edit' %}{% url 'offline.model.edit' offlineModel.id %}{% else %}{% url 'offline.model.create' %}{% endif %}" method="POST" class="form-group" enctype="multipart/form-data">
                             {% csrf_token %}
                               {{ form|crispy }}
@@ -117,11 +117,61 @@
             ]
         })
 
+        if($('#id_model_format').val() != 'py'){
+          $('#div_id_preprocess').hide();
+          $('#div_id_postprocess').hide();
+        }
+        $('#id_model_format').on('change', function(e){
+          if(e.target.value == 'py'){
+            $('#div_id_preprocess').fadeIn();
+            $('#div_id_postprocess').fadeIn();
+          }else{
+            document.getElementById('id_postprocess').checked = false;
+            document.getElementById('id_preprocess').checked = false;
+            $('#div_id_preprocess').hide();
+            $('#div_id_postprocess').hide();
+          }
+        })
+
+        // IF PRE-PROCESS OR POST-PROCESS CHANGED reset each-other + remove label field + make sure type is classifier
+        $('#id_preprocess').on('change', function(e){
+          if(e.target.checked){
+            document.getElementById('id_postprocess').checked = false;
+            $('#offline-model-label-group').val('').hide();
+            $('#id_model_type').val('CLASSIFIER').trigger('change');
+            $('#div_id_model_type').css('transition','all 0.3s ease')
+            $('#div_id_model_type').css('transform','scale(1.02)')
+            setTimeout(function(){
+              $('#div_id_model_type').css('transform','scale(1)')
+            }, 300);
+          }else{
+            $('#offline-model-label-group').val('').show();
+          }
+        })
+
+        $('#id_postprocess').on('change', function(e){
+          if(e.target.checked){
+            document.getElementById('id_preprocess').checked = false;
+            $('#offline-model-label-group').val('').hide();
+            $('#id_model_type').val('CLASSIFIER').trigger('change');
+            $('#div_id_model_type').css('transition','all 0.3s ease')
+            $('#div_id_model_type').css('transform','scale(1.02)')
+            setTimeout(function(){
+              $('#div_id_model_type').css('transform','scale(1)')
+            }, 300);
+          }else{
+            $('#offline-model-label-group').val('').show();
+          }
+        })
+
         {% if request.resolver_match.url_name == 'offline.model.edit' %}
           {% if offlineModel and offlineModel.model_format %}
             $('#id_model_format').val('{{offlineModel.model_format}}');
             $('#id_model_format').trigger('change');
           {% endif %}
         {% endif %}
+
+        $('#id_postprocess').trigger('change')
+        $('#id_preprocess').trigger('change')
     </script>
 {% endblock script %}
