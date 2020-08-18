@@ -13,7 +13,8 @@ except ImportError as e:
 # NOTE: DETECT OBJECT MODEL ID FOR WATSON (IF ANY PROJECT CONTAINS detect model then that is used)
 # NOTE: IF NO model is given to a project this will be the default DETECT MODEL ID
 # NEEDS TO BE CHANGED AS REQUIRED - IN SERVER, PRODUCTION, STAGE as required
-detect_object_model_id = '9068cba3-6dab-4233-805b-2d64a16daae8'
+# detect_object_model_id = '9068cba3-6dab-4233-805b-2d64a16daae8' # Old v1
+detect_object_model_id = '15b7b8e4-05c9-4eb1-bac4-11cfe884c7f3'
 data_val = {}
 
 # def classifier_list(): # Previous Name (now data function used for short name to enable reload())

@@ -351,7 +351,10 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
                             except Exception as e:
                                 pipeline_status = {}
                             # Add Pipeline detected detail (Note: old pipeline replaced if new detect model is called upon it)
-                            pipeline_status['Detect Model: '] = {
+                            label = 'Detect Model'
+                            if no_temp:
+                                label = 'Detect Model: '+detect_model
+                            pipeline_status[label] = {
                                 'score': sorted_by_score[0]['score'],
                                 'result': sorted_by_score[0]['object']
                             }
@@ -388,6 +391,7 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
                                         if i == 0:
                                             allDetected.append({ # add 0th item to default image_file
                                                 'object_type': sorted_by_score[0]['object'].lower(),
+                                                'score': sorted_by_score[0]['score'],
                                                 'image_file': image_file,
                                                 'temp_image': saveto,
                                             })
@@ -413,6 +417,7 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
 
                                             allDetected.append({
                                                 "object_type": data.get('object'),
+                                                'score': data.get('score'),
                                                 'image_file': other_image_file,
                                                 'temp_image': saveto,
                                             })
@@ -686,46 +691,27 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     # return True
                     passed += 1
                     continue
-            elif status == 404:
-                res = detect_image(image_file, detect_model, offline=False, no_temp=True)
-                print(res)
+            elif status == 404: # Assume Detect Model
+                res = detect_image(image_file, classifier_ids, offline=False, no_temp=True) # Note: Detect_Model is classifier ids (if 404 condition i.e. 2nd parameter)
+                # print(res)
                 resized_image_open.close()
                 if res and len(res) > 0:
                     image_file.tested = True
                     image_file.result = res[0].get('object_type','')
-                    image_file.score = 1
+                    image_file.score = res[0].get('score',1)
                     image_file.save()
-                    if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                        print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                        test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
-                    else:
-                        print('No more Nogo pipeline')
+                
+                if classifier_index + 1 < classifier_list.lenList(project,object_type):
+                    print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                    test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                else:
+                    print('No more Nogo pipeline')
 
-                    if(classifier_index <= 0):
-                        os.remove(save_to_path)
-                    # return True
-                    passed += 1
-                    continue
-
-            # visual_recognition = VisualRecognitionV3(
-            #     '2018-03-19',
-            #     iam_apikey='KEY_GOES_HERE'
-            # )
-
-            # with open(file_url, 'rb') as images_file:
-            #     classes = visual_recognition.classify(
-            #         images_file,
-            #         threshold='0.6',
-            #     classifier_ids='food').get_result()
-            # print(type(classes))
-            # print(classes['images'][0]['classifiers'][0]['classes'][0]['class'])
-            # print(classes['images'][0]['classifiers'][0]['classes'][0]['score'])
-            # print(json.dumps(classes, indent=2))
-
-            # if classes:
-            #     image_file.tested = True
-            #     image_file.save()
-            #     return True
+                if(classifier_index <= 0):
+                    os.remove(save_to_path)
+                # return True
+                passed += 1
+                continue
         else:
             print('FAILED TO TEST - Check Token, Classifier ids and file existence.')
             if(classifier_index <= 0):
@@ -735,9 +721,11 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
             failed += 1
             continue
 
-    print('Images tested in all Classifiers looping through all Object Detected')
+    if(classifier_index <= 0):
+        print('Images tested in all Classifiers looping through all Object Detected')
+    if failed:
+        print('Failed: '+str(failed))
     print('Passed: '+str(passed))
-    print('Failed: '+str(failed))
 
     if passed > 0 and failed < passed:
         return True
@@ -1597,6 +1585,7 @@ pipeline_status = {}
 # 	},
 # }
 ### SAME AS test_image BUT FOR TEMP IMAGES (no need to deal with models and other stuffs (used for e.g. in google map images testing))
+# Note not added preprocess postprocess codes
 def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False):
     global score, result, pipeline_status
     if not detected_as:
@@ -1621,6 +1610,15 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
     classifier = Classifier.objects.filter(name=check_and_get_classifier_ids).all().first()
     # IF Offline Model is in this Classifier
     if classifier and classifier.offline_model:
+        # Ignore on preprocess/postprocess
+        if classifier.offline_model.preprocess or classifier.offline_model.postprocess:
+            if classifier_index + 1 < classifier_list.lenList(project,object_type):
+                print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file
+            else:
+                print('No more Nogo pipeline (offline model)')
+            return False
+
         res = test_offline_image(image_file, classifier.offline_model)
         # print(res)
         if res:
