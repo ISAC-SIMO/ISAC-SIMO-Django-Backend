@@ -9,6 +9,16 @@ def is_admin(user):
         return user.is_active and user.is_admin
     return False
 
+def is_project_admin(user):
+    if user and user.is_authenticated:
+        return user.is_active and user.is_project_admin
+    return False
+
+def is_admin_or_project_admin(user):
+    if user and user.is_authenticated:
+        return user.is_active and (user.is_project_admin or user.is_admin)
+    return False
+
 def is_engineer(user):
     if user and user.is_authenticated:
         return user.is_active and user.is_engineer
@@ -33,6 +43,11 @@ class HasAdminPermission(BasePermission):
     def has_permission(self, request, view):
         if request.user and request.user.is_authenticated:
             return request.user.is_active and request.user.is_admin
+
+class HasProjectAdminPermission(BasePermission):
+    def has_permission(self, request, view):
+        if request.user and request.user.is_authenticated:
+            return request.user.is_active and request.user.is_project_admin
 
 class HasEngineerPermission(BasePermission):
     def has_permission(self, request, view):

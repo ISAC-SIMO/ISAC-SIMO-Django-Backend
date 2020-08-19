@@ -23,13 +23,14 @@ class ImageForm(forms.ModelForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
         super(ImageForm, self).__init__(*args, **kwargs)
         # self.fields['user'].empty_label = "-- Keep Unselected for Setting to Yourself --"
         self.fields['project'].empty_label = "No Project Linked Yet !!"
-        if self.instance.user and self.instance.user.is_admin:
+        if self.request and self.request.user.user_type == 'project_admin':
+            self.fields['project'].queryset = Projects.objects.filter(users__id=self.request.user.id)
+        else: # admin or any other (should not be technically)
             self.fields['project'].queryset  = Projects.objects.all()
-        elif self.instance.user:
-            self.fields['project'].queryset  = Projects.objects.filter(users__id=self.instance.user.id)
         self.fields['image'].label = "Multiple Images"
         self.fields['lat'].widget.attrs['min'] = -90
         self.fields['lat'].widget.attrs['max'] = 90

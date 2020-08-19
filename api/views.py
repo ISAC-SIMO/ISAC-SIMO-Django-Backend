@@ -62,13 +62,13 @@ def images(request):
     return render(request, 'image.html',{'images':images})
 
 # Add Image via Dashboard
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def addImage(request, id = 0):
     if request.method == "GET":
-        form = ImageForm()
+        form = ImageForm(request=request)
         return render(request,"add_image.html",{'form':form})
     elif request.method == "POST":
-        form = ImageForm(request.POST or None, request.FILES or None)
+        form = ImageForm(request.POST or None, request.FILES or None, request=request)
         files = request.FILES.getlist('image')
         if(len(files) <= 0):
             messages.error(request, "No Image Provided")
@@ -117,7 +117,7 @@ def addImage(request, id = 0):
     return redirect("images")
 
 # Update Image + Append File + PATCH
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def updateImage(request, id=0):
     try:
         image = Image.objects.get(id=id)
@@ -149,20 +149,23 @@ def updateImage(request, id=0):
                     if verified_list.get(image_file.object_type.lower(),{}).get(image_file.result.lower(),0) >= min_images_to_zip:
                         can_retrain = True
 
-            form = ImageForm(instance=image)
+            form = ImageForm(instance=image, request=request)
             user_name = image.user.full_name if image.user else 'Guest'
             user_id = image.user.id if image.user else 0
             return render(request,"add_image.html",{'form':form, 'user_name':user_name, 'user_id':user_id, 'id':id, 'image_files':image_files, 'verified_list':verified_list, 'can_retrain':can_retrain})
         elif request.method == "POST":
             files = request.FILES.getlist('image')
-            form = ImageForm(request.POST or None, request.FILES or None, instance=image)
+            form = ImageForm(request.POST or None, request.FILES or None, instance=image, request=request)
             if form.is_valid():
                 instance = form.save(commit=False)
                 instance.save()
 
                 project = None
                 if request.POST.get('project', False):
-                    project = Projects.objects.filter(id=request.POST.get('project')).get()
+                    if request.user.is_project_admin:
+                        project = Projects.objects.filter(users__id=request.user.id).filter(id=request.POST.get('project')).get()
+                    else:
+                        project = Projects.objects.filter(id=request.POST.get('project')).get()
                 if not project:
                     messages.error(request, "Invalid Project")
                     return redirect("images")
@@ -201,11 +204,15 @@ def updateImage(request, id=0):
         return redirect("images.add")
 
 # Delete Image
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def deleteImage(request, id=0):
     try:
         if request.method == "POST":
-            image = Image.objects.get(id=id)
+            if request.user.is_project_admin:
+                projects = Projects.objects.filter(users__id=request.user.id)
+                image = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects)).get(id=id)
+            else:
+                image = Image.objects.get(id=id)
             for i in image.image_files.all():
                 i.file.delete()
                 i.delete()
@@ -221,10 +228,14 @@ def deleteImage(request, id=0):
 
 # This is users image retrain - not from inside IBM watson sidebar menu
 # Retrain Images files uploaded by API after checking verified status and then send zip to ibm
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def retrainImage(request, id):
     try:
-        image = Image.objects.get(id=id)
+        if request.user.is_project_admin:
+            projects = Projects.objects.filter(users__id=request.user.id)
+            image = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects)).get(id=id)
+        else:
+            image = Image.objects.get(id=id)
         image_files = ImageFile.objects.filter(image_id=image.id)
         verified_list = {}
         image_file_list = {}
@@ -286,11 +297,16 @@ def retrainImage(request, id):
         return redirect("images.add")
 
 # Delete Image Specific File
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def deleteImageFile(request, id):
     try:
         if request.method == "POST":
-            image_file = ImageFile.objects.get(id=id)
+            if request.user.is_project_admin:
+                projects = Projects.objects.filter(users__id=request.user.id)
+                images = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects))
+                image_file = ImageFile.objects.filter(Q(image__in=images)).get(id=id)
+            else:
+                image_file = ImageFile.objects.get(id=id)
             image_file.file.delete()
             image_file.delete()
             messages.success(request, 'Image Deleted Successfully!')
@@ -303,10 +319,15 @@ def deleteImageFile(request, id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 # Re-Test Image Specific File
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def retestImageFile(request, id):
     try:
-        image_file = ImageFile.objects.get(id=id)
+        if request.user.is_project_admin:
+            projects = Projects.objects.filter(users__id=request.user.id)
+            images = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects))
+            image_file = ImageFile.objects.filter(Q(image__in=images)).get(id=id)
+        else:
+            image_file = ImageFile.objects.get(id=id)
         project = image_file.image.project
         offline = False
         detect_model = project.detect_model
@@ -332,10 +353,15 @@ def retestImageFile(request, id):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
 
 # Re-Test Image Specific File
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def verifyImageFile(request, id):
     try:
-        image_file = ImageFile.objects.get(id=id)
+        if request.user.is_project_admin:
+            projects = Projects.objects.filter(users__id=request.user.id)
+            images = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects))
+            image_file = ImageFile.objects.filter(Q(image__in=images)).get(id=id)
+        else:
+            image_file = ImageFile.objects.get(id=id)
         image_file.result = request.POST.get('test-result',image_file.result).lower()
         image_file.score = request.POST.get('test-score',image_file.score)
         image_file.object_type = request.POST.get('test-object-type',image_file.object_type).lower()
@@ -355,7 +381,7 @@ def verifyImageFile(request, id):
 
 # Image Custom Train to IBM
 # OR Retrain Image in uploaded by admin into ibm model selected
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonTrain(request):
     if request.method == "GET":
         return render(request, 'train.html',{'classifier_list':classifier_list.value()})
@@ -405,14 +431,25 @@ def watsonTrain(request):
     
     return redirect('dashboard')
 
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonClassifierList(request):
-    if request.GET.get('object_type', False):
-        classifiers = Classifier.objects.order_by('-object_type').filter(object_type=request.GET.get('object_type')).order_by('order').all()
-        object_type = ObjectType.objects.filter(id=request.GET.get('object_type')).get().name
+    classifiers = False
+    object_type = False
+    if request.user.user_type == 'project_admin':
+        projects = Projects.objects.filter(users__id=request.user.id)
+        if request.GET.get('object_type', False):
+            classifiers = Classifier.objects.order_by('-object_type').filter(Q(created_by=request.user) | Q(project__in=projects)).filter(object_type=request.GET.get('object_type')).order_by('order').all()
+            object_type = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('-created_at').get(id=request.GET.get('object_type'))
+        else:
+            classifiers = Classifier.objects.order_by('-object_type').filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('order').all()
+            object_type = False
     else:
-        classifiers = Classifier.objects.order_by('-object_type').order_by('order').all()
-        object_type = False
+        if request.GET.get('object_type', False):
+            classifiers = Classifier.objects.order_by('-object_type').filter(object_type=request.GET.get('object_type')).order_by('order').all()
+            object_type = ObjectType.objects.filter(id=request.GET.get('object_type')).get().name
+        else:
+            classifiers = Classifier.objects.order_by('-object_type').order_by('order').all()
+            object_type = False
     
     return render(request, 'list_classifier.html',{'classifiers':classifiers,'object_type':object_type})
 
@@ -432,15 +469,27 @@ def watsonClassifier(request):
         return render(request, 'classifiers.html',{'classifier_list':classifier_list.value(), 'detail':detail, 'project':request.POST.get('project', False), 'object':request.POST.get('object', False), 'model':request.POST.get('model', False)})
 
 # Create Custom Classifiers with zip data
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonClassifierCreate(request):
     if request.method == "GET":
-        object_types = ObjectType.objects.order_by('-created_at').all()
-        projects = Projects.objects.order_by('project_name').all()
-        offlineModels = OfflineModel.objects.filter(model_type='CLASSIFIER').all()
-        return render(request, 'create_classifier.html', {'object_types':object_types, 'projects':projects, 'offlineModels':offlineModels})
+        if request.user.is_project_admin:
+            projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
+            object_types = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('-created_at').all()
+            
+            offlineModels = OfflineModel.objects.filter(created_by=request.user).filter(model_type='CLASSIFIER').all()
+            return render(request, 'create_classifier.html', {'object_types':object_types, 'projects':projects, 'offlineModels':offlineModels})
+        else:
+            object_types = ObjectType.objects.order_by('-created_at').all()
+            projects = Projects.objects.order_by('project_name').all()
+            offlineModels = OfflineModel.objects.filter(model_type='CLASSIFIER').all()
+            return render(request, 'create_classifier.html', {'object_types':object_types, 'projects':projects, 'offlineModels':offlineModels})
     elif request.method == "POST":
         print(request.FILES.getlist('zip'))
+        # NOTE: FOR PROJECT USER. They can only add offline or already added watson models (cannot create themselves manually)
+        if request.user.is_project_admin and not request.POST.get('justaddit'):
+            created = 'Invalid Classifier Attempted to Create. Project Admin must add already created or Offline Models. You cannot create Watson Online Classifier. (Contact Admin Please)'
+            return render(request, 'create_classifier.html',{'created':created, 'bad_zip':0})
+
         if request.POST.get('justaddit', False) and request.POST.get('name'):
             if request.POST.get('offlineModel',False):
                 created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'offline_model':request.POST.get('offlineModel'),'classes':[]}}
@@ -493,14 +542,18 @@ def watsonClassifierCreate(request):
     return redirect('dashboard')
 
 # Watson Classifier Edit
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonClassifierEdit(request, id):
     if(request.method == "POST" and request.POST.get('object_type', False) 
         and request.POST.get('project', False)
         and request.POST.get('order', False)
     ):
         try:
-            classifier = Classifier.objects.get(id=id)
+            if request.user.user_type == 'project_admin':
+                projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
+                classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).get(id=id)
+            else:
+                classifier = Classifier.objects.get(id=id)
             classifier.name = request.POST.get('name')
             classifier.object_type = ObjectType.objects.get(id=request.POST.get('object_type'))
             classifier.project = Projects.objects.get(id=request.POST.get('project'))
@@ -517,21 +570,32 @@ def watsonClassifierEdit(request, id):
             messages.error(request, 'Classifier Not Found')
             return redirect('watson.classifier.list')
     elif(request.method == "GET"):
-        classifier = Classifier.objects.get(id=id)
-        object_types = ObjectType.objects.order_by('-created_at').all()
-        projects = Projects.objects.order_by('project_name').all()
-        offlineModels = OfflineModel.objects.filter(model_type='CLASSIFIER').all()
-        return render(request, 'edit_classifier.html', {'classifier':classifier, 'object_types':object_types, 'projects':projects, 'offlineModels':offlineModels})
+        if request.user.is_project_admin:
+            projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
+            classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).get(id=id)
+            object_types = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('-created_at').all()
+            offlineModels = OfflineModel.objects.filter(created_by=request.user).filter(model_type='CLASSIFIER').all()
+            return render(request, 'edit_classifier.html', {'classifier':classifier, 'object_types':object_types, 'projects':projects, 'offlineModels':offlineModels})
+        else:
+            classifier = Classifier.objects.get(id=id)
+            object_types = ObjectType.objects.order_by('-created_at').all()
+            projects = Projects.objects.order_by('project_name').all()
+            offlineModels = OfflineModel.objects.filter(model_type='CLASSIFIER').all()
+            return render(request, 'edit_classifier.html', {'classifier':classifier, 'object_types':object_types, 'projects':projects, 'offlineModels':offlineModels})
     else:
         messages.error(request, 'Classifier Not Edited Bad Request')
         return redirect('watson.classifier.list')
 
 # Watson Classifier Delete
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonClassifierDelete(request, id):
     if(request.method == "POST"):
         try:
-            classifier = Classifier.objects.get(id=id)
+            if request.user.user_type == 'project_admin':
+                projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
+                classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).get(id=id)
+            else:
+                classifier = Classifier.objects.get(id=id)
             classifier.delete()
             messages.success(request, 'Classifier Deleted (Images will not be passed through this again)')
             reload_classifier_list()
@@ -544,11 +608,15 @@ def watsonClassifierDelete(request, id):
         return redirect('watson.classifier.list')
 
 # Watson Classifier Test - Simple image test
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonClassifierTest(request, id):
     if(request.method == "POST"):
         try:
-            classifier = Classifier.objects.get(id=id)
+            if request.user.user_type == 'project_admin':
+                projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
+                classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).get(id=id)
+            else:
+                classifier = Classifier.objects.get(id=id)
 
             # IF THIS CLASSIFIER HAS OFFLINE MODEL THEN
             if classifier.offline_model:
@@ -578,7 +646,11 @@ def watsonClassifierTest(request, id):
             return redirect('watson.classifier.test', id=id)
 
     elif(request.method == "GET"):
-        classifier = Classifier.objects.get(id=id)
+        if request.user.user_type == 'project_admin':
+            projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
+            classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).get(id=id)
+        else:
+            classifier = Classifier.objects.get(id=id)
         test_result = request.session.pop('test_result', False)
         return render(request, 'test_classifier.html', {'classifier':classifier, 'test_result':test_result})
     else:
@@ -586,11 +658,14 @@ def watsonClassifierTest(request, id):
         return redirect('watson.classifier.test')
 
 # Watson object detail fetch from ibm
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonObject(request):
     if request.method != "POST":
         default_object_model = classifier_list.detect_object_model_id
-        projects = Projects.objects.all().values('detect_model','project_name','offline_model').distinct()
+        if request.user.is_project_admin:
+            projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').values('detect_model','project_name','offline_model').distinct()
+        else:
+            projects = Projects.objects.all().values('detect_model','project_name','offline_model').distinct()
         return render(request, 'objects_detail.html',{'default_object_model':default_object_model,'projects':projects})
     elif request.method == "POST":
         detail = None
@@ -629,23 +704,40 @@ def watsonObject(request):
             return render(request, 'objects.html',{'detail':detail,'object_id':object_id})
 
 # Watson Object Type List
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonObjectList(request):
-    if request.GET.get('project', False):
-        object_types = ObjectType.objects.order_by('-created_at').filter(project=request.GET.get('project')).all()
-        project_filter = Projects.objects.filter(id=request.GET.get('project')).get().project_name
+    if request.user.user_type == 'project_admin':
+        if request.GET.get('project', False):
+            project = Projects.objects.filter(users__id=request.user.id).get(id=request.GET.get('project'))
+            object_types = ObjectType.objects.order_by('-created_at').filter(project=request.GET.get('project')).all()
+            project_filter = project.project_name
+        else:
+            projects = Projects.objects.filter(users__id=request.user.id)
+            object_types = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('-created_at').order_by('project').all()
+            project_filter = False
     else:
-        object_types = ObjectType.objects.order_by('-created_at').order_by('project').all()
-        project_filter = False
+        if request.GET.get('project', False):
+            object_types = ObjectType.objects.order_by('-created_at').filter(project=request.GET.get('project')).all()
+            project_filter = Projects.objects.filter(id=request.GET.get('project')).get().project_name
+        else:
+            object_types = ObjectType.objects.order_by('-created_at').order_by('project').all()
+            project_filter = False
 
-    projects = Projects.objects.order_by('project_name').all()
+    projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
     return render(request, 'create_objects.html', {'object_types':object_types, 'projects':projects, 'project_filter':project_filter})
 
 # Watson Object Type Create local
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonObjectCreate(request):
     if(request.method == "POST" and request.POST.get('object_type', False)):
         check_unique = None
+        try:
+            if request.user.is_project_admin:
+                project = Projects.objects.filter(users__id=request.user.id).get(id=request.POST.get('project'))
+        except(Projects.DoesNotExist):
+            messages.error(request, 'Invalid Project Selected')
+            return redirect('watson.object.list')
+
         if request.POST.get('project') and request.POST.get('project') != "0":
             check_unique = ObjectType.objects.filter(project=request.POST.get('project')).filter(name=request.POST.get('object_type').lower()).all()
         if not check_unique:
@@ -669,11 +761,15 @@ def watsonObjectCreate(request):
         return redirect('watson.object.list')
 
 # Watson Object Type Delete
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonObjectDelete(request, id):
     if(request.method == "POST"):
         try:
-            object_type = ObjectType.objects.get(id=id)
+            if request.user.user_type == 'project_admin':
+                projects = Projects.objects.filter(users__id=request.user.id)
+                object_type = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('-created_at').get(id=id)
+            else:
+                object_type = ObjectType.objects.get(id=id)
             if(object_type.image != 'object_types/default.jpg'):
                 object_type.image.delete()
             object_type.delete()
@@ -684,19 +780,22 @@ def watsonObjectDelete(request, id):
             messages.success(request, 'Object Not Found')
             return redirect('watson.object.list')
     else:
-        messages.success(request, 'Object Not Deleted')
+        messages.error(request, 'Object Not Deleted')
         return redirect('watson.object.list')
 
 ##################
 # OFFLINE MODELS #
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def offlineModel(request):
-    models = OfflineModel.objects.all().order_by('name')
+    if request.user.user_type == 'project_admin':
+        models = OfflineModel.objects.filter(created_by=request.user).order_by('name')
+    else:
+        models = OfflineModel.objects.all().order_by('name')
     return render(request, 'offline_model/list.html',{'models':models})
 
 #########################
 # OFFLINE MODELS CREATE #
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def offlineModelCreate(request):
     if request.method == "GET":
         form = OfflineModelForm()
@@ -718,10 +817,13 @@ def offlineModelCreate(request):
 
 #######################
 # OFFLINE MODELS EDIT #
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def offlineModelEdit(request, id):
     try:
-        offlineModel = OfflineModel.objects.filter(id=id).get()
+        if request.user.user_type == 'project_admin':
+            offlineModel = OfflineModel.objects.filter(id=id).filter(created_by=request.user).get()
+        else:
+            offlineModel = OfflineModel.objects.filter(id=id).get()
         offlineModelFile = os.path.join(offlineModel.file.url.replace('/media/','media/'))
 
         if request.method == "GET":
@@ -759,11 +861,14 @@ def offlineModelEdit(request, id):
 
 #########################
 # OFFLINE MODELS DELETE #
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def offlineModelDelete(request, id):
     try:
         if request.method == "POST":
-            offlineModel = OfflineModel.objects.get(id=id)
+            if request.user.user_type == 'project_admin':
+                offlineModel = OfflineModel.objects.filter(id=id).filter(created_by=request.user).get()
+            else:
+                offlineModel = OfflineModel.objects.filter(id=id).get()
             offlineModel.file.delete()
             offlineModel.delete()
             messages.success(request, 'Offline Model Deleted Successfully!')
@@ -777,11 +882,14 @@ def offlineModelDelete(request, id):
 
 #############################################
 # SHOW .py Offline Local Model Dependencies #
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def offlineModelDependencies(request, id):
     try:
         if request.method == "POST":
-            offlineModel = OfflineModel.objects.get(id=id)
+            if request.user.user_type == 'project_admin':
+                offlineModel = OfflineModel.objects.filter(id=id).filter(created_by=request.user).get()
+            else:
+                offlineModel = OfflineModel.objects.filter(id=id).get()
             saved_model = None
             if not os.path.exists(os.path.join('media/offline_models/')):
                 saved_model = os.environ.get('PROJECT_FOLDER','') + '/media/offline_models/'+offlineModel.filename()
@@ -805,7 +913,7 @@ def offlineModelDependencies(request, id):
 
 ###########################################
 # View Readme md file from /api/README.md #
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def offlineModelReadme(request):
     return markdownToHtml(request, 'api/README.md', 'README.md - Offline Model & API')
 
@@ -861,10 +969,14 @@ def countImage(request):
 
 ##########################
 # Dump JSON of all Image #
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def dumpImage(request):
     try:
-        images = Image.objects.order_by('-created_at').all().prefetch_related('image_files')
+        if(is_admin(request.user)):
+            images = Image.objects.order_by('-created_at').all().prefetch_related('image_files')
+        elif(is_project_admin(request.user)):
+            projects = Projects.objects.filter(users__id=request.user.id)
+            images = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects)).order_by('-created_at').prefetch_related('image_files').distinct()
         # messages.success(request, 'Image & Image File data dumped')
         data = {'data': [], 'status': 'success', 'dumped_at': datetime.today().strftime('%Y-%m-%d-%H:%M:%S'), 'dumped_by': request.user.full_name}
         for i in images:

@@ -247,8 +247,15 @@
             $('#object_type').html( $options.filter( '[data-project="' + this.value + '"]' ) );
         }).trigger( 'change' );
 
-        // $('#justaddit').attr('checked','checked');
-        // $('#justaddit').trigger('change');
+        {% if user.is_project_admin %}
+        $('#justaddit').attr('checked','checked');
+        $('#justaddit').trigger('change');
+        $('#zip-group').remove();
+        $('#negative-group').remove();
+        $('#justaddit').on('click', function(){
+            return false;
+        })
+        {% endif %}
 
         {% if created %}
         if ( window.history.replaceState ) {

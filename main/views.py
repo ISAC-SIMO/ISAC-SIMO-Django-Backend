@@ -14,6 +14,7 @@ from django.db.models.query import prefetch_related_objects
 from django.http import Http404, HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from rest_framework.generics import get_object_or_404
+from django.db.models import Q, Prefetch
 
 import isac_simo.classifier_list as classifier_list
 from api.models import Image, ImageFile
@@ -43,6 +44,22 @@ def home(request):
         image_files_count = ImageFile.objects.filter(tested=True).count()
         user_count = User.objects.all().count()
         project_count = Projects.objects.all().count()
+    elif(is_government(request.user)):
+        projects = Projects.objects.filter(users__id=request.user.id)
+        images = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects)).order_by('-created_at').prefetch_related('image_files').distinct()
+        image_files_count = 0
+        for image in images:
+            image_files_count = image_files_count + image.image_files.all().count()
+        user_count = 0
+        project_count = 0
+    elif(is_project_admin(request.user)):
+        projects = Projects.objects.filter(users__id=request.user.id)
+        images = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects)).order_by('-created_at').prefetch_related('image_files').distinct()
+        image_files_count = 0
+        for image in images:
+            image_files_count = image_files_count + image.image_files.all().count()
+        user_count = User.objects.filter(Q(projects__in=projects)).count()
+        project_count = len(projects)
     else:
         images = Image.objects.filter(user_id=request.user.id).order_by('-created_at').prefetch_related('image_files')
         image_files_count = 0
@@ -99,6 +116,10 @@ def login_user(request):
         # reload_classifier_list()
         user = authenticate(username = request.POST.get('email'), password = request.POST.get('password'))
         if user is not None:
+            # If user disabled i.e. active = False
+            if not user.active:
+                messages.error(request, 'User Account has been Disabled. Please contact Admin.')
+
             if request.POST.get('remember') is not None:    
                 request.session.set_expiry(1209600)
             login(request, user)
@@ -127,11 +148,17 @@ def register(request):
         if registerForm.is_valid():
             instance = registerForm.save(commit=False)
             instance.set_password(request.POST.get('password1'))
+            if request.POST.get('type', False) and request.POST.get('type') == 'project_admin':
+                instance.user_type = 'project_admin'
+                instance.active = False
             instance.save()
 
             storage = messages.get_messages(request)
             storage.used = True
-            messages.success(request, 'Registration Success. Login Now.')
+            if request.POST.get('type', False) and request.POST.get('type') == 'project_admin':
+                messages.info(request, 'You have been registered as Project Admin. But, you cannot login immediently. Please contact Admin to enable your account. Thank You.')
+            else:
+                messages.success(request, 'Registration Success. Login Now.')
             return redirect('login')
         else:
             messages.error(request, 'Invalid Form Request')
@@ -147,24 +174,43 @@ def logout_user(request):
     messages.success(request, 'Logged Out Successfully')
     return redirect('login')
 
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def list_all_users(request):
-    users = User.objects.all().order_by('-active').prefetch_related('projects')
+    if request.user.is_project_admin:
+        users = User.objects.exclude(user_type='admin').order_by('-timestamp', '-active').prefetch_related(
+            Prefetch(
+                "projects",
+                queryset=Projects.objects.filter(users__id=request.user.id).distinct(),
+                to_attr="visible_projects"
+            )
+        )
+    else:
+        users = User.objects.all().order_by('-timestamp', '-active').prefetch_related(
+            Prefetch(
+                "projects",
+                queryset=Projects.objects.all(),
+                to_attr="visible_projects"
+            )
+        )
     return render(request, 'users/allusers.html',{'users':users})
 
 # Add Users via Admin Panel Dashboard
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def admin_userAddForm(request, id=0):
     if request.method == "GET":
         if id == 0:
-            adminRegisterForm = AdminRegisterForm()
+            adminRegisterForm = AdminRegisterForm(request=request)
         else:
             edituser = User.objects.get(id=id)
-            adminRegisterForm = AdminEditForm(instance=edituser)
+            if edituser.is_admin and not request.user.is_admin:
+                messages.error(request, 'Cannot Update Higher Authorized User')
+                return redirect('allusers')
+
+            adminRegisterForm = AdminEditForm(instance=edituser,request=request)
         return render(request, "users/admin_register.html", {"form": adminRegisterForm})
     elif request.method == "POST":
         if id == 0:
-            form = AdminRegisterForm(request.POST or None, request.FILES or None)
+            form = AdminRegisterForm(request.POST or None, request.FILES or None, request=request)
 
             if form.is_valid():
                 instance = form.save(commit=False)
@@ -175,10 +221,17 @@ def admin_userAddForm(request, id=0):
                 return render(request, "users/admin_register.html", {"form": form})
         else:
             updateUser = User.objects.get(id=id)
+            if updateUser.is_admin and not request.user.is_admin:
+                messages.error(request, 'Cannot Update Higher Authorized User')
+                return redirect('allusers')
+
             updateUser.email = request.POST.get('email')
             updateUser.full_name = request.POST.get('full_name')
             updateUser.user_type = request.POST.get('user_type')
-            updateUser.projects.set(Projects.objects.filter(id__in=request.POST.getlist('projects')))
+            if request and request.user.is_project_admin:
+                updateUser.projects.set(Projects.objects.filter(users__id=request.user.id).filter(id__in=request.POST.getlist('projects')))
+            else:
+                updateUser.projects.set(Projects.objects.filter(id__in=request.POST.getlist('projects')))
 
             password1 = request.POST.get('password1') 
             password2 = request.POST.get('password2')

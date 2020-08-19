@@ -3,7 +3,8 @@ from django.contrib.auth.forms import UserCreationForm
 from django.db import models
 from django.forms.widgets import FileInput
 
-from .models import USER_TYPE, User
+from .models import USER_TYPE, BASIC_USER_TYPE, PROJECT_ADMIN_ADDABLE_USER_TYPE, User
+from projects.models import Projects
 
 
 class LoginForm(forms.ModelForm):
@@ -22,19 +23,22 @@ class LoginForm(forms.ModelForm):
 
 class RegisterForm(UserCreationForm):
     email = forms.EmailField()
+    type = forms.ChoiceField(choices=BASIC_USER_TYPE, widget=forms.RadioSelect, initial = 'user')
 
     class Meta:
         model = User
-        fields = ('email', 'full_name', 'image',)
+        fields = ('email', 'full_name', 'image', 'password1', 'password2', 'type')
         labels = {
             'email': 'Email',
             'full_name': 'Full Name',
             'image': 'Profile Picture',
+            'type': 'User Type',
         }
 
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)
         self.fields['image'].required = False
+        self.fields['full_name'].required = True
         self.fields['password1'].help_text = 'Use strong password with at least 8 characters.'
         self.fields['password2'].help_text = 'Enter the same password.'
 
@@ -60,10 +64,14 @@ class AdminRegisterForm(UserCreationForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
         super(AdminRegisterForm, self).__init__(*args, **kwargs)
         
         self.fields['image'].required = False
         self.fields['user_type'].help_text = 'Choose User Type Wisely'
+        if self.request and self.request.user.user_type == 'project_admin':
+            self.fields['projects'].queryset = Projects.objects.filter(users__id=self.request.user.id)
+            self.fields['user_type'].choices = PROJECT_ADMIN_ADDABLE_USER_TYPE
 
 
 class AdminEditForm(UserCreationForm):
@@ -87,6 +95,7 @@ class AdminEditForm(UserCreationForm):
         }
 
     def __init__(self, *args, **kwargs):
+        self.request = kwargs.pop('request', None)
         super(AdminEditForm, self).__init__(*args, **kwargs)
         self.fields['image'].required = False
         self.fields['password1'].required = False
@@ -96,6 +105,9 @@ class AdminEditForm(UserCreationForm):
         if self.instance and self.instance.user_type == 'admin':
             self.fields['user_type'].help_text = 'Choose User Type Wisely (This user is currently admin)'
             self.fields['projects'].help_text = 'Admin user can manipulate any projects (but selecting these is useful for api)'
+        if self.request and self.request.user.user_type == 'project_admin':
+            self.fields['projects'].queryset = Projects.objects.filter(users__id=self.request.user.id)
+            self.fields['user_type'].choices = PROJECT_ADMIN_ADDABLE_USER_TYPE
 
 class ProfileForm(UserCreationForm):
     email = forms.EmailField()

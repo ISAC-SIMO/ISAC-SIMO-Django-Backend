@@ -21,14 +21,17 @@ def reload_classifier_list():
         print('--------- [ERROR] FAILED TO RELOAD CLASSIFIER LIST MODULE [ERROR:OOPS] --------')
 
 # View All Projects
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def viewProjects(request):
-    projects = Projects.objects.all().order_by('project_name')
+    if request.user.user_type == 'project_admin':
+        projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name')
+    else:
+        projects = Projects.objects.all().order_by('project_name')
     detect_model = classifier_list.detect_object_model_id + ' (Default)'
     return render(request, 'projects.html',{'projects':projects, 'detect_model':detect_model})
 
 # Add Project
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def addProject(request, id = 0):
     if request.method == "GET":
         form = ProjectForm()
@@ -36,9 +39,12 @@ def addProject(request, id = 0):
     elif request.method == "POST":
         form = ProjectForm(request.POST or None, request.FILES or None)
         if form.is_valid():
+            user = User.objects.get(id=request.user.id)
             instance = form.save(commit=False)
-            instance.user = User.objects.get(id=request.user.id)
+            instance.user = user
             instance.save()
+            if request.user.user_type == 'project_admin':
+                user.projects.add(instance)
             reload_classifier_list()
             messages.success(request, "New Project Added Successfully! (Make sure you add Object Types and Classifiers too)")
         else:
@@ -53,11 +59,14 @@ def addProject(request, id = 0):
     return redirect("viewprojects")
 
 # Edit Projects
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def editProject(request, id=0):
     try:
-        project = Projects.objects.filter(id=id).prefetch_related('users').get()
-
+        if request.user.user_type == 'project_admin':
+            project = Projects.objects.filter(users__id=request.user.id).filter(id=id).prefetch_related('users').get()
+        else:
+            project = Projects.objects.filter(id=id).prefetch_related('users').get()
+            
         if request.method == "GET":
             form = ProjectForm(instance=project)
             return render(request,"add_project.html",{'form':form, 'project':project})
@@ -78,11 +87,14 @@ def editProject(request, id=0):
         return redirect("viewprojects")
 
 # Delete Project
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def deleteProject(request, id):
     try:
         if request.method == "POST":
-            project = Projects.objects.get(id=id)
+            if request.user.user_type == 'project_admin':
+                project = Projects.objects.filter(users__id=request.user.id).get(id=id)
+            else:
+                project = Projects.objects.get(id=id)
             project.image.delete()
             project.delete()
             reload_classifier_list()
@@ -96,10 +108,13 @@ def deleteProject(request, id):
         return redirect("viewprojects")
 
 # Test Offline Detect Project
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def testOfflineProject(request, id):
     try:
-        project = Projects.objects.get(id=id)
+        if request.user.user_type == 'project_admin':
+            project = Projects.objects.filter(users__id=request.user.id).get(id=id)
+        else:
+            project = Projects.objects.get(id=id)
         if request.method == "GET":
             test_result = request.session.pop('test_result', False)
             return render(request, 'test.html', {"project": project, "test_result": test_result})

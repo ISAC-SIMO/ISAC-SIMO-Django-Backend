@@ -38,7 +38,7 @@
                                     <td data-toggle="tooltip" data-placement="top" title="{{object_type.instruction|default:''}}">{{object_type.name|title}}</td>
                                     <td>{{object_type.project.project_name|title|default:'GLOBAL Project'}}</td>
                                     <td>{{object_type.created_by.full_name|default:'User'}}</td>
-                                    {% if user.is_admin %}
+                                    {% if user.is_admin or user.is_project_admin %}
                                     <td class="table-options" style="min-width: 100px;">
                                         <a title="View Image" data-toggle="tooltip" data-placement="top" href="#!" onclick="showImagePop(event,'{% if object_type.image %}{{object_type.image.url}}{% else %}/media/object_types/default.jpg{% endif %}')">
                                             <i class="fa fa-file-image"></i>

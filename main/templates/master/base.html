@@ -198,7 +198,7 @@
             {% endif %}
 
             {% comment %} For Admin Only {% endcomment %}
-            {% if user.is_admin %}
+            {% if user.is_admin or user.is_project_admin %}
             <li
               class="nav-item has-treeview {% if request.resolver_match.url_name == 'allusers' or request.resolver_match.url_name == 'update_user' or request.resolver_match.url_name == 'admin_adduser' %} menu-open {% endif %}">
               <a href="#"
@@ -272,6 +272,7 @@
                     <p>All Classifiers</p>
                   </a>
                 </li>
+                {% if user.is_admin %}
                 <li class="nav-item">
                   <a href="{% url 'watson.classifier' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.classifier' %} active {% endif %}">
@@ -286,6 +287,7 @@
                     <p>Re-Train Classifier</p>
                   </a>
                 </li>
+                {% endif %}
                 <li class="nav-item">
                   <a href="{% url 'watson.classifier.create' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.create' %} active {% endif %}">
@@ -311,6 +313,7 @@
 
               </ul>
             </li>
+            {% if user.is_admin %}
             <li
               class="nav-item has-treeview {% if request.resolver_match.url_name == 'map.check' %} menu-open {% endif %}">
               <a href="#"
@@ -331,6 +334,7 @@
                 </li>
               </ul>
             </li>
+            {% endif %}
             <li
               class="nav-item has-treeview {% if request.resolver_match.url_name == 'offline.model.list' or request.resolver_match.url_name == 'offline.model.create' or request.resolver_match.url_name == 'offline.model.edit' or request.resolver_match.url_name == 'offline.model.delete' %} menu-open {% endif %}">
               <a href="#"
@@ -360,6 +364,8 @@
                 </li>
               </ul>
             </li>
+            {% endif %}
+            {% if user.is_admin %}
             <hr style="margin:0.5em 1.3em;border-top:1px solid #555;"/>
             <li class="nav-item">
               <a href="{% url 'terminal' %}"
@@ -446,6 +452,8 @@
       <div class="mb-1">
         <a href="#!" onclick="simpleConfirm(event,'{% url 'watson.countimage' %}','Counting total images might take time depending on the amount of files.')"><i class="fas fa-circle text-info mr-2"></i> Count Image Files in Storage</a>
       </div>
+      {% endif %}
+      {% if user.is_admin or user.is_project_admin %}
       <div class="mb-1">
         <a href="#!" onclick="simpleConfirm(event,'{% url 'watson.dumpimage' %}','Action will return Dump of all Images data',true)"><i class="fas fa-circle text-info mr-2"></i> Dump All Images JSON Data</a>
       </div>

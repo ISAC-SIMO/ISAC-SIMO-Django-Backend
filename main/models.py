@@ -13,7 +13,19 @@ USER_TYPE = [
     ('user', "User"),
     ('engineer', "Engineer"),
     ('government', "Government"),
+    ('project_admin', "Project Admin"),
     ('admin', "Admin"),
+]
+
+BASIC_USER_TYPE = [
+    ('user', "User"),
+    ('project_admin', "Project Admin")
+]
+
+PROJECT_ADMIN_ADDABLE_USER_TYPE = [
+    ('user', "User"),
+    ('engineer', "Engineer"),
+    ('project_admin', "Project Admin"),
 ]
 
 @deconstructible
@@ -89,7 +101,10 @@ class User(AbstractBaseUser):
         return self.full_name
 
     def get_project_list(self):
-        return "<br/> ".join(list(map(lambda x: '⮞ '+x.project_name, self.projects.all())))
+        if self.visible_projects:
+            return "<br/> ".join(list(map(lambda x: '⮞ '+x.project_name, self.visible_projects)))
+        else:
+            return "<br/> ".join(list(map(lambda x: '⮞ '+x.project_name, self.projects.all())))
     
     def get_project_json(self):
         projects = []
@@ -126,6 +141,11 @@ class User(AbstractBaseUser):
     @property
     def is_admin(self):
         if self.user_type == 'admin':
+            return True
+
+    @property
+    def is_project_admin(self):
+        if self.user_type == 'project_admin':
             return True
 
     @property

@@ -41,12 +41,14 @@
                                             <a title="Edit" data-toggle="tooltip" data-placement="left" href="{% url 'update_user' u.id %}" class="btn text-secondary px-0">
                                                 <i class="fa fa-edit"></i>
                                             </a>
+                                            {% if user.is_admin %}
                                             <a onclick="deleteData(event, 'form-{{ u.id }}', 'User')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'admin_deleteuser' u.id %}" class="btn text-secondary px-0">
                                                 <i class="fa fa-trash text-danger"></i>
                                             </a>
                                             <form action="{% url 'admin_deleteuser' u.id %}" id="form-{{ u.id }}" method="post" class="d-inline">
                                                 {% csrf_token %}
                                             </form>
+                                            {% endif %}
                                         </td>
                                     </tr>
                                 {% endfor %}

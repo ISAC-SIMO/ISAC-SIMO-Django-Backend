@@ -27,7 +27,7 @@
                                 <th>Format</th>
                                 <th>Added By</th>
                                 <th>Added At</th>
-                                {% if user.is_admin %}<th>Actions</th>{% endif %}
+                                {% if user.is_admin or user.is_project_admin %}<th>Actions</th>{% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -38,7 +38,7 @@
                                     <td>{{model.model_format}}</td>
                                     <td>{{model.created_by.full_name|default:'User'}}</td>
                                     <td>{{model.created_at}}</td>
-                                    {% if user.is_admin %}
+                                    {% if user.is_admin or user.is_project_admin %}
                                     <td class="table-options" style="min-width: 95px;">
                                         <a onclick="deleteDataWriteConfirm(event, 'offline-model-{{ model.id }}', 'Offline Model')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'offline.model.delete' model.id %}" class="btn text-secondary px-0">
                                             <i class="fa fa-trash text-danger"></i>

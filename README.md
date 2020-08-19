@@ -127,6 +127,9 @@ def get_response(self, request):
 ### Note:
 - Create ``` .env ``` file using ``` .env.example ``` and fill as required
 - ``` database_settings.py ``` needs to be updated (or use DATABASE_URL in ``` .env ``` file)
+- USER TYPES = "User", "Engineer", "Government", "Project Admin", "Admin"
+- Can only register as User or Project Admin.
+- Project Admin can only manage self projects and linked stuffs.
 
 
 > Developed By: Build Change

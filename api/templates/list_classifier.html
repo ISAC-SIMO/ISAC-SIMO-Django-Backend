@@ -50,7 +50,7 @@
                                     <td>{{classifier.object_type.name|title}}</td>
                                     <td title="{{classifier.created_at}}">{{classifier.created_by.full_name|default:'user'|title}}</td>
                                     <td>{{classifier.order}}</td>
-                                    {% if user.is_admin %}
+                                    {% if user.is_admin or user.is_project_admin %}
                                     <td class="table-options" style="min-width: 95px;">
                                         <a onclick="deleteDataWriteConfirm(event, 'classifiers-{{ classifier.id }}', 'Image')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.classifier.delete' classifier.id %}" class="btn text-secondary px-0">
                                             <i class="fa fa-trash text-danger"></i>

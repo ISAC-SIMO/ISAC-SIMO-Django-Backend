@@ -22,6 +22,12 @@ class MaintenanceMode(object):
             else:
                 return SimpleTemplateResponse(get_template('master/maintenance.html'), status=503)
 
+        # QUICKLY CHECK IF USER has active=False
+        # if request.user and not request.user.is_anonymous and not request.user.active:
+        #     logout(request)
+        #     messages.success(request, 'User Account has been Disabled. Please contact Admin.')
+        #     return redirect('login')
+
         return self.get_response(request)
 
     # To ignore and throw default exception for any errpr
