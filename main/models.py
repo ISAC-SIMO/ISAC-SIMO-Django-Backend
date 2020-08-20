@@ -125,6 +125,7 @@ class User(AbstractBaseUser):
             objects = objects + [{
                 'id': o.id,
                 'name': o.name.title(),
+                'verified': o.verified,
                 'image': url + str(o.image.url),
                 'default_image': True if "default.jpg" in o.image.url else False,
                 'instruction': o.instruction if o.instruction else "",

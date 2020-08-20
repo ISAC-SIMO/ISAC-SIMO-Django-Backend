@@ -1,8 +1,8 @@
 {% extends 'master/base.html' %}
 
-{% block title %} Classifiers List {% if object_type %}for {{object_type|title}}{% endif %} {% endblock title %}
-{% block dashboard_title1 %} Classifiers {% if object_type %}for {{object_type|title}}{% endif %} {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} All Classifiers {% if object_type %} ({{object_type|title}}){% endif %} {% endblock dashboard_title2 %}
+{% block title %} Ordering Classifiers for {{object_type|title}} {% endblock title %}
+{% block dashboard_title1 %} Ordering Classifiers for {{object_type|title}} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} Order Classifiers ({{object_type|title}}) {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -13,31 +13,28 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-title ml-3 mt-2">
-                    <a href="{% url 'watson.classifier.create' %}"  class="btn btn-primary">
+                    <a href="{% url 'watson.classifier.create' %}" class="btn btn-primary mb-2">
                         <i class="fas fa-plus"></i> Create New Classifier
                     </a>
-                    <a href="{% url 'watson.classifier' %}"  class="d-none d-md-inline-block btn btn-primary">
-                        <i class="fas fa-plus"></i> Fetch Classifier Details
-                    </a>
-                    <a href="{% url 'watson.train' %}"  class="float-md-right d-none d-md-inline-block mr-2 btn btn-success">
-                        <i class="fas fa-plus"></i> Re-Train Classifiers
-                    </a>
+                    <p class="mb-0"><b>Project:</b> {{object_type.project.project_name|title|default:'<i class="fas fa-exclamation-triangle text-warning"></i> &nbsp; No Project'}}</p>
+                    <p class="mb-0"><b>Object Type:</b> {{object_type|title}}</p>
+                    <p class="mb-0"><b>Verified:</b> {% if object_type.verified %} Yes <small>(If you update, it will be marked un-verified)</small> {% else %} No {% endif %}</p>
                 </div>
-                <div class="card-body table table-responsive">
-                    <table id="classifierTable" class="table table-bordered table-hover table-striped">
-                        <thead>
+                <!-- ORDER CLASSIFIERS -->
+                <div class="card-body table table-responsive mb-0">
+                    <table id="classifierTable" class="table table-bordered table-hover">
+                        <thead class="bg-secondary">
                             <tr>
+                                <th>Order <i class="ml-1 fa fa-sort"></i></th>
                                 <th>Name</th>
-                                <th>Project</th>
-                                <th>Object Type</th>
                                 <th>Added By</th>
-                                <th>Order</th>
                                 {% if user.is_admin or user.is_project_admin %}<th>Actions</th>{% endif %}
                             </tr>
                         </thead>
-                        <tbody>
+                        <tbody id="sortable">
                             {% for classifier in classifiers %}
-                                <tr>
+                                <tr data-id="{{classifier.id}}" data-old-order="{{classifier.order}}" data-order="{{classifier.order}}" style="cursor: move;">
+                                    <td id="order-no-{{classifier.id}}">{{classifier.order}}</td>
                                     <td title="Given Name: {{classifier.given_name|default:'None'}}">{{classifier.name}} {% if classifier.offline_model %}<small style="color:teal;"><b>( Local: <a href="{% url 'offline.model.edit' classifier.offline_model.id %}">{{classifier.offline_model.name}}</a></b> )</small>
                                         {% if classifier.offline_model.preprocess %}
                                         <i class="fa fa-dot-circle text-green" title="Pre-Process" data-toggle="tooltip" data-placement="right"></i>
@@ -46,10 +43,7 @@
                                         <i class="fa fa-check-circle text-orange" title="Post-Process" data-toggle="tooltip" data-placement="right"></i>
                                         {% endif %}
                                     {% endif %}</td>
-                                    <td>{{classifier.project.project_name|title|default:'<i class="fas fa-exclamation-triangle text-warning"></i> &nbsp; No Project'}}</td>
-                                    <td>{{classifier.object_type.name|title}}</td>
                                     <td title="{{classifier.created_at}}">{{classifier.created_by.full_name|default:'user'|title}}</td>
-                                    <td>{{classifier.order}}</td>
                                     {% if user.is_admin or user.is_project_admin %}
                                     <td class="table-options" style="min-width: 95px;">
                                         <a onclick="deleteDataWriteConfirm(event, 'classifiers-{{ classifier.id }}', 'Image')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.classifier.delete' classifier.id %}" class="btn text-secondary px-0">
@@ -74,26 +68,41 @@
                         </tbody> 
                     </table>
                 </div>
+                <form action="{% url 'watson.classifier.order' object_type.id %}" method="POST" class="card-title ml-3">
+                  {% csrf_token %}   
+                  <input type="hidden" id="classifiers_arr" value="[]" name="classifiers" required/>               
+                  <button type="submit" class="btn btn-success mb-3">
+                      <i class="fas fa-save mr-1"></i> Save
+                  </button>
+                </form>
             </div>
         </div>
     </div>
 {% endblock content %}
 
 {% block script %}
+    <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
     <script>
-        $(function () {
-          $('#classifierTable').DataTable({
-            "paging": true,
-            "lengthChange": true,
-            "searching": true,
-            "ordering": true,
-            "info": true,
-            "autoWidth": true,
-            "order": [],
-            "language": {
-			    "emptyTable": "No Classifiers Available {% if object_type %}for {{object_type|title}}{% endif %}"
-			}
-          });
-        });
+      var element = $('#sortable')[0]; 
+      var sortable = new Sortable(element, {
+        animation: 300,
+        onSort: function (e) {
+          var items = e.to.children; 
+          var result = []; 
+          for (var i = 0; i < items.length; i++) {
+            let id = $(items[i]).attr('data-id');
+            result.push(id); 
+            $('#order-no-'+id).text(i+1);
+          }
+          console.log(result);
+          $('#classifiers_arr').val(JSON.stringify(result));
+        },
+        onEnd: function(e) {
+          e.item.style.background = 'springgreen';
+          setTimeout(function(){
+            e.item.style.background = 'initial';
+          }, 300);
+        }
+      });
     </script>
 {% endblock script %}

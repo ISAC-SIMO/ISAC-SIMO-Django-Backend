@@ -29,24 +29,30 @@
                                 <th>Name</th>
                                 <th>Project</th>
                                 <th>Added By</th>
-                                {% if user.is_admin %}<th style="width:25px;">Actions</th>{% endif %}
+                                {% if user.is_admin or user.is_project_admin %}<th style="width:110px;">Actions</th>{% endif %}
                             </tr>
                         </thead>
                         <tbody>
                             {% for object_type in object_types %}
                                 <tr>
                                     <td data-toggle="tooltip" data-placement="top" title="{{object_type.instruction|default:''}}">{{object_type.name|title}}</td>
-                                    <td>{{object_type.project.project_name|title|default:'GLOBAL Project'}}</td>
+                                    <td>{{object_type.project.project_name|title|default:'Anon. Project'}}</td>
                                     <td>{{object_type.created_by.full_name|default:'User'}}</td>
                                     {% if user.is_admin or user.is_project_admin %}
-                                    <td class="table-options" style="min-width: 100px;">
-                                        <a title="View Image" data-toggle="tooltip" data-placement="top" href="#!" onclick="showImagePop(event,'{% if object_type.image %}{{object_type.image.url}}{% else %}/media/object_types/default.jpg{% endif %}')">
+                                    <td class="table-options" style="min-width: 110px;">
+                                        <a title="View Image" data-toggle="tooltip" data-placement="left" href="#!" onclick="showImagePop(event,'{% if object_type.image %}{{object_type.image.url}}{% else %}/media/object_types/default.jpg{% endif %}')" style="margin: 0 4px !important;">
                                             <i class="fa fa-file-image"></i>
                                         </a>
-                                        <a onclick="deleteDataWriteConfirm(event, 'form-{{ object_type.id }}', 'Object Type')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.delete' object_type.id %}" class="btn text-secondary px-0">
+                                        <a onclick="deleteDataWriteConfirm(event, 'form-{{ object_type.id }}', 'Object Type')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.delete' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <a data-html="true" title="View Classifiers for {{object_type.name|title}} <br/> {{object_type.classifiers.count}} Classifiers Available" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.list' %}?object_type={{object_type.id}}" class="btn text-secondary px-0">
+                                        <a data-html="true" title="Quick Order Classifiers" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.order' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-sort-amount-up text-secondary"></i>
+                                        </a>
+                                        <a data-html="true" title="View Classifiers for {{object_type.name|title}} <br/> {{object_type.classifiers.count}} Classifiers Available" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.list' %}?object_type={{object_type.id}}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-arrow-right text-info"></i>
+                                        </a>
+                                        <a data-html="true" title="View Classifiers for {{object_type.name|title}} <br/> {{object_type.classifiers.count}} Classifiers Available" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.list' %}?object_type={{object_type.id}}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-arrow-right text-info"></i>
                                         </a>
                                         <form action="{% url 'watson.object.delete' object_type.id %}" id="form-{{ object_type.id }}" class="d-inline">

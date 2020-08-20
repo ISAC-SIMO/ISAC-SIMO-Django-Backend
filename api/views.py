@@ -453,6 +453,43 @@ def watsonClassifierList(request):
     
     return render(request, 'list_classifier.html',{'classifiers':classifiers,'object_type':object_type})
 
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
+def watsonClassifierOrder(request, id): # id = object_type_id
+    if request.method == "GET":
+        classifiers = False
+        object_type = False
+        if request.user.user_type == 'project_admin':
+            projects = Projects.objects.filter(users__id=request.user.id)
+            classifiers = Classifier.objects.order_by('-object_type').filter(Q(created_by=request.user) | Q(project__in=projects)).filter(object_type=id).order_by('order').all()
+            object_type = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('-created_at').get(id=id)
+        else:
+            classifiers = Classifier.objects.order_by('-object_type').filter(object_type=id).order_by('order').all()
+            object_type = ObjectType.objects.filter(id=id).get()
+        
+        return render(request, 'order_classifier.html',{'classifiers':classifiers,'object_type':object_type})
+    elif request.method == "POST":
+        classifier_ids = json.loads(request.POST.get('classifiers','[]'))
+        projects = Projects.objects.filter(users__id=request.user.id)
+        error = 0
+        for idx, classifier_id in enumerate(classifier_ids):
+            try:
+                if request.user.user_type == 'project_admin':
+                    classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).filter(object_type=id).get(id=classifier_id)
+                else:
+                    classifier = Classifier.objects.filter(object_type=id).get(id=classifier_ids)
+                classifier.order = idx + 1
+                classifier.save()
+            except(Classifier.DoesNotExist):
+                error = error + 1
+
+        messages.success(request, 'Classifiers Order Updated')
+        if error > 0:
+            messages.error(request, 'But, '+error+' did not succeed.')
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
+    else:
+        messages.error(request, 'Invalid Request for Ordering Classifiers')
+        return redirect('dashboard')
+
 # Classifier Details of IBM
 @user_passes_test(is_admin, login_url=login_url)
 def watsonClassifier(request):

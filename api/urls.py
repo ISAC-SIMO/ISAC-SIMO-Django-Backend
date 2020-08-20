@@ -17,6 +17,7 @@ urlpatterns = [
     # Watson
     # -----------
     path('watson/classifier', views.watsonClassifierList, name="watson.classifier.list"),
+    path('watson/classifier/order/<int:id>', views.watsonClassifierOrder, name="watson.classifier.order"),
     path('watson/classifier/create', views.watsonClassifierCreate, name="watson.classifier.create"),
     path('watson/classifier/delete/<int:id>', views.watsonClassifierDelete, name="watson.classifier.delete"),
     path('watson/classifier/edit/<int:id>', views.watsonClassifierEdit, name="watson.classifier.edit"),
