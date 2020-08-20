@@ -49,13 +49,22 @@
                                         <a data-html="true" title="Quick Order Classifiers" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.order' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-sort-amount-up text-secondary"></i>
                                         </a>
-                                        <a data-html="true" title="View Classifiers for {{object_type.name|title}} <br/> {{object_type.classifiers.count}} Classifiers Available" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.list' %}?object_type={{object_type.id}}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
-                                            <i class="fa fa-arrow-right text-info"></i>
+                                        {% if object_type.verified %}
+                                        <a onclick="confirmWithForm(event, 'form-verify-{{ object_type.id }}', 'Mark this Object ({{object_type.name|title}}) as Un-Verified')" title="Mark Un-Verified" data-toggle="tooltip" data-placement="right" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-check-circle text-success"></i>
                                         </a>
+                                        {% else %}
+                                        <a onclick="confirmWithForm(event, 'form-verify-{{ object_type.id }}', 'Mark this Object ({{object_type.name|title}}) as Verified ✓')" title="Mark Verified" data-toggle="tooltip" data-placement="right" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-times-circle text-orange"></i>
+                                        </a>
+                                        {% endif %}
                                         <a data-html="true" title="View Classifiers for {{object_type.name|title}} <br/> {{object_type.classifiers.count}} Classifiers Available" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.list' %}?object_type={{object_type.id}}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-arrow-right text-info"></i>
                                         </a>
                                         <form action="{% url 'watson.object.delete' object_type.id %}" id="form-{{ object_type.id }}" class="d-inline">
+                                            {% csrf_token %}
+                                        </form>
+                                        <form action="{% url 'watson.object.verify' object_type.id %}" method="POST" id="form-verify-{{ object_type.id }}" class="d-inline">
                                             {% csrf_token %}
                                         </form>
                                     </td>

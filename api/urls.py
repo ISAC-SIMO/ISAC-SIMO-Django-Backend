@@ -28,6 +28,7 @@ urlpatterns = [
     path('watson/object/list', views.watsonObjectList, name="watson.object.list"),
     path('watson/object/create', views.watsonObjectCreate, name="watson.object.create"),
     path('watson/object/delete/<int:id>', views.watsonObjectDelete, name="watson.object.delete"),
+    path('watson/object/verify/<int:id>', views.watsonObjectVerify, name="watson.object.verify"),
     path('watson/object/detail', views.watsonObject, name="watson.object"), # fetch from ibm details
 
     # Offline Model

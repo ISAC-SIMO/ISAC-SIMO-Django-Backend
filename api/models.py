@@ -59,6 +59,7 @@ class ObjectType(models.Model):
     project = models.ForeignKey(Projects, related_name='object_types', on_delete=models.CASCADE, blank=True, null=True)
     image = models.ImageField(upload_to=path_and_rename_object_types, default='object_types/default.jpg', blank=True)
     instruction = models.TextField(max_length=500, blank=True, null=True)
+    verified = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 

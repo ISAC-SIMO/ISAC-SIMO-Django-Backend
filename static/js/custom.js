@@ -134,6 +134,27 @@ function deleteDataWriteConfirm(event, element, name){
     }
 }
 
+// Simple Delete Confirm Alert
+function confirmWithForm(event, element, title){
+    event.preventDefault();
+    var title = title;
+    Swal.fire({
+        title: title,
+        type: 'warning',
+        showCancelButton: true,
+        confirmButtonText: 'Yes',
+        confirmButtonColor: '#ad2424',
+        reverseButtons: true,
+        cancelButtonText: 'No, cancel!',
+        }).then((result) => {
+        if (result.value) {
+          Pace.restart();
+          $('#'+element).submit();
+        }
+    })
+    $('.swal2-cancel').focus();
+}
+
 // Simple Ok confirm
 function simpleConfirm(event, to, text, download){
     event.preventDefault();

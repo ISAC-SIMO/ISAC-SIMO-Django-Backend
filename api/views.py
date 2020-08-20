@@ -476,9 +476,13 @@ def watsonClassifierOrder(request, id): # id = object_type_id
                 if request.user.user_type == 'project_admin':
                     classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).filter(object_type=id).get(id=classifier_id)
                 else:
-                    classifier = Classifier.objects.filter(object_type=id).get(id=classifier_ids)
+                    classifier = Classifier.objects.filter(object_type=id).get(id=classifier_id)
                 classifier.order = idx + 1
                 classifier.save()
+                # THEN reset verified to False
+                object_type = ObjectType.objects.filter(id=id).get()
+                object_type.verified = False
+                object_type.save()
             except(Classifier.DoesNotExist):
                 error = error + 1
 
@@ -567,6 +571,9 @@ def watsonClassifierCreate(request):
                     classifier.offline_model = offline_model
                     classifier.classes = json.loads(offline_model.offline_model_labels)
                 classifier.save()
+                # And unverify the object type
+                object_type.verified = False
+                object_type.save()
             
             created = json.dumps(created, indent=4)
         else:
@@ -592,7 +599,8 @@ def watsonClassifierEdit(request, id):
             else:
                 classifier = Classifier.objects.get(id=id)
             classifier.name = request.POST.get('name')
-            classifier.object_type = ObjectType.objects.get(id=request.POST.get('object_type'))
+            object_type = ObjectType.objects.get(id=request.POST.get('object_type'))
+            classifier.object_type = object_type
             classifier.project = Projects.objects.get(id=request.POST.get('project'))
             if request.POST.get('offlineModel', False):
                 offline_model = OfflineModel.objects.get(id=request.POST.get('offlineModel'))
@@ -600,6 +608,9 @@ def watsonClassifierEdit(request, id):
                 classifier.classes = json.loads(offline_model.offline_model_labels)
             classifier.order = request.POST.get('order', 0)
             classifier.save()
+            # And unverify the object type
+            object_type.verified = False
+            object_type.save()
             messages.success(request, 'Classifier Updated (Order set to: '+ str(request.POST.get('order', 0)) +')')
             reload_classifier_list()
             return redirect('watson.classifier.list')
@@ -633,6 +644,12 @@ def watsonClassifierDelete(request, id):
                 classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).get(id=id)
             else:
                 classifier = Classifier.objects.get(id=id)
+            
+            # And unverify the object type
+            object_type = classifier.object_type
+            object_type.verified = False
+            object_type.save()
+            
             classifier.delete()
             messages.success(request, 'Classifier Deleted (Images will not be passed through this again)')
             reload_classifier_list()
@@ -818,6 +835,27 @@ def watsonObjectDelete(request, id):
             return redirect('watson.object.list')
     else:
         messages.error(request, 'Object Not Deleted')
+        return redirect('watson.object.list')
+
+# Watson Object Type Verify or Un-Verify
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
+def watsonObjectVerify(request, id):
+    if(request.method == "POST"):
+        try:
+            if request.user.user_type == 'project_admin':
+                projects = Projects.objects.filter(users__id=request.user.id)
+                object_type = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('-created_at').get(id=id)
+            else:
+                object_type = ObjectType.objects.get(id=id)
+            object_type.verified = not object_type.verified
+            object_type.save()
+            messages.success(request, 'Object Type '+ ("Verified" if object_type.verified else "Un-Verified"))
+            return redirect('watson.object.list')
+        except(ObjectType.DoesNotExist):
+            messages.success(request, 'Object Not Found')
+            return redirect('watson.object.list')
+    else:
+        messages.error(request, 'Invalid Request')
         return redirect('watson.object.list')
 
 ##################
