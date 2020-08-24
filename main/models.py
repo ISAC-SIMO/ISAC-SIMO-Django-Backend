@@ -121,6 +121,9 @@ class User(AbstractBaseUser):
         url = ""
         if request:
             url = request.scheme + '://' + request.META['HTTP_HOST']
+        # TODO: probably in future we will not get all() objects below
+        # We probably will get request.GET.get('project_id') which will be coming for each project specific mobile app
+        # So we need to filter ObjectType with this project e.g. ObjectType.objects.filter(project=project_id).order_by('created_at').all()
         for o in ObjectType.objects.order_by('created_at').all():
             objects = objects + [{
                 'id': o.id,

@@ -1,0 +1,121 @@
+{% extends 'master/base.html' %}
+
+{% block title %} File Upload {% endblock title %}
+{% block dashboard_title1 %} File Upload {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} Files {% endblock dashboard_title2 %}
+{% load static %}
+
+{% block content %}
+    <style>
+        .bs-tooltip-auto[x-placement^=top] .arrow, .bs-tooltip-top .arrow{transform:translate(6px,0)}
+    </style>
+    <div class="row">
+        <div class="col-sm-12 col-md-8">
+            <div class="card">
+                <div class="card-body table table-responsive">
+                    <table id="file_upload_dt" class="table table-bordered table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Name</th>
+                                <th>Added By</th>
+                                {% if user.is_admin %}<th style="width:110px;">Actions</th>{% endif %}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for file_upload in file_uploads %}
+                                <tr>
+                                    <td>{{file_upload.name|title}}</td>
+                                    <td>{{file_upload.created_by.full_name|default:'Anonymous'}}</td>
+                                    {% if user.is_admin %}
+                                    <td class="table-options" style="min-width: 110px;">
+                                        <a title="Download File" data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" download href="{{file_upload.file.url}}" style="margin: 0 4px !important;">
+                                            <i class="fa fa-download"></i>
+                                        </a>
+                                        <a onclick="prompt('Use this as File Path in Pre/Post Processor or elsewhere','{{ file_upload.filepath }}')" title="Copy Path" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-copy text-black"></i>
+                                        </a>
+                                        <a onclick="deleteDataWriteConfirm(event, 'form-{{ file_upload.id }}', 'Uploaded File')" title="Delete" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                        <a onclick="editForm('{{file_upload.id}}','{{file_upload.name}}','{{file_upload.file.url}}')" title="Edit" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        <form action="{% url 'file_upload.delete' file_upload.id %}" id="form-{{ file_upload.id }}" class="d-inline">
+                                            {% csrf_token %}
+                                        </form>
+                                    </td>
+                                    {% endif %}
+                                </tr>
+                            {% endfor %}
+                        </tbody> 
+                    </table>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-4">
+            <div class="card">
+                <div class="card-title ml-3 mt-3">
+                    <h5 id="file_title_status">Upload File</h5>
+                </div>
+                <hr style="margin:0.5rem;"/>
+                <div class="card-body pt-0">
+                    {% load crispy_forms_tags %}
+                    <form action="{% url 'file_upload' %}" method="POST" id="file_upload_create_form" class="d-inline" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" value="0" id="id_field" name="id"/>
+                        {{ form|crispy }}
+                        <p style="display:none;font-size:0.7em;" id="file_path"></p>
+                        <div class="form-group">
+                            <div class="col-sm-12" style="display: flex;justify-content: space-between;align-items: center;">
+                                <button class="btn btn-sm btn-primary" id="upload_btn" type="submit">Upload <i class="fa fa-upload ml-1" style="font-size: 80%;"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">Clear <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block script %}
+    <script>
+        $(function () {
+          $('#file_upload_dt').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+            "order": [],
+            "language": {
+              "emptyTable": "No Uploaded File to show."
+            }
+          });
+        });
+
+        function editForm(id, name, url){
+          $('#id_field').val(id);
+          $('#id_name').val(name);
+          $('#file_path').css("display","block");
+          $('#file_path').html('Previous: <a href="'+url+'" target="_blank">'+url+'</a>');
+          $('#file_title_status').text('Edit File');
+          $('#upload_btn').text("Update File");
+          $('#div_id_file label span').css('display','none');
+          $('#id_file').attr('required',false);
+        }
+
+        function createForm(event){
+          event.preventDefault();
+          $('#id_field').val(0);
+          $('#id_name').val("");
+          $('#file_path').css("display","none");
+          $('#file_path').html('');
+          $('#file_title_status').text('Upload File');
+          $('#upload_btn').text("Upload");
+          $('#div_id_file label span').css('display','inline');
+          $('#id_file').attr('required',true);
+        }
+    </script>
+{% endblock script %}

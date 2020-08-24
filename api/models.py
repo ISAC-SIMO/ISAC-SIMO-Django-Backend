@@ -23,6 +23,7 @@ class PathAndRename(object):
 path_and_rename = PathAndRename("image")
 path_and_rename_offline_models = PathAndRename("offline_models")
 path_and_rename_object_types = PathAndRename("object_types")
+path_and_rename_file_upload = PathAndRename("file")
 
 class Image(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True)
@@ -113,3 +114,29 @@ class OfflineModel(models.Model):
             return self.file.url.replace('/media/offline_models/','')
         except Exception as e:
             return ''
+
+# File Upload
+class FileUpload(models.Model):
+    name = models.CharField(max_length=200)
+    file = models.FileField(upload_to=path_and_rename_file_upload)
+    created_by = models.ForeignKey("main.User", related_name='file_uploads', on_delete=models.SET_NULL, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.name
+
+    def filename(self):
+        try:
+            return self.file.url.replace('/media/file/','')
+        except Exception as e:
+            return 'INVALID'
+
+    def filepath(self):
+        try:
+            zipPath = os.path.join('media/file/', self.file.url)
+            if not os.path.exists(os.path.join('media/file/')):
+                zipPath = os.environ.get('PROJECT_FOLDER','') + '/media/file/'+self.file.url
+            return zipPath
+        except Exception as e:
+            return self.filename()

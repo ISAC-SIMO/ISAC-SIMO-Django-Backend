@@ -376,6 +376,15 @@
                 </p>
               </a>
             </li>
+            <li class="nav-item">
+              <a href="{% url 'file_upload' %}"
+                class="nav-link mellowyellow {% if request.resolver_match.url_name == 'file_upload' %} active {% endif %}">
+                <i class="nav-icon fa fa-folder"></i>
+                <p>
+                  File Upload
+                </p>
+              </a>
+            </li>
             {% endif %}
             {% comment %} / IS ADMIN / {% endcomment %}
 

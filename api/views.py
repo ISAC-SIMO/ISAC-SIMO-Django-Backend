@@ -26,9 +26,9 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 
 import isac_simo.classifier_list as classifier_list
-from api.forms import OfflineModelForm
+from api.forms import OfflineModelForm, FileUploadForm
 from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_image, quick_test_offline_image, retrain_image, test_image
-from api.models import Classifier, ObjectType, OfflineModel
+from api.models import Classifier, ObjectType, OfflineModel, FileUpload
 from api.serializers import (ImageSerializer, UserSerializer,
                              VideoFrameSerializer)
 from main import authorization
@@ -1140,6 +1140,58 @@ def terminal(request):
         return JsonResponse({"cmd":cmd, "res":res, "err":err}, status=200)
     else:
         return JsonResponse({"message":"Invalid Request"}, status=404)
+
+# FILE UPLOAD
+# Add Image via Dashboard
+@user_passes_test(is_admin, login_url=login_url)
+def fileUpload(request):
+    if request.method == "GET":
+        form = FileUploadForm()
+        file_uploads = FileUpload.objects.all()
+        return render(request,"file_upload.html",{'form':form, 'file_uploads': file_uploads})
+    elif request.method == "POST":
+        if request.POST.get('id', False) and request.POST.get('id') != "0":
+            # EDIT
+            try:
+                fileUpload = FileUpload.objects.filter(id=request.POST.get('id')).get()
+                # DELETE OLD FILE IF NEW EXISTS
+                if request.FILES.get('file', False):
+                    fileUpload.file.delete()
+                form = FileUploadForm(request.POST or None, request.FILES or None, instance=fileUpload)
+                if form.is_valid():
+                    instance = form.save(commit=False)
+                    instance.save()
+                    messages.success(request, "File Updated Successfully")
+                    return redirect("file_upload")
+            except(FileUpload.DoesNotExist):
+                pass
+        else:
+            # Create
+            form = FileUploadForm(request.POST or None, request.FILES or None)
+            if form.is_valid():
+                instance = form.save(commit=False)
+                instance.created_by = request.user
+                instance.save()
+                messages.success(request, "File Uploaded Successfully")
+                return redirect("file_upload")
+
+    messages.error(request, "Invalid Request")
+    return redirect("file_upload")
+
+@user_passes_test(is_admin, login_url=login_url)
+def fileUploadDelete(request, id):
+    if request.method == "POST":
+        try:
+            fileUpload = FileUpload.objects.filter(id=id).get()
+            fileUpload.file.delete()
+            fileUpload.delete()
+            messages.success(request, 'File Deleted Successfully!')
+            return redirect("file_upload")
+        except(FileUpload.DoesNotExist):
+            pass
+
+    messages.error(request, "Invalid Request")
+    return redirect("file_upload")
 
 #######
 # API #

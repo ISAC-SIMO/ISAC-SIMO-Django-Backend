@@ -47,7 +47,10 @@ urlpatterns = [
     path('misc/dump/images', views.dumpImage, name="watson.dumpimage"),#dump json of image+image_file models
 
     # Terminal
-    path('terminal', views.terminal, name="terminal")
+    path('terminal', views.terminal, name="terminal"),
+    # File Upload
+    path('file_upload', views.fileUpload, name="file_upload"),
+    path('file_upload/delete/<int:id>', views.fileUploadDelete, name="file_upload.delete")
 ]
 
 if settings.DEBUG:

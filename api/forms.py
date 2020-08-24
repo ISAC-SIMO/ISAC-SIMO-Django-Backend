@@ -4,7 +4,7 @@ from django.db import models
 from .models import Image
 from django.forms.widgets import Textarea
 from projects.models import Projects
-from api.models import OfflineModel
+from api.models import OfflineModel, FileUpload
 
 
 class ImageForm(forms.ModelForm):
@@ -58,3 +58,13 @@ class OfflineModelForm(forms.ModelForm):
         if self.instance and (self.instance.projects.all().count() or self.instance.classifiers.all().count()): # Done, to check if offline model is linked to projects or classifiers to disable editing object type
             self.fields['model_type'].widget = forms.HiddenInput()
             self.fields['model_format'].help_text = 'Choose a format or type yourself <br/> Model Type is Unable to change because it is used by some projects or classifier actively'
+
+# FILE UPLOAD
+class FileUploadForm(forms.ModelForm):
+    class Meta:
+        model = FileUpload     
+        fields = ('name', 'file')
+
+    def __init__(self, *args, **kwargs):
+        super(FileUploadForm, self).__init__(*args, **kwargs)
+        self.fields['file'].help_text = 'Upload Files like Unet Models etc. here & use this path in pre-processor or post-processor'

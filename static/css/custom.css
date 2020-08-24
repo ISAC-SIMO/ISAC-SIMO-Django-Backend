@@ -35,3 +35,4 @@ body::-webkit-scrollbar,.table-responsive::-webkit-scrollbar{width:.6em;height:.
 .fade-img:not([src]) {visibility: hidden;}
 .select2-container--default .select2-selection--multiple {min-height: calc(0.25rem + 2px) !important;}
 blockquote{color:#eee !important;}
+.sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.mellowyellow.active {background-color: #b5890d !important;}
