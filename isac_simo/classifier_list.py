@@ -35,7 +35,7 @@ def data():
     }
 
     try:
-        projects = Projects.objects.order_by('created_at').all().prefetch_related(Prefetch('object_types', queryset=ObjectType.objects.order_by('updated_at').all().prefetch_related(Prefetch('classifiers', queryset=Classifier.objects.order_by('order')))))
+        projects = Projects.objects.order_by('created_at').all().prefetch_related(Prefetch('object_types', queryset=ObjectType.objects.order_by('created_at').all().prefetch_related(Prefetch('classifiers', queryset=Classifier.objects.order_by('-object_type','order')))))
         for project in projects:
             if not classifier_list.get(project.unique_name(), False):
                 classifier_list[project.unique_name()] = {}

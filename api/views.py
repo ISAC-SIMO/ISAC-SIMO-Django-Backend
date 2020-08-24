@@ -438,17 +438,17 @@ def watsonClassifierList(request):
     if request.user.user_type == 'project_admin':
         projects = Projects.objects.filter(users__id=request.user.id)
         if request.GET.get('object_type', False):
-            classifiers = Classifier.objects.order_by('-object_type').filter(Q(created_by=request.user) | Q(project__in=projects)).filter(object_type=request.GET.get('object_type')).order_by('order').all()
+            classifiers = Classifier.objects.order_by('-object_type','order').filter(Q(created_by=request.user) | Q(project__in=projects)).filter(object_type=request.GET.get('object_type')).all()
             object_type = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('-created_at').get(id=request.GET.get('object_type'))
         else:
-            classifiers = Classifier.objects.order_by('-object_type').filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('order').all()
+            classifiers = Classifier.objects.order_by('-object_type','order').filter(Q(created_by=request.user) | Q(project__in=projects)).all()
             object_type = False
     else:
         if request.GET.get('object_type', False):
-            classifiers = Classifier.objects.order_by('-object_type').filter(object_type=request.GET.get('object_type')).order_by('order').all()
+            classifiers = Classifier.objects.order_by('-object_type','order').filter(object_type=request.GET.get('object_type')).all()
             object_type = ObjectType.objects.filter(id=request.GET.get('object_type')).get().name
         else:
-            classifiers = Classifier.objects.order_by('-object_type').order_by('order').all()
+            classifiers = Classifier.objects.order_by('-object_type','order').all()
             object_type = False
     
     return render(request, 'list_classifier.html',{'classifiers':classifiers,'object_type':object_type})
@@ -489,6 +489,7 @@ def watsonClassifierOrder(request, id): # id = object_type_id
         messages.success(request, 'Classifiers Order Updated')
         if error > 0:
             messages.error(request, 'But, '+error+' did not succeed.')
+        reload_classifier_list()
         return HttpResponseRedirect(request.META.get('HTTP_REFERER', '/'))
     else:
         messages.error(request, 'Invalid Request for Ordering Classifiers')
@@ -883,6 +884,7 @@ def offlineModelCreate(request):
             instance.created_by = User.objects.get(id=request.user.id)
             instance.offline_model_labels = json.dumps(request.POST.getlist('offline_model_labels'))
             instance.save()
+            reload_classifier_list()
             messages.success(request, "New Offline Model Added")
         else:
             messages.error(request, "Invalid Request")
