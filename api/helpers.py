@@ -783,18 +783,24 @@ def quick_test_image(image_file, classifier_ids):
         return False
 
 # README.md might be helpful
-def quick_test_offline_image(image_file, classifier):
+def quick_test_offline_image(image_file, classifier, direct_offline_model=False):
     if not image_file or not classifier:
         return False
 
     img = Image.open(image_file).resize((150, 150))
     x = np.array(img)/255.0
 
+    offline_model = None
+    if direct_offline_model:
+        offline_model = classifier
+    else:
+        offline_model = classifier.offline_model
+
     saved_model = None
     if not os.path.exists(os.path.join('media/offline_models/')):
-        saved_model = os.environ.get('PROJECT_FOLDER','') + '/media/offline_models/'+classifier.offline_model.filename()
+        saved_model = os.environ.get('PROJECT_FOLDER','') + '/media/offline_models/'+offline_model.filename()
     else:
-        saved_model = os.path.join('media/offline_models/', classifier.offline_model.filename())
+        saved_model = os.path.join('media/offline_models/', offline_model.filename())
     
     # Single thread example for tensorflow #
     # session_conf = tf.compat.v1.ConfigProto(
@@ -804,7 +810,7 @@ def quick_test_offline_image(image_file, classifier):
     # K.set_session(sess)
 
     try:
-        offlineModelLabels = json.loads(classifier.offline_model.offline_model_labels)
+        offlineModelLabels = json.loads(offline_model.offline_model_labels)
     except Exception as e:
         print(e)
         offlineModelLabels = []
@@ -812,7 +818,7 @@ def quick_test_offline_image(image_file, classifier):
     # Check type of model
     # h5, hdf5, keras, py
     result = [[]]
-    if classifier.offline_model.model_format in ('h5', 'hdf5', 'keras'): # tf.keras models
+    if offline_model.model_format in ('h5', 'hdf5', 'keras'): # tf.keras models
         try:
             new_model = tf.keras.models.load_model(saved_model)
             result = new_model.predict(x[np.newaxis, ...])
@@ -821,7 +827,7 @@ def quick_test_offline_image(image_file, classifier):
         except Exception as e:
             print(e)
             print('Failed to run h5,hdf5,kears Offline Model [Quick Test]')
-    elif classifier.offline_model.model_format in ('py'): # python script
+    elif offline_model.model_format in ('py'): # python script
         # Trying to run saved offline .py model (loading saved py file using string name)
         try:
             print('----running saved offline model .py------')
@@ -871,6 +877,49 @@ def quick_test_offline_image(image_file, classifier):
     tf.keras.backend.clear_session()
     # tf.reset_default_graph()
     return {'data':data, 'score':score, 'result':result_type}
+
+# QUICK TEST Offline Images (classifier) - PRE-PROCESS / POST-PROCESS
+def quick_test_offline_image_pre_post(image_file, classifier, request, fake_score=0, fake_result="", direct_offline_model=False):
+    if not image_file or not classifier:
+        return False
+
+    img = cv2.imdecode(np.fromstring(image_file.read(), np.uint8), cv2.IMREAD_UNCHANGED)
+
+    offline_model = None
+    if direct_offline_model:
+        offline_model = classifier
+    else:
+        offline_model = classifier.offline_model
+
+    saved_model = None
+    if not os.path.exists(os.path.join('media/offline_models/')):
+        saved_model = os.environ.get('PROJECT_FOLDER','') + '/media/offline_models/'+offline_model.filename()
+    else:
+        saved_model = os.path.join('media/offline_models/', offline_model.filename())
+
+    if offline_model.model_format in ('py') and saved_model: # python script
+        # Trying to run saved offline .py model (loading saved py file using string name)
+        try:
+            print('----running quick test pre/post offline model .py------')
+            import importlib, inspect
+            loader = importlib.machinery.SourceFileLoader('model', saved_model)
+            handle = loader.load_module('model')
+            result = None
+            if offline_model.preprocess:
+                result = handle.run(img)
+                baseuri = base64.b64encode(cv2.imencode('.jpg', result)[1]).decode()
+                messages.success(request, "Detected as Pre-Process")
+                return {"image": baseuri}
+            elif offline_model.postprocess:
+                messages.success(request, "Detected as Post-Process (Passing Empty Pipeline Data)")
+                result = handle.run(img, [], fake_score, fake_result)
+                return {"data": result}
+        except Exception as e:
+            print(e)
+            print('Failed to run quick test pre/post .py Offline Model [Quick Test]')
+    else:
+        messages.error(request, "Not a valid Offline Model (Although, marked Pre/Post Process is not .py format)")
+        return False
 
 # QUICK TEST DETECT MODE:
 def quick_test_detect_image(image_file, detect_model, offline=False, project_folder=''):

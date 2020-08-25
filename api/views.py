@@ -2,6 +2,7 @@ import glob
 import io
 import json
 import os
+import sys
 import subprocess
 import uuid
 from datetime import datetime
@@ -27,7 +28,7 @@ from rest_framework.response import Response
 
 import isac_simo.classifier_list as classifier_list
 from api.forms import OfflineModelForm, FileUploadForm
-from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_image, quick_test_offline_image, retrain_image, test_image
+from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_image, quick_test_offline_image, retrain_image, test_image, quick_test_offline_image_pre_post
 from api.models import Classifier, ObjectType, OfflineModel, FileUpload
 from api.serializers import (ImageSerializer, UserSerializer,
                              VideoFrameSerializer)
@@ -677,8 +678,17 @@ def watsonClassifierTest(request, id):
             if classifier.offline_model:
                 # IF IS A PRE / POST TEST
                 if classifier.offline_model.preprocess or classifier.offline_model.postprocess:
-                    messages.info(request, 'Classifier was detected to be Pre-Process/Post-Process Type. (NO RESULT TO SHOW)')
+                    quick_test_image_result = quick_test_offline_image_pre_post(request.FILES.get('file', False), classifier, request, fake_score=request.POST.get('fake_score', 0), fake_result=request.POST.get('fake_result', ""))
+                    if quick_test_image_result:
+                        if classifier.offline_model.preprocess:
+                            request.session['image'] = quick_test_image_result.get('image',False)
+                        else:
+                            request.session['test_result'] = json.dumps(quick_test_image_result.get('data','No Test Data'), indent=4)
+                    else:
+                        messages.error(request, 'Unable to Test. Pre-Process / Post-Process failed or did not return a result.')
+                    
                     return redirect('watson.classifier.test', id=id)
+                    
                 quick_test_image_result = quick_test_offline_image(request.FILES.get('file', False), classifier)
             # ELSE ONLINE MODEL THEN
             else:
@@ -690,6 +700,7 @@ def watsonClassifierTest(request, id):
                 messages.success(request, 'Score: '+str(quick_test_image_result.get('score','0'))+' | Class: '+str(quick_test_image_result.get('result','Not Found')))
             else:
                 messages.error(request, 'Unable to Test (Make sure Classifier is valid and is in ready state)')
+                messages.info(request, 'If you are using Watson Object Detect as a Classifier then please, create a dummy project assign this "Object Detect" to it and test image from the project list page. Thank You for understanding.')
 
             return redirect('watson.classifier.test', id=id)
         except(Classifier.DoesNotExist):
@@ -707,7 +718,8 @@ def watsonClassifierTest(request, id):
         else:
             classifier = Classifier.objects.get(id=id)
         test_result = request.session.pop('test_result', False)
-        return render(request, 'test_classifier.html', {'classifier':classifier, 'test_result':test_result})
+        image = request.session.pop('image', False)
+        return render(request, 'test_classifier.html', {'classifier':classifier, 'test_result':test_result, 'image':image})
     else:
         messages.success(request, 'Bad Request for CLassifier Test')
         return redirect('watson.classifier.test')
@@ -778,7 +790,11 @@ def watsonObjectList(request):
             object_types = ObjectType.objects.order_by('-created_at').order_by('project').all()
             project_filter = False
 
-    projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
+    if request.user.user_type == 'project_admin':
+        projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
+    else:
+        projects = Projects.objects.order_by('project_name').all()
+
     return render(request, 'create_objects.html', {'object_types':object_types, 'projects':projects, 'project_filter':project_filter})
 
 # Watson Object Type Create local
@@ -978,6 +994,8 @@ def offlineModelDependencies(request, id):
                 loader = importlib.machinery.SourceFileLoader('model', saved_model)
                 handle = loader.load_module('model')
                 deps = ', '.join(str(i[0]) for i in inspect.getmembers(handle, inspect.ismodule ))
+                if 'model' in sys.modules:  
+                    del sys.modules["model"]
                 return JsonResponse({'message':'Dependencies Loaded', 'data':deps}, status=200)
             else:
                 return JsonResponse({'message':'Invalid Type (Dependencies can be checked only with py format)'}, status=404)
@@ -987,6 +1005,48 @@ def offlineModelDependencies(request, id):
         return JsonResponse({'message':'Offline Model Not Found'}, status=404)
     except Exception as e:
         return JsonResponse({'message':'Failed to Check Dependencies'}, status=500)
+
+########################
+# OFFLINE MODELS TEST #
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
+def offlineModelTest(request, id):
+    try:
+        if request.user.user_type == 'project_admin':
+            offlineModel = OfflineModel.objects.filter(id=id).filter(created_by=request.user).get()
+        else:
+            offlineModel = OfflineModel.objects.filter(id=id).get()
+        
+        if request.method == "POST":
+            if offlineModel.preprocess or offlineModel.postprocess:
+                quick_test_image_result = quick_test_offline_image_pre_post(request.FILES.get('file', False), offlineModel, request, fake_score=request.POST.get('fake_score', 0), fake_result=request.POST.get('fake_result', ""), direct_offline_model=True)
+                if quick_test_image_result:
+                    if offlineModel.preprocess:
+                        request.session['image'] = quick_test_image_result.get('image',False)
+                    else:
+                        request.session['test_result'] = json.dumps(quick_test_image_result.get('data','No Test Data'), indent=4)
+                else:
+                    messages.error(request, 'Unable to Test. Pre-Process / Post-Process failed or did not return a result.')
+                
+                return redirect('offline.model.test', id=id)
+                
+            quick_test_image_result = quick_test_offline_image(request.FILES.get('file', False), offlineModel, direct_offline_model=True)
+            if quick_test_image_result:
+                request.session['test_result'] = json.dumps(quick_test_image_result.get('data','No Test Data'), indent=4)
+                messages.success(request, 'Score: '+str(quick_test_image_result.get('score','0'))+' | Class: '+str(quick_test_image_result.get('result','Not Found')))
+            else:
+                messages.error(request, 'Unable to Test (Either Offline Model did not work correctly or response was incorrect.)')
+
+            return redirect('offline.model.test', id=id)
+        elif(request.method == "GET"):
+            test_result = request.session.pop('test_result', False)
+            image = request.session.pop('image', False)
+            return render(request, 'offline_model/test.html', {'model':offlineModel, 'test_result':test_result, 'image':image})
+        else:
+            messages.error(request, 'Failed to Test!')
+            return redirect('offline.model.list')
+    except(OfflineModel.DoesNotExist):
+        messages.error(request, "Invalid Offline Model attempted to Test")
+        return redirect("offline.model.list")
 
 ###########################################
 # View Readme md file from /api/README.md #

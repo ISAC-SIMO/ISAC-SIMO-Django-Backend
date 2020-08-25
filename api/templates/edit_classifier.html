@@ -102,7 +102,7 @@
             $('#object_type').html( $options.filter( '[data-project="' + this.value + '"]' ) );
             $('#object_type').trigger( 'change' );
             for(var i = 0 ; i < $('#object_type').find('option').length ; i++){
-                console.log($('#object_type').find('option')[i].getAttribute('selected'))
+                //console.log($('#object_type').find('option')[i].getAttribute('selected'))
                 if($('#object_type').find('option')[i].getAttribute('selected') != null){
                     $('#object_type').val($('#object_type').find('option')[i].getAttribute('value'))
                     break;

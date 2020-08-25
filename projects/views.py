@@ -137,7 +137,7 @@ def testOfflineProject(request, id):
                     messages.success(request, 'Project Detect Model Test Success.')
                     messages.success(request, 'Score: '+str(quick_test_image_result[0]['pipeline']['score'])+' | Class: '+str(quick_test_image_result[0]['pipeline']['result']))
                 else:
-                    messages.error(request, 'Unable to Test (Make sure Project Model is valid and if online then is in ready state)')
+                    messages.error(request, 'Test Failed. Either No Object Was Detected or the model is not in ready state.')
 
                 return redirect('testofflineproject', id=id)
             except Exception as e:

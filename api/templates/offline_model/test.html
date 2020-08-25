@@ -1,13 +1,13 @@
 {% extends 'master/base.html' %}
 
-{% block title %} Test Classifier {% endblock title %}
-{% block dashboard_title1 %} Test Classifier {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Test Classifier {% endblock dashboard_title2 %}
+{% block title %} Test Offline Model {% endblock title %}
+{% block dashboard_title1 %} Test Offline Model {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} Test Offline Model {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
     <div class="row">
-        <form action="{% url 'watson.classifier.test' classifier.id %}" id="classifier_form" method="POST" class="col-12" enctype="multipart/form-data">
+        <form action="{% url 'offline.model.test' model.id %}" id="test_form" method="POST" class="col-12" enctype="multipart/form-data">
             {% csrf_token %}
             <div class="card">
                 <div class="card-body">
@@ -25,22 +25,12 @@
                     {% endif %}
 
                     <div class="form-group">
-                        <label for="name" class="col-sm-5 col-md-4 col-form-label">Classifier Name:</label>
+                        <label for="name" class="col-sm-5 col-md-4 col-form-label">Offline Model:</label>
                         <div class="col-sm-12 col-md-4">
-                            <h5>{{classifier.name}}</h5>
-                            {% if classifier.offline_model %}
-                                <small><b>Offline Model:</b> {{classifier.offline_model.name}}</small>
-                                <br/>
-                                <small><b>Lables:</b> {{classifier.offline_model.offline_model_labels}}</small>
-                                <br/>
-                                <small><b>Model Format:</b> {{classifier.offline_model.model_format}}</small>
-                            {% endif %}
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label for="name" class="col-sm-5 col-md-4 col-form-label">Object Type:</label>
-                        <div class="col-sm-12 col-md-4">
-                            <h5>{{classifier.object_type.name|title}}</h5>
+                            <h5>{{model.name}}</h5>
+                              <small><b>Lables:</b> {{model.offline_model_labels}}</small>
+                              <br/>
+                              <small><b>Model Format:</b> {{model.model_format}}</small>
                         </div>
                     </div>
                     <div class="form-group">
@@ -49,7 +39,7 @@
                             <input type="file" id="file" name="file" required accept="image/x-png,image/jpeg"/>
                         </div>
                     </div>
-                    {% if classifier.offline_model and classifier.offline_model.postprocess %}
+                    {% if model.postprocess %}
                         <h3 class="ml-2 mb-0">For Post-Process:</h3>
                         <div class="form-group">
                             <label for="fake_score" class="col-sm-5 col-md-4 col-form-label">Fake Score*</label>
@@ -64,14 +54,9 @@
                             </div>
                         </div>
                     {% endif %}
-                    {% if not classifier.offline_model %}
-                    <small class="col-sm-12 form-text text-muted">
-                        Make sure the Status for this classifier is "ready" <a href="{% url 'watson.classifier' %}">in here</a>.
-                    </small>
-                    {% endif %}
                     <hr/>
                     <div class="form-group">
-                        <button type="submit" id="classifier_btn" class="ml-2 btn btn-primary">Test Classifier</button>
+                        <button type="submit" id="test_btn" class="ml-2 btn btn-primary">Test Offline Model</button>
                     </div>
                 </div>
             </div>
@@ -81,9 +66,9 @@
 
 {% block script %}
     <script>
-        $('#classifier_form').on('submit', function(event){
+        $('#test_form').on('submit', function(event){
             Pace.restart()
-            $('#classifier_btn').attr('disabled','disabled')
+            $('#test_btn').attr('disabled','disabled')
         })
     </script>
 {% endblock script %}

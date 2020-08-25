@@ -5,8 +5,8 @@
 
 // Custom Functions //
 
-_globalevent = null
-_popDirection = 'fadeInLeft'
+var _globalevent = null
+var _popDirection = 'fadeInLeft'
 
 function leftRightHandle(e){
     if (Swal.isVisible() && _globalevent) {
@@ -323,3 +323,38 @@ function showPipelineStatus(event, pipeline_status, latlng, decodeURI){
         html: html,
     })
 }
+
+function idleDetect() {
+    var t;
+    window.onload = resetTimer;
+    window.onmousemove = resetTimer;
+    window.onmousedown = resetTimer;
+    window.ontouchstart = resetTimer; 
+    window.onclick = resetTimer;
+    window.onkeypress = resetTimer;   
+    window.addEventListener('scroll', resetTimer, true);
+
+    function idleSite() {
+        if($("#idle-overlay").length > 0){
+            $("#idle-overlay").remove();
+        }
+
+        var idleOverlay = '<div id="idle-overlay" tabindex="1" class="idle-overlay"><b>Click To Continue</b></div>';
+        $('body').append(idleOverlay);
+        $('body').css("overflow","hidden");
+        $("#idle-overlay").focus()
+        $('.wrapper').css('filter', 'blur(3px)')
+
+        $("#idle-overlay").on("click", function(){
+            $("#idle-overlay").fadeOut();
+            $('body').css("overflow","initial");
+            $('.wrapper').css('filter', 'unset')
+        })
+    }
+
+    function resetTimer() {
+        clearTimeout(t);
+        t = setTimeout(idleSite, 300000); // 5 min
+    }
+}
+idleDetect();

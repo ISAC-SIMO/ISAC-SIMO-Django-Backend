@@ -27,14 +27,23 @@
                                 <th>Format</th>
                                 <th>Added By</th>
                                 <th>Added At</th>
-                                {% if user.is_admin or user.is_project_admin %}<th>Actions</th>{% endif %}
+                                {% if user.is_admin or user.is_project_admin %}<th style="min-width: 120px;">Actions</th>{% endif %}
                             </tr>
                         </thead>
                         <tbody>
                             {% for model in models %}
                                 <tr>
-                                    <td title="{{model.offline_model_labels|default:"No Labels Provided"}}" data-toggle="tooltip" data-placement="right">{{model.name}}</td>
-                                    <td>{{model.model_type|title}}</td>
+                                    <td title="{% if model.offline_model_labels == '[]' %}No Labels Provided{% else %}{{model.offline_model_labels|default:'No Labels Provided'}}{% endif %}" data-toggle="tooltip" data-placement="right">
+                                    {{model.name}}
+                                    </td>
+                                    <td>{{model.model_type|title}}
+                                    {% if model.preprocess %}
+                                        <i class="fa fa-dot-circle text-green" title="Pre-Process" data-toggle="tooltip" data-placement="right"></i>
+                                        {% endif %}
+                                        {% if model.postprocess %}
+                                        <i class="fa fa-check-circle text-orange" title="Post-Process" data-toggle="tooltip" data-placement="right"></i>
+                                    {% endif %}
+                                    </td>
                                     <td>{{model.model_format}}</td>
                                     <td>{{model.created_by.full_name|default:'User'}}</td>
                                     <td>{{model.created_at}}</td>
@@ -55,6 +64,9 @@
                                                     <i class="fas fa-code-branch text-info"></i>
                                                 </a>
                                             {% endif %}
+                                            <a title="Test Image" data-toggle="tooltip" data-placement="left" href="{% url 'offline.model.test' model.id %}" class="btn text-secondary px-0">
+                                                <i class="far fa-file-image text-secondary"></i>
+                                            </a>
                                         {% endif %}
                                         <form action="{% url 'offline.model.delete' model.id %}" method="POST" id="offline-model-{{ model.id }}" class="d-inline">
                                             {% csrf_token %}

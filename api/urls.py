@@ -37,6 +37,7 @@ urlpatterns = [
     path('offline_model/create', views.offlineModelCreate, name="offline.model.create"),
     path('offline_model/edit/<int:id>', views.offlineModelEdit, name="offline.model.edit"),
     path('offline_model/delete/<int:id>', views.offlineModelDelete, name="offline.model.delete"),
+    path('offline_model/test/<int:id>', views.offlineModelTest, name="offline.model.test"),
     path('offline_model/dependencies/<int:id>', views.offlineModelDependencies, name="offline.model.dependencies"),
     path('offline_model/readme.md', views.offlineModelReadme, name="offline.model.readme"),
 

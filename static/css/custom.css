@@ -36,3 +36,4 @@ body::-webkit-scrollbar,.table-responsive::-webkit-scrollbar{width:.6em;height:.
 .select2-container--default .select2-selection--multiple {min-height: calc(0.25rem + 2px) !important;}
 blockquote{color:#eee !important;}
 .sidebar-dark-primary .nav-sidebar>.nav-item>.nav-link.mellowyellow.active {background-color: #b5890d !important;}
+.idle-overlay{cursor:pointer;position: fixed;background: #323232;color: white;opacity: 0.9;top: 0;left: 0;right: 0;bottom: 0;z-index: 999999999;overflow: hidden;display: flex;justify-content: center;align-items: center;font-size: 2em;font-weight: 200;letter-spacing: 1px;text-shadow: 0 5px 6px black;}

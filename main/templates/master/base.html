@@ -254,24 +254,31 @@
 
               </ul>
             </li>
+            <li class="nav-item">
+              <a href="{% url 'watson.classifier.list' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.list' %} active {% endif %}">
+                <i class="nav-icon fa fa-layer-group"></i>
+                <p>Classifiers</p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'watson.object.list' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'watson.object.list' %} active {% endif %}">
+                <i class="nav-icon far fa-object-ungroup"></i>
+                <p>Object Types</p>
+              </a>
+            </li>
             <li
-              class="nav-item has-treeview {% if request.resolver_match.url_name == 'watson.train' or request.resolver_match.url_name == 'watson.classifier' or request.resolver_match.url_name == 'watson.object' or request.resolver_match.url_name == 'watson.classifier.create' or request.resolver_match.url_name == 'watson.classifier.list' or request.resolver_match.url_name == 'watson.object.list' or request.resolver_match.url_name == 'watson.classifier.edit' or request.resolver_match.url_name == 'watson.classifier.test' %} menu-open {% endif %}">
+              class="nav-item has-treeview {% if request.resolver_match.url_name == 'watson.train' or request.resolver_match.url_name == 'watson.classifier' or request.resolver_match.url_name == 'watson.object' or request.resolver_match.url_name == 'watson.classifier.create' or request.resolver_match.url_name == 'watson.classifier.edit' or request.resolver_match.url_name == 'watson.classifier.test' %} menu-open {% endif %}">
               <a href="#"
-                class="nav-link {% if request.resolver_match.url_name == 'watson.train' or request.resolver_match.url_name == 'watson.classifier' or request.resolver_match.url_name == 'watson.object' or request.resolver_match.url_name == 'watson.classifier.create' or request.resolver_match.url_name == 'watson.classifier.list' or request.resolver_match.url_name == 'watson.object.list' or request.resolver_match.url_name == 'watson.classifier.edit' or request.resolver_match.url_name == 'watson.classifier.test'  %} active {% endif %}">
+                class="nav-link {% if request.resolver_match.url_name == 'watson.train' or request.resolver_match.url_name == 'watson.classifier' or request.resolver_match.url_name == 'watson.object' or request.resolver_match.url_name == 'watson.classifier.create' or request.resolver_match.url_name == 'watson.classifier.edit' or request.resolver_match.url_name == 'watson.classifier.test'  %} active {% endif %}">
                 <i class="nav-icon fab fa-cloudversify"></i>
                 <p>
-                  IBM Watson
+                  IBM Watson & More
                   <i class="fas fa-angle-left right"></i>
                 </p>
               </a>
               <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="{% url 'watson.classifier.list' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.list' %} active {% endif %}">
-                    <i class="nav-icon far fa-circle text-info"></i>
-                    <p>All Classifiers</p>
-                  </a>
-                </li>
                 {% if user.is_admin %}
                 <li class="nav-item">
                   <a href="{% url 'watson.classifier' %}"
@@ -296,13 +303,6 @@
                   </a>
                 </li>
                 <hr style="margin: 0.3rem;border-top: 1px solid #2d2b2b;"/>
-                <li class="nav-item">
-                  <a href="{% url 'watson.object.list' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'watson.object.list' %} active {% endif %}">
-                    <i class="nav-icon far fa-circle text-warning"></i>
-                    <p>Object Types</p>
-                  </a>
-                </li>
                 <li class="nav-item">
                   <a href="{% url 'watson.object' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.object' %} active {% endif %}">
@@ -336,9 +336,9 @@
             </li>
             {% endif %}
             <li
-              class="nav-item has-treeview {% if request.resolver_match.url_name == 'offline.model.list' or request.resolver_match.url_name == 'offline.model.create' or request.resolver_match.url_name == 'offline.model.edit' or request.resolver_match.url_name == 'offline.model.delete' %} menu-open {% endif %}">
+              class="nav-item has-treeview {% if request.resolver_match.url_name == 'offline.model.list' or request.resolver_match.url_name == 'offline.model.create' or request.resolver_match.url_name == 'offline.model.edit' or request.resolver_match.url_name == 'offline.model.delete' or request.resolver_match.url_name == 'offline.model.test' %} menu-open {% endif %}">
               <a href="#"
-                class="nav-link {% if request.resolver_match.url_name == 'offline.model.list' or request.resolver_match.url_name == 'offline.model.create' or request.resolver_match.url_name == 'offline.model.edit' or request.resolver_match.url_name == 'offline.model.delete' %} active {% endif %}">
+                class="nav-link {% if request.resolver_match.url_name == 'offline.model.list' or request.resolver_match.url_name == 'offline.model.create' or request.resolver_match.url_name == 'offline.model.edit' or request.resolver_match.url_name == 'offline.model.delete' or request.resolver_match.url_name == 'offline.model.test' %} active {% endif %}">
                 <i class="nav-icon fas fa-leaf"></i>
                 <p>
                   Offline Model
