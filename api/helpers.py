@@ -32,7 +32,7 @@ from operator import itemgetter
 import io
 import sys
 
-# NOTE: Classifier pipeline continues on both go or nogo. I have given if True or...: so that pipeline continues in any case
+# NOTE: (NOT ACTIVE AT THE MOMENT) Classifier pipeline continues on both go or nogo. I have given if True or...: so that pipeline continues in any case
 
 def reload_classifier_list():
     try:
@@ -571,11 +571,13 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     
                     image_file.pipeline_status = json.dumps(pipeline_status)
                     image_file.save()
-                    if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                        print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                        test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
-                    else:
-                        print('No more Nogo pipeline')
+                    # If Break=True value passed by postprocess then stop the flow.
+                    if not result.get('break', False) or result.get('result','').lower() == 'nogo' or result.get('result','').lower() == 'nogos' or result.get('result','').lower() == 'no go':
+                        if classifier_index + 1 < classifier_list.lenList(project,object_type):
+                            print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                        else:
+                            print('No more Nogo pipeline')
                 except Exception as e:
                     print(e)
                     print('Failed to run POSTPROCESS .py Offline Model')
@@ -602,7 +604,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                         image_file.save()
 
                     # If nogo/nogos then run with next model pipe lopping through available classifier list
-                    if True or res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos':
+                    if res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos' or res.get('result','').lower() == 'no go':
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
                             print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                             test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
@@ -679,7 +681,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     # If nogo/nogos then run with next model pipe lopping through available classifier list
                     # NOTE: later classifier_list.py shall contain the recursion_list to hold results that might require re test
                     # e.g. if recursion_list.get('wall',[]) has nogo/nogos etc. then retest it etc...
-                    if True or sorted_by_score[0]['class'].lower() == 'nogo' or sorted_by_score[0]['class'].lower() == 'nogos':
+                    if sorted_by_score[0]['class'].lower() == 'nogo' or sorted_by_score[0]['class'].lower() == 'nogos' or sorted_by_score[0]['class'].lower() == 'no go':
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
                             print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                             test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
@@ -1685,7 +1687,7 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
                 'score': res.get('score',''),
                 'result': res.get('result','')
             }
-            if True or res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos':
+            if res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos' or res.get('result','').lower() == 'no go':
                 if classifier_index + 1 < classifier_list.lenList(project,object_type):
                     print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                     test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file
@@ -1761,7 +1763,7 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
                 # If nogo/nogos then run with next model pipe lopping through available classifier list
                 # NOTE: later classifier_list.py shall contain the recursion_list to hold results that might require re test
                 # e.g. if recursion_list.get('wall',[]) has nogo/nogos etc. then retest it etc...
-                if True or sorted_by_score[0]['class'].lower() == 'nogo' or sorted_by_score[0]['class'].lower() == 'nogos':
+                if sorted_by_score[0]['class'].lower() == 'nogo' or sorted_by_score[0]['class'].lower() == 'nogos' or sorted_by_score[0]['class'].lower() == 'no go':
                     if classifier_index + 1 < classifier_list.lenList(project,object_type):
                         print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                         test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file

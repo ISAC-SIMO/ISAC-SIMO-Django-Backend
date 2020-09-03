@@ -90,8 +90,9 @@ def run(img, labels=[]):
     - It must return with this format:
     ```python
     return {
-      'score': '0.9',
-      'result': 'go'
+      'score': '0.9', # Score Given
+      'result': 'go', # Result Name
+      'break': True # Break and do not continue with other pipeline even if nogo
     }
     ```
     - Example:
@@ -100,7 +101,8 @@ def run(img, labels=[]):
         # Some codes...
         return {
             'score': '0.9',
-            'result': 'go'
+            'result': 'go',
+            'break': False
         }
     ```
 ---
