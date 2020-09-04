@@ -108,13 +108,13 @@
             tags: true,
             tokenSeparators: [',']
         })
-        
+        var model_formats = [
+            {id: 'h5', text: '.h5'}, {id: 'hdf5', text: '.hdf5'}, {id: 'keras', text: '.keras'}, 
+            {id: 'py', text: '.py (python3)'},
+        ];
         $('#id_model_format').select2({
             // tags: true,
-            data: [
-                {id: 'h5', text: '.h5'}, {id: 'hdf5', text: '.hdf5'}, {id: 'keras', text: '.keras'}, 
-                {id: 'py', text: '.py (python3)'},
-            ]
+            data: model_formats
         })
 
         if($('#id_model_format').val() != 'py'){
@@ -122,9 +122,19 @@
           $('#div_id_postprocess').hide();
         }
         $('#id_model_format').on('change', function(e){
-          if(e.target.value == 'py'){
+          if(e.target.value == 'py' && $("#id_model_type option:selected").text() == 'Processor'){
             $('#div_id_preprocess').fadeIn();
             $('#div_id_postprocess').fadeIn();
+            if($("#id_model_type option").length == 1){
+              // IN CASE OF EDITING pre/post Process we only show .py and hide label group
+              $("#id_model_format").select2("destroy").empty();
+              $('#id_model_format').select2({
+                  data: [
+                      {id: 'py', text: '.py (python3)'},
+                  ]
+              }).val('py')
+              $('#offline-model-label-group').val('').hide();
+            }
           }else{
             document.getElementById('id_postprocess').checked = false;
             document.getElementById('id_preprocess').checked = false;
@@ -133,34 +143,48 @@
           }
         })
 
+        // Model Type change - If Processor dropdown then only show .py and trigget change
+        $('#id_model_type').on('change', function(e){
+          if($("#id_model_type option:selected").text() == 'Processor'){
+            $('#offline-model-label-group').val('').hide();
+            $("#id_model_format").select2("destroy").empty();
+            $('#id_model_format').select2({
+                data: [
+                    {id: 'py', text: '.py (python3)'},
+                ]
+            }).val('py').change();
+            document.getElementById('id_postprocess').checked = true;
+          }else{
+            $('#offline-model-label-group').val('').show();
+            $("#id_model_format").select2("destroy").empty();
+            $('#id_model_format').select2({
+                data: model_formats
+            }).change();
+          }
+        });
+
         // IF PRE-PROCESS OR POST-PROCESS CHANGED reset each-other + remove label field + make sure type is classifier
         $('#id_preprocess').on('change', function(e){
           if(e.target.checked){
             document.getElementById('id_postprocess').checked = false;
-            $('#offline-model-label-group').val('').hide();
-            $('#id_model_type').val('CLASSIFIER').trigger('change');
-            $('#div_id_model_type').css('transition','all 0.3s ease')
-            $('#div_id_model_type').css('transform','scale(1.02)')
+            //$("#id_model_type option:contains('Processor')").prop('selected', true).change();
+            $('#div_id_model_type').css('transition','all 0.1s ease')
+            $('#div_id_model_type').css('transform','scale(1.01)')
             setTimeout(function(){
               $('#div_id_model_type').css('transform','scale(1)')
-            }, 300);
-          }else{
-            $('#offline-model-label-group').val('').show();
+            }, 100);
           }
         })
 
         $('#id_postprocess').on('change', function(e){
           if(e.target.checked){
             document.getElementById('id_preprocess').checked = false;
-            $('#offline-model-label-group').val('').hide();
-            $('#id_model_type').val('CLASSIFIER').trigger('change');
-            $('#div_id_model_type').css('transition','all 0.3s ease')
-            $('#div_id_model_type').css('transform','scale(1.02)')
+            //$("#id_model_type option:contains('Processor')").prop('selected', true).change();
+            $('#div_id_model_type').css('transition','all 0.1s ease')
+            $('#div_id_model_type').css('transform','scale(1.01)')
             setTimeout(function(){
               $('#div_id_model_type').css('transform','scale(1)')
-            }, 300);
-          }else{
-            $('#offline-model-label-group').val('').show();
+            }, 100);
           }
         })
 
@@ -168,6 +192,9 @@
           {% if offlineModel and offlineModel.model_format %}
             $('#id_model_format').val('{{offlineModel.model_format}}');
             $('#id_model_format').trigger('change');
+            {% if offlineModel.preprocess or offlineModel.postprocess %}
+              $("#id_model_type option:contains('Processor')").prop('selected', true).change();
+            {% endif %}
           {% endif %}
         {% endif %}
 

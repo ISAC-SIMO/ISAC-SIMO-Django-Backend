@@ -39,7 +39,7 @@ class ImageForm(forms.ModelForm):
 
 
 class OfflineModelForm(forms.ModelForm):
-    model_type = forms.ChoiceField(choices=[('OBJECT_DETECT','Object Detect'),('CLASSIFIER','Classifier')], widget=forms.Select, initial = 'model_type')
+    model_type = forms.ChoiceField(choices=[('OBJECT_DETECT','Object Detect'),('CLASSIFIER','Classifier'),('CLASSIFIER','Processor')], widget=forms.Select, initial = 'model_type')
     model_format = forms.CharField(widget=forms.Select, initial = 'model_format')
     class Meta:
         model = OfflineModel     
@@ -56,8 +56,12 @@ class OfflineModelForm(forms.ModelForm):
         self.fields['preprocess'].help_text = 'Mark this Offline Model as Pre-Process (e.g. Gaussian Blur to preprocess the image uploaded)'
         self.fields['postprocess'].help_text = 'Mark this Offline Model as Post-Process (e.g. Customize the pipeline result or go/nogo result)'
         if self.instance and (self.instance.projects.all().count() or self.instance.classifiers.all().count()): # Done, to check if offline model is linked to projects or classifiers to disable editing object type
-            self.fields['model_type'].widget = forms.HiddenInput()
-            self.fields['model_format'].help_text = 'Choose a format or type yourself <br/> Model Type is Unable to change because it is used by some projects or classifier actively'
+            if self.instance.preprocess or self.instance.postprocess:
+                self.fields['model_type'].widget = forms.Select(choices=[('CLASSIFIER','Processor')])
+                self.fields['model_type'].help_text = 'Model Type Cannot be Changed because this is being used by projects/classifiers.'
+            else:
+                self.fields['model_type'].widget = forms.HiddenInput()
+                self.fields['model_format'].help_text = 'Choose a format or type yourself <br/> Type: '+self.instance.model_type+' <br/> Model Type is Unable to change because it is used by some projects or classifier actively.'
 
 # FILE UPLOAD
 class FileUploadForm(forms.ModelForm):

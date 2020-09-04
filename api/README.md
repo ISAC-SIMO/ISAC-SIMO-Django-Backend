@@ -8,6 +8,12 @@
 + [Object Detect](#object-detect)
 + [URLs](#urls)
 
+<div class="blink">
+
+> **REMINDER:** In Offline Model the name of main function should always be ``run()``. Else, the pipeline will break/crash.
+
+</div>
+
 <div id="creating-offline-models"></div>
 
 ### Creating Offline Models:
@@ -83,7 +89,7 @@ def run(img, labels=[]):
     - Usage Example: *Alter, Customize, Override classifier pipeline status and score*
     - Must have ``def run(img, pipeline_status, score, result)`` as the main function
     - ``img`` = cv instance of image
-    - ``pipeline_status`` = e.g. ``[{'rebar_classifier_223':{'result':'go','score':0.8}}]``
+    - ``pipeline_status`` = e.g. ``{'rebar_classifier_223':{'result':'go','score':0.8}, 'classifer_010':{'result':'nogo','score':0.3}}``
     - ``score`` = Classifier Score of Image File after all pipeline (0.5, 0.42342, etc.)
     - ``result`` = Classifier Result of Image File after all pipeline (go, nogo etc.)
     - Process is terminated on failure
@@ -120,7 +126,7 @@ In case of ``OBJECT_DETECT`` the output can have multiple score along with multi
                 "left": 33,
                 "top": 8,
                 "width": 760,
-                "heprovidedight": 419
+                "height": 419
             }, # e.g. links to wall
             {
                 "left": 80,

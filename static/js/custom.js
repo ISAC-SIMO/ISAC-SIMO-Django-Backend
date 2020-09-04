@@ -225,9 +225,18 @@ function verifyImage(event, id, result, score, object_type, verified, url, retra
 
     html = html + '<label class="swal2-label" style="font-size: 1.1em;margin-top: 40px;">Pipeline Status:</label>';
     var pipeline_status_data = JSON.parse(pipeline_status)
+    console.log(pipeline_status_data)
     if(Object.keys(pipeline_status_data).length > 0){
         Object.keys(pipeline_status_data).forEach(function(key){
-            html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+pipeline_status_data[key]["result"]+', <b>Score:</b> '+pipeline_status_data[key]["score"]+'</label>';
+            if(pipeline_status_data[key]["result"]){
+                html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+pipeline_status_data[key]["result"]+', <b>Score:</b> '+pipeline_status_data[key]["score"]+'</label>';
+            }else{
+                let d = pipeline_status_data[key];
+                if(Array.isArray(pipeline_status_data[key])){
+                    d = '<a href="#!" onclick="alert(\''+JSON.stringify(d)+'\')">View</a>';
+                }
+                html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+d+'</label>';
+            }
         })
     }else{
         html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;">No Status Data to Show</label>'
@@ -312,7 +321,15 @@ function showPipelineStatus(event, pipeline_status, latlng, decodeURI){
 
     if(Object.keys(pipeline_status_data).length > 0){
         Object.keys(pipeline_status_data).forEach(function(key){
-            html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+pipeline_status_data[key]["result"]+', <b>Score:</b> '+pipeline_status_data[key]["score"]+'</label>';
+            if(pipeline_status_data[key]["result"]){
+                html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+pipeline_status_data[key]["result"]+', <b>Score:</b> '+pipeline_status_data[key]["score"]+'</label>';
+            }else{
+                let d = pipeline_status_data[key];
+                if(Array.isArray(pipeline_status_data[key])){
+                    d = '<a href="#!" onclick="alert(\''+JSON.stringify(d)+'\')">View</a>';
+                }
+                html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+d+'</label>';
+            }
         })
     }else{
         html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;">No Status Data to Show</label>'

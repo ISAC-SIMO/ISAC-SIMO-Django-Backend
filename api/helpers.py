@@ -209,8 +209,13 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
         if res:
             image_file.object_type = res.get('result','')
             pipeline_status = {}
+            try:
+                pipeline_status = json.loads(image_file.pipeline_status)
+            except Exception as e:
+                pipeline_status = {}
             # Add Pipeline detected detail (Note: old pipeline replaced if new detect model is called upon it)
-            pipeline_status['Detect Model: '] = {
+            pipeline_status['All Detected'] = pipeline_status.get('All Detected',[]) + res.get('data', [])
+            pipeline_status[detect_model.name] = {
                 'score': res.get('score'),
                 'result': res.get('result')
             }
@@ -262,7 +267,7 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
                             output.seek(0)
                             memImage = InMemoryUploadedFile(output, 'ImageField', 'temp.jpg', 'image/jpeg', sys.getsizeof(output), None)
                             pipeline_status = {}
-                            pipeline_status['Detect Model: '] = {
+                            pipeline_status[detect_model.name] = {
                                 'score': data.get('score'),
                                 'result': data.get('class')
                             }
@@ -351,9 +356,8 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
                             except Exception as e:
                                 pipeline_status = {}
                             # Add Pipeline detected detail (Note: old pipeline replaced if new detect model is called upon it)
-                            label = 'Detect Model'
-                            if no_temp:
-                                label = 'Detect Model: '+detect_model
+                            label = object_id
+                            pipeline_status['All Detected'] = pipeline_status.get('All Detected',[]) + sorted_by_score
                             pipeline_status[label] = {
                                 'score': sorted_by_score[0]['score'],
                                 'result': sorted_by_score[0]['object']
@@ -432,6 +436,17 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
                             # Return Object detected type
                             return allDetected
             
+            if no_temp:
+                pipeline_status = {}
+                try:
+                    pipeline_status = json.loads(image_file.pipeline_status)
+                except Exception as e:
+                    pipeline_status = {}
+                label = detect_model
+                pipeline_status['All Detected'] = pipeline_status.get('All Detected',[])
+                image_file.pipeline_status = json.dumps(pipeline_status)
+                image_file.save()
+
             resized_image_open.close()
             os.remove(saveto)
             print('Object Detect False, either bad response, no index, bad format array, sorted score empty etc.')
@@ -451,7 +466,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
     if force_object_type and not detected_as: # Force object Type by api
         try:
             pipeline_status = {}
-            pipeline_status['Force Object Type: '] = {
+            pipeline_status['Force Object Type'] = {
                 'score': '1',
                 'result': force_object_type
             }
@@ -914,7 +929,7 @@ def quick_test_offline_image_pre_post(image_file, classifier, request, fake_scor
                 return {"image": baseuri}
             elif offline_model.postprocess:
                 messages.success(request, "Detected as Post-Process (Passing Empty Pipeline Data)")
-                result = handle.run(img, [], fake_score, fake_result)
+                result = handle.run(img, {}, fake_score, fake_result)
                 return {"data": result}
         except Exception as e:
             print(e)
@@ -1795,7 +1810,7 @@ def markdownToHtml(request=None, path=None, title="Information Document"):
             
             html = '<html><head><title>'+title+'</title><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><link rel="icon" type="image/png" href="/static/dist/img/favicon-32x32.png" sizes="32x32" /><link rel="icon" type="image/png" href="/static/dist/img/favicon-16x16.png" sizes="16x16" /></head><link rel="stylesheet" href="/static/dist/css/adminlte.min.css"/><link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/styles/default.min.css"><script src="//cdnjs.cloudflare.com/ajax/libs/highlight.js/10.1.2/highlight.min.js"></script><body class="p-3">'
             html = html + mistune.html(open(location, "r").read())
-            html = html + '<script>hljs.initHighlightingOnLoad();</script></body></html>'
+            html = html + '<style>@keyframes blink{0%{opacity:0;}100%{opacity:1}}.blink{animation: blink 0.3s ease 7;}</style><script>hljs.initHighlightingOnLoad();</script></body></html>'
             return HttpResponse(html, 'text/html')
         else:
             return redirect('dashboard')

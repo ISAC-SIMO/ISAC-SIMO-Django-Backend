@@ -1,5 +1,5 @@
 /**
- * Version: 0.0.0.5
+ * Version: 0.0.0.6
  */
 
 const STATIC_CACHE = 'STATIC_CACHE_V1'
