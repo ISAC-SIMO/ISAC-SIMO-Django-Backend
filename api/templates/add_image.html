@@ -33,9 +33,32 @@
                     <div class="card-body">
                         {% load crispy_forms_tags %}
 
-                        <form action="{% if request.resolver_match.url_name == 'images.update' %}{% url 'images.update' id %}{% else %}{% url 'images.add' %}{% endif %}" method="POST" class="form-group" enctype="multipart/form-data">
+                        <form onsubmit="verify(event)" action="{% if request.resolver_match.url_name == 'images.update' %}{% url 'images.update' id %}{% else %}{% url 'images.add' %}{% endif %}" method="POST" class="form-group" enctype="multipart/form-data">
                             {% csrf_token %}
                               {{ form|crispy }}
+
+                              <div class="form-group">
+                                  <label for="object_type_id" class="col-form-label">Object Type</label>
+                                  <div>
+                                      <select name="object_type_id" id="object_type_id" class="form-control">
+                                          <option></option>
+                                          {% for object_type in object_types %}
+                                          <option 
+                                          {% if 'object_type_id' in request.GET %}
+                                          {% ifequal request.GET.object_type_id object_type.id|stringformat:"i" %}
+                                            selected="selected"
+                                          {% endifequal %}
+                                          {% endif %}
+                                          value="{{object_type.id}}" title="{% if object_type.verified %}Has Been Verified{% endif %}">{{object_type.name|title}}{% if object_type.verified %} ✅{% endif %}</option>
+                                          {% endfor %}
+                                      </select>
+                                  </div>
+                                  <small class="form-text text-muted" style="font-size:0.9em;">
+                                      <i class="fa fa-info-circle text-warning pr-1" style="font-size:1.2em;"></i> You Can Choose an Object Type to Force and use that type (Or Else object detect model is used to detect automatically)
+                                      <br/>
+                                      <i class="fa fa-info-circle text-warning pr-1" style="font-size:1.2em;"></i> If Object Type is Selected, it is given higher priority then selected Project.
+                                  </small>
+                              </div>
 
                               {% if request.resolver_match.url_name == 'images.update' %}
                               <p><b>Added By User: <a style="color: teal;" href="{% if user_id > 0 %}{% url 'update_user' user_id %}{% else %}#!{% endif %}">{{user_name|default:'User'}}</a></b></p>
@@ -113,7 +136,17 @@
 
 {% block script %}
   <script>
-    $('#id_project').select2({'placeholder':'Select a Project'})
+    function verify(e){
+      if(!$('#object_type_id').val() && !$('#id_project').val() && $('#id_image').val() !== ""){
+        e.preventDefault();
+        Swal.fire('Either Project or Object Type is required.','Both fields are Empty','warning')
+      }
+    }
+    
+    $('#id_project').select2({'placeholder':'Select a Project', 'allowClear':true})
     $('#id_user').select2({'placeholder':'-- Keep Unselected for Setting to Yourself --'})
+    $('#object_type_id').select2({'placeholder':'Select to force an Object Type', 'allowClear':true, sorter: function(d){
+      return d.sort((a, b) => a.text.localeCompare(b.text));
+    }})
   </script>
 {% endblock script %}

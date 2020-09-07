@@ -184,12 +184,13 @@
                     <p>View Images</p>
                   </a>
                 </li>
-                {% if debug and user.is_admin %}
+                {% comment %} {% if debug and user.is_admin %} {% endcomment %}
+                {% if user.is_admin %}
                 <li class="nav-item">
                   <a href="{% url 'images.add' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'images.add' %} active {% endif %}">
-                    <i class="nav-icon far fa-circle text-success"></i>
-                    <p>Add Image</p>
+                    <i class="nav-icon far fa-plus-square text-warning"></i>
+                    <p>Add / Test Images</p>
                   </a>
                 </li>
                 {% endif %}

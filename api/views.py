@@ -63,57 +63,74 @@ def images(request):
     return render(request, 'image.html',{'images':images})
 
 # Add Image via Dashboard
-@user_passes_test(is_admin_or_project_admin, login_url=login_url)
+@user_passes_test(is_admin, login_url=login_url)
 def addImage(request, id = 0):
     if request.method == "GET":
         form = ImageForm(request=request)
-        return render(request,"add_image.html",{'form':form})
+        object_types = request.user.get_object_detect_json(request)
+        return render(request,"add_image.html",{'form':form, 'object_types':object_types})
     elif request.method == "POST":
         form = ImageForm(request.POST or None, request.FILES or None, request=request)
         files = request.FILES.getlist('image')
         if(len(files) <= 0):
             messages.error(request, "No Image Provided")
-            return render(request,"add_image.html",{'form':form})
+            object_types = request.user.get_object_detect_json(request)
+            return render(request,"add_image.html",{'form':form, 'object_types':object_types})
 
         if form.is_valid():
+            # CHECK IF either project or object type provided
+            project = None
+            object_type = None
+            force_object_type = None
+            # First check if object_type_id is provided
+            if request.POST.get('object_type_id', None):
+                object_type = ObjectType.objects.filter(id=request.POST.get('object_type_id')).get()
+                if object_type:
+                    project = object_type.project
+                    force_object_type = object_type.name.lower()
+            # Else check project_id
+            elif request.POST.get('project_id', None):
+                project = Projects.objects.filter(id=request.POST.get('project_id')).get()
+            
+            if not project and not object_type:
+                messages.error(request, "Neither Project nor Object Type Were Valid")
+                return redirect("images")
+
             instance = form.save(commit=False)
             if(request.POST.get('user') is None or request.POST.get('user') == ''):
                 instance.user_id = request.user.id
             instance.save()
 
-            project = None
-            if request.POST.get('project', False):
-                project = Projects.objects.filter(id=request.POST.get('project')).get()
-            if not project:
-                messages.error(request, "Invalid Project")
-                return redirect("images")
+            offline = False
+            detect_model = project.detect_model
+
+            try:
+                if project.offline_model and project.offline_model.file:
+                    offline = True
+                    detect_model = project.offline_model
+            except:
+                offline = False
 
             i = 0
             for f in files:
                 i = i + 1
                 photo = ImageFile(image=instance, file=f)
                 photo.save()
-                offline = False
-                detect_model = project.detect_model
-
-                try:
-                    if project.offline_model and project.offline_model.file:
-                        offline = True
-                        detect_model = project.offline_model
-                except:
-                    offline = False
+                
                 ################
                 ### RUN TEST ###
                 ################
-                test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline)
+                test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
                     
                 if(i>=8):
                     break
 
             messages.success(request, str(i)+" Image(s) Uploaded Successfully!")
+            return redirect("images.update", id=instance.id)
         else:
             messages.error(request, "Invalid Request")
-            return render(request,"add_image.html",{'form':form}) 
+            object_types = request.user.get_object_detect_json(request)
+            return render(request,"add_image.html",{'form':form, 'object_types':object_types}) 
 
     return redirect("images")
 
@@ -153,29 +170,34 @@ def updateImage(request, id=0):
             form = ImageForm(instance=image, request=request)
             user_name = image.user.full_name if image.user else 'Guest'
             user_id = image.user.id if image.user else 0
-            return render(request,"add_image.html",{'form':form, 'user_name':user_name, 'user_id':user_id, 'id':id, 'image_files':image_files, 'verified_list':verified_list, 'can_retrain':can_retrain})
+            object_types = request.user.get_object_detect_json(request)
+            return render(request,"add_image.html",{'form':form, 'user_name':user_name, 'user_id':user_id, 'id':id, 'image_files':image_files, 'verified_list':verified_list, 'can_retrain':can_retrain, 'object_types': object_types})
         elif request.method == "POST":
             files = request.FILES.getlist('image')
             form = ImageForm(request.POST or None, request.FILES or None, instance=image, request=request)
             if form.is_valid():
+                # CHECK IF either project or object type provided
+                project = None
+                object_type = None
+                force_object_type = None
+                # First check if object_type_id is provided
+                if request.POST.get('object_type_id', None):
+                    object_type = ObjectType.objects.filter(id=request.POST.get('object_type_id')).get()
+                    if object_type:
+                        project = object_type.project
+                        force_object_type = object_type.name.lower()
+                # Else check project_id
+                elif request.POST.get('project_id', None):
+                    project = Projects.objects.filter(id=request.POST.get('project_id')).get()
+                
+                if not project and not object_type and len(files) > 0:
+                    messages.error(request, "Neither Project nor Object Type Were Valid")
+                    return HttpResponseRedirect(request.META.get('HTTP_REFERER','/'))
+                    
                 instance = form.save(commit=False)
                 instance.save()
 
-                project = None
-                if request.POST.get('project', False):
-                    if request.user.is_project_admin:
-                        project = Projects.objects.filter(users__id=request.user.id).filter(id=request.POST.get('project')).get()
-                    else:
-                        project = Projects.objects.filter(id=request.POST.get('project')).get()
-                if not project:
-                    messages.error(request, "Invalid Project")
-                    return redirect("images")
-
-                i = 0
-                for f in files:
-                    i = i + 1
-                    photo = ImageFile(image=instance, file=f)
-                    photo.save()
+                if len(files) > 0:
                     offline = False
                     detect_model = project.detect_model
 
@@ -185,24 +207,32 @@ def updateImage(request, id=0):
                             detect_model = project.offline_model
                     except:
                         offline = False
+
+                i = 0
+                for f in files:
+                    i = i + 1
+                    photo = ImageFile(image=instance, file=f)
+                    photo.save()
                     
                     ################
                     ### RUN TEST ###
                     ################
-                    test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline)
+                    test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
 
                     if(i>=8):
                         break
 
                 messages.success(request, "Image Details Edited Successfully!")
+                if i > 0:
+                    messages.success(request, str(i) + " New Images Tested")
             else:
                 messages.error(request, "Invalid Request")
-                return render(request,"add_image.html",{'form':form, 'id':id, 'image_files':image_files}) 
+                return HttpResponseRedirect(request.META.get('HTTP_REFERER','/'))
 
-        return redirect("images")
+        return redirect("images.update", id=instance.id)
     except(Image.DoesNotExist):
         messages.error(request, "Invalid Image attempted to Edit")
-        return redirect("images.add")
+        return redirect("images")
 
 # Delete Image
 @user_passes_test(is_admin_or_project_admin, login_url=login_url)
@@ -237,6 +267,11 @@ def retrainImage(request, id):
             image = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects)).get(id=id)
         else:
             image = Image.objects.get(id=id)
+
+        if not image.project:
+            messages.error(request, "Unable to Retrain. Images are not linked to any Project. It will only re-train if images are linked to a project so that it can retrain all classifiers for that project.")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER','/'))
+
         image_files = ImageFile.objects.filter(image_id=image.id)
         verified_list = {}
         image_file_list = {}

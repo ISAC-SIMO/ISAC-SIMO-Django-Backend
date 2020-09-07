@@ -225,7 +225,7 @@ function verifyImage(event, id, result, score, object_type, verified, url, retra
 
     html = html + '<label class="swal2-label" style="font-size: 1.1em;margin-top: 40px;">Pipeline Status:</label>';
     var pipeline_status_data = JSON.parse(pipeline_status)
-    console.log(pipeline_status_data)
+    // console.log(pipeline_status_data)
     if(Object.keys(pipeline_status_data).length > 0){
         Object.keys(pipeline_status_data).forEach(function(key){
             if(pipeline_status_data[key]["result"]){

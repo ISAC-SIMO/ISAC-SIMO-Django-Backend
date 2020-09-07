@@ -89,6 +89,16 @@ class ImageSerializer(serializers.ModelSerializer):
                 error = {'message': 'Neither Project nor Object Type Were Valid'}
                 raise serializers.ValidationError(error)
 
+            offline = False
+            detect_model = project.detect_model
+
+            try:
+                if project.offline_model and project.offline_model.file:
+                    offline = True
+                    detect_model = project.offline_model
+            except:
+                offline = False
+
             e = 0 # Check if files uploaded or Not
             u = 0 # Uploaded Count
             for image_file in image_files.values():
@@ -96,15 +106,6 @@ class ImageSerializer(serializers.ModelSerializer):
                     img = PILImage.open(image_file)
                     img.verify()
                     image_obj = ImageFile.objects.create(image=image, file=image_file)
-                    offline = False
-                    detect_model = project.detect_model
-
-                    try:
-                        if project.offline_model and project.offline_model.file:
-                            offline = True
-                            detect_model = project.offline_model
-                    except:
-                        offline = False
 
                     ################
                     ### RUN TEST ###

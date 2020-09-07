@@ -29,7 +29,7 @@
                                 <th>Name</th>
                                 <th>Project</th>
                                 <th>Added By</th>
-                                {% if user.is_admin or user.is_project_admin %}<th style="width:110px;">Actions</th>{% endif %}
+                                {% if user.is_admin or user.is_project_admin %}<th style="width:145px;">Actions</th>{% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -39,10 +39,15 @@
                                     <td>{{object_type.project.project_name|title|default:'Anon. Project'}}</td>
                                     <td>{{object_type.created_by.full_name|default:'User'}}</td>
                                     {% if user.is_admin or user.is_project_admin %}
-                                    <td class="table-options" style="min-width: 110px;">
-                                        <a title="View Image" data-toggle="tooltip" data-placement="left" href="#!" onclick="showImagePop(event,'{% if object_type.image %}{{object_type.image.url}}{% else %}/media/object_types/default.jpg{% endif %}')" style="margin: 0 4px !important;">
+                                    <td class="table-options" style="min-width: 145px;">
+                                        <a title="View Image" data-toggle="tooltip" data-placement="left" href="#!" onclick="showImagePop(event,'{% if object_type.image %}{{object_type.image.url}}{% else %}/media/object_types/default.jpg{% endif %}')" class="btn text-secondary px-0" style="margin: 0 4px !important;">
                                             <i class="fa fa-file-image"></i>
                                         </a>
+                                        {% if user.is_admin %}
+                                        <a title="Quick Test Images" data-toggle="tooltip" data-placement="left" href="{% url 'images.add' %}?object_type_id={{object_type.id}}" class="btn text-secondary px-0" style="margin: 0 4px !important;">
+                                            <i class="fa fa-plus-circle" style="color:green;"></i>
+                                        </a>
+                                        {% endif %}
                                         <a onclick="deleteDataWriteConfirm(event, 'form-{{ object_type.id }}', 'Object Type')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.delete' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
