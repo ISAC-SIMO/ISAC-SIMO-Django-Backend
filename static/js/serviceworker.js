@@ -1,5 +1,6 @@
 /**
- * Version: 0.0.0.6
+ * Version: 0.0.0.7
+ * Author: Niush Sitaula
  */
 
 const STATIC_CACHE = 'STATIC_CACHE_V1'

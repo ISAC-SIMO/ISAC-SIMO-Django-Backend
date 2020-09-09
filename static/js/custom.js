@@ -371,7 +371,7 @@ function idleDetect() {
 
     function resetTimer() {
         clearTimeout(t);
-        t = setTimeout(idleSite, 300000); // 5 min
+        t = setTimeout(idleSite, 420000); // 7 min
     }
 }
 idleDetect();

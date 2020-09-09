@@ -1382,8 +1382,10 @@ class ProfileView(mixins.ListModelMixin, viewsets.GenericViewSet):
         if not user:
             fake_user = User.objects.first()
             object_types = []
+            projects = []
             if fake_user:
                 object_types = fake_user.get_object_detect_json(request)
+                projects = fake_user.get_project_json(request)
             
             return Response({
                 "id": 0,
@@ -1391,7 +1393,7 @@ class ProfileView(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "email": "Guest",
                 "user_type": "Guest",
                 "image": request.scheme + '://' + request.META['HTTP_HOST'] + '/media/user_images/default.png',
-                "projects": [],
+                "projects": projects,
                 "object_types": object_types,
             })
         else:
@@ -1401,6 +1403,6 @@ class ProfileView(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "email": user.email,
                 "user_type": user.user_type,
                 "image": request.scheme + '://' + request.META['HTTP_HOST'] + user.image.url,
-                "projects": user.get_project_json(),
+                "projects": user.get_project_json(request),
                 "object_types": user.get_object_detect_json(request),
             })

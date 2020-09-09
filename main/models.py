@@ -5,6 +5,7 @@ from django.conf import settings
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.utils.deconstruct import deconstructible
+from django.db.models import Q
 
 from projects.models import Projects
 from api.models import ObjectType
@@ -106,9 +107,15 @@ class User(AbstractBaseUser):
         else:
             return "<br/> ".join(list(map(lambda x: '⮞ '+x.project_name, self.projects.all())))
     
-    def get_project_json(self):
+    def get_project_json(self, request):
         projects = []
-        for project in self.projects.all():
+        project_list = []
+        if request and request.user and not request.user.is_anonymous and request.user.id:
+            project_list = self.projects.all()
+        else:
+            project_list = Projects.objects.filter(guest=True)
+
+        for project in project_list:
             projects = projects + [{
                 'id': project.id,
                 'project_name': project.project_name,
@@ -124,15 +131,27 @@ class User(AbstractBaseUser):
         # TODO: probably in future we will not get all() objects below
         # We probably will get request.GET.get('project_id') which will be coming for each project specific mobile app
         # So we need to filter ObjectType with this project e.g. ObjectType.objects.filter(project=project_id).order_by('created_at').all()
-        for o in ObjectType.objects.order_by('created_at').all():
+
+        object_types = []
+        # IF Logged in user return all linked Projects Object types
+        if request and request.user and not request.user.is_anonymous and request.user.id:
+            projects = Projects.objects.filter(users__id=request.user.id)
+            object_types = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('name').all()
+        # Else if Guest user return object type for projects marked as Guest=True
+        else:
+            projects = Projects.objects.filter(guest=True)
+            object_types = ObjectType.objects.filter(Q(project__in=projects)).order_by('name').all()
+
+        for o in object_types:
             objects = objects + [{
                 'id': o.id,
                 'name': o.name.title(),
-                'verified': o.verified,
+                'instruction': o.instruction if o.instruction else "",
                 'image': url + str(o.image.url),
                 'default_image': True if "default.jpg" in o.image.url else False,
-                'instruction': o.instruction if o.instruction else "",
+                'verified': o.verified,
                 'aspect': [2, 2],
+                'project': o.project.project_name,
             }]
         return objects
 

@@ -7,6 +7,7 @@ class Projects(models.Model):
     project_desc = models.TextField()
     detect_model = models.TextField(blank=True, null=True)
     offline_model = models.ForeignKey('api.OfflineModel', on_delete=models.SET_NULL, related_name='projects', blank=True, null=True)
+    guest = models.BooleanField(default=False) # Guest=True for Global project
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 

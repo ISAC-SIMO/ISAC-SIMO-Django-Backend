@@ -35,6 +35,18 @@
                             {% csrf_token %}
                               {{ form|crispy }}
 
+                              {% if user.is_admin %}
+                                <div class="form-group">
+                                    <label for="guest" class="col-form-label" style="padding-bottom:0;">
+                                        <input type="checkbox" name="guest" id="guest" {% if project and project.guest %} checked {% endif %} style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
+                                        Mark as GLOBAL Project
+                                    </label>
+                                    <small class="form-text text-muted" style="margin:0;">
+                                        Will be used for Guest/Offline Users in Mobile App. Logged in user will be shown via linked projects. <br/>  Note: Only One Project should be marked as Global (Best Practice).
+                                    </small>
+                                </div>
+                              {% endif %}
+
                               {% if request.resolver_match.url_name == 'updateproject' %}
                                 <button type="submit" class="btn btn-success">Update Project</button>
                               {% else %}  

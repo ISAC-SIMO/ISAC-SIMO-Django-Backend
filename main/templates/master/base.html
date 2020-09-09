@@ -420,7 +420,7 @@
       <section class="content main-container">
         {% if messages %}
             {% for message in messages %}
-                <div class="alert alert-{% if message.tags == 'error' %}{{ 'danger' }}{% else %}{{ message.tags }}{% endif %}" role="alert">
+                <div class="alert alert-{% if message.tags == 'error' %}{{ 'danger' }}{% else %}{{ message.tags }}{% endif %}" style="{% if 'tiny' in message.extra_tags %} padding: 0.3em 1.25rem;border-radius: 100px; {% endif %}" role="alert">
                     <button type="button" class="close" data-dismiss="alert" aria-label="Close">
                         <span aria-hidden="true">&times;</span>
                     </button>

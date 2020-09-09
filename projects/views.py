@@ -27,6 +27,9 @@ def viewProjects(request):
         projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name')
     else:
         projects = Projects.objects.all().order_by('project_name')
+        if Projects.objects.filter(guest=True).count() > 1:
+            messages.info(request, "INFO: More then 1 Global Projects Found. Having only one Global/Guest Project is best approach.", extra_tags="info tiny")
+
     detect_model = classifier_list.detect_object_model_id + ' (Default)'
     return render(request, 'projects.html',{'projects':projects, 'detect_model':detect_model})
 
@@ -42,6 +45,11 @@ def addProject(request, id = 0):
             user = User.objects.get(id=request.user.id)
             instance = form.save(commit=False)
             instance.user = user
+
+            # IF GUEST type is checked
+            if request.POST.get('guest', False):
+                instance.guest = True
+
             instance.save()
             if request.user.user_type == 'project_admin':
                 user.projects.add(instance)
@@ -74,6 +82,13 @@ def editProject(request, id=0):
             form = ProjectForm(request.POST or None, request.FILES or None, instance=project)
             if form.is_valid():
                 instance = form.save(commit=False)
+
+                # IF GUEST type is checked
+                if request.POST.get('guest', False):
+                    instance.guest = True
+                else:
+                    instance.guest = False
+
                 instance.save()
                 reload_classifier_list()
                 messages.success(request, "Project Updated Successfully!")
