@@ -12,24 +12,26 @@
 
 > **REMINDER:** In Offline Model the name of main function should always be ``run()``. Else, the pipeline will break/crash.
 
+> **REMINDER:** To Create Pre/Post Process Offline Model, ``Processor`` Model Type should be selected. So, the Checkboxes are visible.
+
 </div>
 
 <div id="creating-offline-models"></div>
 
 ### Creating Offline Models:
-**Attributes:**
+**Attributes While CREATING:**
 
 - Name = Offline Model Name (max length=200)
-- Model Type = ``OBJECT_DETECT`` or ``CLASSIFIER``
+- Model Type = ``OBJECT DETECT`` or ``CLASSIFIER`` or ``PROCESSOR``
 - Model Format = File Format of model (h5, py etc.)
 - File = Upload File with format as provided
 - Model Labels = Multiple labels with what this model will return (with proper index)
-- Pre-Process = Mark this Offline Model as Pre-Process (e.g. Gaussian Blur to preprocess the image uploaded)
-- Post-Process = Mark this Offline Model as Post-Process (e.g. Customize the pipeline result or go/nogo result)
+- Pre-Process = **Checkmark** this Offline Model as Pre-Process (e.g. Gaussian Blur to preprocess the image uploaded)
+- Post-Process = **Checkmark** this Offline Model as Post-Process (e.g. Customize the pipeline result or go/nogo result)
 
 > Type: **Object Detect** is linked in Projects & **Classifier** is linked while creating offline model classifiers.
 
-> Classifier Type with .py Format can be marked as **Pre-Process** or **Post-Process**. The .py file should be made accordingly as shown below.
+> Type: **Processor** (.py Format) can be marked as **Pre-Process** or **Post-Process**. Note: If Model Type *Classifier* is Selected then it will only act as Classifier WITHOUT pre/post. The .py file should be made accordingly as shown below.
 ---
 <div id="classifier-without-pre-post-process"></div>
 
@@ -41,14 +43,14 @@ The array output will be linked to specific index of model labels provided. For 
 
 ---
 
-In case of **python3 .py** model format make sure to name the main function ``run(pillow_instance, labels=[])`` which takes the pillow instance of image as first parameter and labels (can be empty) as 2nd parameter . It must returns the 2-dimensional prediction output as stated above. Example:
+In case of **python3 .py** model format make sure to name the main function ``run(pillow_instance, labels=[])`` which takes the pillow instance of image as first parameter and labels (can be empty) as 2nd parameter . It must return the 2-dimensional prediction output as stated above. Example:
 ```python
 from cv2 import cv2
 def run(img, labels=[]):
     # YOUR CODE.....
     return [[0.5,0.12]]
 ```
->*Make sure to get rid of all unnecessary codes like deleting the input files, saving temp. images etc.*
+>*Make sure to get rid of all unnecessary codes like deleting the input files, saving temp. images, calling run() function etc.*
 ---
 
 <div id="classifier-with-pre-post-process"></div>
@@ -62,8 +64,8 @@ def run(img, labels=[]):
     - Usage Example: *Gussian Blur/Resize, Inverse, Canny image etc.*
     - Must have ``def run(img)`` as the main function where img is cv image instance
     - It must return a cv instance image
-    - Process is terminated on failure
-    - Example:
+    - Process is terminated on crash
+    - Example File:
     ```python
     from cv2 import cv2
     def run(img):
@@ -86,31 +88,61 @@ def run(img, labels=[]):
 <div id="post-process"></div>
 
 - ##### Post-Process:
-    - Usage Example: *Alter, Customize, Override classifier pipeline status and score*
+    - Usage Example: *Alter, Customize, Override: Status & Score*
     - Must have ``def run(img, pipeline_status, score, result)`` as the main function
     - ``img`` = cv instance of image
-    - ``pipeline_status`` = e.g. ``{'rebar_classifier_223':{'result':'go','score':0.8}, 'classifer_010':{'result':'nogo','score':0.3}}``
-    - ``score`` = Classifier Score of Image File after all pipeline (0.5, 0.42342, etc.)
-    - ``result`` = Classifier Result of Image File after all pipeline (go, nogo etc.)
-    - Process is terminated on failure
-    - It must return with this format:
-    ```python
-    return {
-      'score': '0.9', # Score Given
-      'result': 'go', # Result Name
-      'break': True # Break and do not continue with other pipeline even if nogo
-    }
-    ```
-    - Example:
-    ```python
-    def run(img, pipeline_status, score, result):
-        # Some codes...
-        return {
-            'score': '0.9',
-            'result': 'go',
-            'break': False
+    - ``pipeline_status`` =
+        - e.g. 
+        ```
+        {
+            "Force Object Type": { # If Object Type ID Provided
+                "score": "1",
+                "result": "rebar shapes"
+            },
+            "pretest guss": { # Pre Processor will have the Offline Model Name
+                "score": "1",
+                "result": "Pre-Processed Success"
+            },
+            "rebarshapesclassifier_166863088": { # Other Classifier will have the Classifier Name
+                "score": 0.92,
+                "result": "Go"
+            },
+            "All Detected": [], # If Detect Model encountered, then all the detected Raw Output is stored
+            "908b69dc-4b10-4e8a-be61-2469c99838f2": { # Detect Model OR Detect Model Acting as Classifier will have this
+                "score": 0.5,
+                "result": "u-hook"
+            }
+            "PostProcessor": { # Post Processor will have the Offline Model Name
+                "score": "0.99999",
+                "result": "go",
+                "message": ["Ok","Success"]
+            }
         }
-    ```
+        ```
+    - ``score`` = Classifier Score of Image File after all pipeline before this (e.g. 0.5)
+    - ``result`` = Classifier Result of Image File after all pipeline before this (e.g. go)
+    - Process is terminated on crash only (Other Errors will return empty data)
+    - It must return with this format:
+        ```python
+        return {
+        'score': '0.9', # Score Given
+        'result': 'go', # Result Name
+        'message': '', # Can be string, or dictionary | Not Mandatory
+        'break': True # Break and do not continue with other pipeline even if go/nogo | Not Mandatory
+        }
+        ```
+    - Example File:
+        ```python
+        def run(img, pipeline_status, score, result):
+            # Some codes to play with img, piepline etc.....
+            # ...
+            return {
+                'score': '0.9',
+                'result': 'go',
+                'message': 'Processing Success',
+                'break': False,
+            }
+        ```
 ---
 
 <div id="object-detect"></div>

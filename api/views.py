@@ -1303,10 +1303,16 @@ class ImageView(viewsets.ModelViewSet):
 
     # TO LIMIT WHAT USER CAN DO - EDIT,SEE,DELETE
     def get_queryset(self):
-        if(self.request.user.is_authenticated and self.request.user.is_admin):
-            return Image.objects.all()
-        projects = Projects.objects.filter(users__id=self.request.user.id)
-        return Image.objects.filter(Q(user_id=self.request.user.id) | Q(project__in=projects)).order_by('-created_at').distinct()
+        if self.request.user.is_authenticated:
+            if self.request.user.is_admin:
+                return Image.objects.order_by('-created_at').all()[:25] # Latest 25
+            elif self.request.user.is_project_admin:
+                projects = Projects.objects.filter(users__id=self.request.user.id)
+                return Image.objects.filter(Q(user_id=self.request.user.id) | Q(project__in=projects)).order_by('-created_at').distinct()[:25] # Latest 25
+            else:
+                return Image.objects.filter(user_id=self.request.user.id).order_by('-created_at')[:25] # Latest 25
+        else:
+            return []
 
     # TO LIMIT PERMISSION - I CREATED CUSTOM PERMISSION IN main/authorization.py
     # Files contains checker for Authorization as well as passes test
@@ -1331,10 +1337,16 @@ class VideoFrameView(viewsets.ModelViewSet):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        if(self.request.user.is_authenticated and self.request.user.is_admin):
-            return Image.objects.all()
-        projects = Projects.objects.filter(users__id=self.request.user.id)
-        return Image.objects.filter(Q(user_id=self.request.user.id) | Q(project__in=projects)).order_by('-created_at').distinct()
+        if self.request.user.is_authenticated:
+            if self.request.user.is_admin:
+                return Image.objects.order_by('-created_at').all()[:25] # Latest 25
+            elif self.request.user.is_project_admin:
+                projects = Projects.objects.filter(users__id=self.request.user.id)
+                return Image.objects.filter(Q(user_id=self.request.user.id) | Q(project__in=projects)).order_by('-created_at').distinct()[:25] # Latest 25
+            else:
+                return Image.objects.filter(user_id=self.request.user.id).order_by('-created_at')[:25] # Latest 25
+        else:
+            return []
 
     def destroy(self, request, *args, **kwargs):
         image = self.get_object()

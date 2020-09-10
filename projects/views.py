@@ -147,11 +147,19 @@ def testOfflineProject(request, id):
                 else:
                     quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False, project_folder=project_folder)
                 
-                if quick_test_image_result and len(quick_test_image_result) > 0:
-                    request.session['test_result'] = json.dumps(quick_test_image_result, indent=4)
-                    messages.success(request, 'Project Detect Model Test Success.')
-                    messages.success(request, 'Score: '+str(quick_test_image_result[0]['pipeline']['score'])+' | Class: '+str(quick_test_image_result[0]['pipeline']['result']))
+                if quick_test_image_result:
+                    if isinstance(quick_test_image_result, dict) and quick_test_image_result.get("error", False):
+                        request.session['test_result'] = json.dumps(quick_test_image_result, indent=4)
+                        messages.error(request, 'Nothing was Detected.')
+                    elif len(quick_test_image_result) > 0:
+                        request.session['test_result'] = json.dumps(quick_test_image_result, indent=4)
+                        messages.success(request, 'Project Detect Model Test Success.')
+                        messages.success(request, 'Score: '+str(quick_test_image_result[0]['pipeline']['score'])+' | Class: '+str(quick_test_image_result[0]['pipeline']['result']))
+                    else:
+                        request.session['test_result'] = quick_test_image_result
+                        messages.error(request, 'Test Success, but Bad Response type')
                 else:
+                    print(quick_test_image_result)
                     messages.error(request, 'Test Failed. Either No Object Was Detected or the model is not in ready state.')
 
                 return redirect('testofflineproject', id=id)

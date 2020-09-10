@@ -32,9 +32,17 @@ class UserSerializer(serializers.ModelSerializer):
         return user
 
 class ImageFileSerializer(serializers.ModelSerializer):
+    pipeline_status = serializers.SerializerMethodField()
+
+    def get_pipeline_status(self, obj):
+        try:
+            return json.loads(obj.pipeline_status)
+        except:
+            return {}
+
     class Meta:
         model = ImageFile
-        fields = ('file','tested','result','score','object_type','verified')
+        fields = ('file','tested','result','score','object_type','verified','pipeline_status','created_at')
 
 class ImageSerializer(serializers.ModelSerializer):
     user_name = serializers.SerializerMethodField(read_only=True)
@@ -155,7 +163,7 @@ class ImageSerializer(serializers.ModelSerializer):
             project = Projects.objects.filter(id=request.POST.get('project_id')).get()
         
         if not project and not object_type:
-            image.delete()
+            instance.delete()
             error = {'message': 'Neither Project nor Object Type Were Valid'}
             raise serializers.ValidationError(error)
         

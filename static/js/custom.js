@@ -229,11 +229,20 @@ function verifyImage(event, id, result, score, object_type, verified, url, retra
     if(Object.keys(pipeline_status_data).length > 0){
         Object.keys(pipeline_status_data).forEach(function(key){
             if(pipeline_status_data[key]["result"]){
-                html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+pipeline_status_data[key]["result"]+', <b>Score:</b> '+pipeline_status_data[key]["score"]+'</label>';
+                html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+pipeline_status_data[key]["result"]+', <b>Score:</b> '+pipeline_status_data[key]["score"];
+                if(pipeline_status_data[key]["message"]){
+                    let d = pipeline_status_data[key]["message"];
+                    if(Array.isArray(pipeline_status_data[key]["message"]) || typeof pipeline_status_data[key]["message"] === "object"){
+                        d = '<a href="#!" onclick="alert(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\'))">View</a>';
+                    }
+                    html = html + ', <b>Message:</b> '+d;
+                }
+
+                html = html + '</label>';
             }else{
                 let d = pipeline_status_data[key];
-                if(Array.isArray(pipeline_status_data[key])){
-                    d = '<a href="#!" onclick="alert(\''+JSON.stringify(d)+'\')">View</a>';
+                if(Array.isArray(pipeline_status_data[key]) || typeof pipeline_status_data[key] === "object"){
+                    d = '<a href="#!" onclick="alert(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\'))">View</a>';
                 }
                 html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+d+'</label>';
             }
@@ -251,6 +260,7 @@ function verifyImage(event, id, result, score, object_type, verified, url, retra
         cancelButtonText: 'Close',
         html: html,
         focusConfirm: false,
+        width: '60vw',
         preConfirm: function(){
             Pace.restart();
             if(retrained && !document.getElementById('test-verified').checked){

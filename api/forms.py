@@ -58,10 +58,11 @@ class OfflineModelForm(forms.ModelForm):
         if self.instance and (self.instance.projects.all().count() or self.instance.classifiers.all().count()): # Done, to check if offline model is linked to projects or classifiers to disable editing object type
             if self.instance.preprocess or self.instance.postprocess:
                 self.fields['model_type'].widget = forms.Select(choices=[('CLASSIFIER','Processor')])
-                self.fields['model_type'].help_text = 'Model Type Cannot be Changed because this is being used by projects/classifiers.'
+                self.fields['model_type'].help_text = 'Model Type Cannot be Changed because this is being used by projects/classifiers. <br/> Model Type: Processor'
             else:
-                self.fields['model_type'].widget = forms.HiddenInput()
-                self.fields['model_format'].help_text = 'Choose a format or type yourself <br/> Type: '+self.instance.model_type+' <br/> Model Type is Unable to change because it is used by some projects or classifier actively.'
+                # self.fields['model_type'].widget = forms.HiddenInput()
+                self.fields['model_type'].widget = forms.Select(choices=[('CLASSIFIER','Classifier'),('CLASSIFIER','Processor')])
+                self.fields['model_format'].help_text = 'Choose a format or type yourself <br/> Model Type: '+self.instance.model_type+' <br/> This Offline Model is being used by some projects or classifier actively. Change with Caution.'
 
 # FILE UPLOAD
 class FileUploadForm(forms.ModelForm):

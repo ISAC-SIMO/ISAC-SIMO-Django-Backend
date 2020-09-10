@@ -16,7 +16,7 @@ body::-webkit-scrollbar,.table-responsive::-webkit-scrollbar{width:.6em;height:.
 .tooltip-inner{max-width: 500px;}
 .img-flex{display:flex;flex-flow:column;justify-content:center;align-items:center;padding:3px;background:#eee;margin:5px;position:relative;}
 .img-flex:after {position: absolute;content: "";background: #323232;opacity: 0;top: 0;left: 0;right: 0;bottom: 0;z-index: 1;transition: all 0.3s ease;pointer-events: none;}
-.img-card{width:180px;cursor:pointer;}
+.img-card{width:180px;min-height:100px;cursor:pointer;}
 .img-delete{position: absolute;bottom: 5px;right:8px;font-size:1.5em;visibility:hidden;opacity:0;transform:translate(0,10px);transition:all 0.3s ease;cursor:pointer;z-index: 2;}
 .img-flex:hover .img-delete{visibility:visible;opacity:1;transform:translate(0,0);}
 .img-flex:hover:after{visibility:visible;opacity:0.5;}

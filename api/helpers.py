@@ -32,7 +32,14 @@ from operator import itemgetter
 import io
 import sys
 
-# NOTE: (NOT ACTIVE AT THE MOMENT) Classifier pipeline continues on both go or nogo. I have given if True or...: so that pipeline continues in any case
+PIPELINE_CONTINUE_ON = ("go","gos","nogo","nogos")
+def shouldContinue(res): 
+    # IN CASE OF 
+    # 1. DETECT MODEL action as Classifier it will always continue if next pipeline exists
+    # 2. PreProcessor also always continues because there is no go/nogo it just processes images
+    if str(res).strip().replace(" ","").lower() in PIPELINE_CONTINUE_ON:
+        return True
+    return False
 
 def reload_classifier_list():
     try:
@@ -175,7 +182,7 @@ def test_offline_image(image_file, offline_model):
         })
         i += 1
 
-    result_type = 'Not Found'
+    result_type = ''
     score = '0'
     if len(result[0]) > 0:
         try:
@@ -461,7 +468,7 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
 ### CALL AI TEST ###
 ####################
 # Default on 1st Image Test check Classifier Ids 1
-# If result is nogo/nogos then run test again with classifier ids 2
+# If result is shouldContinue function passed then run test again with classifier ids 2 (in case of preprocess etc it will go next anyway)
 def test_image(image_file, title=None, description=None, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False, force_object_type=None):
     if force_object_type and not detected_as: # Force object Type by api
         try:
@@ -547,11 +554,12 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     }
                     image_file.pipeline_status = json.dumps(pipeline_status)
                     image_file.save()
+                    # In preprocess continue to next classifier pipeline if it exists of course
+                    print('PREPROCESS OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                     if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                        print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                         test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
                     else:
-                        print('No more Nogo pipeline')
+                        print('No more pipeline')
                 except Exception as e:
                     print(e)
                     print('Failed to run PREPROCESS .py Offline Model')
@@ -578,7 +586,8 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     if result.get('score', False) and result.get('result', False):
                         pipeline_status[classifier.offline_model.name] = {
                             'score': result.get('score'),
-                            'result': result.get('result')
+                            'result': result.get('result'),
+                            'message': result.get('message', '')
                         }
                         image_file.result = result.get('result')
                         image_file.score = result.get('score')
@@ -587,12 +596,12 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     image_file.pipeline_status = json.dumps(pipeline_status)
                     image_file.save()
                     # If Break=True value passed by postprocess then stop the flow.
-                    if not result.get('break', False) or result.get('result','').lower() == 'nogo' or result.get('result','').lower() == 'nogos' or result.get('result','').lower() == 'no go':
+                    if not result.get('break', False) or shouldContinue(result.get('result','')):
+                        print('PostProcess OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                            print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                             test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
                         else:
-                            print('No more Nogo pipeline')
+                            print('No more pipeline')
                 except Exception as e:
                     print(e)
                     print('Failed to run POSTPROCESS .py Offline Model')
@@ -618,13 +627,12 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                         image_file.tested = True
                         image_file.save()
 
-                    # If nogo/nogos then run with next model pipe lopping through available classifier list
-                    if res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos' or res.get('result','').lower() == 'no go':
+                    if shouldContinue(result.get('result','')):
+                        print('OFFLINE CLASSIFIER NORMAL OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                            print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                             test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
                         else:
-                            print('No more Nogo pipeline')
+                            print('No more pipeline')
 
             if(classifier_index <= 0):
                 os.remove(save_to_path)
@@ -683,7 +691,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     if(sorted_by_score and sorted_by_score[0]): # Set Score and Result/Class
                         image_file.score = sorted_by_score[0]['score']
                         image_file.result = sorted_by_score[0]['class']
-                        pipeline_status[check_and_get_classifier_ids] = {
+                        pipeline_status[classifier_ids] = {
                             'score': sorted_by_score[0]['score'],
                             'result': sorted_by_score[0]['class']
                         }
@@ -693,15 +701,12 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     image_file.save()
                     resized_image_open.close()
 
-                    # If nogo/nogos then run with next model pipe lopping through available classifier list
-                    # NOTE: later classifier_list.py shall contain the recursion_list to hold results that might require re test
-                    # e.g. if recursion_list.get('wall',[]) has nogo/nogos etc. then retest it etc...
-                    if sorted_by_score[0]['class'].lower() == 'nogo' or sorted_by_score[0]['class'].lower() == 'nogos' or sorted_by_score[0]['class'].lower() == 'no go':
+                    if shouldContinue(sorted_by_score[0]['class']):
+                        print('CLASSIFIER ONLINE OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                            print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                             test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
                         else:
-                            print('No more Nogo pipeline')
+                            print('No more pipeline')
 
                     if(classifier_index <= 0):
                         os.remove(save_to_path)
@@ -712,17 +717,37 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                 res = detect_image(image_file, classifier_ids, offline=False, no_temp=True) # Note: Detect_Model is classifier ids (if 404 condition i.e. 2nd parameter)
                 # print(res)
                 resized_image_open.close()
+                pipeline_status = {}
+                try:
+                    pipeline_status = json.loads(image_file.pipeline_status)
+                except Exception as e:
+                    pipeline_status = {}
+                
                 if res and len(res) > 0:
+                    pipeline_status[classifier_ids] = {
+                        'score': res[0].get('score',1),
+                        'result': res[0].get('object_type','')
+                    }
+                    image_file.pipeline_status = json.dumps(pipeline_status)
                     image_file.tested = True
                     image_file.result = res[0].get('object_type','')
                     image_file.score = res[0].get('score',1)
                     image_file.save()
+                else:
+                    # No Response log pipeline
+                    pipeline_status[classifier_ids] = {
+                        'score': 0,
+                        'result': ''
+                    }
+                    image_file.pipeline_status = json.dumps(pipeline_status)
+                    image_file.tested = True
+                    image_file.save()
                 
                 if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                    print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                    print('CLASSIFIER ONLINE [Detect Model Acting as Classifier] OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                     test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
                 else:
-                    print('No more Nogo pipeline')
+                    print('No more pipeline')
 
                 if(classifier_index <= 0):
                     os.remove(save_to_path)
@@ -881,7 +906,7 @@ def quick_test_offline_image(image_file, classifier, direct_offline_model=False)
         })
         i += 1
 
-    result_type = 'Not Found'
+    result_type = ''
     score = '0'
     if len(result[0]) > 0:
         try:
@@ -1100,7 +1125,7 @@ def quick_test_detect_image(image_file, detect_model, offline=False, project_fol
             
             resized_image_open.close()
             print('Object Detect False, either bad response, no index, bad format array, sorted score empty etc.')
-            return False
+            return {"data": content, "error": True}
         else:
             print('FAILED TO Detect Object - Check Token, Object Detect Model id and file existence.')
             return False
@@ -1679,10 +1704,10 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
         # Ignore on preprocess/postprocess
         if classifier.offline_model.preprocess or classifier.offline_model.postprocess:
             if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                print('TEMP: FOR PRE/POST PROCESSOR - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                 test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file
             else:
-                print('No more Nogo pipeline (offline model)')
+                print('No more pipeline (offline model)')
             return False
 
         res = test_offline_image(image_file, classifier.offline_model)
@@ -1702,12 +1727,12 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
                 'score': res.get('score',''),
                 'result': res.get('result','')
             }
-            if res.get('result','').lower() == 'nogo' or res.get('result','').lower() == 'nogos' or res.get('result','').lower() == 'no go':
+            if shouldContinue(res.get('result','')):
                 if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                    print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                    print('TEMP: OFFLINE CLASSIFIER OK  - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                     test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file
                 else:
-                    print('No more Nogo pipeline (offline model)')
+                    print('No more pipeline (offline model)')
 
             pipeline_status_copy = pipeline_status.copy()
             score_copy = score
@@ -1775,15 +1800,12 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
                         'result': sorted_by_score[0]['class']
                     }
 
-                # If nogo/nogos then run with next model pipe lopping through available classifier list
-                # NOTE: later classifier_list.py shall contain the recursion_list to hold results that might require re test
-                # e.g. if recursion_list.get('wall',[]) has nogo/nogos etc. then retest it etc...
-                if sorted_by_score[0]['class'].lower() == 'nogo' or sorted_by_score[0]['class'].lower() == 'nogos' or sorted_by_score[0]['class'].lower() == 'no go':
+                if shouldContinue(sorted_by_score[0]['class']):
                     if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                        print('NOGOS CLASS - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                        print('TEMP: ONLINE CLASSIFIER OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                         test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file
                     else:
-                        print('No more Nogo pipeline')
+                        print('No more pipeline')
 
                 pipeline_status_copy = pipeline_status.copy()
                 score_copy = score
