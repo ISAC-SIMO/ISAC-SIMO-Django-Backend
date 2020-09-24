@@ -34,8 +34,6 @@ PRODUCTION = False
 
 if env('DATABASE_URL'):
     DATABASE_URL = env('DATABASE_URL')
-    PRODUCTION = True
-    print('DATABASE_URL STRING PROVIDED (PRODUCTION ASSUMED)')
 
 if env('IBM_API_KEY'):
     IBM_API_KEY = env('IBM_API_KEY')
@@ -54,7 +52,7 @@ TEMPLATE_DEBUG = DEBUG
 GOOGLE_MAP_STREET_API = os.getenv('GOOGLE_MAP_STREET_API')
 GOOGLE_MAP_API = os.getenv('GOOGLE_MAP_API')
 
-ALLOWED_HOSTS = ['0.0.0.0','localhost','127.0.0.1','buildchange.pythonanywhere.com','isac-simo.net','www.isac-simo.net']
+ALLOWED_HOSTS = ['0.0.0.0','localhost','127.0.0.1','buildchange.pythonanywhere.com','isac-simo.net','www.isac-simo.net','149.81.165.216']
 
 INTERNAL_IPS = (
     '127.0.0.1',
@@ -81,6 +79,9 @@ INSTALLED_APPS = [
 ]
 
 AUTH_USER_MODEL = 'main.User'   #changes the built-in user model to ours
+
+if PRODUCTION:
+    SESSION_COOKIE_SECURE = True
 
 MIDDLEWARE = [
     'api.middleware.MaintenanceMode',
@@ -118,7 +119,7 @@ WSGI_APPLICATION = 'isac_simo.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
 
-if PRODUCTION and env('DATABASE_URL'):
+if env('DATABASE_URL'):
     DATABASES = {
         'default': dj_database_url.config(default=DATABASE_URL)
     }
