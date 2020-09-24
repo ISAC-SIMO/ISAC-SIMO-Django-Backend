@@ -281,11 +281,12 @@ def deleteUserByAdmin(request, id):
 # Pull From Git Master via Route
 def pull(request):
     if os.getenv('PASSWORD', False) and os.getenv('PASSWORD', False) == request.GET.get('password', ''):
-        print('pull.sh exists: '+ str(os.path.exists('pull.sh')))
-        path = os.path.join('pull.sh')
+        name = os.environ.get('PROJECT_FOLDER','') + '/pull.sh'
+        print('pull.sh exists: '+ str(os.path.exists(name)))
+        path = os.path.join(name)
 
-        if not os.path.exists('pull.sh'):
-            path = os.environ.get('PROJECT_FOLDER','') + '/pull.sh'
+        if not os.path.exists(name):
+            path = './pull.sh'
 
         print(path)
 
