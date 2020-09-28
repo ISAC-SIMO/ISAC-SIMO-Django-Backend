@@ -57,6 +57,12 @@ jobs:
             python3 manage.py migrate
 
       - run:
+          name: Check System
+          command: |
+            . venv/bin/activate
+            python3 manage.py check
+
+      - run:
           name: Running Server
           background: true
           command: |
