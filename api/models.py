@@ -134,9 +134,9 @@ class FileUpload(models.Model):
 
     def filepath(self):
         try:
-            path = os.path.join('media/file/', self.file.url)
-            if not os.path.exists(os.path.join('media/file/')):
-                path = os.environ.get('PROJECT_FOLDER','') + self.file.url
+            path = os.environ.get('PROJECT_FOLDER','') + self.file.url
+            if not os.path.exists(path):
+                path = os.path.join('media/file/', self.file.url)
             return path
         except Exception as e:
             return self.filename()

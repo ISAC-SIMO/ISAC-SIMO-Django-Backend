@@ -364,9 +364,28 @@ def retestImageFile(request, id):
             image_file = ImageFile.objects.filter(Q(image__in=images)).get(id=id)
         else:
             image_file = ImageFile.objects.get(id=id)
-        project = image_file.image.project
+
+        # CHECK IF either project or object type provided
+        project = None
+        object_type = None
+        force_object_type = None
+        # First check if object_type_id is provided
+        if request.GET.get('object_type_id', None):
+            object_type = ObjectType.objects.filter(id=request.GET.get('object_type_id')).get()
+            if object_type:
+                project = object_type.project
+                force_object_type = object_type.name.lower()
+        # Else check project_id
+        elif image_file.image.project:
+            project = image_file.image.project
+        
+        if not project and not object_type:
+            messages.error(request, "Neither Project nor Object Type Were Valid")
+            return HttpResponseRedirect(request.META.get('HTTP_REFERER','/'))
+        
         offline = False
         detect_model = project.detect_model
+
         try:
             if project.offline_model and project.offline_model.file:
                 offline = True
@@ -375,7 +394,7 @@ def retestImageFile(request, id):
             offline = False
         
         if not image_file.result or not image_file.score:
-            test_status = test_image(image_file, detect_model=detect_model, project=project.unique_name(), offline=offline)
+            test_status = test_image(image_file, detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
             if test_status:
                 messages.success(request, 'Image Tested Successfully.')
             else:
