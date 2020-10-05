@@ -39,7 +39,7 @@ class ImageForm(forms.ModelForm):
 
 
 class OfflineModelForm(forms.ModelForm):
-    model_type = forms.ChoiceField(choices=[('OBJECT_DETECT','Object Detect'),('CLASSIFIER','Classifier'),('CLASSIFIER','Processor')], widget=forms.Select, initial = 'model_type')
+    model_type = forms.ChoiceField(choices=[('CLASSIFIER','Processor'),('OBJECT_DETECT','Object Detect'),('CLASSIFIER','Classifier')], widget=forms.Select, initial = 'model_type')
     model_format = forms.CharField(widget=forms.Select, initial = 'model_format')
     class Meta:
         model = OfflineModel     
@@ -61,7 +61,7 @@ class OfflineModelForm(forms.ModelForm):
                 self.fields['model_type'].help_text = 'Model Type Cannot be Changed because this is being used by projects/classifiers. <br/> Model Type: Processor'
             else:
                 # self.fields['model_type'].widget = forms.HiddenInput()
-                self.fields['model_type'].widget = forms.Select(choices=[('CLASSIFIER','Classifier'),('CLASSIFIER','Processor')])
+                self.fields['model_type'].widget = forms.Select(choices=[('CLASSIFIER','Processor'),('CLASSIFIER','Classifier')])
                 self.fields['model_format'].help_text = 'Choose a format or type yourself <br/> Model Type: '+self.instance.model_type+' <br/> This Offline Model is being used by some projects or classifier actively. Change with Caution.'
 
 # FILE UPLOAD

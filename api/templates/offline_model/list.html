@@ -26,7 +26,7 @@
                                 <th>Type</th>
                                 <th>Format</th>
                                 <th>Added By</th>
-                                <th>Added At</th>
+                                {% comment %} <th>Added At</th> {% endcomment %}
                                 {% if user.is_admin or user.is_project_admin %}<th style="min-width: 120px;">Actions</th>{% endif %}
                             </tr>
                         </thead>
@@ -36,17 +36,17 @@
                                     <td title="{% if model.offline_model_labels == '[]' %}No Labels Provided{% else %}{{model.offline_model_labels|default:'No Labels Provided'}}{% endif %}" data-toggle="tooltip" data-placement="right">
                                     {{model.name}}
                                     </td>
-                                    <td>{{model.model_type|title}}
+                                    <td>{% if model.preprocess %}Pre-Process{% elif model.postprocess %}Post-Process{% else %}{{model.model_type|title}}{% endif %}
                                     {% if model.preprocess %}
-                                        <i class="fa fa-dot-circle text-green" title="Pre-Process" data-toggle="tooltip" data-placement="right"></i>
-                                        {% endif %}
-                                        {% if model.postprocess %}
-                                        <i class="fa fa-check-circle text-orange" title="Post-Process" data-toggle="tooltip" data-placement="right"></i>
+                                        <i class="fa fa-dot-circle text-green" title="Pre-Processing Model" data-toggle="tooltip" data-placement="right"></i>
+                                    {% endif %}
+                                    {% if model.postprocess %}
+                                        <i class="fa fa-check-circle text-orange" title="Post-Processing Model" data-toggle="tooltip" data-placement="right"></i>
                                     {% endif %}
                                     </td>
                                     <td>{{model.model_format}}</td>
                                     <td>{{model.created_by.full_name|default:'User'}}</td>
-                                    <td>{{model.created_at}}</td>
+                                    {% comment %} <td>{{model.created_at}}</td> {% endcomment %}
                                     {% if user.is_admin or user.is_project_admin %}
                                     <td class="table-options" style="min-width: 95px;">
                                         <a onclick="deleteDataWriteConfirm(event, 'offline-model-{{ model.id }}', 'Offline Model')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'offline.model.delete' model.id %}" class="btn text-secondary px-0">

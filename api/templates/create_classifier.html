@@ -21,11 +21,34 @@
                         <b>If the Classifier was not added, contact the Server Admin to add this Classifier in this web application</b> <br/>
                         <small>Send a copy of this response</small>
                         <script>
-                            window.onbeforeunload = function(){
-                                return 'Are you sure you want to leave?';
-                            };
+                            //window.onbeforeunload = function(){
+                                //return 'Are you sure you want to leave?';
+                            //};
                         </script>
                     {% else %}
+                        <div class="form-group">
+                            <label for="source" class="col-sm-12 col-md-6 col-form-label">Source of the Model*</label>
+                            <div class="col-sm-12 col-md-4">
+                                <select class="form-control" name="source" id="source">
+                                    <option value="ibm">IBM Watson</option>
+                                    <option value="offline">Offline Model</option>
+                                </select>
+                            </div>
+                            <small class="col-sm-12 form-text text-muted">
+                                Choose the Source of Model. IBM Watson for adding trained/pretrained classifier or object detection.<br/>Offline Model to add Offline Model/Pre/Post/Processor.
+                            </small>
+                        </div>
+                        <div class="form-group" id="trained-group">
+                            <label for="trained" class="col-sm-12 col-md-6 col-form-label">Would you like to Train Model or Add Pre-Trained Model?*</label>
+                            <div class="col-sm-12 col-md-4">
+                                <select class="form-control" name="trained" id="trained">
+                                    {% if not user.is_project_admin %}
+                                    <option value="false">Train New Model</option>
+                                    {% endif %}
+                                    <option value="true">Add Pre-Trained Model</option>
+                                </select>
+                            </div>
+                        </div>
                         <div class="form-group" id="zip-group">
                             <label for="zip" class="col-sm-12 col-md-6 col-form-label">Zip Files*</label>
                             <div class="col-sm-12 col-md-4">
@@ -45,7 +68,7 @@
                                 <b>1 Zip</b> file containing negative data (better to name the zip negative) (Negative data is Not Compulsory)
                             </small>
                         </div>
-                        <div class="form-group">
+                        {% comment %} <div class="form-group">
                             <label for="justaddit" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                                 <input type="checkbox" name="justaddit" id="justaddit" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
                                 Just Add Classifier Without Training
@@ -53,7 +76,7 @@
                             <small class="col-sm-12 form-text text-muted" style="margin:0;">
                                 This is only useful if Classifier was already created in IBM Watson / <a href="{% url 'offline.model.readme' %}" target="_blank">Local Offline Model</a> and you just want it to be added here
                             </small>
-                        </div>
+                        </div> {% endcomment %}
                         <div class="form-group" id="process-group">
                             <label for="process" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                                 <input type="checkbox" name="process" id="process" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
@@ -90,7 +113,7 @@
                                 This will add Inverted / Negative and Edge of image within the zip file
                             </small>
                         </div>
-                        <div class="form-group animated fast bounceInLeft" id="offline-model-group" style="display:none;">
+                        <div class="form-group animated fast fadeIn" id="offline-model-group" style="display:none;">
                             <label for="offlineModel" class="col-sm-5 col-md-4 col-form-label">Offline Model</label>
                             <div class="col-sm-12 col-md-4">
                                 <select name="offlineModel" id="offlineModel" class="form-control">
@@ -109,6 +132,18 @@
                             <div class="col-sm-12 col-md-4">
                                 <input type="text" placeholder="The name of the new classifier" class="form-control" id="name" name="name" required/>
                             </div>
+                            <small id="model_id_msg" class="col-sm-12 form-text text-muted">
+                                * This is What is used to Call Watson AI
+                            </small>
+                        </div>
+                        <div class="form-group" id="is_object_detection_group" style="display: none;">
+                            <label for="is_object_detection" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
+                                <input type="checkbox" name="is_object_detection" id="is_object_detection" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
+                                Is Object Detection ?
+                            </label>
+                            <small class="col-sm-12 form-text text-muted" style="margin:0;">
+                                Check this if you are using IBM Watson Object Detection Model to act as Classifier.
+                            </small>
                         </div>
                         <div class="form-group">
                             <label for="project" class="col-sm-5 col-md-4 col-form-label">Project*</label>
@@ -171,22 +206,22 @@
         $('#zip').on('change', getZipCount)
 
         $('#classifier_form').on('submit', function(event){
-            if($('#justaddit').is(":checked")){
+            if($('#source').val() == "offline"){
                 $('#zip-group').html('');
                 $('#negative-group').html('');
             }
             Pace.restart()
             $('#classifier_btn').attr('disabled','disabled')
             Swal.fire({
-                'title':'Sending Zip Files to create new classifiers',
-                'html':'Do not close this window until response is received, It might take some time depending on the size and amount of zip files.',
+                'title':'Adding New Classifier',
+                'html':'Do not close this window until response is received, It might take some time depending on the size or amount of zip files.',
                 'type':'info',
                 'allowOutsideClick': false
             })
         })
 
-        $('#justaddit').on('change', function(event){
-            if($('#justaddit').is(":checked")){
+        $('#source').on('change', function(event){
+            if($('#source').val() == "offline"){
                 $('#zip-group').slideUp();
                 $('#zip').removeAttr('required');
                 $('#negative-group').slideUp();
@@ -194,21 +229,22 @@
                 $('#rotate').prop('checked', false);
                 $('#warp').prop('checked', false);
                 $('#inverse').prop('checked', false);
+                $('#trained-group').slideUp();
                 $('#process-group').slideUp();
                 $('#rotate-group').slideUp();
                 $('#warp-group').slideUp();
                 $('#inverse-group').slideUp();
+                $('#model_id_msg').hide();
+                $('#is_object_detection_group').hide();
                 $('#offline-model-group').slideDown(); // make offline add able
                 $('#offline-model-label-group').slideDown(); // make offline add able
             }else{
-                $('#zip-group').slideDown();
-                $('#zip').attr('required','required');
-                $('#negative-group').slideDown();
-                $('#process-group').slideDown();
-                $('#warp-group').hide();
-                $('#inverse-group').hide();
                 $('#offline-model-group').slideUp();
                 $('#offline-model-label-group').slideUp();
+                $('#offlineModel').val(null).trigger('change');
+                $('#name').val("");
+                $('#trained-group').slideDown();
+                $('#trained').trigger('change');
             }
         })
 
@@ -230,6 +266,34 @@
             }
         })
 
+        $('#trained').on('change', function(event){
+            if($('#trained').val() == "true"){
+                $('#zip-group').slideUp();
+                $('#zip').removeAttr('required');
+                $('#negative-group').slideUp();
+                $('#process').prop('checked', false);
+                $('#rotate').prop('checked', false);
+                $('#warp').prop('checked', false);
+                $('#inverse').prop('checked', false);
+                $('#process-group').slideUp();
+                $('#rotate-group').slideUp();
+                $('#warp-group').slideUp();
+                $('#inverse-group').slideUp();
+                $('#model_id_msg').show();
+                $('#is_object_detection_group').show();
+            }else{
+                $('#zip-group').slideDown();
+                $('#zip').attr('required','required');
+                $('#negative-group').slideDown();
+                $('#process-group').slideDown();
+                $('#trained-group').slideDown();
+                $('#warp-group').hide();
+                $('#inverse-group').hide();
+                $('#model_id_msg').hide();
+                $('#is_object_detection_group').hide();
+            }
+        })
+
         $options = $('#object_type').find('option');
         
         $('#project').select2({
@@ -238,25 +302,35 @@
         $('#object_type').select2({
             'placeholder':'Select a Object Type'
         })
-        $('#offlineModel').select2({
+        var offlineModel = $('#offlineModel').select2({
             placeholder: 'Select Offline Detect Model',
             allowClear: true
         })
+
+        $('#offlineModel').on('change', function() {
+            var val = offlineModel[0].selectedOptions[0].textContent;
+            write(val, 0);
+        });
+        function write(val, i){
+            setTimeout(function(){
+                $('#name').val(val.slice(0, i+1));
+                if(i < val.length){
+                    write(val, i+1);
+                }
+            }, 50);
+        }
 
         $('#project').on( 'change', function() {
             $('#object_type').html( $options.filter( '[data-project="' + this.value + '"]' ) );
         }).trigger( 'change' );
 
         {% if user.is_project_admin %}
-        $('#justaddit').attr('checked','checked');
-        $('#justaddit').trigger('change');
         $('#zip-group').remove();
         $('#negative-group').remove();
-        $('#justaddit').on('click', function(){
-            return false;
-        })
+        $('#trained').val("true").trigger("change");
         {% endif %}
 
+        $('#source').trigger('change');
         {% if created %}
         if ( window.history.replaceState ) {
             window.history.replaceState( null, null, window.location.href );

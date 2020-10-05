@@ -75,6 +75,7 @@ class Classifier(models.Model):
     object_type = models.ForeignKey(ObjectType, related_name='classifiers', on_delete=models.SET_NULL, blank=True, null=True)
     order = models.IntegerField("Order", default=0, blank=False, null=False)
     offline_model = models.ForeignKey('OfflineModel', on_delete=models.SET_NULL, related_name='classifiers', blank=True, null=True)
+    is_object_detection = models.BooleanField(default=False)
     created_by = models.ForeignKey("main.User", related_name='classifiers', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

@@ -153,7 +153,9 @@
                     {id: 'py', text: '.py (python3)'},
                 ]
             }).val('py').change();
-            document.getElementById('id_postprocess').checked = true;
+            if(!document.getElementById('id_postprocess').checked && !document.getElementById('id_preprocess').checked){
+              document.getElementById('id_postprocess').checked = true;
+            }
           }else{
             $('#offline-model-label-group').val('').show();
             $("#id_model_format").select2("destroy").empty();
@@ -190,12 +192,20 @@
 
         {% if request.resolver_match.url_name == 'offline.model.edit' %}
           {% if offlineModel and offlineModel.model_format %}
-            $('#id_model_format').val('{{offlineModel.model_format}}');
-            $('#id_model_format').trigger('change');
             {% if offlineModel.preprocess or offlineModel.postprocess %}
               $("#id_model_type option:contains('Processor')").prop('selected', true).change();
+            {% else %}
+              {% if offlineModel.model_type == 'CLASSIFIER' %}
+                $("#id_model_type option:contains('Classifier')").prop('selected', true).change();
+              {% else %}
+                $("#id_model_type option:contains('Object Detect')").prop('selected', true).change();
+              {% endif %}
             {% endif %}
+            $('#id_model_format').val('{{offlineModel.model_format}}');
+            $('#id_model_format').trigger('change');
           {% endif %}
+        {% else %}
+          $('#id_model_type').trigger('change')
         {% endif %}
 
         $('#id_postprocess').trigger('change')

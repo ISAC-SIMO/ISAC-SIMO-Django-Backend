@@ -29,7 +29,7 @@
                                 <th>Name</th>
                                 <th>Project</th>
                                 <th>Added By</th>
-                                {% if user.is_admin or user.is_project_admin %}<th style="width:145px;">Actions</th>{% endif %}
+                                {% if user.is_admin or user.is_project_admin %}<th style="width:170px;">Actions</th>{% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -39,7 +39,7 @@
                                     <td>{{object_type.project.project_name|title|default:'Anon. Project'}}</td>
                                     <td>{{object_type.created_by.full_name|default:'User'}}</td>
                                     {% if user.is_admin or user.is_project_admin %}
-                                    <td class="table-options" style="min-width: 145px;">
+                                    <td class="table-options" style="min-width: 170px;">
                                         <a title="View Image" data-toggle="tooltip" data-placement="left" href="#!" onclick="showImagePop(event,'{% if object_type.image %}{{object_type.image.url}}{% else %}/media/object_types/default.jpg{% endif %}')" class="btn text-secondary px-0" style="margin: 0 4px !important;">
                                             <i class="fa fa-file-image"></i>
                                         </a>
@@ -50,6 +50,9 @@
                                         {% endif %}
                                         <a onclick="deleteDataWriteConfirm(event, 'form-{{ object_type.id }}', 'Object Type')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.delete' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                        <a onclick="editForm('{{object_type.id}}','{{object_type.name}}','{{object_type.image.url}}','{{object_type.project_id}}','{{object_type.instruction|default:''}}')" title="Edit" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-edit"></i>
                                         </a>
                                         <a data-html="true" title="Quick Order Classifiers" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.order' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-sort-amount-up text-secondary"></i>
@@ -90,6 +93,7 @@
                 <div class="card-body pt-0">
                     <form action="{% url 'watson.object.create' %}" method="POST" id="object_type_create_form" class="d-inline" enctype="multipart/form-data">
                         {% csrf_token %}
+                        <input type="hidden" value="0" id="id_field" name="id"/>
                         <div class="form-group mb-0">
                             <label for="object_type" class="col-12 col-form-label">Object Type*</label>
                             <div class="col-sm-12">
@@ -121,10 +125,12 @@
                             <div class="col-sm-12">
                                 <input type="file" id="image" name="image" accept="image/x-png,image/jpeg"/>
                             </div>
+                            <p style="display:none;font-size:0.7em;margin-left: 8px;margin-top: 3px;" id="file_path"></p>
                         </div>
                         <div class="form-group">
-                            <div class="col-sm-12">
-                                <button class="btn btn-sm btn-primary" type="submit">Add</button>
+                            <div class="col-sm-12" style="display: flex;justify-content: space-between;align-items: center;">
+                                <button class="btn btn-sm btn-primary" id="submit_button" type="submit">Add</button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">Clear <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
                             </div>
                         </div>
                     </form>
@@ -151,5 +157,27 @@
           });
           $('#project').select2()
         });
+
+        function editForm(id, name, url, project_id, instruction){
+          $('#id_field').val(id);
+          $('#object_type').val(name);
+          $('#instruction').val(instruction);
+          $('#project').val(project_id).trigger('change');
+          $('#file_path').css("display","block");
+          $('#file_path').html('Previous: <a href="'+url+'" target="_blank">'+url+'</a>');
+          $('#submit_button').text("Update");
+        }
+
+        function createForm(event){
+          event.preventDefault();
+          $('#id_field').val(0);
+          $('#object_type').val("");
+          $('#instruction').val("");
+          $('#image').val("");
+          $('#project').val(null).trigger('change');
+          $('#file_path').css("display","none");
+          $('#file_path').html('');
+          $('#submit_button').text("Add");
+        }
     </script>
 {% endblock script %}

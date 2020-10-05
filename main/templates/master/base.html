@@ -256,23 +256,73 @@
               </ul>
             </li>
             <li class="nav-item">
-              <a href="{% url 'watson.classifier.list' %}"
-                class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.list' %} active {% endif %}">
-                <i class="nav-icon fa fa-layer-group"></i>
-                <p>Classifiers</p>
-              </a>
-            </li>
-            <li class="nav-item">
               <a href="{% url 'watson.object.list' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'watson.object.list' %} active {% endif %}">
                 <i class="nav-icon far fa-object-ungroup"></i>
                 <p>Object Types</p>
               </a>
             </li>
+            {% comment %} Models = Classifiers (You know *air quote* requirements) {% endcomment %}
             <li
-              class="nav-item has-treeview {% if request.resolver_match.url_name == 'watson.train' or request.resolver_match.url_name == 'watson.classifier' or request.resolver_match.url_name == 'watson.object' or request.resolver_match.url_name == 'watson.classifier.create' or request.resolver_match.url_name == 'watson.classifier.edit' or request.resolver_match.url_name == 'watson.classifier.test' %} menu-open {% endif %}">
+              class="nav-item has-treeview {% if request.resolver_match.url_name == 'watson.classifier.list' or request.resolver_match.url_name == 'watson.classifier.create' %} menu-open {% endif %}">
               <a href="#"
-                class="nav-link {% if request.resolver_match.url_name == 'watson.train' or request.resolver_match.url_name == 'watson.classifier' or request.resolver_match.url_name == 'watson.object' or request.resolver_match.url_name == 'watson.classifier.create' or request.resolver_match.url_name == 'watson.classifier.edit' or request.resolver_match.url_name == 'watson.classifier.test'  %} active {% endif %}">
+                class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.list' or request.resolver_match.url_name == 'watson.classifier.create' %} active {% endif %}">
+                <i class="nav-icon fa fa-layer-group"></i>
+                <p>
+                  Models
+                  <i class="fas fa-angle-left right"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{% url 'watson.classifier.list' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.list' %} active {% endif %}">
+                    <i class="nav-icon far fa-circle text-info"></i>
+                    <p>Current Models</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'watson.classifier.create' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.create' %} active {% endif %}">
+                    <i class="nav-icon far fa-circle text-success"></i>
+                    <p>Create New Models</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li
+              class="nav-item has-treeview {% if request.resolver_match.url_name == 'offline.model.list' or request.resolver_match.url_name == 'offline.model.create' or request.resolver_match.url_name == 'offline.model.edit' or request.resolver_match.url_name == 'offline.model.delete' or request.resolver_match.url_name == 'offline.model.test' %} menu-open {% endif %}">
+              <a href="#"
+                class="nav-link {% if request.resolver_match.url_name == 'offline.model.list' or request.resolver_match.url_name == 'offline.model.create' or request.resolver_match.url_name == 'offline.model.edit' or request.resolver_match.url_name == 'offline.model.delete' or request.resolver_match.url_name == 'offline.model.test' %} active {% endif %}">
+                <i class="nav-icon fas fa-leaf"></i>
+                <p>
+                  Offline Model / Scripts
+                  <i class="fas fa-angle-left right"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{% url 'offline.model.list' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'offline.model.list' %} active {% endif %}">
+                    <i class="nav-icon far fa-circle text-info"></i>
+                    <p>View All Offline Model</p>
+                  </a>
+                </li>
+              </ul>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{% url 'offline.model.create' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'offline.model.create' %} active {% endif %}">
+                    <i class="nav-icon far fa-circle text-success"></i>
+                    <p>Create Offline Model</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+            <li
+              class="nav-item has-treeview {% if request.resolver_match.url_name == 'watson.train' or request.resolver_match.url_name == 'watson.classifier' or request.resolver_match.url_name == 'watson.object' or request.resolver_match.url_name == 'watson.classifier.edit' or request.resolver_match.url_name == 'watson.classifier.test' %} menu-open {% endif %}">
+              <a href="#"
+                class="nav-link {% if request.resolver_match.url_name == 'watson.train' or request.resolver_match.url_name == 'watson.classifier' or request.resolver_match.url_name == 'watson.object' or request.resolver_match.url_name == 'watson.classifier.edit' or request.resolver_match.url_name == 'watson.classifier.test'  %} active {% endif %}">
                 <i class="nav-icon fab fa-cloudversify"></i>
                 <p>
                   IBM Watson & More
@@ -297,14 +347,6 @@
                 </li>
                 {% endif %}
                 <li class="nav-item">
-                  <a href="{% url 'watson.classifier.create' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.create' %} active {% endif %}">
-                    <i class="nav-icon far fa-circle text-success"></i>
-                    <p>Create New Classifier</p>
-                  </a>
-                </li>
-                <hr style="margin: 0.3rem;border-top: 1px solid #2d2b2b;"/>
-                <li class="nav-item">
                   <a href="{% url 'watson.object' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.object' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-warning"></i>
@@ -314,6 +356,8 @@
 
               </ul>
             </li>
+            {% endif %}
+            <hr style="margin:0.5em 1.3em;border-top:1px solid #555;"/>
             {% if user.is_admin %}
             <li
               class="nav-item has-treeview {% if request.resolver_match.url_name == 'map.check' %} menu-open {% endif %}">
@@ -335,54 +379,21 @@
                 </li>
               </ul>
             </li>
-            {% endif %}
-            <li
-              class="nav-item has-treeview {% if request.resolver_match.url_name == 'offline.model.list' or request.resolver_match.url_name == 'offline.model.create' or request.resolver_match.url_name == 'offline.model.edit' or request.resolver_match.url_name == 'offline.model.delete' or request.resolver_match.url_name == 'offline.model.test' %} menu-open {% endif %}">
-              <a href="#"
-                class="nav-link {% if request.resolver_match.url_name == 'offline.model.list' or request.resolver_match.url_name == 'offline.model.create' or request.resolver_match.url_name == 'offline.model.edit' or request.resolver_match.url_name == 'offline.model.delete' or request.resolver_match.url_name == 'offline.model.test' %} active {% endif %}">
-                <i class="nav-icon fas fa-leaf"></i>
-                <p>
-                  Offline Model
-                  <i class="fas fa-angle-left right"></i>
-                </p>
-              </a>
-              <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="{% url 'offline.model.list' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'offline.model.list' %} active {% endif %}">
-                    <i class="nav-icon far fa-circle text-info"></i>
-                    <p>View All Offline Model</p>
-                  </a>
-                </li>
-              </ul>
-              <ul class="nav nav-treeview">
-                <li class="nav-item">
-                  <a href="{% url 'offline.model.create' %}"
-                    class="nav-link {% if request.resolver_match.url_name == 'offline.model.create' %} active {% endif %}">
-                    <i class="nav-icon far fa-circle text-info"></i>
-                    <p>Create Offline Model</p>
-                  </a>
-                </li>
-              </ul>
-            </li>
-            {% endif %}
-            {% if user.is_admin %}
-            <hr style="margin:0.5em 1.3em;border-top:1px solid #555;"/>
-            <li class="nav-item">
-              <a href="{% url 'terminal' %}"
-                class="nav-link {% if request.resolver_match.url_name == 'terminal' %} active {% endif %}">
-                <i class="nav-icon fa fa-terminal"></i>
-                <p>
-                  Terminal
-                </p>
-              </a>
-            </li>
             <li class="nav-item">
               <a href="{% url 'file_upload' %}"
                 class="nav-link mellowyellow {% if request.resolver_match.url_name == 'file_upload' %} active {% endif %}">
-                <i class="nav-icon fa fa-folder"></i>
+                <i class="nav-icon fas fa-folder"></i>
                 <p>
                   File Upload
+                </p>
+              </a>
+            </li>
+            <li class="nav-item">
+              <a href="{% url 'terminal' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'terminal' %} active {% endif %}">
+                <i class="nav-icon fas fa-terminal"></i>
+                <p>
+                  Terminal
                 </p>
               </a>
             </li>

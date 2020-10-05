@@ -645,75 +645,80 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
             and classifier_index < classifier_list.lenList(project,object_type)
             and check_and_get_classifier_ids ):
 
-            # Authenticate the IBM Watson API
-            api_token = str(settings.IBM_API_KEY)
+            resized_image_open = None
+            status = 0
             classifier_ids = check_and_get_classifier_ids
-            post_data = {'classifier_ids': classifier_ids, 'threshold': '0.6'}
-            auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-            print(auth_base)
 
-            post_header = {'Accept':'application/json','Authorization':auth_base}
-            
-            # Open the Temporarily Resized Image (save_to_path from param comes if looped through - NOTE: now comes from detected_at directly)
-            if save_to_path: # Comes from param on next recursion
-                resized_image_open = open(save_to_path, 'rb')
-            
-            post_files = {
-                'images_file': resized_image_open,
-            }
+            # IF Classifier is not Object Detection type
+            if not classifier.is_object_detection:
+                # Authenticate the IBM Watson API
+                api_token = str(settings.IBM_API_KEY)
+                post_data = {'classifier_ids': classifier_ids, 'threshold': '0.6'}
+                auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+                print(auth_base)
 
-            # Call the API
-            response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classify?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
-            status = response.status_code
-            try:
-                content = response.json()
-            except ValueError:
-                # IBM Response is BAD
-                print('IBM Response was BAD - (e.g. image too large)')
-                # return False
-                failed += 1
-                continue
-            
-            print(status)
-            print(content)
-            # If success save the data
-            if(status == 200 or status == '200' or status == 201 or status == '201'):
-                if(content['images'][0]['classifiers'][0]['classes']):
-                    sorted_by_score = sorted(content['images'][0]['classifiers'][0]['classes'], key=lambda k: k['score'], reverse=True)
-                    print(sorted_by_score)
+                post_header = {'Accept':'application/json','Authorization':auth_base}
+                
+                # Open the Temporarily Resized Image (save_to_path from param comes if looped through - NOTE: now comes from detected_at directly)
+                if save_to_path: # Comes from param on next recursion
+                    resized_image_open = open(save_to_path, 'rb')
+                
+                post_files = {
+                    'images_file': resized_image_open,
+                }
 
-                    pipeline_status = {}
-                    try:
-                        pipeline_status = json.loads(image_file.pipeline_status)
-                    except Exception as e:
-                        pipeline_status = {}
-
-                    if(sorted_by_score and sorted_by_score[0]): # Set Score and Result/Class
-                        image_file.score = sorted_by_score[0]['score']
-                        image_file.result = sorted_by_score[0]['class']
-                        pipeline_status[classifier_ids] = {
-                            'score': sorted_by_score[0]['score'],
-                            'result': sorted_by_score[0]['class']
-                        }
-                        image_file.pipeline_status = json.dumps(pipeline_status)
-                    
-                    image_file.tested = True
-                    image_file.save()
-                    resized_image_open.close()
-
-                    if shouldContinue(sorted_by_score[0]['class']):
-                        print('CLASSIFIER ONLINE OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                        if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
-                        else:
-                            print('No more pipeline')
-
-                    if(classifier_index <= 0):
-                        os.remove(save_to_path)
-                    # return True
-                    passed += 1
+                # Call the API
+                response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classify?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
+                status = response.status_code
+                try:
+                    content = response.json()
+                except ValueError:
+                    # IBM Response is BAD
+                    print('IBM Response was BAD - (e.g. image too large)')
+                    # return False
+                    failed += 1
                     continue
-            elif status == 404: # Assume Detect Model
+                
+                print(status)
+                print(content)
+                # If success save the data
+                if(status == 200 or status == '200' or status == 201 or status == '201'):
+                    if(content['images'][0]['classifiers'][0]['classes']):
+                        sorted_by_score = sorted(content['images'][0]['classifiers'][0]['classes'], key=lambda k: k['score'], reverse=True)
+                        print(sorted_by_score)
+
+                        pipeline_status = {}
+                        try:
+                            pipeline_status = json.loads(image_file.pipeline_status)
+                        except Exception as e:
+                            pipeline_status = {}
+
+                        if(sorted_by_score and sorted_by_score[0]): # Set Score and Result/Class
+                            image_file.score = sorted_by_score[0]['score']
+                            image_file.result = sorted_by_score[0]['class']
+                            pipeline_status[classifier_ids] = {
+                                'score': sorted_by_score[0]['score'],
+                                'result': sorted_by_score[0]['class']
+                            }
+                            image_file.pipeline_status = json.dumps(pipeline_status)
+                        
+                        image_file.tested = True
+                        image_file.save()
+                        resized_image_open.close()
+
+                        if shouldContinue(sorted_by_score[0]['class']):
+                            print('CLASSIFIER ONLINE OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
+                            if classifier_index + 1 < classifier_list.lenList(project,object_type):
+                                test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                            else:
+                                print('No more pipeline')
+
+                        if(classifier_index <= 0):
+                            os.remove(save_to_path)
+                        # return True
+                        passed += 1
+                        continue
+            elif status == 404 or classifier.is_object_detection: # Assume Detect Model
                 res = detect_image(image_file, classifier_ids, offline=False, no_temp=True) # Note: Detect_Model is classifier ids (if 404 condition i.e. 2nd parameter)
                 # print(res)
                 resized_image_open.close()

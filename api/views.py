@@ -583,15 +583,14 @@ def watsonClassifierCreate(request):
     elif request.method == "POST":
         print(request.FILES.getlist('zip'))
         # NOTE: FOR PROJECT USER. They can only add offline or already added watson models (cannot create themselves manually)
-        if request.user.is_project_admin and not request.POST.get('justaddit'):
+        if request.user.is_project_admin and (request.POST.get('source') != "offline" or request.POST.get('trained') != "true"):
             created = 'Invalid Classifier Attempted to Create. Project Admin must add already created or Offline Models. You cannot create Watson Online Classifier. (Contact Admin Please)'
             return render(request, 'create_classifier.html',{'created':created, 'bad_zip':0})
 
-        if request.POST.get('justaddit', False) and request.POST.get('name'):
-            if request.POST.get('offlineModel',False):
-                created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'offline_model':request.POST.get('offlineModel'),'classes':[]}}
-            else:
-                created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'classes':[]}}
+        if request.POST.get('source', False) == "offline" and request.POST.get('name') and request.POST.get('offlineModel',False):
+            created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'offline_model':request.POST.get('offlineModel'),'classes':[]}}
+        elif request.POST.get('source', False) == "ibm" and request.POST.get('name') and request.POST.get('trained') == "true":
+            created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'classes':[]}}
         else:
             created = create_classifier(request.FILES.getlist('zip'), request.FILES.get('negative', False), request.POST.get('name'), request.POST.get('object_type'), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False))
         
@@ -622,6 +621,8 @@ def watsonClassifierCreate(request):
                 classifier.project = project
                 classifier.created_by = request.user
                 classifier.order = request.POST.get('order',0)
+                if request.POST.get('is_object_detection',False) and request.POST.get('source', "") == "ibm" and request.POST.get('trained') == "true":
+                    classifier.is_object_detection = True
                 if request.POST.get('offlineModel',False):
                     offline_model = OfflineModel.objects.filter(id=request.POST.get('offlineModel')).get()
                     classifier.offline_model = offline_model
@@ -863,24 +864,48 @@ def watsonObjectCreate(request):
             messages.error(request, 'Invalid Project Selected')
             return redirect('watson.object.list')
 
-        if request.POST.get('project') and request.POST.get('project') != "0":
-            check_unique = ObjectType.objects.filter(project=request.POST.get('project')).filter(name=request.POST.get('object_type').lower()).all()
-        if not check_unique:
-            object_type = ObjectType()
-            object_type.name = request.POST.get('object_type').lower()
+        if request.POST.get('id', False) and request.POST.get('id') != "0":
+            # Edit
+            object_type = ObjectType.objects.filter(id=request.POST.get('id')).get()
             if request.POST.get('project') and request.POST.get('project') != "0":
-                object_type.project = Projects.objects.filter(id=request.POST.get('project')).get()
-            object_type.created_by = request.user
-            object_type.instruction = request.POST.get('instruction')
-            if request.FILES.get('image'):
-                object_type.image = request.FILES.get('image')
-            object_type.save()
-            messages.success(request, 'Object Type Added')
-            reload_classifier_list()
-            return redirect('watson.object.list')
+                check_unique = ObjectType.objects.filter(project=request.POST.get('project')).filter(name=request.POST.get('object_type').lower()).all()
+            if not check_unique or request.POST.get('object_type').lower() == object_type.name:
+                object_type.name = request.POST.get('object_type').lower()
+                if request.POST.get('project') and request.POST.get('project') != "0":
+                    object_type.project = Projects.objects.filter(id=request.POST.get('project')).get()
+                object_type.instruction = request.POST.get('instruction')
+                object_type.verified = False
+                if request.FILES.get('image'):
+                    if(object_type.image != 'object_types/default.jpg'):
+                        object_type.image.delete()
+                    object_type.image = request.FILES.get('image')
+                object_type.save()
+                messages.success(request, 'Object Type Updated')
+                reload_classifier_list()
+                return redirect('watson.object.list')
+            else:
+                messages.error(request, 'Object Edit Failed - That Object Name already exists for this Project')
+                return redirect('watson.object.list')
         else:
-            messages.error(request, 'Object Not Added - Object Name already exists for this Project')
-            return redirect('watson.object.list')
+            # Create
+            if request.POST.get('project') and request.POST.get('project') != "0":
+                check_unique = ObjectType.objects.filter(project=request.POST.get('project')).filter(name=request.POST.get('object_type').lower()).all()
+            if not check_unique:
+                object_type = ObjectType()
+                object_type.name = request.POST.get('object_type').lower()
+                if request.POST.get('project') and request.POST.get('project') != "0":
+                    object_type.project = Projects.objects.filter(id=request.POST.get('project')).get()
+                object_type.created_by = request.user
+                object_type.instruction = request.POST.get('instruction')
+                if request.FILES.get('image'):
+                    object_type.image = request.FILES.get('image')
+                object_type.save()
+                messages.success(request, 'Object Type Added')
+                reload_classifier_list()
+                return redirect('watson.object.list')
+            else:
+                messages.error(request, 'Object Not Added - Object Name already exists for this Project')
+                return redirect('watson.object.list')
     else:
         messages.error(request, 'Object Not Added')
         return redirect('watson.object.list')

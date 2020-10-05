@@ -71,7 +71,17 @@
                                     {% endif %}
                                 </tr>
                             {% endfor %}
-                        </tbody> 
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <th>Name</th>
+                                <th filterable="Project">Project</th>
+                                <th filterable="Object Type">Object Type</th>
+                                <th>Added By</th>
+                                <th>Order</th>
+                                <th>Actions</th>
+                            </tr>
+                        </tfoot>
                     </table>
                 </div>
             </div>
@@ -92,7 +102,29 @@
             "order": [],
             "language": {
 			    "emptyTable": "No Classifiers Available {% if object_type %}for {{object_type|title}}{% endif %}"
-			}
+			},
+            initComplete: function () {
+                this.api().columns().every( function () {
+                    var column = this;
+                    if($(column.footer()).length > 0 && $(column.footer())[0].getAttribute('filterable')){
+                        var select = $('<select style="border-radius: 0; border: 1px solid #aaa; max-width: 160px; outline: none;"><option style="color: #aaa;" value="">- Filter By '+$(column.footer())[0].getAttribute('filterable')+'</option></select>')
+                            .appendTo($(column.footer()).empty() )
+                            .on('change', function () {
+                                var val = $.fn.dataTable.util.escapeRegex(
+                                    $(this).val()
+                                );
+        
+                                column
+                                    .search( val ? '^'+val+'$' : '', true, false )
+                                    .draw();
+                            });
+        
+                        column.data().unique().sort().each( function ( d, j ) {
+                            select.append( '<option value="'+d+'">'+d+'</option>' )
+                        });
+                    }   
+                });
+            }
           });
         });
     </script>
