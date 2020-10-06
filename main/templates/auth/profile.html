@@ -6,7 +6,7 @@
 
 {% block content %}
     <div class="row">
-        <div class="col-12">
+        <div class="col-lg-6 col-sm-12">
             <div class="card">
                 <div class="card-body">
                     {% load crispy_forms_tags %}
@@ -14,7 +14,7 @@
                     <i class="fa fa-arrow-right mr-3 ml-2" style="display:none;" id="profileArrow"></i>
                     <img style="width:120px;" style="display:none;" id="profileImage">
                     <br/><br/>
-                    <div class="col-sm-12 col-md-6">
+                    <div class="col-sm-12">
                         <form action="{% url 'profile' %}" method="POST" class="form-group" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form|crispy }}
@@ -25,16 +25,73 @@
                 </div>
             </div>
         </div>
+        {% if user.is_admin or user.is_project_admin %}
+        <div class="col-lg-6 col-sm-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="col-sm-12">
+                        <h4>Want to Generate Access Token to use with APIs?</h4>
+                        <button type="submit" id="generate-token" class="btn btn-success">Generate Token</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endif %}
     </div>
-    <script>
-        function showBlobImage(event){
-            var src = URL.createObjectURL(event.target.files[0]);
-            var arrow = document.getElementById('profileArrow');
-            arrow.style.display = 'inline-block';
-            var image = document.getElementById('profileImage');
-            image.style.display = 'inline-block';
-            image.className = 'img-thumbnail';
-            image.setAttribute('src', src);
-        }
-    </script>
+    <style>
+        .swal2-textarea{min-height:140px;}
+        .swal2-header {padding: 1rem 1rem 0 1rem;border-bottom: none;}
+        .swal2-content {padding: 5px 1rem 0;}
+    </style>
 {% endblock content %}
+
+{% block script %}
+<script>
+    function showBlobImage(event){
+        var src = URL.createObjectURL(event.target.files[0]);
+        var arrow = document.getElementById('profileArrow');
+        arrow.style.display = 'inline-block';
+        var image = document.getElementById('profileImage');
+        image.style.display = 'inline-block';
+        image.className = 'img-thumbnail';
+        image.setAttribute('src', src);
+    }
+    {% if user.is_admin or user.is_project_admin %}
+    $("#generate-token").click($.debounce(1000, function(e) {
+        var buttonText = $("#generate-token").html()
+        $("#generate-token").attr('disabled','disabled')
+        $("#generate-token").html('Generating <i class="ml-2 fa fa-sync fa-spin"></i>')
+        $.ajax({
+            type: "POST",
+            url: "{% url 'generate_token' %}",
+            data: {'csrfmiddlewaretoken': '{{csrf_token}}'},
+            dataType: "json",
+            success: function(res) {
+                //console.log(res);
+                Swal.fire({
+                    title: 'Access Token has been generated.',
+                    text: 'Keep it secret. This is like your password.',
+                    input: 'textarea',
+                    inputValue: res.token,
+                    inputAttributes: {
+                        'readonly': 'readonly',
+                    },
+                    allowOutsideClick: false
+                })
+                $("#generate-token").removeAttr('disabled')
+                $("#generate-token").html(buttonText)
+            },
+            error: function(err) {
+                if(err.responseJSON){
+                    Swal.fire("Failed to Generate Token",err.responseJSON.message,'error');
+                }else{
+                    Swal.fire("Failed to Generate Token",'','error');
+                }
+                $("#generate-token").removeAttr('disabled')
+                $("#generate-token").html(buttonText)
+            }
+        });
+    }));
+    {% endif %}
+</script>
+{% endblock script %}

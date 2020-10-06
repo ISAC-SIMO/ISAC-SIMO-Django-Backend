@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 import subprocess
 from importlib import reload
@@ -11,7 +12,7 @@ from django.contrib.auth.decorators import login_required, user_passes_test
 from django.contrib.staticfiles.views import serve
 from django.core.files.storage import FileSystemStorage
 from django.db.models.query import prefetch_related_objects
-from django.http import Http404, HttpResponse, JsonResponse
+from django.http import Http404, HttpResponse, JsonResponse, HttpResponseRedirect
 from django.shortcuts import redirect, render
 from rest_framework.generics import get_object_or_404
 from django.db.models import Q, Prefetch
@@ -24,6 +25,7 @@ from projects.models import Projects
 from .forms import (AdminEditForm, AdminRegisterForm, LoginForm, ProfileForm,
                     RegisterForm)
 from .models import User
+from rest_framework_simplejwt.tokens import RefreshToken
 
 
 def reload_classifier_list():
@@ -109,6 +111,17 @@ def profile(request):
         updateUser.save()
         messages.success(request,"User Info Updated Successfully!")
         return redirect("dashboard")
+
+@user_passes_test(is_admin_or_project_admin, login_url=dashboard_url)
+def generate_token(request):
+    if request.method == "POST":
+        refresh = RefreshToken.for_user(request.user)
+        access_token = refresh.access_token
+        access_token.set_exp(lifetime=timedelta(days=365*111)) # Remind me in 111 years
+        access_token["external"] = True
+        return JsonResponse({'token': str(access_token)}, status=200)
+    
+    return JsonResponse({'message':'Invalid Request Sent'}, status=404)
 
 @user_passes_test(is_guest, login_url=dashboard_url)
 def login_user(request):

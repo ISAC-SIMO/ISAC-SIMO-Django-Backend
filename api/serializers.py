@@ -368,3 +368,6 @@ class VideoFrameSerializer(serializers.ModelSerializer):
         else:
             error = {'message': 'No Video provided or too much (>7) video provided.'}
             raise serializers.ValidationError(error)
+
+class TestSerializer(serializers.Serializer):
+   ping = serializers.CharField(required=False)

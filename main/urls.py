@@ -8,4 +8,5 @@ urlpatterns = [
     path('update/<int:id>', views.admin_userAddForm, name="update_user"),
     path('delete/<int:id>', views.deleteUserByAdmin, name="admin_deleteuser"),
     path('profile', views.profile, name="profile"),
+    path('profile/token', views.generate_token, name="generate_token"),
 ]

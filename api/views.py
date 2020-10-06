@@ -21,16 +21,17 @@ from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from requests_toolbelt import user_agent
 from rest_framework import generics, mixins, viewsets
-from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.views import APIView
 
 import isac_simo.classifier_list as classifier_list
 from api.forms import OfflineModelForm, FileUploadForm
 from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_image, quick_test_offline_image, retrain_image, test_image, quick_test_offline_image_pre_post
 from api.models import Classifier, ObjectType, OfflineModel, FileUpload
-from api.serializers import (ImageSerializer, UserSerializer,
+from api.serializers import (ImageSerializer, TestSerializer, UserSerializer,
                              VideoFrameSerializer)
 from main import authorization
 from main.authorization import *
@@ -1462,3 +1463,19 @@ class ProfileView(mixins.ListModelMixin, viewsets.GenericViewSet):
                 "projects": user.get_project_json(request),
                 "object_types": user.get_object_detect_json(request),
             })
+
+def get_jwt_claims(request):
+    from rest_framework_simplejwt.state import token_backend
+    from rest_framework_simplejwt.authentication import JWTAuthentication
+    try:
+        jwt = JWTAuthentication()
+        header = jwt.get_header(request=request)
+        raw_token = jwt.get_raw_token(header)
+        return token_backend.decode(token=raw_token)
+    except:
+        return {}
+
+@api_view()
+def test_view(request):
+    results = TestSerializer({'ping':'pong'}).data
+    return Response(results)

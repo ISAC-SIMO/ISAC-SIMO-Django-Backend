@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
 from api import views as api
-from api.views import ImageView, ProfileView, UserView, VideoFrameView
+from api.views import ImageView, ProfileView, UserView, VideoFrameView, test_view
 from main import views
 
 router = routers.DefaultRouter()
@@ -37,6 +37,7 @@ urlpatterns = [
     path('api/auth/', TokenObtainPairView.as_view(), name='auth'),
     path('api/auth/refresh/', TokenRefreshView.as_view(), name='auth_refresh'),
     path('api/', include(router.urls)),
+    path('api/ping/', test_view, name='test_view'),
     # WEB
     path('', views.index, name="index"),
     path('login/', views.login_user, name="login"),
