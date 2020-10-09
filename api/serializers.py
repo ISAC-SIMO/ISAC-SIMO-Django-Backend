@@ -371,3 +371,77 @@ class VideoFrameSerializer(serializers.ModelSerializer):
 
 class TestSerializer(serializers.Serializer):
    ping = serializers.CharField(required=False)
+
+class UserMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ('id', 'email','full_name','user_type','image')
+        read_only = ('id', 'email', 'full_name', 'user_type','image')
+
+class ProjectSerializer(serializers.ModelSerializer):
+    unique_name = serializers.SerializerMethodField()
+
+    def get_unique_name(self, obj):
+        return obj.unique_name()
+
+    class Meta:
+        model = Projects
+        fields = ('id','project_name','image','project_desc','unique_name','detect_model','offline_model','guest','created_at','updated_at')
+        read_only_fields = ('id','unique_name','detect_model','created_at', 'updated_at')
+
+    def update(self, instance, validated_data):
+        request = self.context.get("request")
+        if(validated_data.get('image')):
+            instance.image.delete()
+        return super().update(instance, validated_data)
+
+class ObjectTypeSerializer(serializers.ModelSerializer):
+    project = ProjectSerializer(many=False, read_only=True)
+    project_id = serializers.CharField(write_only=True)
+    created_by = UserMinimalSerializer(many=False, read_only=True)
+    total_classifiers = serializers.SerializerMethodField(read_only=True)
+
+    def get_total_classifiers(self, obj):
+        return obj.classifiers.count()
+
+    class Meta:
+        model = ObjectType
+        fields = ('id','name','project_id','image','instruction','verified','total_classifiers','created_by','project','created_at','updated_at')
+        read_only_fields = ('id','created_by','created_at', 'updated_at','project')
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        if validated_data.get('project_id'): # Validate if "name" is unique
+            not_unique = ObjectType.objects.filter(project=validated_data.get('project_id')).filter(name=validated_data.get('name').lower()).all()
+            if not_unique:
+                error = {'message': 'Object Name needs to be Unique for each Project.'}
+                raise serializers.ValidationError(error)
+
+        object_type = ObjectType.objects.create(name=validated_data.get('name').lower(),
+                                    created_by=request.user if request else None,
+                                    project=Projects.objects.get(id=validated_data.get('project_id')),
+                                    image=validated_data.get('image'),
+                                    instruction=validated_data.get('instruction'),
+                                    verified=True if validated_data.get('verified') else False)
+        return object_type
+
+    def update(self, instance, validated_data):
+        request = self.context.get("request")
+        if validated_data.get('project_id', instance.project_id) and validated_data.get('name', False): # Validate if "name" is unique
+            not_unique = ObjectType.objects.filter(project=validated_data.get('project_id', instance.project_id)).filter(name=validated_data.get('name').lower()).all()
+            if not_unique and validated_data.get('name').lower() != instance.name:
+                error = {'message': 'Object Name needs to be Unique for each Project.'}
+                raise serializers.ValidationError(error)
+
+        if(validated_data.get('image')):
+            if(instance.image != 'object_types/default.jpg'):
+                instance.image.delete()
+            instance.image=validated_data.get('image')
+        instance.name=validated_data.get('name', instance.name).lower()
+        instance.created_by=request.user if request else None
+        instance.project=Projects.objects.get(id=validated_data.get('project_id', instance.project_id))
+        instance.instruction=validated_data.get('instruction', instance.instruction)
+        instance.verified=True if validated_data.get('verified') else False
+        instance.save()
+        return instance
+        

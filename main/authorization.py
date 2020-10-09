@@ -49,6 +49,11 @@ class HasProjectAdminPermission(BasePermission):
         if request.user and request.user.is_authenticated:
             return request.user.is_active and request.user.is_project_admin
 
+class HasAdminOrProjectAdminPermission(BasePermission):
+    def has_permission(self, request, view):
+        if request.user and request.user.is_authenticated:
+            return request.user.is_active and (request.user.is_project_admin or request.user.is_admin)
+
 class HasEngineerPermission(BasePermission):
     def has_permission(self, request, view):
         if request.user and request.user.is_authenticated:

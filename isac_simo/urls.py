@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
 from api import views as api
-from api.views import ImageView, ProfileView, UserView, VideoFrameView, test_view
+from api.views import ImageView, ObjectTypeView, ProfileView, ProjectView, UserView, VideoFrameView, test_view
 from main import views
 
 router = routers.DefaultRouter()
@@ -30,6 +30,8 @@ router.register('register', UserView)
 router.register('image', ImageView)
 router.register('profile', ProfileView)
 router.register('video', VideoFrameView)
+router.register('project', ProjectView)
+router.register('object', ObjectTypeView)
 
 urlpatterns = [
     # API

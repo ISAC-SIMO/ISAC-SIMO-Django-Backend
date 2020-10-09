@@ -21,7 +21,7 @@ from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from requests_toolbelt import user_agent
 from rest_framework import generics, mixins, viewsets
-from rest_framework.decorators import api_view, permission_classes
+from rest_framework.decorators import action, api_view, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -29,9 +29,9 @@ from rest_framework.views import APIView
 
 import isac_simo.classifier_list as classifier_list
 from api.forms import OfflineModelForm, FileUploadForm
-from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_image, quick_test_offline_image, retrain_image, test_image, quick_test_offline_image_pre_post
+from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_detect_image, quick_test_image, quick_test_offline_image, retrain_image, test_image, quick_test_offline_image_pre_post
 from api.models import Classifier, ObjectType, OfflineModel, FileUpload
-from api.serializers import (ImageSerializer, TestSerializer, UserSerializer,
+from api.serializers import (ImageSerializer, ObjectTypeSerializer, ProjectSerializer, TestSerializer, UserSerializer,
                              VideoFrameSerializer)
 from main import authorization
 from main.authorization import *
@@ -1479,3 +1479,83 @@ def get_jwt_claims(request):
 def test_view(request):
     results = TestSerializer({'ping':'pong'}).data
     return Response(results)
+
+class ProjectView(viewsets.ModelViewSet):
+    queryset = Projects.objects.all()
+    serializer_class = ProjectSerializer
+    permission_classes = [HasAdminOrProjectAdminPermission]
+
+    def get_queryset(self):
+        reload_classifier_list()
+        if self.request.user.is_authenticated:
+            if self.request.user.is_admin:
+                return Projects.objects.all().order_by('project_name')
+            elif self.request.user.is_project_admin:
+                return Projects.objects.filter(users__id=self.request.user.id).order_by('project_name')
+        
+        return []
+
+    def destroy(self, request, *args, **kwargs):
+        project = self.get_object()
+        project.image.delete()
+        return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=['POST'], name='Test Projects Detect Model')
+    def test(self, request, pk=None, *args, **kwargs):
+        # Request Body: 
+        # file = Image file to test
+        if not request.FILES.get('file', False):
+            test_result = {'message': 'Test Image not provided.'}
+            return JsonResponse(test_result, status=404)
+
+        try:
+            project = Projects.objects.get(pk=pk)
+        except:
+            test_result = {'message': 'Invalid Project'}
+            return JsonResponse(test_result, status=404)
+
+        if os.environ.get('PROJECT_FOLDER',False):
+            project_folder = os.environ.get('PROJECT_FOLDER','') + '/'
+        else:
+            project_folder = ''
+
+        # IF THIS PROJECT HAS OFFLINE MODEL THEN
+        if project.offline_model:
+            quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.offline_model, offline=True, project_folder=project_folder)
+        # ELSE ONLINE MODEL THEN
+        else:
+            quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False, project_folder=project_folder)
+        
+        test_result = None
+        if quick_test_image_result:
+            test_result = quick_test_image_result
+        
+        if test_result:
+            print(type(test_result))
+            return JsonResponse(test_result, status=200, safe=False)
+
+        test_result = {'message': 'Test Failed. Either No Object Was Detected or the model is not in ready state.'}
+        return JsonResponse(test_result, status=404)
+
+class ObjectTypeView(viewsets.ModelViewSet):
+    queryset = ObjectType.objects.all()
+    serializer_class = ObjectTypeSerializer
+    permission_classes = [HasAdminOrProjectAdminPermission]
+
+    def get_queryset(self):
+        reload_classifier_list()
+        if self.request.user.is_authenticated:
+            if self.request.user.is_project_admin:
+                projects = Projects.objects.filter(users__id=self.request.user.id)
+                return ObjectType.objects.filter(Q(created_by=self.request.user) | Q(project__in=projects)).order_by('-created_at').order_by('project').all()
+            elif self.request.user.is_admin:
+                return ObjectType.objects.order_by('-created_at').order_by('project').all()
+        
+        return []
+
+    def destroy(self, request, *args, **kwargs):
+        object_type = self.get_object()
+        if(object_type.image != 'object_types/default.jpg'):
+            object_type.image.delete()
+        return super().destroy(request, *args, **kwargs)
+
