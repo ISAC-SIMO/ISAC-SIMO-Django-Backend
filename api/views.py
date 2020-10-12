@@ -8,6 +8,7 @@ import uuid
 from datetime import datetime
 from http.client import HTTPResponse
 from importlib import reload
+from django.db.models.query import Prefetch
 
 import filetype
 import mistune
@@ -31,7 +32,7 @@ import isac_simo.classifier_list as classifier_list
 from api.forms import OfflineModelForm, FileUploadForm
 from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_detect_image, quick_test_image, quick_test_offline_image, retrain_image, test_image, quick_test_offline_image_pre_post
 from api.models import Classifier, ObjectType, OfflineModel, FileUpload
-from api.serializers import (ImageSerializer, ObjectTypeSerializer, ProjectSerializer, TestSerializer, UserSerializer,
+from api.serializers import (FileUploadSerializer, ImageSerializer, ObjectTypeSerializer, ProjectSerializer, TestSerializer, UserSerializer,
                              VideoFrameSerializer)
 from main import authorization
 from main.authorization import *
@@ -1247,7 +1248,7 @@ def terminal(request):
 
     if request.method == "GET":
         return render(request, 'terminal.html', {'cmd_list':cmd_list})
-    elif request.method == "POST":
+    elif request.method == "POST" and request.POST.get('cmd', False):
         print('User id ' + str(request.user.id) + ' - ' + str(request.user.full_name) + ' accessed the terminal')
         cmd = request.POST.get('cmd','')
         # Split multiline to single line
@@ -1403,28 +1404,72 @@ class VideoFrameView(viewsets.ModelViewSet):
 class UserView(viewsets.ModelViewSet):
     queryset = User.objects.all()
     serializer_class = UserSerializer
-    http_method_names = ['post','options','patch','get']
     permission_classes = [AllowAny]
     
     def get_queryset(self):
         if(self.request.method == "POST"):
             return User.objects.exclude(active__in=[True,False])
-        return User.objects.filter(id=self.request.user.id)
+
+        if self.request.user.is_admin:
+            return User.objects.all().order_by('-timestamp', '-active').prefetch_related(
+                Prefetch(
+                    "projects",
+                    queryset=Projects.objects.all(),
+                    to_attr="visible_projects"
+                )
+            )
+        elif self.request.user.is_project_admin:
+            return User.objects.exclude(user_type='admin').order_by('-timestamp', '-active').prefetch_related(
+                Prefetch(
+                    "projects",
+                    queryset=Projects.objects.filter(users__id=self.request.user.id).distinct(),
+                    to_attr="visible_projects"
+                )
+            )
+        else:
+            return User.objects.filter(id=self.request.user.id).prefetch_related(
+                Prefetch(
+                    "projects",
+                    queryset=Projects.objects.filter(users__id=self.request.user.id).distinct(),
+                    to_attr="visible_projects"
+                )
+            )
 
     def get_permissions(self):
         if self.action == 'list':
-            self.permission_classes = [HasAdminPermission]
+            self.permission_classes = [HasAdminOrProjectAdminPermission]
         elif self.action == 'retrieve':
             self.permission_classes = [IsAuthenticated]
         elif self.action == 'create':
-            self.permission_classes = [HasGuestPermission]
+            if self.request.user.is_project_admin:
+                self.permission_classes = [HasProjectAdminPermission]
+            elif self.request.user.is_admin:
+                self.permission_classes = [HasAdminPermission]
+            else:
+                self.permission_classes = [HasGuestPermission]
         elif self.action == 'update':
-            self.permission_classes = [IsAuthenticated]
+            if self.request.user.is_project_admin:
+                self.permission_classes = [HasProjectAdminPermission]
+            elif self.request.user.is_admin:
+                self.permission_classes = [HasAdminPermission]
+            else:
+                self.permission_classes = [IsAuthenticated]
         elif self.action == 'partial_update':
-            self.permission_classes = [IsAuthenticated]
+            if self.request.user.is_project_admin:
+                self.permission_classes = [HasProjectAdminPermission]
+            elif self.request.user.is_admin:
+                self.permission_classes = [HasAdminPermission]
+            else:
+                self.permission_classes = [IsAuthenticated]
         elif self.action == 'destroy':
-            self.permission_classes = [IsAuthenticated]
+            self.permission_classes = [HasAdminPermission]
         return super(self.__class__, self).get_permissions()
+
+    def destroy(self, request, *args, **kwargs):
+        user = self.get_object()
+        if(user.image != 'user_images/default.png'):
+            user.image.delete()
+        return super().destroy(request, *args, **kwargs)
 
 class ProfileView(mixins.ListModelMixin, viewsets.GenericViewSet):
     queryset = User.objects.all()
@@ -1500,7 +1545,7 @@ class ProjectView(viewsets.ModelViewSet):
         project.image.delete()
         return super().destroy(request, *args, **kwargs)
 
-    @action(detail=True, methods=['POST'], name='Test Projects Detect Model')
+    @action(detail=True, methods=['POST'])
     def test(self, request, pk=None, *args, **kwargs):
         # Request Body: 
         # file = Image file to test
@@ -1531,7 +1576,7 @@ class ProjectView(viewsets.ModelViewSet):
             test_result = quick_test_image_result
         
         if test_result:
-            print(type(test_result))
+            # print(type(test_result))
             return JsonResponse(test_result, status=200, safe=False)
 
         test_result = {'message': 'Test Failed. Either No Object Was Detected or the model is not in ready state.'}
@@ -1557,5 +1602,46 @@ class ObjectTypeView(viewsets.ModelViewSet):
         object_type = self.get_object()
         if(object_type.image != 'object_types/default.jpg'):
             object_type.image.delete()
+        return super().destroy(request, *args, **kwargs)
+
+@api_view(http_method_names=["POST"])
+def terminal_view(request):
+    if request.user and request.user.is_admin:
+        return terminal(request)
+    return Response({"message":"Unauthorized Terminal Access"})
+
+@api_view(http_method_names=["POST"])
+def clean_temp_view(request):
+    if request.user and request.user.is_admin:
+        files = []
+        count = 0
+        if not os.path.exists(os.path.join('media/temp/')):
+            files = glob.glob(os.environ.get('PROJECT_FOLDER','') + '/media/temp/*')
+        else:
+            files = glob.glob(os.path.join('media/temp/*'))
+        for f in files:
+            if "temp" in f:
+                os.remove(f)
+                count += 1
+        if not os.path.exists(os.path.join('media/street_view_images/')):
+            files = glob.glob(os.environ.get('PROJECT_FOLDER','') + '/media/street_view_images/*')
+        else:
+            files = glob.glob(os.path.join('media/street_view_images/*'))
+        for f in files:
+            if "street_view_images" in f:
+                os.remove(f)
+                count += 1
+        reload_classifier_list()
+        return Response({"message": str(count)+" Temporary Images Removed"})
+    return Response({"message":"Unauthorized Access"})
+
+class FileUploadView(viewsets.ModelViewSet):
+    queryset = FileUpload.objects.all()
+    serializer_class = FileUploadSerializer
+    permission_classes = [HasAdminPermission]
+
+    def destroy(self, request, *args, **kwargs):
+        fileUpload = self.get_object()
+        fileUpload.file.delete()
         return super().destroy(request, *args, **kwargs)
 

@@ -11,16 +11,26 @@ from api.helpers import test_image
 
 from main.models import User
 
-from .models import Image, ImageFile, ObjectType
+from .models import FileUpload, Image, ImageFile, ObjectType
 from projects.models import Projects
 
+class ProjectMinimalSerializer(serializers.ModelSerializer):
+    unique_name = serializers.SerializerMethodField()
+
+    def get_unique_name(self, obj):
+        return obj.unique_name()
+
+    class Meta:
+        model = Projects
+        fields = ('id','project_name','image','unique_name')
 
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, style={'input_type': 'password'})
+    projects = ProjectMinimalSerializer(read_only=True, many=True)
     class Meta:
         model = User
-        fields = ('id','email','password','full_name','user_type','image')
-        read_only_fields = ('id','user_type')
+        fields = ('id','email','password','full_name','user_type','image','projects')
+        read_only_fields = ['id']
 
     def create(self, validated_data):
         user = User.objects.create(email=validated_data['email'],
@@ -28,8 +38,40 @@ class UserSerializer(serializers.ModelSerializer):
         if(validated_data.get('image')):
             user.image = validated_data.get('image')
         user.set_password(validated_data['password'])
+        request = self.context.get("request")
+        if request.POST.get('user_type'):
+            user_type = request.POST.get('user_type')
+            if request.user.is_admin and user_type in ['user','engineer','government','project_admin','admin']:
+                user.user_type = user_type
+            elif request.user.is_project_admin and user_type in ['user','engineer','project_admin']:
+                user.user_type = user_type
+            elif user_type == 'project_admin':
+                user.user_type = user_type
+                user.active = False
         user.save()
         return user
+
+    def update(self, instance, validated_data):
+        request = self.context.get("request")
+        if(validated_data.get('image')):
+            if(instance.image != 'user_images/default.png'):
+                instance.image.delete()
+            instance.image = validated_data.get('image')
+        instance.full_name = validated_data.get('full_name', instance.full_name)
+        instance.email = validated_data.get('email', instance.email)
+        if(validated_data.get('password')):
+            instance.set_password(validated_data['password'])
+        if request.POST.get('user_type'):
+            user_type = request.POST.get('user_type')
+            if request.user.is_admin and user_type in ['user','engineer','government','project_admin','admin']:
+                instance.user_type = user_type
+            elif request.user.is_project_admin and user_type in ['user','engineer','project_admin']:
+                instance.user_type = user_type
+            elif user_type == 'project_admin':
+                instance.user_type = user_type
+                instance.active = False
+        instance.save()
+        return instance
 
 class ImageFileSerializer(serializers.ModelSerializer):
     pipeline_status = serializers.SerializerMethodField()
@@ -445,3 +487,27 @@ class ObjectTypeSerializer(serializers.ModelSerializer):
         instance.save()
         return instance
         
+class FileUploadSerializer(serializers.ModelSerializer):
+    filepath = serializers.SerializerMethodField()
+    created_by = UserMinimalSerializer(many=False, read_only=True)
+
+    def get_filepath(self, obj):
+        return obj.filepath()
+
+    class Meta:
+        model = FileUpload
+        fields = ('id','name','file','filepath','created_by','created_at','updated_at')
+        read_only_fields = ('id','filepath','created_by','created_at', 'updated_at')
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        fileUpload = FileUpload.objects.create(name=validated_data.get('name'),
+                                    created_by=request.user if request else None,
+                                    file=validated_data.get('file'))
+        return fileUpload
+
+    def update(self, instance, validated_data):
+        if(validated_data.get('file')):
+            instance.file.delete()
+        return super().update(instance, validated_data)
+
