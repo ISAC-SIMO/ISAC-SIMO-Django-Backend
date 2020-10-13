@@ -32,7 +32,7 @@ import isac_simo.classifier_list as classifier_list
 from api.forms import OfflineModelForm, FileUploadForm
 from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_detect_image, quick_test_image, quick_test_offline_image, retrain_image, test_image, quick_test_offline_image_pre_post
 from api.models import Classifier, ObjectType, OfflineModel, FileUpload
-from api.serializers import (FileUploadSerializer, ImageSerializer, ObjectTypeSerializer, ProjectSerializer, TestSerializer, UserSerializer,
+from api.serializers import (ClassifierSerializer, FileUploadSerializer, ImageSerializer, ObjectTypeSerializer, ProjectSerializer, TestSerializer, UserSerializer,
                              VideoFrameSerializer)
 from main import authorization
 from main.authorization import *
@@ -1644,4 +1644,107 @@ class FileUploadView(viewsets.ModelViewSet):
         fileUpload = self.get_object()
         fileUpload.file.delete()
         return super().destroy(request, *args, **kwargs)
+
+class ClassifierView(viewsets.ModelViewSet):
+    queryset = Classifier.objects.all()
+    serializer_class = ClassifierSerializer
+    permission_classes = [HasAdminOrProjectAdminPermission]
+
+    def get_queryset(self):
+        reload_classifier_list()
+        if self.request.user.is_authenticated:
+            if self.request.user.is_admin:
+                if self.request.GET.get('object_type', False):
+                    return Classifier.objects.order_by('-object_type','order').filter(object_type=self.request.GET.get('object_type')).all()
+                else:
+                    return Classifier.objects.order_by('-object_type','order').all()
+            elif self.request.user.is_project_admin:
+                projects = Projects.objects.filter(users__id=self.request.user.id)
+                if self.request.GET.get('object_type', False):
+                    return Classifier.objects.order_by('-object_type','order').filter(Q(created_by=self.request.user) | Q(project__in=projects)).filter(object_type=self.request.GET.get('object_type')).all()
+                else:
+                    return Classifier.objects.order_by('-object_type','order').filter(Q(created_by=self.request.user) | Q(project__in=projects)).all()
+        
+        return []
+
+    def destroy(self, request, *args, **kwargs):
+        classifier = self.get_object()
+        object_type = classifier.object_type
+        object_type.verified = False
+        object_type.save()
+        return super().destroy(request, *args, **kwargs)
+
+    @action(detail=False, methods=['POST'])
+    def order(self, request, *args, **kwargs):
+        # Request Body: 
+        # object_type_id = Object Type Id to Sort/Order Classifier for
+        # classifiers = json string '[4,2,5]' with ids of classifier
+        classifier_ids = json.loads(request.POST.get('classifiers','[]'))
+        projects = Projects.objects.filter(users__id=request.user.id)
+        object_type_id = request.POST.get('object_type_id',0)
+        error = 0
+        for idx, classifier_id in enumerate(classifier_ids):
+            try:
+                if request.user.user_type == 'project_admin':
+                    classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).filter(object_type=object_type_id).get(id=classifier_id)
+                else:
+                    classifier = Classifier.objects.filter(object_type=object_type_id).get(id=classifier_id)
+                classifier.order = idx + 1
+                classifier.save()
+                # THEN reset verified to False
+                object_type = ObjectType.objects.filter(id=object_type_id).get()
+                object_type.verified = False
+                object_type.save()
+            except(Classifier.DoesNotExist):
+                error = error + 1
+        
+        res = {'message': 'Classifier Order Updated', 'errors': error}
+        return JsonResponse(res, status=200)
+
+    @action(detail=True, methods=['POST'])
+    def test(self, request, pk=None, *args, **kwargs):
+        # Body:
+        # file = image file to test on
+        # URL Prams:
+        # :id = id of classifier
+        try:
+            if request.user.user_type == 'project_admin':
+                projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
+                classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).get(id=pk)
+            else:
+                classifier = Classifier.objects.get(id=pk)
+
+            res = {}
+            # IF THIS CLASSIFIER HAS OFFLINE MODEL THEN
+            if classifier.offline_model:
+                # IF IS A PRE / POST TEST
+                if classifier.offline_model.preprocess or classifier.offline_model.postprocess:
+                    quick_test_image_result = quick_test_offline_image_pre_post(request.FILES.get('file', False), classifier, request, fake_score=request.POST.get('fake_score', 0), fake_result=request.POST.get('fake_result', ""))
+                    if quick_test_image_result:
+                        if classifier.offline_model.preprocess:
+                            res['image'] = quick_test_image_result.get('image',False)
+                        else:
+                            res['test_result'] = quick_test_image_result.get('data','No Test Data')
+                        
+                        return JsonResponse(res, status=200)
+                    else:
+                        res['message'] = 'Unable to Test. Pre-Process / Post-Process failed or did not return a result.'
+                        return JsonResponse(res, status=400)
+                    
+                quick_test_image_result = quick_test_offline_image(request.FILES.get('file', False), classifier)
+            # ELSE ONLINE MODEL THEN
+            else:
+                quick_test_image_result = quick_test_image(request.FILES.get('file', False), classifier.name)
+            
+            if quick_test_image_result:
+                res['test_result'] = quick_test_image_result.get('data','No Test Data')
+                # res['score'] = quick_test_image_result.get('score','0')
+                # res['result'] = quick_test_image_result.get('result','')
+                return JsonResponse(res, status=200)
+            else:
+                return JsonResponse({'message':'Unable to Test (Make sure Classifier is valid and is in ready state)'}, status=200)
+        except(Classifier.DoesNotExist):
+            return JsonResponse({'message': 'Invalid Classifier'}, status=404)
+        except Exception as e:
+            return JsonResponse({'message': 'An Error Occurred'}, status=404)
 

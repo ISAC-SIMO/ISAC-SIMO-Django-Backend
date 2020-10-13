@@ -1,5 +1,6 @@
 import json
 import os
+from django.http.response import JsonResponse
 import filetype
 import cv2
 import uuid
@@ -7,11 +8,12 @@ from django.conf import settings
 from django.http import HttpResponse
 from PIL import Image as PILImage
 from rest_framework import serializers
-from api.helpers import test_image
+from rest_framework.response import Response
+from api.helpers import create_classifier, test_image
 
 from main.models import User
 
-from .models import FileUpload, Image, ImageFile, ObjectType
+from .models import Classifier, FileUpload, Image, ImageFile, ObjectType, OfflineModel
 from projects.models import Projects
 
 class ProjectMinimalSerializer(serializers.ModelSerializer):
@@ -510,4 +512,126 @@ class FileUploadSerializer(serializers.ModelSerializer):
         if(validated_data.get('file')):
             instance.file.delete()
         return super().update(instance, validated_data)
+
+class ObjectTypeMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = ObjectType
+        fields = ('id','name','image')
+        read_only_fields = ('id','name','image')
+
+class OfflineModelMinimalSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OfflineModel
+        fields = ('id','name','model_type','model_format','preprocess','postprocess')
+        read_only_fields = ('id','name','model_type','model_format','preprocess','postprocess')
+
+class ClassifierSerializer(serializers.ModelSerializer):
+    created_by = UserMinimalSerializer(many=False, read_only=True)
+    project = ProjectMinimalSerializer(many=False, read_only=True)
+    object_type = ObjectTypeMinimalSerializer(many=False, read_only=True)
+    offline_model = OfflineModelMinimalSerializer(many=False, read_only=True)
+
+    project_id = serializers.CharField(write_only=True)
+    object_type_id = serializers.CharField(write_only=True)
+    offline_model_id = serializers.CharField(write_only=True, allow_blank=True)
+    class Meta:
+        model = Classifier
+        # Other Fields for Validation:
+        # source = "offline", "ibm"
+        # trained = "true", "false" # i.e. true for pre-trained ibm watson
+        # offline_model = id of offline model if offline source selected
+        # zip = zipped images (At least 2 zip files with minimum of 10 images each - Make sure the zip file name is exactly what you what the model to be called (go, nogo etc.))
+        # negative = zipped negative images (1 Zip file containing negative data - not required)
+        # process = process zipped images
+        # rotate = rotate zipped images
+        # warp = warp images
+        # inverse = inverse images
+        # is_object_detection = "true" # If Watson Classifier is Object Detection type
+        fields = ('id','name','given_name','classes','order','project','project_id','object_type','object_type_id','offline_model','offline_model_id','is_object_detection','created_by','created_at','updated_at')
+        read_only_fields = ('id','given_name','is_object_detection','created_by','created_at', 'updated_at')
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        print(request.FILES.getlist('zip'))
+        if request.user.is_project_admin and (request.POST.get('source') != "offline" or request.POST.get('trained') != "true"):
+            error = {'message': 'Invalid Classifier Attempted to Create. Project Admin must add already created or Offline Models. You cannot create Watson Online Classifier.'}
+            raise serializers.ValidationError(error)
+
+        if request.POST.get('source', False) == "offline" and request.POST.get('name') and request.POST.get('offline_model_id',False):
+            created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'offline_model':request.POST.get('offline_model_id'),'classes':[]}}
+        elif request.POST.get('source', False) == "ibm" and request.POST.get('name') and request.POST.get('trained') == "true":
+            created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'classes':[]}}
+        else:
+            created = create_classifier(request.FILES.getlist('zip'), request.FILES.get('negative', False), request.POST.get('name'), request.POST.get('object_type_id'), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False))
+        
+        classifier = None
+        bad_zip = 0
+        if created:
+            bad_zip = created.get('bad_zip', 0)
+            name = created.get('data', {}).get('classifier_id','')
+            given_name = created.get('data', {}).get('name',request.POST.get('name'))
+            classes = str(created.get('data', {}).get('classes',[]))
+            object_type = None
+            project = None
+            try:
+                project = Projects.objects.get(id=request.POST.get('project_id'))
+            except(Projects.DoesNotExist):
+                error = {'message': 'Invalid Project Type Selected'}
+                raise serializers.ValidationError(error)
+
+            try:
+                object_type = ObjectType.objects.filter(project_id=project.id).get(id=request.POST.get('object_type_id'))
+            except(ObjectType.DoesNotExist):
+                error = {'message': 'Invalid Object Type Selected'}
+                raise serializers.ValidationError(error)
+            
+            if name and given_name and classes and object_type:
+                classifier = Classifier()
+                classifier.name = name
+                classifier.given_name = given_name
+                classifier.classes = classes
+                classifier.object_type = object_type
+                classifier.project = project
+                classifier.created_by = request.user
+                classifier.order = request.POST.get('order',0)
+                if request.POST.get('is_object_detection',False) and request.POST.get('source', "") == "ibm" and request.POST.get('trained') == "true":
+                    classifier.is_object_detection = True
+                if request.POST.get('offline_model_id',False):
+                    offline_model = OfflineModel.objects.filter(id=request.POST.get('offline_model')).get()
+                    classifier.offline_model = offline_model
+                    classifier.classes = json.loads(offline_model.offline_model_labels)
+                classifier.save()
+                # And unverify the object type
+                object_type.verified = False
+                object_type.save()
+            
+            created = json.dumps(created, indent=4)
+        else:
+            error = {'message': 'Could Not Create Classifier (e.g. Verify zip files are valid and try again)'}
+            raise serializers.ValidationError(error)
+        
+        return classifier
+
+    def update(self, instance, validated_data):
+        try:
+            request = self.context.get("request")
+            instance.name = request.POST.get('name', instance.name)
+            if request.POST.get('object_type_id', False):
+                object_type = ObjectType.objects.get(id=request.POST.get('object_type_id'))
+                instance.object_type = object_type
+                # And unverify the object type
+                object_type.verified = False
+                object_type.save()
+            if request.POST.get('project_id', False):
+                instance.project = Projects.objects.get(id=request.POST.get('project_id'))
+            if request.POST.get('offline_model_id', False):
+                offline_model = OfflineModel.objects.get(id=request.POST.get('offline_model_id'))
+                instance.offline_model = offline_model
+                instance.classes = json.loads(offline_model.offline_model_labels)
+            instance.order = request.POST.get('order', instance.order)
+            instance.save()
+            return instance
+        except:
+            error = {'message': 'Unexpected Error Occurred. Possible Invalid Request.'}
+            raise serializers.ValidationError(error)
 
