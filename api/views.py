@@ -32,7 +32,7 @@ import isac_simo.classifier_list as classifier_list
 from api.forms import OfflineModelForm, FileUploadForm
 from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_detect_image, quick_test_image, quick_test_offline_image, retrain_image, test_image, quick_test_offline_image_pre_post
 from api.models import Classifier, ObjectType, OfflineModel, FileUpload
-from api.serializers import (ClassifierSerializer, FileUploadSerializer, ImageSerializer, ObjectTypeSerializer, ProjectSerializer, TestSerializer, UserSerializer,
+from api.serializers import (ClassifierSerializer, FileUploadSerializer, ImageSerializer, ObjectTypeSerializer, OfflineModelSerializer, ProjectSerializer, TestSerializer, UserSerializer,
                              VideoFrameSerializer)
 from main import authorization
 from main.authorization import *
@@ -1746,5 +1746,68 @@ class ClassifierView(viewsets.ModelViewSet):
         except(Classifier.DoesNotExist):
             return JsonResponse({'message': 'Invalid Classifier'}, status=404)
         except Exception as e:
+            print(e)
+            return JsonResponse({'message': 'An Error Occurred'}, status=404)
+
+class OfflineModelView(viewsets.ModelViewSet):
+    queryset = OfflineModel.objects.all()
+    serializer_class = OfflineModelSerializer
+    permission_classes = [HasAdminOrProjectAdminPermission]
+
+    def get_queryset(self):
+        reload_classifier_list()
+        if self.request.user.is_authenticated:
+            if self.request.user.is_admin:
+                return OfflineModel.objects.all().order_by('name')
+            elif self.request.user.is_project_admin:
+                return OfflineModel.objects.filter(created_by=self.request.user).order_by('name')
+        return []
+
+    def destroy(self, request, *args, **kwargs):
+        offline_model = self.get_object()
+        offline_model.file.delete()
+        return super().destroy(request, *args, **kwargs)
+
+    @action(detail=True, methods=['POST'])
+    def dependencies(self, request, pk=None, *args, **kwargs):
+        return offlineModelDependencies(request, pk)
+
+    @action(detail=True, methods=['POST'])
+    def test(self, request, pk=None, *args, **kwargs):
+        # Body:
+        # file = image file to test on
+        # URL Prams:
+        # :id = id of classifier
+        try:
+            if request.user.user_type == 'project_admin':
+                offlineModel = OfflineModel.objects.filter(id=pk).filter(created_by=request.user).get()
+            else:
+                offlineModel = OfflineModel.objects.filter(id=pk).get()
+
+            res = {}
+            if offlineModel.preprocess or offlineModel.postprocess:
+                quick_test_image_result = quick_test_offline_image_pre_post(request.FILES.get('file', False), offlineModel, request, fake_score=request.POST.get('fake_score', 0), fake_result=request.POST.get('fake_result', ""), direct_offline_model=True)
+                if quick_test_image_result:
+                    if offlineModel.preprocess:
+                        res['image'] = quick_test_image_result.get('image',False)
+                    else:
+                        res['test_result'] = quick_test_image_result.get('data',{})
+                    return JsonResponse(res, status=200)
+                else:
+                    res['message'] = 'Unable to Test. Pre-Process / Post-Process failed or did not return a result.'
+                    return JsonResponse(res, status=400)
+                
+            quick_test_image_result = quick_test_offline_image(request.FILES.get('file', False), offlineModel, direct_offline_model=True)
+            if quick_test_image_result:
+                res['test_result'] = quick_test_image_result.get('data',{})
+                return JsonResponse(res, status=200)
+            else:
+                res['message'] = 'Unable to Test (Either Offline Model did not work correctly or response was incorrect.)'
+                return JsonResponse(res, status=400)
+
+        except(OfflineModel.DoesNotExist):
+            return JsonResponse({'message': 'Invalid Offline Model / Script'}, status=404)
+        except Exception as e:
+            print(e)
             return JsonResponse({'message': 'An Error Occurred'}, status=404)
 

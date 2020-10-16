@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
 from api import views as api
-from api.views import ClassifierView, FileUploadView, ImageView, ObjectTypeView, ProfileView, ProjectView, UserView, VideoFrameView, clean_temp_view, terminal_view, test_view
+from api.views import ClassifierView, FileUploadView, ImageView, ObjectTypeView, OfflineModelView, ProfileView, ProjectView, UserView, VideoFrameView, clean_temp_view, terminal_view, test_view
 from main import views
 
 router = routers.DefaultRouter()
@@ -34,6 +34,7 @@ router.register('video', VideoFrameView)
 router.register('project', ProjectView)
 router.register('object', ObjectTypeView)
 router.register('classifier', ClassifierView)
+router.register('offline_model', OfflineModelView)
 router.register('file', FileUploadView)
 
 urlpatterns = [

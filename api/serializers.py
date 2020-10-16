@@ -552,7 +552,7 @@ class ClassifierSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-        print(request.FILES.getlist('zip'))
+        # print(request.FILES.getlist('zip'))
         if request.user.is_project_admin and (request.POST.get('source') != "offline" or request.POST.get('trained') != "true"):
             error = {'message': 'Invalid Classifier Attempted to Create. Project Admin must add already created or Offline Models. You cannot create Watson Online Classifier.'}
             raise serializers.ValidationError(error)
@@ -634,4 +634,55 @@ class ClassifierSerializer(serializers.ModelSerializer):
         except:
             error = {'message': 'Unexpected Error Occurred. Possible Invalid Request.'}
             raise serializers.ValidationError(error)
+
+class OfflineModelSerializer(serializers.ModelSerializer):
+    created_by = UserMinimalSerializer(many=False, read_only=True)
+    filename = serializers.SerializerMethodField()
+
+    def get_filename(self, obj):
+        return obj.filename()
+
+    class Meta:
+        model = OfflineModel
+        # name = Given name
+        # model_type = ('CLASSIFIER','Processor'),('OBJECT_DETECT','Object Detect'),('CLASSIFIER','Classifier')
+        # model_format = 'py','h5','hdf5','keras'
+        # file = Offline Model File
+        # offline_model_labels = ["go","nogo"] - NOT REQUIRED FOR Processor (but should have pre or post process true)
+        # preprocess = "true" # Is preprocessor
+        # postprocess = "true" # Is postprocessor
+        fields = ('id','name','model_type','model_format','file','filename','offline_model_labels','preprocess','postprocess','created_by','created_at','updated_at')
+        read_only_fields = ('id','filename','created_by','created_at', 'updated_at')
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        offline_model_labels = '[]'
+        if type(validated_data.get('offline_model_labels','[]')) == str:
+            offline_model_labels = validated_data.get('offline_model_labels','[]')
+        else:
+            offline_model_labels = json.dumps(validated_data.get('offline_model_labels',[]))
+
+        offline_model = OfflineModel.objects.create(
+                            name=validated_data.get('name'),
+                            model_type=validated_data.get('model_type'),
+                            model_format=validated_data.get('model_format').lower(),
+                            file=validated_data.get('file'),
+                            offline_model_labels=offline_model_labels,
+                            preprocess=validated_data.get('preprocess'),
+                            postprocess=validated_data.get('postprocess'),
+                            created_by=request.user if request else None
+                        )
+        return offline_model
+
+    def update(self, instance, validated_data):
+        if(validated_data.get('file')):
+            instance.file.delete()
+        if(validated_data.get('offline_model_labels')):
+            offline_model_labels = '[]'
+            if type(validated_data.get('offline_model_labels','[]')) == str:
+                offline_model_labels = validated_data.get('offline_model_labels','[]')
+            else:
+                offline_model_labels = json.dumps(validated_data.get('offline_model_labels',[]))
+            validated_data['offline_model_labels'] = offline_model_labels
+        return super().update(instance, validated_data)
 
