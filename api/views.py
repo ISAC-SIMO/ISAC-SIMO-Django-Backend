@@ -1351,12 +1351,15 @@ class ImageView(viewsets.ModelViewSet):
     def get_queryset(self):
         if self.request.user.is_authenticated:
             if self.request.user.is_admin:
-                return Image.objects.order_by('-created_at').all()[:25] # Latest 25
+                ids = Image.objects.order_by('-created_at').values_list('pk', flat=True)[:25] # Latest 25
+                return Image.objects.filter(pk__in=list(ids)).order_by('-created_at')
             elif self.request.user.is_project_admin:
                 projects = Projects.objects.filter(users__id=self.request.user.id)
-                return Image.objects.filter(Q(user_id=self.request.user.id) | Q(project__in=projects)).order_by('-created_at').distinct()[:25] # Latest 25
+                ids = Image.objects.filter(Q(user_id=self.request.user.id) | Q(project__in=projects)).order_by('-created_at').distinct()[:25] # Latest 25
+                return Image.objects.filter(pk__in=list(ids)).order_by('-created_at')
             else:
-                return Image.objects.filter(user_id=self.request.user.id).order_by('-created_at')[:25] # Latest 25
+                ids = Image.objects.filter(user_id=self.request.user.id).order_by('-created_at')[:25] # Latest 25
+                return Image.objects.filter(pk__in=list(ids)).order_by('-created_at')
         else:
             return []
 
@@ -1633,7 +1636,7 @@ def clean_temp_view(request):
                 count += 1
         reload_classifier_list()
         return Response({"message": str(count)+" Temporary Images Removed"})
-    return Response({"message":"Unauthorized Access"})
+    return Response({"message":"Unauthorized Access"}, status=403)
 
 class FileUploadView(viewsets.ModelViewSet):
     queryset = FileUpload.objects.all()
@@ -1810,4 +1813,128 @@ class OfflineModelView(viewsets.ModelViewSet):
         except Exception as e:
             print(e)
             return JsonResponse({'message': 'An Error Occurred'}, status=404)
+
+@api_view(http_method_names=["GET","POST","OPTIONS"])
+def fetch_classifier_detail(request):
+    reload_classifier_list()
+    if request.method == "GET":
+        return Response({'data':classifier_list.value()}, status=200)
+    if request.method == "POST" and request.user and request.user.is_admin:
+        detail = classifier_detail(request.POST.get('project', False), request.POST.get('object', False), request.POST.get('model', False))
+        if not detail:
+            detail = {'message': 'Could Not Fetch Classifier Detail'}
+            return Response(detail, status=404)
+        return Response({'data':detail}, status=200)
+        
+    return Response({"message":"Unauthorized Access"}, status=403)
+
+@api_view(http_method_names=["GET","POST","OPTIONS"])
+def fetch_object_type_detail(request):
+    reload_classifier_list()
+    if request.method == "GET":
+        default_object_model = classifier_list.detect_object_model_id
+        if request.user.is_project_admin:
+            projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').values('detect_model','project_name','offline_model').distinct()
+        else:
+            projects = Projects.objects.all().values('detect_model','project_name','offline_model').distinct()
+        return Response({'data':projects, 'default_object_model':default_object_model}, status=200)
+    if request.method == "POST" and request.POST.get('object_id', False) and request.user and (request.user.is_admin or request.user.is_project_admin):
+        detail = None
+        object_id = request.POST.get('object_id', False)
+        
+        # IF Watson Object Detail is a offline Model type
+        try:
+            offline_model = OfflineModel.objects.filter(id=object_id).all().first()
+            if offline_model:
+                try:
+                    offlineModelLabels = json.loads(offline_model.offline_model_labels)
+                except Exception as e:
+                    offlineModelLabels = []
+                detail = {
+                    'offline': True,
+                    'name': offline_model.name,
+                    'type': offline_model.model_type,
+                    'format': offline_model.model_format,
+                    'labels': offlineModelLabels,
+                    'url': offline_model.file.url
+                }
+                return Response({'data':detail, 'object_id':offline_model.name}, status=200)
+        except:
+            print('Not offline model id failed - API')
+        
+        # If not offline model try online
+        try:
+            detail = object_detail(object_id)
+            if detail:
+                return Response({'data':detail, 'object_id':object_id}, status=200)
+            else:
+                detail = {'message':'Could Not Fetch List Object Detail Metadata'}
+                return Response(detail, status=404)
+        except:
+            detail = {'message':'Could Not Fetch List Object Detail Metadata (Server Error or Object Not Found)'}
+            return Response(detail, status=404)
+        
+    return Response({"message":"Unauthorized or Invalid Request"}, status=403)
+
+@api_view(http_method_names=["POST","OPTIONS"])
+def retrain_classifier(request):
+    if request.method == "POST" and request.user and (request.user.is_admin or request.user.is_project_admin):
+        # images = multiple images list
+        # project = project value from GET Classifier Details
+        # object = object value from GET Classifier Details
+        # model = model value from GET Classifier Details | or "all" to re-train on all online models
+        # result = result to re-train on go,nogo,negative etc.
+        # process = Process the images
+        # rotate = Rotate the images
+        # warp = warp the images
+        # inverse = inverse negative the images
+        zipped = 0
+        image_file_list = []
+        for image in request.FILES.getlist('images'):
+            kind = filetype.guess(image)
+            if kind is None:
+                print('Cannot guess file type! - API')
+            else:
+                filename = '{}.{}'.format(uuid.uuid4().hex, kind.extension)
+                destination = open(settings.MEDIA_ROOT + '/temp/' + filename, 'wb+')
+                for chunk in image.chunks():
+                    destination.write(chunk)
+                destination.close()
+                if not os.path.exists(os.path.join('media/temp/')):
+                    image_file_list = image_file_list + [os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename]
+                else:
+                    image_file_list = image_file_list + [os.path.join('media/temp/', filename)]
+                zipped += 1
+                # print(image_file_list)
+
+        min_image_required = 10
+        msg = ''
+        ok = False
+        if settings.DEBUG:
+            min_image_required = 2
+
+        # we have "model" in request. If Model is 'all' or not provided then all images are re-trained in 'all' classifiers of object type given, else only on selected classifier (it is the last parameter in retrain function)
+        if zipped >= min_image_required and image_file_list and request.POST.get('project', False) and request.POST.get('object', False) and request.POST.get('result', False):
+            retrain_status = retrain_image(image_file_list, request.POST.get('project'), request.POST.get('object').lower(), request.POST.get('result').lower(), 'temp', request.POST.get('model', False), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False), request=request)
+            print(retrain_status)
+            if retrain_status:
+                msg = str(zipped) + ' images zipped and was sent to retrain in ' + str(retrain_status) + ' classifier(s). (Retraining takes time)'
+                ok = True
+            else:
+                msg = str(zipped) + ' images zipped but failed to retrain'
+        else:
+            msg = str(zipped) + ' valid Image(s). At least 10 required. Or Invalid input.'
+
+        print(str(len(image_file_list)) + ' original images uploaded re-train classifier API route...')
+        for image_file in image_file_list:
+            os.remove(image_file)
+            pass
+
+        reload_classifier_list()
+        if ok:
+            return Response({'message':msg}, status=200)
+        else:
+            return Response({'message':msg}, status=404)
+        
+    return Response({"message":"Unauthorized or Invalid Request"}, status=403)
 

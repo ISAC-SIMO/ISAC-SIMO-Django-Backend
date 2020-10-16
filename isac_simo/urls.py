@@ -22,7 +22,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
 from api import views as api
-from api.views import ClassifierView, FileUploadView, ImageView, ObjectTypeView, OfflineModelView, ProfileView, ProjectView, UserView, VideoFrameView, clean_temp_view, terminal_view, test_view
+from api.views import ClassifierView, FileUploadView, ImageView, ObjectTypeView, OfflineModelView, ProfileView, ProjectView, UserView, VideoFrameView, clean_temp_view, fetch_classifier_detail, fetch_object_type_detail, retrain_classifier, terminal_view, test_view
 from main import views
 
 router = routers.DefaultRouter()
@@ -46,6 +46,9 @@ urlpatterns = [
     path('api/ping/', test_view, name='test_view'),
     path('api/terminal/', terminal_view, name='terminal_view'),
     path('api/clean_temp/', clean_temp_view, name='clean_temp_view'),
+    path('api/detail/classifier/', fetch_classifier_detail, name='fetch_classifier_detail'), # Classifier Detail Fetch API
+    path('api/detail/object_type/', fetch_object_type_detail, name='fetch_object_type_detail'), # Object Type Detail Fetch API
+    path('api/retrain/classifier/', retrain_classifier, name='retrain_classifier'), # Re-Train Classifier
     # WEB
     path('', views.index, name="index"),
     path('login/', views.login_user, name="login"),

@@ -86,7 +86,7 @@ class ImageFileSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ImageFile
-        fields = ('file','tested','result','score','object_type','verified','pipeline_status','created_at')
+        fields = ('id','file','tested','result','score','object_type','verified','pipeline_status','created_at')
 
 class ImageSerializer(serializers.ModelSerializer):
     user_name = serializers.SerializerMethodField(read_only=True)
@@ -190,6 +190,21 @@ class ImageSerializer(serializers.ModelSerializer):
         instance.lat = validated_data.get('lat', instance.lat)
         instance.lng = validated_data.get('lng', instance.lng)
         instance.project_id = request.POST.get('project_id', None)
+
+        # VERIFY ImageFiles Model from API checkmark array
+        if request.POST.get('verified', False):
+            verified_list = []
+            if type(request.POST.get('verified', [])) == list:
+                verified_list = request.POST.get('verified', [])
+            else:
+                verified_list = json.loads(request.POST.get('verified', '[]'))
+
+            for image_file in instance.image_files.all():
+                if image_file.id in verified_list:
+                    image_file.verified = True
+                else:
+                    image_file.verified = False
+                image_file.save()
         
         image_files = self.context.get('view').request.FILES
 
@@ -244,8 +259,9 @@ class ImageSerializer(serializers.ModelSerializer):
                 return instance
             else: # No Files Upload Throw error
                 instance.save()
-                error = {'message': str(e)+' Files failed to Upload. (Probably, Files are not type Image)'}
-                raise serializers.ValidationError(error)
+                return instance
+                # error = {'message': str(e)+' Files failed to Upload. (Probably, Files are not type Image)'}
+                # raise serializers.ValidationError(error)
         else:
             error = {'message': 'Too much (>7) images provided.'}
             raise serializers.ValidationError(error)
