@@ -20,6 +20,15 @@
                             Be Careful Here. This is what is used to call the Watson AI
                         </small>
                     </div>
+                    <div class="form-group" id="is_object_detection_group" style="display:none;">
+                        <label for="is_object_detection" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
+                            <input {% if classifier.is_object_detection %}checked{% endif %} type="checkbox" name="is_object_detection" id="is_object_detection" style="transform: scale(1.3) translate(3px,1px);margin-right: 10px;">
+                            Is Object Detection ?
+                        </label>
+                        <small class="col-sm-12 form-text text-muted" style="margin:0;">
+                            Check this if you are using IBM Watson Object Detection Model to act as Classifier.
+                        </small>
+                    </div>
                     <div class="form-group" id="offline-model-group">
                         <label for="offlineModel" class="col-sm-5 col-md-4 col-form-label">Offline Model</label>
                         <div class="col-sm-12 col-md-4">
@@ -96,7 +105,21 @@
         $('#offlineModel').select2({
             placeholder: 'Select Offline Detect Model {% if not classifier.offline_model %}(Currently None){% endif %}',
             allowClear: true
-        })
+        }).on('change', function() {
+            if(!$('#offlineModel').val()){
+                {% if classifier.is_object_detection %}
+                    $('#is_object_detection').prop('checked',true);
+                {% endif %}
+                $('#is_object_detection_group').show();
+            }else{
+                $('#is_object_detection').prop('checked',false);
+                $('#is_object_detection_group').hide();
+            }
+        });
+
+        {% if not classifier.offline_model %}
+            $('#is_object_detection_group').show();
+        {% endif %}
 
         $('#project').on( 'change', function() {
             $('#object_type').html( $options.filter( '[data-project="' + this.value + '"]' ) );

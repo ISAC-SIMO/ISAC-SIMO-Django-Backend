@@ -233,7 +233,7 @@ function verifyImage(event, id, result, score, object_type, verified, url, retra
                 if(pipeline_status_data[key]["message"]){
                     let d = pipeline_status_data[key]["message"];
                     if(Array.isArray(pipeline_status_data[key]["message"]) || typeof pipeline_status_data[key]["message"] === "object"){
-                        d = '<a href="#!" onclick="alert(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\'))">View</a>';
+                        d = '<a href="#!" onclick="alert(JSON.stringify(JSON.parse(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\')),null,2))">View</a> | <a href="#!" onclick="prompt(\'Copy\',JSON.stringify(JSON.parse(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\')),null,2))">Copy</a>';
                     }
                     html = html + ', <b>Message:</b> '+d;
                 }
@@ -242,7 +242,7 @@ function verifyImage(event, id, result, score, object_type, verified, url, retra
             }else{
                 let d = pipeline_status_data[key];
                 if(Array.isArray(pipeline_status_data[key]) || typeof pipeline_status_data[key] === "object"){
-                    d = '<a href="#!" onclick="alert(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\'))">View</a>';
+                    d = '<a href="#!" onclick="alert(JSON.stringify(JSON.parse(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\')),null,2))">View</a> | <a href="#!" onclick="prompt(\'Copy\',JSON.stringify(JSON.parse(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\')),null,2))">Copy</a>';
                 }
                 html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+d+'</label>';
             }

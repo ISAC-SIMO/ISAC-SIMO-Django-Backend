@@ -13,8 +13,11 @@
                 <div class="card-body">
                     {% if test_result %}
                         <hr/>
-                        <pre style="border-left: 2px solid salmon;">{{test_result|default:'No Data'}}</pre>
+                        <pre id="result" style="border-left: 2px solid salmon;">{{test_result|default:'No Data'}}</pre>
                         <hr/>
+                        <div class="form-group mt-1" id="clean-image-btn">
+                            <a href="#!" onclick="simpleConfirm(event,'{% url 'watson.cleantemp' %}','Clean Temporary Files? Make sure no API and process are running at the moment.')" class="ml-2 mt-2 btn btn-danger btn-sm">Clean Temporary Images</a>
+                        </div>
                     {% endif %}
 
                     {% if image %}
@@ -25,9 +28,12 @@
                     {% endif %}
 
                     <div class="form-group">
-                        <label for="name" class="col-sm-5 col-md-4 col-form-label">Classifier Name:</label>
-                        <div class="col-sm-12 col-md-4">
+                        <label for="name" class="col-sm-12 col-md-12 col-form-label">Classifier Name:</label>
+                        <div class="col-sm-12 col-md-12">
                             <h5>{{classifier.name}}</h5>
+                            {% if classifier.is_object_detection %}
+                                <small><b>Is Watson Object Detection: Yes</b></small>
+                            {% endif %}
                             {% if classifier.offline_model %}
                                 <small><b>Offline Model:</b> {{classifier.offline_model.name}}</small>
                                 <br/>
@@ -85,5 +91,12 @@
             Pace.restart()
             $('#classifier_btn').attr('disabled','disabled')
         })
+
+        if($('#result').html()){
+            var links = $('#result').html().match(/media\/temp\/[0-9a-z.?]+/g)
+            for(var i = 0 ; i < links.length ; i++){
+                $('#result').html($('#result').html().replace(links[i], '<a onclick="showImagePop(event,\'/'+links[i]+'\',\'Failed to Load\')" href="#!">Image File</a>'))
+            }
+        }
     </script>
 {% endblock script %}

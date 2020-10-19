@@ -119,7 +119,7 @@
                                 <select name="offlineModel" id="offlineModel" class="form-control">
                                     <option></option>
                                     {% for offlineModel in offlineModels %}
-                                    <option value="{{offlineModel.id}}">{{offlineModel.name|title}} - {{offlineModel.model_format}} {% if offlineModel.preprocess %} - (Pre-Process) {% elif offlineModel.postprocess %} - (Post-Process) {% endif %}</option>
+                                    <option value="{{offlineModel.id}}" data-name="{{offlineModel.name}}">{{offlineModel.name|title}} - {{offlineModel.model_format}} {% if offlineModel.preprocess %} - (Pre-Process) {% elif offlineModel.postprocess %} - (Post-Process) {% endif %}</option>
                                     {% endfor %}
                                 </select>
                             </div>
@@ -308,7 +308,7 @@
         })
 
         $('#offlineModel').on('change', function() {
-            var val = offlineModel[0].selectedOptions[0].textContent;
+            var val = offlineModel[0].selectedOptions[0].getAttribute('data-name');
             write(val, 0);
         });
         function write(val, i){
@@ -317,7 +317,7 @@
                 if(i < val.length){
                     write(val, i+1);
                 }
-            }, 50);
+            }, 30);
         }
 
         $('#project').on( 'change', function() {

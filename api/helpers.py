@@ -214,7 +214,8 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
         print('Detecting Image Object [Offline Model]...')
         res = test_offline_image(file_url, detect_model)
         if res:
-            image_file.object_type = res.get('result','')
+            if not no_temp:
+                image_file.object_type = res.get('result','')
             pipeline_status = {}
             try:
                 pipeline_status = json.loads(image_file.pipeline_status)
@@ -245,7 +246,7 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
                             img = img.convert('RGB')
                             w, h = img.size
                             if data.get('location', False):
-                                img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('width', w), data.get('location').get('height', h) ))
+                                img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('left', 0)+data.get('location').get('width', w), data.get('location').get('top', 0)+data.get('location').get('height', h) ))
                                 # Crop if required
                             # Save to temporary for temp use
                             filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
@@ -319,7 +320,7 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
             temp = Image.open(file_url)
             wpercent = (basewidth/float(temp.size[0]))
             hsize = int((float(temp.size[1])*float(wpercent)))
-            temp = temp.resize((basewidth,hsize), Image.ANTIALIAS)
+            # temp = temp.resize((basewidth,hsize), Image.ANTIALIAS)
             ext = image_file.file.url.split('.')[-1]
             filename = '{}.{}'.format(uuid.uuid4().hex, ext)
 
@@ -356,7 +357,8 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
                         sorted_by_score = sorted(content['images'][0]['objects']['collections'][0]['objects'], key=lambda k: k['score'], reverse=True)
                         print(sorted_by_score)
                         if(sorted_by_score and sorted_by_score[0]): # Set Score`
-                            image_file.object_type = sorted_by_score[0]['object']
+                            if not no_temp:
+                                image_file.object_type = sorted_by_score[0]['object']
                             pipeline_status = {}
                             try:
                                 pipeline_status = json.loads(image_file.pipeline_status)
@@ -388,7 +390,7 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
                                             img = img.convert('RGB')
                                             w, h = img.size
                                             if data.get('location', False):
-                                                img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('width', w), data.get('location').get('height', h) ))
+                                                img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('left', 0)+data.get('location').get('width', w), data.get('location').get('top', 0)+data.get('location').get('height', h) ))
                                             
                                             filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
                                             if not os.path.exists(os.path.join('media/temp/')):
@@ -721,7 +723,8 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
             elif status == 404 or classifier.is_object_detection: # Assume Detect Model
                 res = detect_image(image_file, classifier_ids, offline=False, no_temp=True) # Note: Detect_Model is classifier ids (if 404 condition i.e. 2nd parameter)
                 # print(res)
-                resized_image_open.close()
+                if resized_image_open:
+                    resized_image_open.close()
                 pipeline_status = {}
                 try:
                     pipeline_status = json.loads(image_file.pipeline_status)
@@ -1090,7 +1093,7 @@ def quick_test_detect_image(image_file, detect_model, offline=False, project_fol
                                             img = img.convert('RGB')
                                             w, h = img.size
                                             if data.get('location', False):
-                                                img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('width', w), data.get('location').get('height', h) ))
+                                                img = img.crop(( data.get('location').get('left', 0), data.get('location').get('top', 0), data.get('location').get('left', 0)+data.get('location').get('width', w), data.get('location').get('top', 0)+data.get('location').get('height', h) ))
                                             
                                             filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
                                             if not os.path.exists(os.path.join('media/temp/')):

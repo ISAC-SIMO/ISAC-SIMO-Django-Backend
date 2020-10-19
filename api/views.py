@@ -665,6 +665,8 @@ def watsonClassifierEdit(request, id):
                 offline_model = OfflineModel.objects.get(id=request.POST.get('offlineModel'))
                 classifier.offline_model = offline_model
                 classifier.classes = json.loads(offline_model.offline_model_labels)
+            else:
+                classifier.is_object_detection = True if request.POST.get('is_object_detection', False) else False
             classifier.order = request.POST.get('order', 0)
             classifier.save()
             # And unverify the object type
@@ -747,6 +749,25 @@ def watsonClassifierTest(request, id):
                     return redirect('watson.classifier.test', id=id)
                     
                 quick_test_image_result = quick_test_offline_image(request.FILES.get('file', False), classifier)
+            # IF ONLINE MODEL which is_object_detection
+            elif classifier.is_object_detection:
+                if os.environ.get('PROJECT_FOLDER',False):
+                    project_folder = os.environ.get('PROJECT_FOLDER','') + '/'
+                else:
+                    project_folder = ''
+                quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), classifier.name, offline=False, project_folder=project_folder)
+                if quick_test_image_result:
+                    if isinstance(quick_test_image_result, dict) and quick_test_image_result.get("error", False):
+                        request.session['test_result'] = json.dumps(quick_test_image_result, indent=4)
+                        messages.error(request, 'Nothing was Detected.')
+                    elif len(quick_test_image_result) > 0:
+                        request.session['test_result'] = json.dumps(quick_test_image_result, indent=4)
+                        messages.success(request, 'Classifier (Object Detect Model) Test Success.')
+                        messages.success(request, 'Score: '+str(quick_test_image_result[0]['pipeline']['score'])+' | Class: '+str(quick_test_image_result[0]['pipeline']['result']))
+                    else:
+                        request.session['test_result'] = quick_test_image_result
+                        messages.error(request, 'Test Success, but Bad Response type')
+                    return redirect('watson.classifier.test', id=id)
             # ELSE ONLINE MODEL THEN
             else:
                 quick_test_image_result = quick_test_image(request.FILES.get('file', False), classifier.name)
@@ -757,7 +778,6 @@ def watsonClassifierTest(request, id):
                 messages.success(request, 'Score: '+str(quick_test_image_result.get('score','0'))+' | Class: '+str(quick_test_image_result.get('result','Not Found')))
             else:
                 messages.error(request, 'Unable to Test (Make sure Classifier is valid and is in ready state)')
-                messages.info(request, 'If you are using Watson Object Detect as a Classifier then please, create a dummy project assign this "Object Detect" to it and test image from the project list page. Thank You for understanding.')
 
             return redirect('watson.classifier.test', id=id)
         except(Classifier.DoesNotExist):
@@ -1727,7 +1747,7 @@ class ClassifierView(viewsets.ModelViewSet):
                         if classifier.offline_model.preprocess:
                             res['image'] = quick_test_image_result.get('image',False)
                         else:
-                            res['test_result'] = quick_test_image_result.get('data','No Test Data')
+                            res['test_result'] = quick_test_image_result.get('data',{})
                         
                         return JsonResponse(res, status=200)
                     else:
@@ -1735,12 +1755,22 @@ class ClassifierView(viewsets.ModelViewSet):
                         return JsonResponse(res, status=400)
                     
                 quick_test_image_result = quick_test_offline_image(request.FILES.get('file', False), classifier)
+            # IF ONLINE MODEL which is_object_detection
+            elif classifier.is_object_detection:
+                if os.environ.get('PROJECT_FOLDER',False):
+                    project_folder = os.environ.get('PROJECT_FOLDER','') + '/'
+                else:
+                    project_folder = ''
+                quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), classifier.name, offline=False, project_folder=project_folder)
+                if quick_test_image_result:
+                    res['test_result'] = quick_test_image_result
+                    return JsonResponse(res, status=200)
             # ELSE ONLINE MODEL THEN
             else:
                 quick_test_image_result = quick_test_image(request.FILES.get('file', False), classifier.name)
             
             if quick_test_image_result:
-                res['test_result'] = quick_test_image_result.get('data','No Test Data')
+                res['test_result'] = quick_test_image_result.get('data',{})
                 # res['score'] = quick_test_image_result.get('score','0')
                 # res['result'] = quick_test_image_result.get('result','')
                 return JsonResponse(res, status=200)
