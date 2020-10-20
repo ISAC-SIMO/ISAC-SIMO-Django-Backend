@@ -32,7 +32,7 @@
                                 <th>Description</th>
                                 <th>User</th>
                                 <th>Project</th>
-                                <th style="width:250px;">Image</th>
+                                <th style="width:150px;">Image</th>
                                 {% if user.is_admin or user.is_project_admin %}<th>Actions</th>{% endif %}
                             </tr>
                         </thead>
@@ -50,7 +50,7 @@
                                         {% endfor %}
                                     </td>
                                     {% if user.is_admin or user.is_project_admin %}
-                                    <td class="table-options" style="min-width: 125px;">
+                                    <td class="table-options" style="{% if image.lat and image.lng %}min-width: 125px;{% endif %}">
                                         <a title="Edit" data-toggle="tooltip" data-placement="left" href="{% url 'images.update' image.id %}" class="btn text-secondary px-0">
                                             <i class="fa fa-edit"></i>
                                         </a>

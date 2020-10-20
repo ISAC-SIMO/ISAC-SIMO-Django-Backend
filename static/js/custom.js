@@ -280,6 +280,13 @@ $(function () {
     $(".table-options a").tooltip();
     $("[data-toggle='tooltip']").tooltip();
 
+    $('.main-container').one('mouseover', function(){
+        if($('.main-container').css('opacity') == '0'){
+            $('.main-container').css('transition','all 0.3s ease');
+            $('.main-container').css('opacity','1');
+        }
+    });
+
     // REGISTER THE SERVICE WORKER //
     if('serviceWorker' in navigator){
         navigator.serviceWorker.register('/serviceworker.js')
@@ -381,7 +388,7 @@ function idleDetect() {
 
     function resetTimer() {
         clearTimeout(t);
-        t = setTimeout(idleSite, 420000); // 7 min
+        t = setTimeout(idleSite, 600000); // 10 min
     }
 }
 idleDetect();

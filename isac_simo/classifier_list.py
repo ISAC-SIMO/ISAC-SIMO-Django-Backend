@@ -1,6 +1,7 @@
 import json
 
 from django.db.models import Prefetch
+from django.core.cache import cache
 
 from projects.models import Projects
 
@@ -57,11 +58,13 @@ def data():
         print('-LOADING CLASSIFIER LIST-')
         # print(json.dumps(classifier_list, indent=4))
         data_val = classifier_list
+        cache.set('classifier_cache', classifier_list, None)
         return classifier_list
     except Exception as e:
         #########
         print(e)
         print('Classifier List throwing Model exception - IF KEEPS REPEATING IT IS A PROBLEM (Once is OK)')
+        cache.set('classifier_cache', classifier_list, None)
         return classifier_list
 
 total_classifiers = len(data())
@@ -76,12 +79,12 @@ else:
 
 def value():
     global data_val
-    return data_val
+    return cache.get('classifier_cache', data_val)
 
 # Returns the length of data specific object
 def lenList(project, object_type):
     global data_val
-    content = data_val
+    content = cache.get('classifier_cache', data_val)
     if project and object_type and content.get(project, False):
         if content.get(project).get(object_type, False):
             return len(content.get(project).get(object_type))
@@ -90,7 +93,7 @@ def lenList(project, object_type):
 
 def searchList(project, object_type, model=None, index=-1):
     global data_val
-    content = data_val
+    content = cache.get('classifier_cache', data_val)
     if project and object_type and content.get(project, False):
         if content.get(project).get(object_type, False):
             if index >= 0: # Search by index check if exists
