@@ -82,11 +82,13 @@
         allowClear: true
       }).on("select2:select", function (e) {
         $('#div_id_detect_model').slideUp()
+        $('#div_id_ibm_api_key').slideUp()
         id_detect_model = document.getElementById('id_detect_model').value
         document.getElementById('id_detect_model').value = ''
       }).on("select2:unselecting", function (e) {
         $(this).data('state', 'unselected');
         $('#div_id_detect_model').slideDown()
+        $('#div_id_ibm_api_key').slideDown()
         document.getElementById('id_detect_model').value = id_detect_model
       }).on("select2:open", function (e){
         if ($(this).data('state') === 'unselected') {

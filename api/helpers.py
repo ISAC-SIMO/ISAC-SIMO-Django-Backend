@@ -200,7 +200,7 @@ def test_offline_image(image_file, offline_model):
 ###################
 ## Detect Object ##
 ###################
-def detect_image(image_file, detect_model, offline=False, no_temp=False):
+def detect_image(image_file, detect_model, offline=False, no_temp=False, ibm_api_key=False):
     MIN_SCORE_REQUIRED = 0.5
     # Find Image Path (used to open)
     file_url = str(os.path.abspath(os.path.dirname(__name__))) + image_file.file.url
@@ -302,14 +302,14 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
             return False
     else:
         # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
-        if os.path.exists(file_url) and settings.IBM_API_KEY and (classifier_list.detect_object_model_id or detect_model):
+        if os.path.exists(file_url) and (ibm_api_key or settings.IBM_API_KEY) and (classifier_list.detect_object_model_id or detect_model):
             object_id = classifier_list.detect_object_model_id
             if detect_model:
                 object_id = detect_model
 
             # Authenticate the IBM Watson API
-            api_token = str(settings.IBM_API_KEY)
-            post_data = {'collection_ids': object_id, 'threshold': '0.6', 'features':'objects'}
+            api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
+            post_data = {'collection_ids': object_id, 'features':'objects'} # 'threshold': '0.15 -1'
             auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
             print(auth_base)
 
@@ -471,7 +471,7 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False):
 ####################
 # Default on 1st Image Test check Classifier Ids 1
 # If result is shouldContinue function passed then run test again with classifier ids 2 (in case of preprocess etc it will go next anyway)
-def test_image(image_file, title=None, description=None, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False, force_object_type=None):
+def test_image(image_file, title=None, description=None, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False, force_object_type=None, ibm_api_key=False):
     if force_object_type and not detected_as: # Force object Type by api
         try:
             pipeline_status = {}
@@ -508,7 +508,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
             return False
     else:
         if not detected_as:
-            detected_as = detect_image(image_file, detect_model, offline=offline)
+            detected_as = detect_image(image_file, detect_model, offline=offline, ibm_api_key=ibm_api_key)
         
         if not detected_as or len(detected_as) <= 0:
             if save_to_path:
@@ -559,7 +559,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     # In preprocess continue to next classifier pipeline if it exists of course
                     print('PREPROCESS OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                     if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                        test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                        test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key) #save_to_path=temp file
                     else:
                         print('No more pipeline')
                 except Exception as e:
@@ -601,7 +601,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     if not result.get('break', False) or shouldContinue(result.get('result','')):
                         print('PostProcess OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key) #save_to_path=temp file
                         else:
                             print('No more pipeline')
                 except Exception as e:
@@ -632,7 +632,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     if shouldContinue(result.get('result','')):
                         print('OFFLINE CLASSIFIER NORMAL OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key) #save_to_path=temp file
                         else:
                             print('No more pipeline')
 
@@ -643,7 +643,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
             continue
         
         # Else IF Not Test in Online Model
-        elif ( os.path.exists(save_to_path) and settings.IBM_API_KEY 
+        elif ( os.path.exists(save_to_path) and classifier.best_ibm_api_key()
             and classifier_index < classifier_list.lenList(project,object_type)
             and check_and_get_classifier_ids ):
 
@@ -654,8 +654,8 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
             # IF Classifier is not Object Detection type
             if not classifier.is_object_detection:
                 # Authenticate the IBM Watson API
-                api_token = str(settings.IBM_API_KEY)
-                post_data = {'classifier_ids': classifier_ids, 'threshold': '0.6'}
+                api_token = classifier.best_ibm_api_key()
+                post_data = {'classifier_ids': classifier_ids} # 'threshold': '0.15 -1'
                 auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
                 print(auth_base)
 
@@ -711,7 +711,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                         if shouldContinue(sorted_by_score[0]['class']):
                             print('CLASSIFIER ONLINE OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                             if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                                test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                                test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key) #save_to_path=temp file
                             else:
                                 print('No more pipeline')
 
@@ -721,7 +721,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                         passed += 1
                         continue
             elif status == 404 or classifier.is_object_detection: # Assume Detect Model
-                res = detect_image(image_file, classifier_ids, offline=False, no_temp=True) # Note: Detect_Model is classifier ids (if 404 condition i.e. 2nd parameter)
+                res = detect_image(image_file, classifier_ids, offline=False, no_temp=True, ibm_api_key=classifier.ibm_api_key) # Note: Detect_Model is classifier ids (if 404 condition i.e. 2nd parameter)
                 # print(res)
                 if resized_image_open:
                     resized_image_open.close()
@@ -753,7 +753,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                 
                 if classifier_index + 1 < classifier_list.lenList(project,object_type):
                     print('CLASSIFIER ONLINE [Detect Model Acting as Classifier] OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                    test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type) #save_to_path=temp file
+                    test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key) #save_to_path=temp file
                 else:
                     print('No more pipeline')
 
@@ -782,12 +782,13 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
     else:
         return False
 
-def quick_test_image(image_file, classifier_ids):
+def quick_test_image(image_file, classifier_ids, classifier=False):
     image_file_path = None
-    if ( settings.IBM_API_KEY and classifier_ids and image_file):
+    ibm_api_key = classifier.best_ibm_api_key() if classifier else ''
+    if ( (settings.IBM_API_KEY or ibm_api_key) and classifier_ids and image_file):
         # Authenticate the IBM Watson API
-        api_token = str(settings.IBM_API_KEY)
-        post_data = {'classifier_ids': classifier_ids, 'threshold': '0.6'}
+        api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
+        post_data = {'classifier_ids': classifier_ids} # 'threshold': '0.15 -1'
         auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
         print(auth_base)
 
@@ -972,7 +973,7 @@ def quick_test_offline_image_pre_post(image_file, classifier, request, fake_scor
         return False
 
 # QUICK TEST DETECT MODE:
-def quick_test_detect_image(image_file, detect_model, offline=False, project_folder=''):
+def quick_test_detect_image(image_file, detect_model, offline=False, project_folder='', ibm_api_key=False):
     MIN_SCORE_REQUIRED = 0.5
     # Find Image Path (used to open)
     file_url = None
@@ -1045,14 +1046,14 @@ def quick_test_detect_image(image_file, detect_model, offline=False, project_fol
             return False
     else:
         # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
-        if file_url and settings.IBM_API_KEY and (classifier_list.detect_object_model_id or detect_model):
+        if file_url and (ibm_api_key or settings.IBM_API_KEY) and (classifier_list.detect_object_model_id or detect_model):
             object_id = classifier_list.detect_object_model_id
             if detect_model:
                 object_id = detect_model
 
             # Authenticate the IBM Watson API
-            api_token = str(settings.IBM_API_KEY)
-            post_data = {'collection_ids': object_id, 'threshold': '0.6', 'features':'objects'}
+            api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
+            post_data = {'collection_ids': object_id, 'features':'objects'} # 'threshold': '0.15 -1'
             auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
             post_header = {'Accept':'application/json','Authorization':auth_base}
             resized_image_open = file_url
@@ -1197,14 +1198,9 @@ def retrain_image(image_file_list, project, object_type, result, media_folder='i
     
     zipObj.close()
     # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
-    if ( os.path.exists(zipPath) and settings.IBM_API_KEY 
+    if ( os.path.exists(zipPath)
         and (classifier_list.searchList(project,object_type,classifier) or noIndexCheck) ):
 
-        # Authenticate the IBM Watson API
-        api_token = str(settings.IBM_API_KEY)
-        auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-        print(auth_base)
-        post_header = {'Accept':'application/json','Authorization':auth_base}
         zipObj = open(zipPath, 'rb')
         post_files = {}
 
@@ -1221,11 +1217,16 @@ def retrain_image(image_file_list, project, object_type, result, media_folder='i
         offline = 0
 
         for classifier_ids in classifier_list.value().get(project,{}).get(object_type,[]):
+            this_classifier = Classifier.objects.filter(name=classifier_ids).filter(project=projectModel).all().first()
             # Check if classifier is offline
-            if projectModel:
-                classifier = Classifier.objects.filter(name=classifier_ids).filter(project=projectModel).all().first()
-                if classifier.offline_model:
-                    offline += 1
+            if this_classifier.offline_model:
+                offline += 1
+            
+            # Authenticate the IBM Watson API
+            api_token = this_classifier.best_ibm_api_key()
+            auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+            print(auth_base)
+            post_header = {'Accept':'application/json','Authorization':auth_base}
 
             # Check if specific classifier to re-train on (and continue if not equal to it)
             if(classifier and classifier != 'all'):
@@ -1269,11 +1270,15 @@ def retrain_image(image_file_list, project, object_type, result, media_folder='i
 #################################################
 # Create New classifier
 # User uploades proper zip file with classifier name
-def create_classifier(zip_file_list, negative_zip=False, name=False, object_type=False, process=False, rotate=False, warp=False, inverse=False):
+def create_classifier(zip_file_list, negative_zip=False, name=False, object_type=False, process=False, rotate=False, warp=False, inverse=False, ibm_api_key=False, project=False):
     # IF IBM KEY is provided (also check zip_file_list is ok)
-    if ( settings.IBM_API_KEY and zip_file_list and name and object_type ):
+    if ( (ibm_api_key or settings.IBM_API_KEY) and zip_file_list and name and object_type ):
         # Authenticate the IBM Watson API
-        api_token = str(settings.IBM_API_KEY)
+        if not ibm_api_key and project:
+            project = Projects.objects.get(id=project)
+            ibm_api_key = project.ibm_api_key
+
+        api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
         auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
         print(auth_base)
         post_header = {'Accept':'application/json','Authorization':auth_base}
@@ -1439,10 +1444,17 @@ def create_classifier(zip_file_list, negative_zip=False, name=False, object_type
 # Fetch Classifier Details #
 def classifier_detail(project, object_type, model):
     # IF IBM KEY is provided + classifier list exists
-    if ( settings.IBM_API_KEY 
-        and classifier_list.searchList(project, object_type, model) ):
+    if ( classifier_list.searchList(project, object_type, model) ):
 
         classifier = Classifier.objects.filter(name=model).all().first()
+        # IF IS OBJECT DETECTION ACTING AS CLASSIFER:
+        if classifier.is_object_detection:
+            detail = object_detail(classifier.name, classifier.best_ibm_api_key())
+            if detail:
+                return detail
+            else:
+                return False
+
         if classifier.offline_model:
             try:
                 offlineModelLabels = json.loads(classifier.offline_model.offline_model_labels)
@@ -1458,7 +1470,7 @@ def classifier_detail(project, object_type, model):
             }
 
         # Authenticate the IBM Watson API
-        api_token = str(settings.IBM_API_KEY)
+        api_token = classifier.best_ibm_api_key()
         auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
         print(auth_base)
         post_header = {'Accept':'application/json','Authorization':auth_base}
@@ -1487,16 +1499,16 @@ def classifier_detail(project, object_type, model):
             return False
 
 # Fetch Object Detection Metadata Details #
-def object_detail(object_id):
+def object_detail(object_id, ibm_api_key=False):
     # IF IBM KEY is provided + classifier list exists
-    if ( settings.IBM_API_KEY 
+    if ( (ibm_api_key or settings.IBM_API_KEY)
         and (classifier_list.detect_object_model_id or object_id) ):
         
         if not object_id:
             object_id = classifier_list.detect_object_model_id
 
         # Authenticate the IBM Watson API
-        api_token = str(settings.IBM_API_KEY)
+        api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
         auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
         print(auth_base)
         post_header = {'Accept':'application/json','Authorization':auth_base}
@@ -1551,7 +1563,7 @@ def object_detail(object_id):
     return False
 
 # Similar to detect_image but from temp no need to deal with image_file model (used in e.g. google map image test detect)
-def detect_temp_image(file_url, detect_model, offline=False):
+def detect_temp_image(file_url, detect_model, offline=False, ibm_api_key=False):
     # IF Is offline Model and detect model is given (detect_model = offline_model object)
     if offline and detect_model and os.path.exists(file_url):
         print('Detecting Image Object [Offline Model] [TEMP Google Street Images]...')
@@ -1579,13 +1591,13 @@ def detect_temp_image(file_url, detect_model, offline=False):
         # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
         print('Detecting Image Object [TEMP Google Street Images]...')
         saveto = None
-        if os.path.exists(file_url) and settings.IBM_API_KEY and (classifier_list.detect_object_model_id or detect_model):
+        if os.path.exists(file_url) and (ibm_api_key or settings.IBM_API_KEY) and (classifier_list.detect_object_model_id or detect_model):
             object_id = classifier_list.detect_object_model_id
             if detect_model:
                 object_id = detect_model
             # Authenticate the IBM Watson API
-            api_token = str(settings.IBM_API_KEY)
-            post_data = {'collection_ids': object_id, 'threshold': '0.6', 'features':'objects'}
+            api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
+            post_data = {'collection_ids': object_id, 'features':'objects'} # 'threshold': '0.15 -1'
             auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
             print(auth_base)
 
@@ -1685,10 +1697,10 @@ pipeline_status = {}
 # }
 ### SAME AS test_image BUT FOR TEMP IMAGES (no need to deal with models and other stuffs (used for e.g. in google map images testing))
 # Note not added preprocess postprocess codes
-def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False):
+def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False, ibm_api_key=False):
     global score, result, pipeline_status
     if not detected_as:
-        detected_as = detect_temp_image(image_file, detect_model, offline=offline)
+        detected_as = detect_temp_image(image_file, detect_model, offline=offline, ibm_api_key=ibm_api_key)
         print(detected_as)
     
     if not detected_as or len(detected_as) <= 0:
@@ -1713,7 +1725,7 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
         if classifier.offline_model.preprocess or classifier.offline_model.postprocess:
             if classifier_index + 1 < classifier_list.lenList(project,object_type):
                 print('TEMP: FOR PRE/POST PROCESSOR - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file
+                test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline, ibm_api_key) #save_to_path=temp file
             else:
                 print('No more pipeline (offline model)')
             return False
@@ -1738,7 +1750,7 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
             if shouldContinue(res.get('result','')):
                 if classifier_index + 1 < classifier_list.lenList(project,object_type):
                     print('TEMP: OFFLINE CLASSIFIER OK  - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                    test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file
+                    test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline, ibm_api_key) #save_to_path=temp file
                 else:
                     print('No more pipeline (offline model)')
 
@@ -1753,14 +1765,14 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
             return {'score': score_copy, 'result': result_copy, 'pipeline_status': pipeline_status_copy}
     
     # Else IF Not Test in Online Model
-    elif ( os.path.exists(save_to_path) and settings.IBM_API_KEY 
+    elif ( os.path.exists(save_to_path) and classifier.best_ibm_api_key()
         and classifier_index < classifier_list.lenList(project,object_type)
         and check_and_get_classifier_ids ):
 
         # Authenticate the IBM Watson API
-        api_token = str(settings.IBM_API_KEY)
+        api_token = classifier.best_ibm_api_key()
         classifier_ids = check_and_get_classifier_ids
-        post_data = {'classifier_ids': classifier_ids, 'threshold': '0.6'}
+        post_data = {'classifier_ids': classifier_ids} # 'threshold': '0.15 -1'
         auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
         print(auth_base)
 
@@ -1811,7 +1823,7 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
                 if shouldContinue(sorted_by_score[0]['class']):
                     if classifier_index + 1 < classifier_list.lenList(project,object_type):
                         print('TEMP: ONLINE CLASSIFIER OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                        test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline) #save_to_path=temp file
+                        test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline, ibm_api_key) #save_to_path=temp file
                     else:
                         print('No more pipeline')
 

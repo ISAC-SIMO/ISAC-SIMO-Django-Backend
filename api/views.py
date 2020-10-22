@@ -122,7 +122,7 @@ def addImage(request, id = 0):
                 ################
                 ### RUN TEST ###
                 ################
-                test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
+                test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
                     
                 if(i>=8):
                     break
@@ -219,7 +219,7 @@ def updateImage(request, id=0):
                     ################
                     ### RUN TEST ###
                     ################
-                    test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
+                    test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
 
                     if(i>=8):
                         break
@@ -396,7 +396,7 @@ def retestImageFile(request, id):
             offline = False
         
         if not image_file.result or not image_file.score:
-            test_status = test_image(image_file, detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
+            test_status = test_image(image_file, detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
             if test_status:
                 messages.success(request, 'Image Tested Successfully.')
             else:
@@ -594,7 +594,7 @@ def watsonClassifierCreate(request):
         elif request.POST.get('source', False) == "ibm" and request.POST.get('name') and request.POST.get('trained') == "true":
             created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'classes':[]}}
         else:
-            created = create_classifier(request.FILES.getlist('zip'), request.FILES.get('negative', False), request.POST.get('name'), request.POST.get('object_type'), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False))
+            created = create_classifier(request.FILES.getlist('zip'), request.FILES.get('negative', False), request.POST.get('name'), request.POST.get('object_type'), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False), ibm_api_key=request.POST.get('ibm_api_key',False), project=request.POST.get('project',False))
         
         bad_zip = 0
         if created:
@@ -625,6 +625,8 @@ def watsonClassifierCreate(request):
                 classifier.order = request.POST.get('order',0)
                 if request.POST.get('is_object_detection',False) and request.POST.get('source', "") == "ibm" and request.POST.get('trained') == "true":
                     classifier.is_object_detection = True
+                if request.POST.get('ibm_api_key',False) and request.POST.get('source', "") == "ibm":
+                    classifier.ibm_api_key = request.POST.get('ibm_api_key')
                 if request.POST.get('offlineModel',False):
                     offline_model = OfflineModel.objects.filter(id=request.POST.get('offlineModel')).get()
                     classifier.offline_model = offline_model
@@ -665,8 +667,10 @@ def watsonClassifierEdit(request, id):
                 offline_model = OfflineModel.objects.get(id=request.POST.get('offlineModel'))
                 classifier.offline_model = offline_model
                 classifier.classes = json.loads(offline_model.offline_model_labels)
+                classifier.ibm_api_key = ''
             else:
                 classifier.is_object_detection = True if request.POST.get('is_object_detection', False) else False
+                classifier.ibm_api_key = request.POST.get('ibm_api_key','')
             classifier.order = request.POST.get('order', 0)
             classifier.save()
             # And unverify the object type
@@ -755,7 +759,7 @@ def watsonClassifierTest(request, id):
                     project_folder = os.environ.get('PROJECT_FOLDER','') + '/'
                 else:
                     project_folder = ''
-                quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), classifier.name, offline=False, project_folder=project_folder)
+                quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), classifier.name, offline=False, project_folder=project_folder, ibm_api_key=classifier.ibm_api_key)
                 if quick_test_image_result:
                     if isinstance(quick_test_image_result, dict) and quick_test_image_result.get("error", False):
                         request.session['test_result'] = json.dumps(quick_test_image_result, indent=4)
@@ -770,7 +774,7 @@ def watsonClassifierTest(request, id):
                     return redirect('watson.classifier.test', id=id)
             # ELSE ONLINE MODEL THEN
             else:
-                quick_test_image_result = quick_test_image(request.FILES.get('file', False), classifier.name)
+                quick_test_image_result = quick_test_image(request.FILES.get('file', False), classifier.name, classifier)
             
             if quick_test_image_result:
                 request.session['test_result'] = json.dumps(quick_test_image_result.get('data','No Test Data'), indent=4)
@@ -807,17 +811,18 @@ def watsonObject(request):
     if request.method != "POST":
         default_object_model = classifier_list.detect_object_model_id
         if request.user.is_project_admin:
-            projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').values('detect_model','project_name','offline_model').distinct()
+            projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').values('id','detect_model','project_name','offline_model').distinct()
         else:
-            projects = Projects.objects.all().values('detect_model','project_name','offline_model').distinct()
+            projects = Projects.objects.all().values('id','detect_model','project_name','offline_model').distinct()
         return render(request, 'objects_detail.html',{'default_object_model':default_object_model,'projects':projects})
     elif request.method == "POST":
         detail = None
         object_id = request.POST.get('object_id', False)
+        project = Projects.objects.get(id=object_id)
         
         # IF Watson Object Detail is a offline Model type
-        try:
-            offline_model = OfflineModel.objects.filter(id=object_id).all().first()
+        if project.offline_model:
+            offline_model = project.offline_model
             if offline_model:
                 try:
                     offlineModelLabels = json.loads(offline_model.offline_model_labels)
@@ -832,12 +837,10 @@ def watsonObject(request):
                     'url': offline_model.file.url
                 }, indent=4)
                 return render(request, 'objects.html',{'detail':detail,'object_id':offline_model.name})
-        except:
-            print('Not offline model id failed')
         
         # If not offline model try online
         try:
-            detail = object_detail(object_id)
+            detail = object_detail(project.detect_model, project.ibm_api_key)
             if detail:
                 detail = json.dumps(detail, indent=4)
             else:
@@ -1369,19 +1372,35 @@ class ImageView(viewsets.ModelViewSet):
 
     # TO LIMIT WHAT USER CAN DO - EDIT,SEE,DELETE
     def get_queryset(self):
-        if self.request.user.is_authenticated:
-            if self.request.user.is_admin:
-                ids = Image.objects.order_by('-created_at').values_list('pk', flat=True)[:25] # Latest 25
-                return Image.objects.filter(pk__in=list(ids)).order_by('-created_at')
-            elif self.request.user.is_project_admin:
-                projects = Projects.objects.filter(users__id=self.request.user.id)
-                ids = Image.objects.filter(Q(user_id=self.request.user.id) | Q(project__in=projects)).order_by('-created_at').distinct()[:25] # Latest 25
-                return Image.objects.filter(pk__in=list(ids)).order_by('-created_at')
+        if self.action == 'list':
+            page = abs(int(self.request.GET.get('page', 1)))
+            offset = 25 * (page - 1)
+            limit = 25
+            offsetPlusLimit = offset + limit
+            if self.request.user.is_authenticated:
+                if self.request.user.is_admin:
+                    ids = Image.objects.order_by('-created_at').values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 25
+                    return Image.objects.filter(pk__in=list(ids)).order_by('-created_at')
+                elif self.request.user.is_project_admin:
+                    projects = Projects.objects.filter(users__id=self.request.user.id)
+                    ids = Image.objects.filter(Q(user_id=self.request.user.id) | Q(project__in=projects)).order_by('-created_at').distinct()[offset:offsetPlusLimit] # Latest 25
+                    return Image.objects.filter(pk__in=list(ids)).order_by('-created_at')
+                else:
+                    ids = Image.objects.filter(user_id=self.request.user.id).order_by('-created_at')[offset:offsetPlusLimit] # Latest 25
+                    return Image.objects.filter(pk__in=list(ids)).order_by('-created_at')
             else:
-                ids = Image.objects.filter(user_id=self.request.user.id).order_by('-created_at')[:25] # Latest 25
-                return Image.objects.filter(pk__in=list(ids)).order_by('-created_at')
+                return []
         else:
-            return []
+            if self.request.user.is_authenticated:
+                if self.request.user.is_admin:
+                    return Image.objects.order_by('-created_at')
+                elif self.request.user.is_project_admin:
+                    projects = Projects.objects.filter(users__id=self.request.user.id)
+                    return Image.objects.filter(Q(user_id=self.request.user.id) | Q(project__in=projects)).order_by('-created_at').distinct()
+                else:
+                    return Image.objects.filter(user_id=self.request.user.id).order_by('-created_at')
+            else:
+                return []
 
     # TO LIMIT PERMISSION - I CREATED CUSTOM PERMISSION IN main/authorization.py
     # Files contains checker for Authorization as well as passes test
@@ -1589,10 +1608,10 @@ class ProjectView(viewsets.ModelViewSet):
 
         # IF THIS PROJECT HAS OFFLINE MODEL THEN
         if project.offline_model:
-            quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.offline_model, offline=True, project_folder=project_folder)
+            quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.offline_model, offline=True, project_folder=project_folder, ibm_api_key=project.ibm_api_key)
         # ELSE ONLINE MODEL THEN
         else:
-            quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False, project_folder=project_folder)
+            quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False, project_folder=project_folder, ibm_api_key=project.ibm_api_key)
         
         test_result = None
         if quick_test_image_result:
@@ -1761,13 +1780,13 @@ class ClassifierView(viewsets.ModelViewSet):
                     project_folder = os.environ.get('PROJECT_FOLDER','') + '/'
                 else:
                     project_folder = ''
-                quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), classifier.name, offline=False, project_folder=project_folder)
+                quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), classifier.name, offline=False, project_folder=project_folder, ibm_api_key=classifier.ibm_api_key)
                 if quick_test_image_result:
                     res['test_result'] = quick_test_image_result
                     return JsonResponse(res, status=200)
             # ELSE ONLINE MODEL THEN
             else:
-                quick_test_image_result = quick_test_image(request.FILES.get('file', False), classifier.name)
+                quick_test_image_result = quick_test_image(request.FILES.get('file', False), classifier.name, classifier)
             
             if quick_test_image_result:
                 res['test_result'] = quick_test_image_result.get('data',{})
@@ -1864,17 +1883,18 @@ def fetch_object_type_detail(request):
     if request.method == "GET":
         default_object_model = classifier_list.detect_object_model_id
         if request.user.is_project_admin:
-            projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').values('detect_model','project_name','offline_model').distinct()
+            projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').values('id','detect_model','project_name','offline_model').distinct()
         else:
-            projects = Projects.objects.all().values('detect_model','project_name','offline_model').distinct()
+            projects = Projects.objects.all().values('id','detect_model','project_name','offline_model').distinct()
         return Response({'data':projects, 'default_object_model':default_object_model}, status=200)
     if request.method == "POST" and request.POST.get('object_id', False) and request.user and (request.user.is_admin or request.user.is_project_admin):
         detail = None
         object_id = request.POST.get('object_id', False)
+        project = Projects.objects.get(id=object_id)
         
         # IF Watson Object Detail is a offline Model type
-        try:
-            offline_model = OfflineModel.objects.filter(id=object_id).all().first()
+        if project.offline_model:
+            offline_model = project.offline_model
             if offline_model:
                 try:
                     offlineModelLabels = json.loads(offline_model.offline_model_labels)
@@ -1889,12 +1909,10 @@ def fetch_object_type_detail(request):
                     'url': offline_model.file.url
                 }
                 return Response({'data':detail, 'object_id':offline_model.name}, status=200)
-        except:
-            print('Not offline model id failed - API')
         
         # If not offline model try online
         try:
-            detail = object_detail(object_id)
+            detail = object_detail(project.detect_model, project.ibm_api_key)
             if detail:
                 return Response({'data':detail, 'object_id':object_id}, status=200)
             else:

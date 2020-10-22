@@ -76,12 +76,26 @@ class Classifier(models.Model):
     order = models.IntegerField("Order", default=0, blank=False, null=False)
     offline_model = models.ForeignKey('OfflineModel', on_delete=models.SET_NULL, related_name='classifiers', blank=True, null=True)
     is_object_detection = models.BooleanField(default=False)
+    ibm_api_key = models.CharField(max_length=200, blank=True, null=True)
     created_by = models.ForeignKey("main.User", related_name='classifiers', on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
         return self.name
+
+    def project_ibm_api_key(self):
+        if self.project and self.project.ibm_api_key:
+            return self.project.ibm_api_key
+        return False
+
+    def best_ibm_api_key(self):
+        if self.ibm_api_key:
+            return self.ibm_api_key
+        elif self.project and self.project.ibm_api_key:
+            return self.project.ibm_api_key
+        else:
+            return str(settings.IBM_API_KEY)
 
     class Meta:
         ordering = ['order']  # order is the field holding the order

@@ -16,15 +16,15 @@
                         <div class="col-sm-12 col-md-6">
                             <select name="object_id" class="form-control select2" id="object_id" required>
                                 {% if default_object_model %}
-                                    <option value="{{default_object_model}}">{{default_object_model}}</option>
+                                    {% comment %} <option value="{{default_object_model}}">{{default_object_model}}</option> {% endcomment %}
                                 {% endif %}
 
                                 {% if projects %}
                                     {% for project in projects %}
                                         {% if project.detect_model and project.detect_model != '' %}
-                                            <option value="{{project.detect_model}}" data-project="{{project.project_name}}">{{project.detect_model}}</option>
+                                            <option value="{{project.id}}" data-project="{{project.project_name}}">{{project.detect_model}}</option>
                                         {% elif project.offline_model %}
-                                            <option value="{{project.offline_model}}" data-project="{{project.project_name}}">Offline Detect Model: {{project.offline_model}}</option>
+                                            <option value="{{project.id}}" data-project="{{project.project_name}}">Offline Detect Model: {{project.offline_model}}</option>
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}

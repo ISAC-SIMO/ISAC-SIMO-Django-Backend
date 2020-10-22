@@ -145,6 +145,15 @@
                                 Check this if you are using IBM Watson Object Detection Model to act as Classifier.
                             </small>
                         </div>
+                        <div class="form-group" id="ibm_api_key_group">
+                            <label for="ibm_api_key" class="col-sm-5 col-md-4 col-form-label">IBM API KEY</label>
+                            <div class="col-sm-12 col-md-4">
+                                <input type="text" placeholder="Enter your IBM Watson API KEY" class="form-control" id="ibm_api_key" name="ibm_api_key"/>
+                            </div>
+                            <small class="col-sm-12 form-text text-muted">
+                                If Provided the Classifier/Model will be linked or created in given Watson Service.
+                            </small>
+                        </div>
                         <div class="form-group">
                             <label for="project" class="col-sm-5 col-md-4 col-form-label">Project*</label>
                             <div class="col-sm-12 col-md-4">
@@ -235,6 +244,8 @@
                 $('#warp-group').slideUp();
                 $('#inverse-group').slideUp();
                 $('#model_id_msg').hide();
+                $('#ibm_api_key_group').hide();
+                $('#ibm_api_key').val('');
                 $('#is_object_detection_group').hide();
                 $('#offline-model-group').slideDown(); // make offline add able
                 $('#offline-model-label-group').slideDown(); // make offline add able
@@ -245,6 +256,7 @@
                 $('#name').val("");
                 $('#trained-group').slideDown();
                 $('#trained').trigger('change');
+                $('#ibm_api_key_group').show();
             }
         })
 
@@ -312,12 +324,14 @@
             write(val, 0);
         });
         function write(val, i){
-            setTimeout(function(){
-                $('#name').val(val.slice(0, i+1));
-                if(i < val.length){
-                    write(val, i+1);
-                }
-            }, 30);
+            if(val){
+                setTimeout(function(){
+                    $('#name').val(val.slice(0, i+1));
+                    if(i < val.length){
+                        write(val, i+1);
+                    }
+                }, 30);
+            }
         }
 
         $('#project').on( 'change', function() {

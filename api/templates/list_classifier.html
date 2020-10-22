@@ -55,7 +55,7 @@
                                         <a onclick="deleteDataWriteConfirm(event, 'classifiers-{{ classifier.id }}', 'Image')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.classifier.delete' classifier.id %}" class="btn text-secondary px-0">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <a onclick="Swal.fire(JSON.stringify({{classifier.classes|safe}}), 'Created By: {{classifier.created_by.full_name|default:'user'|title}}<br/>Created At: {{classifier.created_at}}{% if classifier.is_object_detection %}<br/><b><i>Is Object Detection</i></b>{% endif %}')" title="Classes" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0">
+                                        <a onclick="Swal.fire(JSON.stringify({{classifier.classes|safe}}), 'Created By: {{classifier.created_by.full_name|default:'user'|title}}<br/>Created At: {{classifier.created_at}}{% if classifier.is_object_detection %}<br/><b><i>Is Object Detection</i></b>{% endif %}{% if classifier.ibm_api_key %}<br/><small><b>IBM API KEY:</b> {{classifier.ibm_api_key}}</small>{% endif %}')" title="Info" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0">
                                             <i class="fa fa-info text-info"></i>
                                         </a>
                                         <a title="Edit" data-toggle="tooltip" data-placement="left" href="{% url 'watson.classifier.edit' classifier.id %}" class="btn text-secondary px-0">

@@ -142,10 +142,10 @@ def testOfflineProject(request, id):
 
                 # IF THIS PROJECT HAS OFFLINE MODEL THEN
                 if project.offline_model:
-                    quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.offline_model, offline=True, project_folder=project_folder)
+                    quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.offline_model, offline=True, project_folder=project_folder, ibm_api_key=project.ibm_api_key)
                 # ELSE ONLINE MODEL THEN
                 else:
-                    quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False, project_folder=project_folder)
+                    quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False, project_folder=project_folder, ibm_api_key=project.ibm_api_key)
                 
                 if quick_test_image_result:
                     if isinstance(quick_test_image_result, dict) and quick_test_image_result.get("error", False):

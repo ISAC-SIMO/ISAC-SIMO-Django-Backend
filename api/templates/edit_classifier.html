@@ -29,6 +29,15 @@
                             Check this if you are using IBM Watson Object Detection Model to act as Classifier.
                         </small>
                     </div>
+                    <div class="form-group" id="ibm_api_key_group" style="display:none;">
+                        <label for="ibm_api_key" class="col-sm-5 col-md-4 col-form-label">IBM API KEY</label>
+                        <div class="col-sm-12 col-md-4">
+                            <input type="text" placeholder="Enter your IBM Watson API KEY" class="form-control" id="ibm_api_key" name="ibm_api_key" value="{{classifier.ibm_api_key|default:''}}"/>
+                        </div>
+                        <small class="col-sm-12 form-text text-muted">
+                            If Provided the Classifier/Model will be linked or created in given Watson Service.
+                        </small>
+                    </div>
                     <div class="form-group" id="offline-model-group">
                         <label for="offlineModel" class="col-sm-5 col-md-4 col-form-label">Offline Model</label>
                         <div class="col-sm-12 col-md-4">
@@ -105,20 +114,33 @@
         $('#offlineModel').select2({
             placeholder: 'Select Offline Detect Model {% if not classifier.offline_model %}(Currently None){% endif %}',
             allowClear: true
+        }).on("select2:unselecting", function(e) {
+            $(this).data('state', 'unselected');
+        }).on("select2:open", function(e) {
+            if ($(this).data('state') === 'unselected') {
+                $(this).removeData('state'); 
+                var self = $(this);
+                self.select2('close');
+            }
         }).on('change', function() {
             if(!$('#offlineModel').val()){
                 {% if classifier.is_object_detection %}
                     $('#is_object_detection').prop('checked',true);
                 {% endif %}
-                $('#is_object_detection_group').show();
+                $('#is_object_detection_group').slideDown();
+                $('#ibm_api_key_group').slideDown();
+                $('#ibm_api_key').val('{{classifier.ibm_api_key|default:''}}');
             }else{
                 $('#is_object_detection').prop('checked',false);
-                $('#is_object_detection_group').hide();
+                $('#is_object_detection_group').slideUp();
+                $('#ibm_api_key_group').slideUp();
+                $('#ibm_api_key').val('');
             }
         });
 
         {% if not classifier.offline_model %}
             $('#is_object_detection_group').show();
+            $('#ibm_api_key_group').show();
         {% endif %}
 
         $('#project').on( 'change', function() {

@@ -162,7 +162,7 @@ class ImageSerializer(serializers.ModelSerializer):
                     ################
                     ### RUN TEST ###
                     ################
-                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
+                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
 
                     u = u + 1
                 except Exception as err:
@@ -247,7 +247,7 @@ class ImageSerializer(serializers.ModelSerializer):
                     ################
                     ### RUN TEST ###
                     ################
-                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
+                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
                     u = u + 1
                 except Exception as err:
                     print(err)
@@ -317,7 +317,7 @@ class VideoFrameSerializer(serializers.ModelSerializer):
             ################
             ### RUN TEST ###
             ################
-            test = test_image(image_obj, image_model.title, image_model.description, detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type)
+            test = test_image(image_obj, image_model.title, image_model.description, detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
         return hasFrames
 
     def create(self, validated_data):
@@ -446,7 +446,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Projects
-        fields = ('id','project_name','image','project_desc','unique_name','detect_model','offline_model','guest','created_at','updated_at')
+        fields = ('id','project_name','image','project_desc','unique_name','detect_model','ibm_api_key','offline_model','guest','created_at','updated_at')
         read_only_fields = ('id','unique_name','detect_model','created_at', 'updated_at')
 
     def update(self, instance, validated_data):
@@ -563,7 +563,8 @@ class ClassifierSerializer(serializers.ModelSerializer):
         # warp = warp images
         # inverse = inverse images
         # is_object_detection = "true" # If Watson Classifier is Object Detection type
-        fields = ('id','name','given_name','classes','order','project','project_id','object_type','object_type_id','offline_model','offline_model_id','is_object_detection','created_by','created_at','updated_at')
+        # ibm_api_key = "watson service api key"
+        fields = ('id','name','given_name','classes','order','project','project_id','object_type','object_type_id','offline_model','offline_model_id','is_object_detection','ibm_api_key','created_by','created_at','updated_at')
         read_only_fields = ('id','given_name','is_object_detection','created_by','created_at', 'updated_at')
 
     def create(self, validated_data):
@@ -578,7 +579,7 @@ class ClassifierSerializer(serializers.ModelSerializer):
         elif request.POST.get('source', False) == "ibm" and request.POST.get('name') and request.POST.get('trained') == "true":
             created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'classes':[]}}
         else:
-            created = create_classifier(request.FILES.getlist('zip'), request.FILES.get('negative', False), request.POST.get('name'), request.POST.get('object_type_id'), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False))
+            created = create_classifier(request.FILES.getlist('zip'), request.FILES.get('negative', False), request.POST.get('name'), request.POST.get('object_type_id'), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False), ibm_api_key=request.POST.get('ibm_api_key',False), project=request.POST.get('project_id',False))
         
         classifier = None
         bad_zip = 0
@@ -612,6 +613,8 @@ class ClassifierSerializer(serializers.ModelSerializer):
                 classifier.order = request.POST.get('order',0)
                 if request.POST.get('is_object_detection',False) and request.POST.get('source', "") == "ibm" and request.POST.get('trained') == "true":
                     classifier.is_object_detection = True
+                if request.POST.get('ibm_api_key',False) and request.POST.get('source', "") == "ibm":
+                    classifier.ibm_api_key = request.POST.get('ibm_api_key')
                 if request.POST.get('offline_model_id',False):
                     offline_model = OfflineModel.objects.filter(id=request.POST.get('offline_model')).get()
                     classifier.offline_model = offline_model
@@ -644,6 +647,8 @@ class ClassifierSerializer(serializers.ModelSerializer):
                 offline_model = OfflineModel.objects.get(id=request.POST.get('offline_model_id'))
                 instance.offline_model = offline_model
                 instance.classes = json.loads(offline_model.offline_model_labels)
+            elif request.POST.get('ibm_api_key', False):
+                instance.ibm_api_key = request.POST.get('ibm_api_key')
             instance.order = request.POST.get('order', instance.order)
             instance.save()
             return instance
