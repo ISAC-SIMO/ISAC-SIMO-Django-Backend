@@ -18,7 +18,7 @@
                         <form action="{% url 'profile' %}" method="POST" class="form-group" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form|crispy }}
-                            <p><small>User Type: <b>{{ user.user_type|capfirst }}</b></small></p>
+                            <p><small>User Type: <b>{{ user.user_type|title }}</b></small></p>
                             <button type="submit" class="btn btn-success">Update User Info</button>
                         </form>
                     </div>

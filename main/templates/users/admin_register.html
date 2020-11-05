@@ -47,5 +47,10 @@
            
         </div>
 
-
+        <script>
+          {% if form.email.value == user.email %}
+            document.getElementById('div_id_active').style.display = 'none';
+            document.getElementById('hint_id_projects').innerHTML = document.getElementById('hint_id_projects').innerHTML + '<h5><b>Note:</b> You Are Editing Yourself.</h5>'
+          {% endif %}
+        </script>
 {% endblock content %}

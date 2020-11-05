@@ -242,7 +242,7 @@ def admin_userAddForm(request, id=0):
             updateUser.full_name = request.POST.get('full_name')
             updateUser.user_type = request.POST.get('user_type')
             if request and request.user.is_project_admin:
-                updateUser.projects.set(Projects.objects.filter(users__id=request.user.id).filter(id__in=request.POST.getlist('projects')))
+                updateUser.projects.add(*Projects.objects.filter(users__id=request.user.id).filter(id__in=request.POST.getlist('projects')))
             else:
                 updateUser.projects.set(Projects.objects.filter(id__in=request.POST.getlist('projects')))
 

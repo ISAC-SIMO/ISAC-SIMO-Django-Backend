@@ -330,7 +330,6 @@
                 </p>
               </a>
               <ul class="nav nav-treeview">
-                {% if user.is_admin %}
                 <li class="nav-item">
                   <a href="{% url 'watson.classifier' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.classifier' %} active {% endif %}">
@@ -338,6 +337,7 @@
                     <p>Fetch Classifier Details</p>
                   </a>
                 </li>
+                {% if user.is_admin %}
                 <li class="nav-item">
                   <a href="{% url 'watson.train' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.train' %} active {% endif %}">
@@ -452,7 +452,7 @@
       <strong>Copyright &copy; 2020 <a href="#!">Build Change</a>.</strong>
       All rights reserved.
       <div class="float-right d-none d-sm-inline-block">
-        <b>Version</b> 0.1.1
+        <b>Version</b> 0.2.0
       </div>
     </footer>
 

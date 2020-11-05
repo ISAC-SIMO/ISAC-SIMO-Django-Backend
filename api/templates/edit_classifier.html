@@ -44,7 +44,7 @@
                             <select name="offlineModel" id="offlineModel" class="form-control">
                                 <option></option>
                                 {% for offlineModel in offlineModels %}
-                                <option value="{{offlineModel.id}}" {% if offlineModel.id == classifier.offline_model.id %}selected{% endif %}>{{offlineModel.name|title}} - {{offlineModel.model_format}}</option>
+                                <option value="{{offlineModel.id}}" {% if offlineModel.id == classifier.offline_model.id %}selected{% endif %}>{{offlineModel.name|title}} - {{offlineModel.model_format}} {% if classifier.offline_model_id == offlineModel.id  %} - (Current){% endif %}</option>
                                 {% endfor %}
                             </select>
                         </div>

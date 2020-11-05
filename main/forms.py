@@ -102,12 +102,14 @@ class AdminEditForm(UserCreationForm):
         self.fields['password2'].required = False
         self.fields['user_type'].help_text = 'Choose User Type Wisely'
         self.fields['projects'].help_text = 'Assign to Multiple Projects (User can view or take action depending on the projects they are assigned on)'
-        if self.instance and self.instance.user_type == 'admin':
+        if self.instance and self.instance.user_type == 'admin': # If User Model being edited is Admin type
             self.fields['user_type'].help_text = 'Choose User Type Wisely (This user is currently admin)'
             self.fields['projects'].help_text = 'Admin user can manipulate any projects (but selecting these is useful for api)'
-        if self.request and self.request.user.user_type == 'project_admin':
+        if self.request and self.request.user.user_type == 'project_admin': # If Project Admin is Editing User
             self.fields['projects'].queryset = Projects.objects.filter(users__id=self.request.user.id)
             self.fields['user_type'].choices = PROJECT_ADMIN_ADDABLE_USER_TYPE
+            if self.instance and self.instance.user_type == 'admin':
+                del self.fields['active'] # Do Not Allow Project Admin to change active status of other Admin
 
 class ProfileForm(UserCreationForm):
     email = forms.EmailField()

@@ -53,15 +53,15 @@ def reload_classifier_list():
 @login_required(login_url=login_url)
 def images(request):
     if(is_admin(request.user)):
-        images = Image.objects.order_by('-created_at').all().prefetch_related('image_files')
+        images = Image.objects.order_by('-created_at').all().prefetch_related('image_files')[:100]
     elif(is_government(request.user)):
         # NOTE: SHOW IMAGES UPLOADED BY SELF OR LINKED TO PROJECT WHICH THIS USER IS PART OF
         projects = Projects.objects.filter(users__id=request.user.id)
-        images = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects)).order_by('-created_at').prefetch_related('image_files').distinct()
+        images = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects)).order_by('-created_at').prefetch_related('image_files').distinct()[:100]
     else:
         # NOTE: SHOW IMAGES UPLOADED BY SELF OR LINKED TO PROJECT WHICH THIS USER IS PART OF
         projects = Projects.objects.filter(users__id=request.user.id)
-        images = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects)).order_by('-created_at').prefetch_related('image_files').distinct()
+        images = Image.objects.filter(Q(user_id=request.user.id) | Q(project__in=projects)).order_by('-created_at').prefetch_related('image_files').distinct()[:100]
     return render(request, 'image.html',{'images':images})
 
 # Add Image via Dashboard
@@ -553,10 +553,31 @@ def watsonClassifierOrder(request, id): # id = object_type_id
         return redirect('dashboard')
 
 # Classifier Details of IBM
-@user_passes_test(is_admin, login_url=login_url)
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonClassifier(request):
+    authorized_classifier_list = {}
+    projects = []
+    if request.user.user_type == 'project_admin':
+        projects = Projects.objects.filter(users__id=request.user.id).order_by('created_at').all().prefetch_related(Prefetch('object_types', queryset=ObjectType.objects.order_by('created_at').all().prefetch_related(Prefetch('classifiers', queryset=Classifier.objects.order_by('-object_type','order')))))
+    else:
+        projects = Projects.objects.order_by('created_at').all().prefetch_related(Prefetch('object_types', queryset=ObjectType.objects.order_by('created_at').all().prefetch_related(Prefetch('classifiers', queryset=Classifier.objects.order_by('-object_type','order')))))
+
+    for project in projects:
+        if not authorized_classifier_list.get(project.unique_name(), False):
+            authorized_classifier_list[project.unique_name()] = {}
+
+        if project.object_types.all().count():
+            for object_type in project.object_types.all():
+                if object_type.name.lower() not in authorized_classifier_list.get(project.unique_name(),[]):
+                    authorized_classifier_list[project.unique_name()][object_type.name.lower()] = []
+                
+                if object_type.classifiers.all().count():
+                    for classifier in object_type.classifiers.all():
+                        if classifier.name not in authorized_classifier_list.get(project.unique_name(),[]).get(object_type.name.lower(),[]):
+                            authorized_classifier_list[project.unique_name()][object_type.name.lower()] = authorized_classifier_list[project.unique_name()][object_type.name.lower()] + [classifier.name]
+
     if request.method != "POST":
-        return render(request, 'classifiers.html',{'classifier_list':classifier_list.value()})
+        return render(request, 'classifiers.html',{'classifier_list':authorized_classifier_list})
     elif request.method == "POST":
         detail = classifier_detail(request.POST.get('project', False), request.POST.get('object', False), request.POST.get('model', False))
         if detail:
@@ -565,7 +586,7 @@ def watsonClassifier(request):
             detail = 'Could Not Fetch Classifier Detail'
         
         reload_classifier_list()
-        return render(request, 'classifiers.html',{'classifier_list':classifier_list.value(), 'detail':detail, 'project':request.POST.get('project', False), 'object':request.POST.get('object', False), 'model':request.POST.get('model', False)})
+        return render(request, 'classifiers.html',{'classifier_list':authorized_classifier_list, 'detail':detail, 'project':request.POST.get('project', False), 'object':request.POST.get('object', False), 'model':request.POST.get('model', False)})
 
 # Create Custom Classifiers with zip data
 @user_passes_test(is_admin_or_project_admin, login_url=login_url)
@@ -585,9 +606,9 @@ def watsonClassifierCreate(request):
     elif request.method == "POST":
         print(request.FILES.getlist('zip'))
         # NOTE: FOR PROJECT USER. They can only add offline or already added watson models (cannot create themselves manually)
-        if request.user.is_project_admin and (request.POST.get('source') != "offline" or request.POST.get('trained') != "true"):
-            created = 'Invalid Classifier Attempted to Create. Project Admin must add already created or Offline Models. You cannot create Watson Online Classifier. (Contact Admin Please)'
-            return render(request, 'create_classifier.html',{'created':created, 'bad_zip':0})
+        # if request.user.is_project_admin and (request.POST.get('source') != "offline" or request.POST.get('trained') != "true"):
+        #     created = 'Invalid Classifier Attempted to Create. Project Admin must add already created or Offline Models. You cannot create Watson Online Classifier. (Contact Admin Please)'
+        #     return render(request, 'create_classifier.html',{'created':created, 'bad_zip':0})
 
         if request.POST.get('source', False) == "offline" and request.POST.get('name') and request.POST.get('offlineModel',False):
             created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'offline_model':request.POST.get('offlineModel'),'classes':[]}}
@@ -687,7 +708,7 @@ def watsonClassifierEdit(request, id):
             projects = Projects.objects.filter(users__id=request.user.id).order_by('project_name').all()
             classifier = Classifier.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).get(id=id)
             object_types = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('-created_at').all()
-            offlineModels = OfflineModel.objects.filter(created_by=request.user).filter(model_type='CLASSIFIER').all()
+            offlineModels = OfflineModel.objects.filter(Q(created_by=request.user) | Q(id=classifier.offline_model_id)).filter(model_type='CLASSIFIER').distinct().all()
             return render(request, 'edit_classifier.html', {'classifier':classifier, 'object_types':object_types, 'projects':projects, 'offlineModels':offlineModels})
         else:
             classifier = Classifier.objects.get(id=id)
@@ -1865,10 +1886,34 @@ class OfflineModelView(viewsets.ModelViewSet):
 
 @api_view(http_method_names=["GET","POST","OPTIONS"])
 def fetch_classifier_detail(request):
+    if not request.user.is_admin or not request.user.is_project_admin:
+        return Response({"message":"Unauthorized Access"}, status=403)
+
     reload_classifier_list()
+    authorized_classifier_list = {}
+    projects = []
+    if request.user.user_type == 'project_admin':
+        projects = Projects.objects.filter(users__id=request.user.id).order_by('created_at').all().prefetch_related(Prefetch('object_types', queryset=ObjectType.objects.order_by('created_at').all().prefetch_related(Prefetch('classifiers', queryset=Classifier.objects.order_by('-object_type','order')))))
+    else:
+        projects = Projects.objects.order_by('created_at').all().prefetch_related(Prefetch('object_types', queryset=ObjectType.objects.order_by('created_at').all().prefetch_related(Prefetch('classifiers', queryset=Classifier.objects.order_by('-object_type','order')))))
+
+    for project in projects:
+        if not authorized_classifier_list.get(project.unique_name(), False):
+            authorized_classifier_list[project.unique_name()] = {}
+
+        if project.object_types.all().count():
+            for object_type in project.object_types.all():
+                if object_type.name.lower() not in authorized_classifier_list.get(project.unique_name(),[]):
+                    authorized_classifier_list[project.unique_name()][object_type.name.lower()] = []
+                
+                if object_type.classifiers.all().count():
+                    for classifier in object_type.classifiers.all():
+                        if classifier.name not in authorized_classifier_list.get(project.unique_name(),[]).get(object_type.name.lower(),[]):
+                            authorized_classifier_list[project.unique_name()][object_type.name.lower()] = authorized_classifier_list[project.unique_name()][object_type.name.lower()] + [classifier.name]
+    
     if request.method == "GET":
-        return Response({'data':classifier_list.value()}, status=200)
-    if request.method == "POST" and request.user and request.user.is_admin:
+        return Response({'data':authorized_classifier_list}, status=200)
+    if request.method == "POST" and request.user:
         detail = classifier_detail(request.POST.get('project', False), request.POST.get('object', False), request.POST.get('model', False))
         if not detail:
             detail = {'message': 'Could Not Fetch Classifier Detail'}

@@ -42,9 +42,9 @@
                             <label for="trained" class="col-sm-12 col-md-6 col-form-label">Would you like to Train Model or Add Pre-Trained Model?*</label>
                             <div class="col-sm-12 col-md-4">
                                 <select class="form-control" name="trained" id="trained">
-                                    {% if not user.is_project_admin %}
+                                    {% comment %} {% if not user.is_project_admin %} {% endcomment %}
                                     <option value="false">Train New Model</option>
-                                    {% endif %}
+                                    {% comment %} {% endif %} {% endcomment %}
                                     <option value="true">Add Pre-Trained Model</option>
                                 </select>
                             </div>
