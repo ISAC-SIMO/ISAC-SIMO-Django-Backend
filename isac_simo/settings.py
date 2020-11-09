@@ -173,6 +173,9 @@ STATICFILES_DIRS = [
 MEDIA_URL= '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
+DOCS_URL= '/docs/'
+DOCS_ROOT = os.path.join(BASE_DIR, 'docs')
+
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'dashboard'
