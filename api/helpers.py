@@ -201,7 +201,7 @@ def test_offline_image(image_file, offline_model):
 ## Detect Object ##
 ###################
 def detect_image(image_file, detect_model, offline=False, no_temp=False, ibm_api_key=False):
-    MIN_SCORE_REQUIRED = 0.5
+    MIN_SCORE_REQUIRED = 0.1
     # Find Image Path (used to open)
     file_url = str(os.path.abspath(os.path.dirname(__name__))) + image_file.file.url
     if not os.path.exists(file_url):
@@ -309,7 +309,7 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False, ibm_api
 
             # Authenticate the IBM Watson API
             api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
-            post_data = {'collection_ids': object_id, 'features':'objects'} # 'threshold': '0.15 -1'
+            post_data = {'collection_ids': object_id, 'features':'objects', 'threshold':'0.15'} # 'threshold': '0.15 -1'
             auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
             print(auth_base)
 
@@ -974,7 +974,7 @@ def quick_test_offline_image_pre_post(image_file, classifier, request, fake_scor
 
 # QUICK TEST DETECT MODE:
 def quick_test_detect_image(image_file, detect_model, offline=False, project_folder='', ibm_api_key=False):
-    MIN_SCORE_REQUIRED = 0.5
+    MIN_SCORE_REQUIRED = 0.1
     # Find Image Path (used to open)
     file_url = None
 
@@ -1053,7 +1053,7 @@ def quick_test_detect_image(image_file, detect_model, offline=False, project_fol
 
             # Authenticate the IBM Watson API
             api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
-            post_data = {'collection_ids': object_id, 'features':'objects'} # 'threshold': '0.15 -1'
+            post_data = {'collection_ids': object_id, 'features':'objects', 'threshold':'0.15'} # 'threshold': '0.15 -1'
             auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
             post_header = {'Accept':'application/json','Authorization':auth_base}
             resized_image_open = file_url
@@ -1132,9 +1132,19 @@ def quick_test_detect_image(image_file, detect_model, offline=False, project_fol
                             # Return Object detected type
                             return allDetected
             
+            # ALSO SAVE TEMP IMAGE EVEN IF FAILED OR NOT DETECTED
+            img = Image.open(file_url)
+            img = img.convert('RGB')
+            filename = '{}.{}'.format(uuid.uuid4().hex, 'jpg')
+            if not os.path.exists(os.path.join('media/temp/')):
+                saveto = os.environ.get('PROJECT_FOLDER','') + '/media/temp/'+filename
+            else:
+                saveto = os.path.join('media/temp/', filename)
+            img.save(saveto, format='JPEG', quality=90)
+            img.close()
             resized_image_open.close()
             print('Object Detect False, either bad response, no index, bad format array, sorted score empty etc.')
-            return {"data": content, "error": True}
+            return {"data": content, "error": True, 'temp_image': saveto.replace(project_folder,'')+'?1'}
         else:
             print('FAILED TO Detect Object - Check Token, Object Detect Model id and file existence.')
             return False
@@ -1597,7 +1607,7 @@ def detect_temp_image(file_url, detect_model, offline=False, ibm_api_key=False):
                 object_id = detect_model
             # Authenticate the IBM Watson API
             api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
-            post_data = {'collection_ids': object_id, 'features':'objects'} # 'threshold': '0.15 -1'
+            post_data = {'collection_ids': object_id, 'features':'objects', 'threshold':'0.15'} # 'threshold': '0.15 -1'
             auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
             print(auth_base)
 

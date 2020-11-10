@@ -2,6 +2,7 @@ import glob
 import io
 import json
 import os
+import re
 import sys
 import subprocess
 import uuid
@@ -1193,9 +1194,35 @@ def cleanTemp(request):
         if "temp" in f:
             os.remove(f)
             count += 1
+
+    if request.GET.get('all', False):
+        # CLEAN /media/image/* - ALL IMAGE FILES THAT MAY NOT HAVE BEEN CLEANED by bugs
+        image_file_names = []
+        for name in ImageFile.objects.values_list('file', flat=True):
+            image_file_names.append(re.sub("(.*[\\/])+", "", name))
+        # print(image_file_names)
+        # ---
+        foldered_image_file_names = []
+        if not os.path.exists(os.path.join('media/image/')):
+            image_files = glob.glob(os.environ.get('PROJECT_FOLDER','') + '/media/image/*')
+        else:
+            image_files = glob.glob(os.path.join('media/image/*'))
+        for f in image_files:
+            foldered_image_file_names.append(re.sub("(.*[\\/])+", "", str(f)).split("\\")[-1])
+        # print(foldered_image_file_names)
+        print('DIFFERENCES:')
+        differences = set(foldered_image_file_names) - set(image_file_names)
+        print(differences)
+        for imposter_image in differences:
+            if not os.path.exists(os.path.join('media/image/')):
+                os.remove(os.environ.get('PROJECT_FOLDER','') + '/media/image/' + imposter_image)
+            else:
+                os.remove(os.path.join('media/image/', imposter_image))
+            count += 1
+
     messages.success(request, str(count)+' Temporary File(s) removed')
     reload_classifier_list()
-    return HttpResponseRedirect(request.META.get('HTTP_REFERER','/'))
+    return HttpResponseRedirect(request.META.get('HTTP_REFERER','/dashboard'))
 
 #################################
 # Clean Street View Saved Images #
@@ -1284,7 +1311,7 @@ def dumpImage(request):
 @user_passes_test(is_admin, login_url=login_url)
 def terminal(request):
     cmd_list = [
-        'pip install', 'pip --version', 'python --version', 'pip list', 'ls', 
+        'pip install', 'pip --version', 'python --version', 'pip list', 'ls', 'server.log'
         # 'server.up', 'server.down',
     ]
     if not settings.PRODUCTION:
@@ -1305,6 +1332,12 @@ def terminal(request):
 
         # Check cmd_list pass
         cmd_list_pass = cmd.startswith(tuple(cmd_list))
+
+        # Special Commands
+        original_cmd = cmd
+        if cmd == 'server.log':
+            cmd = 'tail -n 250 /var/log/messages | grep gunicorn'
+
         res = ''
         err = ''
         if cmd_list_pass:
@@ -1315,7 +1348,7 @@ def terminal(request):
                     project_root = os.environ.get('PROJECT_FOLDER','/')
                     output = subprocess.run(('cd ' + project_root + ' && . env/bin/activate && '+cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True, cwd='/')
                 
-                res = str(output.stdout)
+                res = re.sub("(.+)( [^ ]+ gunicorn)", r"<b>\1</b>", str(output.stdout))
                 err = str(output.stderr)
             except Exception as e:
                 print('-FAILURE RUNNING TERMINAL COMMAND-')
@@ -1324,7 +1357,7 @@ def terminal(request):
         else:
             return JsonResponse({"message":"Invalid Command Provided"}, status=404)
 
-        return JsonResponse({"cmd":cmd, "res":res, "err":err}, status=200)
+        return JsonResponse({"cmd":original_cmd, "res":res, "err":err}, status=200)
     else:
         return JsonResponse({"message":"Invalid Request"}, status=404)
 
