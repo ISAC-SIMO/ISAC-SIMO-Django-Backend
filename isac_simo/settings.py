@@ -75,6 +75,7 @@ INSTALLED_APPS = [
     'projects',
     'api',
     'map',
+    'crowdsource',
     'rest_framework',
 ]
 

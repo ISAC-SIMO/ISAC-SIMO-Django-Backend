@@ -13,6 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
+from crowdsource.views import CrowdsourceView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -36,6 +37,7 @@ router.register('object', ObjectTypeView)
 router.register('classifier', ClassifierView)
 router.register('offline_model', OfflineModelView)
 router.register('file', FileUploadView)
+router.register('crowdsource', CrowdsourceView)
 
 urlpatterns = [
     # API
@@ -61,6 +63,7 @@ urlpatterns = [
     path('projects/', include('projects.urls')),
     path('app/', include('api.urls')),
     path('map/', include('map.urls')),
+    path('crowdsource/', include('crowdsource.urls')),
     # Service Worker js
     path('serviceworker.js', views.serviceworker, name="serviceworker"),
     path('offline', views.offline, name="offline")

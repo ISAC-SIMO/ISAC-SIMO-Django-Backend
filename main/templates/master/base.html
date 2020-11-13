@@ -357,7 +357,7 @@
               </ul>
             </li>
             {% endif %}
-            <hr style="margin:0.5em 1.3em;border-top:1px solid #555;"/>
+            <hr style="margin:0.5em 0;border-top:1px solid #555;"/>
             {% if user.is_admin %}
             <li
               class="nav-item has-treeview {% if request.resolver_match.url_name == 'map.check' %} menu-open {% endif %}">
@@ -399,6 +399,17 @@
             </li>
             {% endif %}
             {% comment %} / IS ADMIN / {% endcomment %}
+
+            <hr style="margin:0.5em 0;border-top:1px solid #555;"/>
+            <li class="nav-item">
+              <a href="{% url 'crowdsource' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'crowdsource' %} active {% endif %}">
+                <i class="nav-icon fas fa-child"></i>
+                <p>
+                  Crowdsource
+                </p>
+              </a>
+            </li>
 
           </ul>
         </nav>

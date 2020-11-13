@@ -1,0 +1,174 @@
+{% extends 'master/base.html' %}
+
+{% block title %} Crowdsource Image Contributions {% endblock title %}
+{% block dashboard_title1 %} Crowdsource Image Contributions {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} Crowdsource Image {% endblock dashboard_title2 %}
+{% load static %}
+
+{% block content %}
+    <style>
+        .bs-tooltip-auto[x-placement^=top] .arrow, .bs-tooltip-top .arrow{transform:translate(6px,0)}
+    </style>
+    <p style="margin: 5px 0;font-size:0.9em;" class="badge badge-success">Total Crowdsource Images: {{crowdsources.paginator.count}} </p>
+    <div class="row">
+        <div class="col-sm-12 col-md-8">
+            <div class="card">
+                <div class="card-body table table-responsive">
+                    <table id="file_upload_dt" class="table table-bordered table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th>Object Type</th>
+                                <th>Image Type</th>
+                                <th>Attribution</th>
+                                <th style="width:110px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for crowdsource in crowdsources %}
+                                <tr>
+                                    <td>{{crowdsource.object_type|title}}</td>
+                                    <td>{{crowdsource.image_type|title|default:'Raw'}}</td>
+                                    <td>{% if crowdsource.created_by %} {{crowdsource.created_by.full_name}} {% else %} {{crowdsource.full_name|default:'N/A'}} {% endif %}</td>
+                                    <td class="table-options" style="min-width: 110px;">
+                                        <a title="View Image" data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" onclick="showImagePop(event,'{{crowdsource.file.url}}')" href="{{crowdsource.file.url}}" class="btn text-primary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-file-image"></i>
+                                        </a>
+                                        <a onclick="editForm('{{crowdsource.id}}','{{crowdsource.name}}','{{crowdsource.file.url}}','{{crowdsource.object_type}}','{{crowdsource.image_type}}','{{crowdsource.username}}')" title="Edit" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        {% if user.is_admin or crowdsource.created_by and user.id == crowdsource.created_by.id %}
+                                        <a onclick="deleteDataWriteConfirm(event, 'form-{{ crowdsource.id }}', 'Uploaded File')" title="Delete" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                        <form action="{% url 'crowdsource.delete' crowdsource.id %}" id="form-{{ crowdsource.id }}" class="d-inline">
+                                            {% csrf_token %}
+                                        </form>
+                                        {% endif %}
+                                    </td>
+                                </tr>
+                            {% endfor %}
+                        </tbody> 
+                    </table>
+                    <div class="row custom-paginate-row">
+                      <div>
+                        <span class="current">
+                          Page {{ crowdsources.number }} of {{ crowdsources.paginator.num_pages }} (Total {% if query %}Filtered{% endif %} Items {{crowdsources.paginator.count}})
+                        </span>
+                      </div>
+                      <div>
+                        <ul class="pagination">
+                          {% if crowdsources.has_previous %}
+                            <li class="paginate_button page-item previous"><a class="page-link" href="?page={{ crowdsources.previous_page_number }}">Previous</a></li>
+                          {% else %}
+                            <li class="paginate_button page-item previous disabled"><a class="page-link" href="#">Previous</a></li>
+                          {% endif %}
+
+                          {% for num in crowdsources.paginator.page_range %}
+                            {% ifequal num crowdsources.number %}
+                              <li class="paginate_button page-item active"><a href="#" class="page-link">{{num}}</a></li>
+                            {% else %}
+                              <li class="paginate_button page-item"><a href="?page={{ num }}" class="page-link">{{num}}</a></li>
+                            {% endifequal %}
+                          {% endfor %}
+
+                          {% if crowdsources.has_next %}
+                            <li class="paginate_button page-item next"><a class="page-link" href="?page={{ crowdsources.next_page_number }}">Next</a></li>
+                          {% else %}
+                            <li class="paginate_button page-item next disabled"><a class="page-link" href="#">Next</a></li>
+                          {% endif %}
+                        </ul>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-4">
+            <div class="card">
+                <div class="card-title ml-3 mt-3">
+                    <h5 id="file_title_status">Contribute to Crowdsource</h5>
+                </div>
+                <hr style="margin:0.5rem;"/>
+                <div class="card-body pt-0">
+                    {% load crispy_forms_tags %}
+                    <form action="{% url 'crowdsource' %}" method="POST" id="file_upload_create_form" class="d-inline" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" value="0" id="id_field" name="id"/>
+                        {{ form|crispy }}
+                        <p style="display:none;font-size:0.7em;" id="file_path"></p>
+                        <div class="form-group">
+                            <div class="col-sm-12" style="display: flex;justify-content: space-between;align-items: center;">
+                                <button class="btn btn-sm btn-primary" id="upload_btn" type="submit">Upload <i class="fa fa-upload ml-1" style="font-size: 80%;"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">Clear <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                  <small><b><i class="far fa-check-circle"></i> All Images Copyright will be transferred to ISAC-SIMO.<br/><i class="far fa-check-circle"></i> You agree that it can be used and shared freely.</b></small>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+{% block script %}
+    <script>
+        var my_username = "{{request.user.full_name|default:''}}"
+        $(function () {
+          var dt = $('#file_upload_dt').DataTable({
+            "paging": false,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": false,
+            "info": false,
+            "autoWidth": true,
+            "order": [],
+            "language": {
+              "emptyTable": "No Crowdsource Contributions to show."
+            }
+          });
+          $('#id_object_type').attr('required',true);
+          $('#id_image_type').attr('required',true);
+          $('#file_upload_dt_filter input').attr('placeholder', 'Press Enter to Search')
+          $('#file_upload_dt_filter input').val('{{query}}')
+          $('#file_upload_dt_filter input', dt.table().container())
+            .off('.DT')
+            .on('keyup.DT', function (e) {
+              if(e.keyCode == 13 && (this.value.length > 0 || '{{query}}'.length > 0)) {
+                var url = new URL(location.href);
+                url.searchParams.set('q', this.value.toLowerCase());
+                location.href = url.href;
+              }
+            });
+
+          $('#id_object_type').select2();
+          $('#id_image_type').select2();
+          $('#id_username').val(my_username);
+        });
+
+        function editForm(id, name, url, object_type, image_type, username){
+          $('#id_field').val(id);
+          $('#id_object_type').val(object_type).trigger('change');
+          $('#id_image_type').val(image_type).trigger('change');
+          $('#file_path').css("display","block");
+          $('#file_path').html('Previous: <a href="'+url+'" target="_blank">'+url+'</a>');
+          $('#upload_btn').text("Edit Detail");
+          $('#id_file').attr('required',false);
+          $('#div_id_file').css('display','none');
+          $('#id_file').val('');
+          $('#id_username').val(username);
+        }
+
+        function createForm(event){
+          event.preventDefault();
+          $('#id_field').val(0);
+          $('#id_object_type').val('').trigger('change');
+          $('#id_image_type').val('').trigger('change');
+          $('#file_path').css("display","none");
+          $('#file_path').html('');
+          $('#upload_btn').html('Upload <i class="fa fa-upload ml-1" style="font-size: 80%;"></i>');
+          $('#id_file').attr('required',true);
+          $('#div_id_file').css('display','block');
+          $('#id_file').val('');
+          $('#id_username').val(my_username);
+        }
+    </script>
+{% endblock script %}
