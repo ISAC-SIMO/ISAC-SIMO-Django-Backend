@@ -17,6 +17,7 @@
                     <table id="file_upload_dt" class="table table-bordered table-hover table-striped">
                         <thead>
                             <tr>
+                                <th></th>
                                 <th>Object Type</th>
                                 <th>Image Type</th>
                                 <th>Attribution</th>
@@ -25,7 +26,8 @@
                         </thead>
                         <tbody>
                             {% for crowdsource in crowdsources %}
-                                <tr>
+                                <tr data-object="{{crowdsource.object_type}}" data-id="{{crowdsource.id}}" data-url="{{crowdsource.file.url}}">
+                                    <td></td>
                                     <td>{{crowdsource.object_type|title}}</td>
                                     <td>{{crowdsource.image_type|title|default:'Raw'}}</td>
                                     <td>{% if crowdsource.created_by %} {{crowdsource.created_by.full_name}} {% else %} {{crowdsource.full_name|default:'N/A'}} {% endif %}</td>
@@ -109,11 +111,20 @@
     </div>
 {% endblock content %}
 
+
 {% block script %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css"/>
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css"/>
+    <script src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script>
     <script>
         var my_username = "{{request.user.full_name|default:''}}"
+        var dt = null;
+        var selected_nodes = [];
         $(function () {
-          var dt = $('#file_upload_dt').DataTable({
+          dt = $('#file_upload_dt').DataTable({
             "paging": false,
             "lengthChange": true,
             "searching": true,
@@ -123,8 +134,126 @@
             "order": [],
             "language": {
               "emptyTable": "No Crowdsource Contributions to show."
-            }
+            },
+            columnDefs: [ {
+              orderable: false,
+              className: 'select-checkbox',
+              targets: 0
+            }],
+            select: {
+              style: 'os',
+              selector: 'td:first-child'
+            },
+            dom: 'Bfrtip',
+            buttons: [
+              {
+                extend: 'collection',
+                text: 'Actions',
+                buttons: [
+                  {
+                    text: 'Download Images',
+                    action: function ( e, dt, node, config ) {
+                      function getDataUrl(name, url){
+                        return new Promise(function(resolve, reject){
+                          try{
+                            var imageBlob = fetch(url).then(response => response.blob());
+                            resolve(imageBlob);
+                          }catch{
+                            reject('Failed to Load An Image...');
+                          }
+                        })
+                      }
+
+                      $(document).Toasts('create', {
+                        title: 'Downloading Images',
+                        autohide: true,
+                        class: 'bg-info',
+                        position: 'bottomRight',
+                        delay: 4000,
+                        body: 'Zipping selected Images...<br/>Just a moment...'
+                      })
+
+                      var zip = new JSZip();
+                      zip.file("info.txt", ( 'Exported At: '+new Date().toLocaleString()+'\nTotal Images Exported: '+selected_nodes.length ) );
+                      selected_nodes.forEach(async function(n){
+                        var object = n.getAttribute('data-object');
+                        var url = n.getAttribute('data-url');
+                        var name = url.split('/').reverse()[0];
+                        zip.file((object+"/"+name), getDataUrl(name, url), {binary: true});
+                      });
+                      zip.generateAsync({type:"blob"})
+                      .then(function(content) {
+                          saveAs(content, "downloaded_crowdsource_"+(new Date().getTime().toString())+".zip");
+                      });
+                    }
+                  },
+                  {
+                    text: 'Delete Images',
+                    action: function ( e, dt, node, config ) {
+                      Swal.fire({
+                          title: "Delete Selected Images?",
+                          text: 'They will be deleted Permanently.',
+                          type: 'warning',
+                          showCancelButton: true,
+                          confirmButtonText: 'Yes',
+                          confirmButtonColor: '#ad2424',
+                          reverseButtons: true,
+                          cancelButtonText: 'No, cancel!',
+                          }).then((result) => {
+                          if (result.value) {
+                            var ids = [];
+                            selected_nodes.forEach(function(n){
+                              var id = n.getAttribute('data-id');
+                              ids.push(id);
+                            });
+                            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                            $(document).Toasts('create', {
+                              title: 'Deleting Selected Images',
+                              autohide: true,
+                              class: 'bg-info',
+                              position: 'bottomRight',
+                              delay: 4000,
+                              body: 'Just a moment...'
+                            })
+
+                            Promise.all(ids.map(function(id){
+                              return fetch('/api/crowdsource/' + id + '/', {
+                                method: 'DELETE',
+                                credentials : 'same-origin',
+                                headers: {'X-CSRFToken': csrftoken}
+                              }).then((response) => {
+                                  return response.text();
+                              }).then((data) => {
+                                  return data;
+                              });
+                            })).then((values) => {
+                              Pace.restart();
+                              location.reload();
+                            }).catch(console.error.bind(console));
+                          }
+                      })
+                      $('.swal2-cancel').focus();
+                    }
+                  }
+                ]
+              },
+            ]
           });
+          dt.on( 'select deselect', function ( e, dt_local, type, indexes ) {
+              selected_nodes = []
+              if ( type === 'row' ) {
+                var selected = dt_local.rows({ selected: true });
+                if(selected[0].length > 0){
+                  $('.dt-buttons').css('display','block');
+                  selected.nodes().toArray().forEach(function(n) {
+                    selected_nodes.push(n);
+                  });
+                }else{
+                  $('.dt-buttons').css('display','none');
+                }
+              }
+          });
+          $('.dt-buttons').css('display','none')
           $('#id_object_type').attr('required',true);
           $('#id_image_type').attr('required',true);
           $('#file_upload_dt_filter input').attr('placeholder', 'Press Enter to Search')

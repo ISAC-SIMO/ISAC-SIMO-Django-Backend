@@ -112,8 +112,8 @@ class CrowdsourceView(viewsets.ModelViewSet):
 
     def get_queryset(self):
         page = abs(int(self.request.GET.get('page', 1)))
-        offset = 25 * (page - 1)
-        limit = 25
+        offset = 50 * (page - 1)
+        limit = 50
         offsetPlusLimit = offset + limit
         query = self.request.GET.get('q','')
         if self.request.user.is_authenticated:
@@ -121,13 +121,13 @@ class CrowdsourceView(viewsets.ModelViewSet):
             if self.request.user.is_admin or self.request.user.is_project_admin:
                 ids = Crowdsource.objects.order_by('-created_at').filter(Q(object_type__icontains=query) |
                                                                         Q(image_type__icontains=query) |
-                                                                        Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 25
+                                                                        Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 50
                 return Crowdsource.objects.filter(pk__in=list(ids)).order_by('-created_at')
             # OWN FOR OTHER
             else:
                 ids = Crowdsource.objects.order_by('-created_at').filter(created_by=self.request.user).filter(Q(object_type__icontains=query) |
                                                                         Q(image_type__icontains=query) |
-                                                                        Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 25
+                                                                        Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 50
                 return Crowdsource.objects.filter(pk__in=list(ids)).order_by('-created_at')
         else:
             return []
