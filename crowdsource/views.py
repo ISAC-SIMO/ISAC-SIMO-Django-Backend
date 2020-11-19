@@ -111,26 +111,37 @@ class CrowdsourceView(viewsets.ModelViewSet):
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        page = abs(int(self.request.GET.get('page', 1)))
-        offset = 50 * (page - 1)
-        limit = 50
-        offsetPlusLimit = offset + limit
-        query = self.request.GET.get('q','')
-        if self.request.user.is_authenticated:
-            # ALL FOR ADMIN / PA
-            if self.request.user.is_admin or self.request.user.is_project_admin:
-                ids = Crowdsource.objects.order_by('-created_at').filter(Q(object_type__icontains=query) |
-                                                                        Q(image_type__icontains=query) |
-                                                                        Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 50
-                return Crowdsource.objects.filter(pk__in=list(ids)).order_by('-created_at')
-            # OWN FOR OTHER
+        if self.action == 'list':
+            page = abs(int(self.request.GET.get('page', 1)))
+            offset = 100 * (page - 1)
+            limit = 100
+            offsetPlusLimit = offset + limit
+            query = self.request.GET.get('q','')
+            if self.request.user.is_authenticated:
+                # ALL FOR ADMIN / PA
+                if self.request.user.is_admin or self.request.user.is_project_admin:
+                    ids = Crowdsource.objects.order_by('-created_at').filter(Q(object_type__icontains=query) |
+                                                                            Q(image_type__icontains=query) |
+                                                                            Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 100
+                    return Crowdsource.objects.filter(pk__in=list(ids)).order_by('-created_at')
+                # OWN FOR OTHER
+                else:
+                    ids = Crowdsource.objects.order_by('-created_at').filter(created_by=self.request.user).filter(Q(object_type__icontains=query) |
+                                                                            Q(image_type__icontains=query) |
+                                                                            Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 100
+                    return Crowdsource.objects.filter(pk__in=list(ids)).order_by('-created_at')
             else:
-                ids = Crowdsource.objects.order_by('-created_at').filter(created_by=self.request.user).filter(Q(object_type__icontains=query) |
-                                                                        Q(image_type__icontains=query) |
-                                                                        Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 50
-                return Crowdsource.objects.filter(pk__in=list(ids)).order_by('-created_at')
+                return []
         else:
-            return []
+            if self.request.user.is_authenticated:
+                # ALL FOR ADMIN / PA
+                if self.request.user.is_admin or self.request.user.is_project_admin:
+                    return Crowdsource.objects.order_by('-created_at')
+                # OWN FOR OTHER
+                else:
+                    return Crowdsource.objects.filter(created_by=self.request.user).order_by('-created_at')
+            else:
+                return []
 
     def destroy(self, request, *args, **kwargs):
         crowdsource_image = self.get_object()

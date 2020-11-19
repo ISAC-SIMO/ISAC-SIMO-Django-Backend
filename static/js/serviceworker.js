@@ -27,7 +27,9 @@ const assets = [
     'https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.Default.css', 'https://leaflet.github.io/Leaflet.markercluster/dist/leaflet.markercluster-src.js',
     'https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css', 'https://unpkg.com/leaflet@1.6.0/dist/leaflet.css', 
     'https://cdnjs.cloudflare.com/ajax/libs/animate.css/3.7.2/animate.min.css', 'https://cdn.jsdelivr.net/npm/vanilla-lazyload@15.1.1/dist/lazyload.min.js',
-    'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js'
+    'https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js', 'https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css', 'https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css',
+    'https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js', 'https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js',
+    'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js', 'https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js'
 ]
 console.log('Service Wokrer First Installation Initialized')
 

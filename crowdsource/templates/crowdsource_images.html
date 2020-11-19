@@ -39,7 +39,7 @@
                                             <i class="fa fa-edit"></i>
                                         </a>
                                         {% if user.is_admin or crowdsource.created_by and user.id == crowdsource.created_by.id %}
-                                        <a onclick="deleteDataWriteConfirm(event, 'form-{{ crowdsource.id }}', 'Uploaded File')" title="Delete" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="deleteData(event, 'form-{{ crowdsource.id }}', 'Uploaded File')" title="Delete" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
                                         <form action="{% url 'crowdsource.delete' crowdsource.id %}" id="form-{{ crowdsource.id }}" class="d-inline">
@@ -278,7 +278,7 @@
           $('#id_object_type').val(object_type).trigger('change');
           $('#id_image_type').val(image_type).trigger('change');
           $('#file_path').css("display","block");
-          $('#file_path').html('Previous: <a href="'+url+'" target="_blank">'+url+'</a>');
+          $('#file_path').html('Image:<br/><a href="'+url+'" target="_blank"><img src="'+url+'" style="min-height:200px;" class="img-fluid rounded mx-auto d-block img-thumbnail" alt="Did not Load..."/></a>');
           $('#upload_btn').text("Edit Detail");
           $('#id_file').attr('required',false);
           $('#div_id_file').css('display','none');
