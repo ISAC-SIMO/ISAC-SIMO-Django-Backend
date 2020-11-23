@@ -1,3 +1,4 @@
+from crowdsource.helpers import move_object, upload_object
 from rest_framework import serializers
 from api.serializers import UserMinimalSerializer
 from .models import Crowdsource
@@ -18,11 +19,21 @@ class CrowdsourceSerializer(serializers.ModelSerializer):
                                     username=request.POST.get('username', user if user else ''),
                                     created_by=user,
                                     file=validated_data.get('file'))
+        upload_object(crowdsource.bucket_key(), crowdsource.filepath())
         return crowdsource
 
     def update(self, instance, validated_data):
         request = self.context.get("request")
+        old_object_key = instance.bucket_key()
         instance.username = request.POST.get('username', instance.username)
         if(validated_data.get('file')):
             instance.file.delete()
-        return super().update(instance, validated_data)
+            instance.file = validated_data.get('file')
+        instance.object_type = validated_data.get('object_type', instance.object_type)
+        instance.image_type = validated_data.get('image_type', instance.image_type)
+        instance.image_type = validated_data.get('image_type', instance.image_type)
+        instance.save()
+
+        if old_object_key != instance.bucket_key():
+            move_object(instance.bucket_key(), old_object_key)
+        return instance

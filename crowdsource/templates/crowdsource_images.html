@@ -42,7 +42,7 @@
                                         <a onclick="deleteData(event, 'form-{{ crowdsource.id }}', 'Uploaded File')" title="Delete" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <form action="{% url 'crowdsource.delete' crowdsource.id %}" id="form-{{ crowdsource.id }}" class="d-inline">
+                                        <form action="{% url 'crowdsource.delete' crowdsource.id %}" id="form-{{ crowdsource.id }}" method="POST" class="d-inline">
                                             {% csrf_token %}
                                         </form>
                                         {% endif %}

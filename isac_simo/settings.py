@@ -239,3 +239,8 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_LIFETIME': timedelta(minutes=5),
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
+
+IBM_BUCKET_ENDPOINT = os.getenv('IBM_BUCKET_ENDPOINT','')
+IBM_BUCKET = os.getenv('IBM_BUCKET','')
+IBM_BUCKET_TOKEN = os.getenv('IBM_BUCKET_TOKEN','')
+IBM_BUCKET_CRN = os.getenv('IBM_BUCKET_CRN','')

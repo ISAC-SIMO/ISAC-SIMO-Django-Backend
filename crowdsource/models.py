@@ -35,13 +35,20 @@ class Crowdsource(models.Model):
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):
-        return self.name or self.file.url
+        return self.file.url or 'N/A'
 
     def filename(self):
         try:
             return self.file.url.replace('/media/crowdsource/','')
         except Exception as e:
             return 'INVALID'
+
+    def bucket_key(self):
+        try:
+            return (self.object_type + '/' + self.file.url.replace('/media/crowdsource/',''))
+        except Exception as e:
+            import time
+            return ('error/'+ str(int(time.time())))
 
     def filepath(self):
         try:

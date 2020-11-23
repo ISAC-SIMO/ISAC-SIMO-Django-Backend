@@ -1,3 +1,4 @@
+from crowdsource.helpers import delete_object, get_object, move_object, upload_object
 from crowdsource.forms import CrowdsourceForm
 from crowdsource.models import Crowdsource
 from django.shortcuts import get_object_or_404, redirect, render
@@ -49,9 +50,12 @@ def crowdsource_images(request):
 
                 form = CrowdsourceForm(
                     request.POST or None, instance=crowdsource_image)
+                old_object_key = crowdsource_image.bucket_key()
                 if form.is_valid():
                     instance = form.save(commit=False)
                     instance.save()
+                    if old_object_key != instance.bucket_key():
+                        move_object(instance.bucket_key(), old_object_key)
                     messages.success(
                         request, "Crowdsource Image Updated Successfully")
                     return redirect("crowdsource")
@@ -73,6 +77,7 @@ def crowdsource_images(request):
                     instance = form.save(commit=False)
                     instance.created_by = request.user
                     instance.save()
+                    upload_object(instance.bucket_key(), instance.filepath())
                     total += 1
                     if total >= 5:
                         break; # TODO: FOR NOW LIMIT 5 TOTAL UPLOADS BY SAME USER
@@ -89,6 +94,7 @@ def crowdsource_images_delete(request, id):
     if request.method == "POST":
         try:
             crowdsource_image = Crowdsource.objects.filter(id=id).get()
+            delete_object(crowdsource_image.bucket_key())
             crowdsource_image.file.delete()
             crowdsource_image.delete()
             messages.success(
@@ -145,5 +151,6 @@ class CrowdsourceView(viewsets.ModelViewSet):
 
     def destroy(self, request, *args, **kwargs):
         crowdsource_image = self.get_object()
+        delete_object(crowdsource_image.bucket_key())
         crowdsource_image.file.delete()
         return super().destroy(request, *args, **kwargs)
