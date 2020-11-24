@@ -1,3 +1,5 @@
+from api.models import ObjectType
+from django.core.cache import cache
 from crowdsource.helpers import delete_object, get_object, move_object, upload_object
 from crowdsource.forms import CrowdsourceForm
 from crowdsource.models import Crowdsource
@@ -11,6 +13,7 @@ from django.db.models import Q
 from rest_framework import generics, mixins, viewsets
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from .serializers import CrowdsourceSerializer
+from rest_framework.response import Response
 
 # View All Crowdsource Images + Update/Create
 
@@ -110,11 +113,23 @@ def crowdsource_images_delete(request, id):
 # API #
 #######
 
+class ResponseInfo(object):
+    def __init__(self, user=None, **args):
+        self.response = {
+            "data": args.get('data', []),
+            "page": args.get('message', '1'),
+            "object_types": args.get('object_types',[])
+        }
+
 # Crowdsource Image API
 class CrowdsourceView(viewsets.ModelViewSet):
     queryset = Crowdsource.objects.all()
     serializer_class = CrowdsourceSerializer
     permission_classes = [IsAuthenticated]
+
+    def __init__(self, **kwargs):
+        self.response_format = ResponseInfo().response
+        super(CrowdsourceView, self).__init__(**kwargs)
 
     def get_queryset(self):
         if self.action == 'list':
@@ -148,6 +163,27 @@ class CrowdsourceView(viewsets.ModelViewSet):
                     return Crowdsource.objects.filter(created_by=self.request.user).order_by('-created_at')
             else:
                 return []
+
+    def list(self, request, *args, **kwargs):
+        response_data = super(CrowdsourceView, self).list(request, *args, **kwargs)
+        self.response_format["data"] = response_data.data
+
+        page = str(abs(int(self.request.GET.get('page', 1))))
+        self.response_format["page"] = page
+        
+        OBJECT_TYPE = cache.get('all_object_type_choices_json',[])
+        if not OBJECT_TYPE:
+          OBJECT_TYPE = [
+            {"value":"other", "title":"Other"}
+          ]
+
+          all_object_types = ObjectType.objects.order_by('name').values_list('name', flat=True).distinct()
+          for o in all_object_types:
+            OBJECT_TYPE.append({"value":o, "title":o.title()})
+          cache.set('all_object_type_choices_json', OBJECT_TYPE)
+        self.response_format["object_types"] = OBJECT_TYPE
+        
+        return Response(self.response_format)
 
     def destroy(self, request, *args, **kwargs):
         crowdsource_image = self.get_object()
