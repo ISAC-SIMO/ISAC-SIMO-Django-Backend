@@ -30,7 +30,7 @@
                                     <td></td>
                                     <td>{{crowdsource.object_type|title}}</td>
                                     <td>{{crowdsource.image_type|title|default:'Raw'}}</td>
-                                    <td>{% if crowdsource.created_by %} {{crowdsource.created_by.full_name}} {% else %} {{crowdsource.full_name|default:'N/A'}} {% endif %}</td>
+                                    <td>{% if crowdsource.created_by %} {{crowdsource.created_by.full_name}} {% else %} {{crowdsource.username|default:'N/A'}} {% endif %}</td>
                                     <td class="table-options" style="min-width: 110px;">
                                         <a title="View Image" data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" onclick="showImagePop(event,'{{crowdsource.file.url}}')" href="{{crowdsource.file.url}}" class="btn text-primary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-file-image"></i>
@@ -276,6 +276,11 @@
         function editForm(id, name, url, object_type, image_type, username){
           $('#id_field').val(id);
           $('#id_object_type').val(object_type).trigger('change');
+          $('#div_id_object_type label p').remove();
+          if(!$('#id_object_type').val()){
+            $('#id_object_type').prop("selectedIndex", 0).trigger('change');
+            $('#div_id_object_type label').append('<p class="m-0"><small>(Previous Value "'+object_type+'" Not Available)<small></p>');
+          }
           $('#id_image_type').val(image_type).trigger('change');
           $('#file_path').css("display","block");
           $('#file_path').html('Image:<br/><a href="'+url+'" target="_blank"><img src="'+url+'" style="min-height:200px;" class="img-fluid rounded mx-auto d-block img-thumbnail" alt="Did not Load..."/></a>');
@@ -290,6 +295,7 @@
           event.preventDefault();
           $('#id_field').val(0);
           $('#id_object_type').val('').trigger('change');
+          $('#div_id_object_type label p').remove();
           $('#id_image_type').val('').trigger('change');
           $('#file_path').css("display","none");
           $('#file_path').html('');

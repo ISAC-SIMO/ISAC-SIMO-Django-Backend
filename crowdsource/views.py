@@ -125,7 +125,7 @@ class ResponseInfo(object):
 class CrowdsourceView(viewsets.ModelViewSet):
     queryset = Crowdsource.objects.all()
     serializer_class = CrowdsourceSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AllowAny]
 
     def __init__(self, **kwargs):
         self.response_format = ResponseInfo().response

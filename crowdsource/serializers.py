@@ -13,10 +13,17 @@ class CrowdsourceSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         request = self.context.get("request")
-        user = request.user if request else None
+        user = None
+        if request and request.user and request.user.is_authenticated:
+            user = request.user
+
+        username = request.POST.get('username', None)
+        if not username and user:
+            username = user.full_name
+        
         crowdsource = Crowdsource.objects.create(object_type=validated_data.get('object_type'),
                                     image_type=validated_data.get('image_type'),
-                                    username=request.POST.get('username', user if user else ''),
+                                    username=username,
                                     created_by=user,
                                     file=validated_data.get('file'))
         upload_object(crowdsource.bucket_key(), crowdsource.filepath())
