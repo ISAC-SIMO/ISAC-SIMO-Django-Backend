@@ -31,7 +31,7 @@ def crowdsource_images(request):
             crowdsource_images = Crowdsource.objects.filter(
                 created_by=request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
                                        Q(image_type__icontains=query) |
-                                       Q(name__icontains=query)).all()
+                                       Q(username__icontains=query)).all()
 
         paginator = Paginator(crowdsource_images, 100)  # Show 100
         page_number = request.GET.get('page')

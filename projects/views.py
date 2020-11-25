@@ -1,7 +1,7 @@
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.shortcuts import redirect, render
-from django.contrib.auth.decorators import user_passes_test
+from django.contrib.auth.decorators import login_required, user_passes_test
 from importlib import reload
 
 from main.authorization import *
@@ -79,6 +79,7 @@ def editProject(request, id=0):
             form = ProjectForm(instance=project)
             return render(request,"add_project.html",{'form':form, 'project':project})
         elif request.method == "POST":
+            was_public = project.public
             form = ProjectForm(request.POST or None, request.FILES or None, instance=project)
             if form.is_valid():
                 instance = form.save(commit=False)
@@ -88,6 +89,12 @@ def editProject(request, id=0):
                     instance.guest = True
                 else:
                     instance.guest = False
+
+                if was_public and not instance.public and request.POST.get('unpublic', False):
+                    # Remove all linked users except self.
+                    for u in project.users.all():
+                        if u.id != request.user.id:
+                            project.users.remove(u)
 
                 instance.save()
                 reload_classifier_list()
@@ -173,3 +180,31 @@ def testOfflineProject(request, id):
     except(Projects.DoesNotExist):
         messages.error(request, "Invalid Project attempted to Test")
         return redirect("viewprojects")
+
+# View All Publicly Shared public=true Projects
+@user_passes_test(login_required, login_url=login_url)
+def publicProjects(request):
+    projects = Projects.objects.filter(public=True).order_by('-updated_at')
+    joined_projects = request.user.projects.all().values_list('id', flat=True);
+    return render(request, 'public_projects.html',{'projects':projects,'joined_projects':joined_projects})
+
+# Join or Leave a Public Project
+@user_passes_test(login_required, login_url=login_url)
+def publicProjectJoin(request, id):
+    try:
+        if request.method == "POST":
+            project = Projects.objects.filter(public=True).get(id=id)
+            join = request.GET.get('join', False) # join=True or Leave
+            if join: # JOIN
+                request.user.projects.add(project)
+            else: # LEAVE
+                request.user.projects.remove(project)
+
+            messages.success(request, ('Project Joined Successfully.' if join else 'Project Left Successfully'))
+            return redirect('public_projects') # TODO: to the public project view more page
+        else:
+            messages.error(request, 'Something went wrong. Invalid Request.')
+            return redirect('public_projects')
+    except(Projects.DoesNotExist):
+        messages.error(request, "Invalid Project")
+        return redirect("public_projects")

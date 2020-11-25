@@ -446,7 +446,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Projects
-        fields = ('id','project_name','image','project_desc','unique_name','detect_model','ibm_api_key','offline_model','guest','created_at','updated_at')
+        fields = ('id','project_name','image','project_desc','unique_name','detect_model','ibm_api_key','offline_model','guest','public','created_at','updated_at')
         read_only_fields = ('id','unique_name','detect_model','created_at', 'updated_at')
 
     def update(self, instance, validated_data):

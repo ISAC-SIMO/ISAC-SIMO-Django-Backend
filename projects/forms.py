@@ -12,7 +12,7 @@ from .models import Projects
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Projects     
-        fields = ('project_name', 'project_desc', 'detect_model', 'ibm_api_key', 'offline_model', 'image')
+        fields = ('project_name', 'project_desc', 'detect_model', 'ibm_api_key', 'offline_model', 'image', 'public')
         labels = {
             'project_name': 'Project Name',
             'project_desc': 'Description',
@@ -20,6 +20,7 @@ class ProjectForm(forms.ModelForm):
             'detect_model': "Online Object Detect Model",
             'offline_model': "Offline Object Detect Model",
             'ibm_api_key': "IBM API KEY",
+            'public': 'Is Publicly Visible'
         }
         widgets = {
           'project_desc': Textarea(attrs={'rows':4, 'cols':20}),
@@ -35,3 +36,4 @@ class ProjectForm(forms.ModelForm):
         self.fields['offline_model'].queryset = OfflineModel.objects.filter(model_type='OBJECT_DETECT')
         self.fields['offline_model'].empty_label = ''
         self.fields['ibm_api_key'].help_text = 'If Provided this Project will be use given Watson Service.'
+        self.fields['public'].help_text = 'Choose if you want this Project to be Publicly Available to any user. Anyone can join the project or contribute.'

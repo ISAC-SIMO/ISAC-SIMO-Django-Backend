@@ -1,0 +1,77 @@
+{% extends 'master/base.html' %}
+
+{% block title %} Public Projects {% endblock title %}
+
+{% block dashboard_title1 %} Public Projects {% endblock dashboard_title1 %}
+
+{% block dashboard_title2 %} Public Projects {% endblock dashboard_title2 %}
+{% load static %}
+
+{% block content %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                    {% if user.is_admin or user.is_project_admin %}
+                    <div class="card-title ml-3 mt-2">
+                        <a href="{% url 'addproject' %}"  class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add New Project
+                        </a>
+                    </div>
+                    {% endif %}
+                    <div class="card-body table table-responsive">
+                        <table id="projectsTable" class="table table-bordered table-hover table-striped">
+                            <thead>
+                                <tr>
+                                    <th>Id</th>
+                                    <th>Name</th>
+                                    <th style="min-width: 110px;"></th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for project in projects %}
+                                    <tr>
+                                        <td style="width:15px;">#{{project.id}}</td>
+                                        <td>{{project.project_name|title}} {% if project.guest %} <i class="fa fa-globe text-success ml-1" title="Global Project" data-toggle="tooltip" data-placement="right"></i> {% endif %}</td>
+                                        <td class="table-options">
+                                            <a title="Info" onclick="Swal.fire('{{project.project_name|title}}','{{project.project_desc}}<br/><br/><small><b>Online Detect Model:</b> {% if project.detect_model %}Yes{% else %}No{% endif %} {% if project.offline_model %}<br/><b>Offline Detect Model:</b> {{project.offline_model}}{% endif %}</small><br/><br/><img style=\'max-height:150px;\' src=\'{{project.image.url}}\'/>')" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0">
+                                                <i class="fa fa-info-circle text-primary"></i>
+                                            </a>
+                                            <a href="#!" onclick="alert('WIP')" class="btn btn-sm btn-primary">View More</a>
+                                            {% if project.id in joined_projects %}
+                                              <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Leave {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-sm btn-primary" title="Leave" data-toggle="tooltip" data-placement="top"><i class="fa fa-check"></i> Joined</a>
+                                              <form action="{% url 'public_project_join' project.id %}" method="POST" id="form-{{ project.id }}" class="d-inline">
+                                                {% csrf_token %}
+                                              </form>
+                                            {% else %}
+                                              <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Join {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-sm btn-success">Join</a>
+                                              <form action="{% url 'public_project_join' project.id %}?join=true" method="POST" id="form-{{ project.id }}" class="d-inline">
+                                                {% csrf_token %}
+                                              </form>
+                                            {% endif %}
+                                        </td>
+                                    </tr>
+                                {% endfor %}
+                            </tbody> 
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+{% endblock content %}
+
+{% block script %}
+    <script>
+        $(function () {
+          $('#projectsTable').DataTable({
+            "paging": true,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": true,
+            "info": true,
+            "autoWidth": true,
+            "order": [],
+          });
+        });
+    </script>
+{% endblock script %}

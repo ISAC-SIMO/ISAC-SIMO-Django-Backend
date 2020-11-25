@@ -9,6 +9,7 @@ class Projects(models.Model):
     offline_model = models.ForeignKey('api.OfflineModel', on_delete=models.SET_NULL, related_name='projects', blank=True, null=True)
     guest = models.BooleanField(default=False) # Guest=True for Global project
     ibm_api_key = models.CharField(max_length=200, blank=True, null=True)
+    public = models.BooleanField(default=False) # Is this Project Publically Visible
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 

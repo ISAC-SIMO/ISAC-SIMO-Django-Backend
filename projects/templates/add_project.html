@@ -35,13 +35,26 @@
                             {% csrf_token %}
                               {{ form|crispy }}
 
+                              {% if request.resolver_match.url_name == 'updateproject' and project.public %}
+                              <div class="form-group" id="unpublic-container" style="display:none;">
+                                  <label for="unpublic" class="col-form-label text-danger" style="padding-bottom:0;">
+                                      <input type="checkbox" name="unpublic" id="unpublic" style="translate(0px,1px);margin-right: 5px;">
+                                      Remove All Linked Users from this Project ?
+                                  </label>
+                                  <small class="form-text text-muted" style="margin:0;margin-left: 21px;">
+                                      Also Note that User Contributions will no longer be visible.
+                                  </small>
+                              </div>
+                              {% endif %}
+
                               {% if user.is_admin %}
+                                <hr/>
                                 <div class="form-group">
                                     <label for="guest" class="col-form-label" style="padding-bottom:0;">
                                         <input type="checkbox" name="guest" id="guest" {% if project and project.guest %} checked {% endif %} style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
                                         Mark as GLOBAL Project
                                     </label>
-                                    <small class="form-text text-muted" style="margin:0;">
+                                    <small class="form-text text-muted" style="margin:0;margin-left: 21px;">
                                         Will be used for Guest/Offline Users in Mobile App. Logged in user will be shown via linked projects. <br/>  Note: Only One Project should be marked as Global (Best Practice).
                                     </small>
                                 </div>
@@ -102,5 +115,15 @@
     }
 
     loadOfflineModelSelect2();
+
+    {% if request.resolver_match.url_name == 'updateproject' and project.public %}
+    $('#id_public').on('change', function(){
+      if(!$('#id_public').prop('checked')){
+        $('#unpublic-container').show();
+      }else{
+        $('#unpublic-container').hide();
+      }
+    })
+    {% endif %}
   </script>
 {% endblock script %}
