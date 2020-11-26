@@ -204,9 +204,9 @@ def publicProjects(request):
     if query and len(query) > 0:
         projects_list = projects_list.filter(Q(project_name__icontains=query) |
                                             Q(project_desc__icontains=query) |
-                                            Q(object_types__name__icontains=query)).distinct()
+                                            Q(object_types__name__icontains=query))
     
-    projects_list = projects_list.all()
+    projects_list = projects_list.distinct().all()
 
     paginator = Paginator(projects_list, 25)  # Show 25
     page_number = request.GET.get('page', '1')
@@ -245,7 +245,7 @@ def publicProjectJoin(request, id):
 @user_passes_test(login_required, login_url=login_url)
 def publicProjectInfo(request, id):
     try:
-        project = Projects.objects.filter(Q(public=True) | Q(users__id=request.user.id)).get(id=id)
+        project = Projects.objects.filter(Q(public=True) | Q(users__id=request.user.id)).distinct().get(id=id)
         return render(request, 'public_project_info.html',{'project':project})
     except(Projects.DoesNotExist):
         messages.error(request, "Invalid Project. The Project does not exist.")
