@@ -26,15 +26,15 @@ def crowdsource_images(request):
             crowdsource_images = Crowdsource.objects.order_by(
                 '-created_at').filter(Q(object_type__icontains=query) |
                                        Q(image_type__icontains=query) |
-                                       Q(username__icontains=query)).all()
+                                       Q(username__icontains=query)).distinct().all()
         else:
             crowdsource_images = Crowdsource.objects.filter(
                 created_by=request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
                                        Q(image_type__icontains=query) |
-                                       Q(username__icontains=query)).all()
+                                       Q(username__icontains=query)).distinct().all()
 
-        paginator = Paginator(crowdsource_images, 100)  # Show 100
-        page_number = request.GET.get('page')
+        paginator = Paginator(crowdsource_images, 50)  # Show 50
+        page_number = request.GET.get('page', '1')
         crowdsources = paginator.get_page(page_number)
 
         form = CrowdsourceForm()

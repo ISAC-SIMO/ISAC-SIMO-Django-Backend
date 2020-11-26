@@ -2,7 +2,7 @@
 
 {% block title %} Public Projects {% endblock title %}
 
-{% block dashboard_title1 %} Public Projects {% endblock dashboard_title1 %}
+{% block dashboard_title1 %} Public Projects {% if joined %} (Filtered By Joined) {% endif %} {% endblock dashboard_title1 %}
 
 {% block dashboard_title2 %} Public Projects {% endblock dashboard_title2 %}
 {% load static %}
@@ -11,13 +11,6 @@
         <div class="row">
             <div class="col-12">
                 <div class="card">
-                    {% if user.is_admin or user.is_project_admin %}
-                    <div class="card-title ml-3 mt-2">
-                        <a href="{% url 'addproject' %}"  class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Add New Project
-                        </a>
-                    </div>
-                    {% endif %}
                     <div class="card-body table table-responsive">
                         <table id="projectsTable" class="table table-bordered table-hover table-striped">
                             <thead>
@@ -31,12 +24,12 @@
                                 {% for project in projects %}
                                     <tr>
                                         <td style="width:15px;">#{{project.id}}</td>
-                                        <td>{{project.project_name|title}} {% if project.guest %} <i class="fa fa-globe text-success ml-1" title="Global Project" data-toggle="tooltip" data-placement="right"></i> {% endif %}</td>
+                                        <td>{{project.project_name|title}} {% if project.guest %} <i class="fa fa-globe text-success ml-1" title="Global Project" data-toggle="tooltip" data-placement="right"></i> {% endif %} {% if not project.public %} <span class="badge badge-sm badge-warning ml-1" title="You have Joined this Project. But is not Public." data-toggle="tooltip" data-placement="right">Not Public</a> {% endif %}</td>
                                         <td class="table-options">
                                             <a title="Info" onclick="Swal.fire('{{project.project_name|title}}','{{project.project_desc}}<br/><br/><small><b>Online Detect Model:</b> {% if project.detect_model %}Yes{% else %}No{% endif %} {% if project.offline_model %}<br/><b>Offline Detect Model:</b> {{project.offline_model}}{% endif %}</small><br/><br/><img style=\'max-height:150px;\' src=\'{{project.image.url}}\'/>')" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0">
                                                 <i class="fa fa-info-circle text-primary"></i>
                                             </a>
-                                            <a href="#!" onclick="alert('WIP')" class="btn btn-sm btn-primary">View More</a>
+                                            <a href="{% url 'public_project_info' project.id %}" class="btn btn-sm btn-primary">View More</a>
                                             {% if project.id in joined_projects %}
                                               <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Leave {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-sm btn-primary" title="Leave" data-toggle="tooltip" data-placement="top"><i class="fa fa-check"></i> Joined</a>
                                               <form action="{% url 'public_project_join' project.id %}" method="POST" id="form-{{ project.id }}" class="d-inline">
@@ -53,6 +46,36 @@
                                 {% endfor %}
                             </tbody> 
                         </table>
+                        <div class="row custom-paginate-row">
+                            <div>
+                                <span class="current">
+                                Page {{ projects.number }} of {{ projects.paginator.num_pages }} (Total {% if query %}Filtered{% endif %} Items {{projects.paginator.count}})
+                                </span>
+                            </div>
+                            <div>
+                                <ul class="pagination">
+                                {% if projects.has_previous %}
+                                    <li class="paginate_button page-item previous"><a class="page-link" href="?page={{ projects.previous_page_number }}">Previous</a></li>
+                                {% else %}
+                                    <li class="paginate_button page-item previous disabled"><a class="page-link" href="#">Previous</a></li>
+                                {% endif %}
+
+                                {% for num in projects.paginator.page_range %}
+                                    {% ifequal num projects.number %}
+                                    <li class="paginate_button page-item active"><a href="#" class="page-link">{{num}}</a></li>
+                                    {% else %}
+                                    <li class="paginate_button page-item"><a href="?page={{ num }}" class="page-link">{{num}}</a></li>
+                                    {% endifequal %}
+                                {% endfor %}
+
+                                {% if projects.has_next %}
+                                    <li class="paginate_button page-item next"><a class="page-link" href="?page={{ projects.next_page_number }}">Next</a></li>
+                                {% else %}
+                                    <li class="paginate_button page-item next disabled"><a class="page-link" href="#">Next</a></li>
+                                {% endif %}
+                                </ul>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -61,17 +84,69 @@
 {% endblock content %}
 
 {% block script %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css"/>
+    <script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
     <script>
+        var dt = null;
         $(function () {
-          $('#projectsTable').DataTable({
-            "paging": true,
+          dt = $('#projectsTable').DataTable({
+            "paging": false,
             "lengthChange": true,
             "searching": true,
-            "ordering": true,
-            "info": true,
+            "ordering": false,
+            "info": false,
             "autoWidth": true,
             "order": [],
+            "language": {
+              "emptyTable": "No Public Projects Available to show. {% if joined or query %} (Filtered) {% endif %}"
+            },
+            dom: 'Bfrtip',
+            buttons: [
+              {% if joined %}
+              {
+                text: '<i class="fa fa-arrow-left"></i> Show All Public Projects',
+                action: function ( e, dt, node, config ) {
+                    var url = new URL(location.href);
+                    url.searchParams.delete('joined');
+                    location.href = url.href;
+                }
+              },
+              {% else %}
+              {
+                text: 'Only Show Joined Projects',
+                action: function ( e, dt, node, config ) {
+                    var url = new URL(location.href);
+                    url.searchParams.set('joined', 'true');
+                    location.href = url.href;
+                }
+              },
+              {% endif %}
+
+              {% if user.is_admin or user.is_project_admin %}
+              {
+                text: 'Add New Project',
+                action: function ( e, dt, node, config ) {
+                    location.href = "{% url 'addproject' %}"
+                }
+              },
+              {% endif %}
+            ]
           });
+          $('#projectsTable_filter input').attr('placeholder', 'Press Enter to Search')
+          $('#projectsTable_filter input').val('{{query}}')
+          $('#projectsTable_filter input', dt.table().container())
+            .off('.DT')
+            .on('keyup.DT', function (e) {
+              if(e.keyCode == 13 && (this.value.length > 0 || '{{query}}'.length > 0)) {
+                var url = new URL(location.href);
+                if(this.value.length <= 0){
+                    url.searchParams.delete('q')
+                }else{
+                    url.searchParams.set('q', this.value.toLowerCase());
+                }
+                location.href = url.href;
+              }
+            });
         });
     </script>
 {% endblock script %}

@@ -403,7 +403,7 @@
             <hr style="margin:0.5em 0;border-top:1px solid #555;"/>
             <li class="nav-item">
               <a href="{% url 'public_projects' %}"
-                class="nav-link {% if request.resolver_match.url_name == 'public_projects' %} active {% endif %}">
+                class="nav-link {% if request.resolver_match.url_name in 'public_projects,public_project_info' %} active {% endif %}">
                 <i class="nav-icon fas fa-bullhorn"></i>
                 <p>
                   Public Projects
