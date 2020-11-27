@@ -12,15 +12,127 @@
     <div class="col-12">
       <div class="card">
         <div class="card-body">
-          WIP
+          <div class="row">
+            <div class="col-sm-12 col-md-10">
+              <p>{{project.project_desc}}</p>
+              <small>
+                <b>Online Detect Model:</b> {% if project.detect_model %}Yes{% else %}No{% endif %}<br/>
+                <b>Offline Detect Model:</b> {% if project.offline_model %}Yes ({{project.offline_model.name}}){% else %}No{% endif %}
+              </small><br/>
+              {% if project.guest %} <span class="badge badge-sm badge-danger" style="background:#2e3e61;" title="Global Project" data-toggle="tooltip" data-placement="bottom">Global <i class="fa fa-globe ml-1"></i></span>{% endif %}
+              {% if not project.public %} <span class="badge badge-sm badge-warning ml-1" title="You have Joined this Project. But is not Public." data-toggle="tooltip" data-placement="bottom">Not Public</a></span><br/>{% endif %}
+              <br/>
+              {% if joined %}
+                <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Leave {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-primary" title="Leave" data-toggle="tooltip" data-placement="right"><i class="fa fa-check"></i> Joined</a>
+                <form action="{% url 'public_project_join' project.id %}" method="POST" id="form-{{ project.id }}" class="d-inline">
+                  {% csrf_token %}
+                </form>
+              {% else %}
+                <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Join {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-success">Join Project</a>
+                <form action="{% url 'public_project_join' project.id %}?join=true" method="POST" id="form-{{ project.id }}" class="d-inline">
+                  {% csrf_token %}
+                </form>
+              {% endif %}
+            </div>
+            <div class="col-sm-6 col-md-2"><img style="max-height: 100px;" class="img-fluid img-thumbnail float-right" src="{{project.image.url}}" alt="Project Image"/></div>
+          </div>
         </div>
       </div>
+    </div>
+
+    <div class="col-12">
+      <div class="row">
+        <h4 class="col-sm-6">Object Types:</h4>
+        <div class="dataTables_filter col-sm-6" style="display: flex; justify-content: flex-end; align-items: center;">
+          <label style="width: 100%; display: flex; justify-content: flex-end; align-items: center;">Search: <input type="search" style="width:200px;" class="ml-2 form-control form-control-sm" id="filter-object-type" placeholder="Filter Object Type / Classifier"></label>
+        </div>
+      </div>
+      {% if project.object_types.count > 0 %}
+      {% for object_type in project.object_types.all %}
+        <div class="card object_types">
+          <div class="card-body">
+            <h5 style="font-weight:700;">{{object_type.name|title}}</h5>
+            {% if object_type.classifiers.count > 0 %}
+              <table class="table table-bordered table-hover">
+                <tr style="background:#e4e4e4;">
+                  <th style="width: 15px;" title="Pipeline Order">Order</th>
+                  <th>Name</th>
+                  <th>Type</th>
+                  <th>Actions</th>
+                <tr>
+                {% for classifier in object_type.classifiers.all %}
+                  <tr>
+                    <td>{{classifier.order}}</td>
+                    <td title="{{classifier.given_name|default:''}}">{{classifier.name|title}}</td>
+                    <td>
+                      {% if classifier.offline_model %}
+                        {% if classifier.offline_model.preprocess %}
+                        Pre-Processor <i class="fa fa-dot-circle text-green" title="Pre-Process" data-toggle="tooltip" data-placement="right"></i>
+                        {% elif classifier.offline_model.postprocess %}
+                        Post-Processor <i class="fa fa-check-circle text-orange" title="Post-Process" data-toggle="tooltip" data-placement="right"></i>
+                        {% elif classifier.offline_model.model_type == 'OBJECT_DETECT' %}
+                        Object Detect Model
+                        {% else %}
+                        {{classifier.offline_model.model_type|title}}
+                        {% endif %}
+                      {% elif classifier.is_object_detection %}
+                        Watson Object Detect Model
+                      {% else %}
+                        Watson Classifier
+                      {% endif %}
+                    </td>
+                    <td>
+                      {% if classifier.offline_model %}
+                        <a onclick="Swal.fire('Model Name: '+'{{classifier.offline_model.name|title}}', 'Created By: {{classifier.created_by.full_name|default:'user'|title}}<br/>Offline/Local Model: Yes<br/>Type: {{classifier.offline_model.model_type}}<br/>Format: {{classifier.offline_model.model_format}}<br/>Labels: {{classifier.offline_model.offline_model_labels}}')" title="Info" data-toggle="tooltip" data-placement="left" href="#!" class="text-secondary px-0">
+                            <i class="fa fa-info-circle text-info"></i>
+                        </a>
+                        {% if classifier.offline_model.file %}
+                          <a title="Download" data-toggle="tooltip" data-placement="top" href="{{classifier.offline_model.file}}" download class="px-0 ml-2">
+                              <i class="fas fa-file-download text-success"></i>
+                          </a>
+                        {% endif %}
+                      {% else %}
+                        <a onclick="Swal.fire('Classes: '+(JSON.parse(JSON.stringify({{classifier.classes|safe}})).join(', ')||'N/A'), 'Created By: {{classifier.created_by.full_name|default:'user'|title}}')" title="Info" data-toggle="tooltip" data-placement="left" href="#!" class="text-secondary px-0">
+                            <i class="fa fa-info-circle text-info"></i>
+                        </a>
+                      {% endif %}
+                    </td>
+                  </tr>
+                {% endfor %}
+              </table>
+            {% else %}
+              <h6 class="text-info m-0"><i class="fa fa-info-circle"></i> No Classifiers</h6>
+            {% endif %}
+          </div>
+          <div class="card-footer" style="padding: .5rem;">
+            <div style="float:right;">
+              <a href="#!" class="badge badge-success">View Helpful Contributions</a>
+              <a href="#!" class="badge badge-primary">View Your Contributions</a>
+            </div>
+          </div>
+        </div>
+      {% endfor %}
+      {% else %}
+      <div class="card">
+        <div class="card-body">
+          <h6 class="text-danger m-0"><i class="fa fa-info-circle"></i> No Object Types Available in this Project</h6>
+        </div>
+      </div>
+      {% endif %}
     </div>
   </div>
 {% endblock content %}
 
 {% block script %}
     <script>
-        
+        $('#filter-object-type').on('input', function(e){
+          $('.object_types').each(function(){
+            if(e.target.value.length <= 0 || this.innerHTML.trim().toLowerCase().search(e.target.value.toLowerCase()) >= 0){
+              $(this).slideDown();
+            }else{
+              $(this).slideUp();
+            }
+          })
+        })
     </script>
 {% endblock script %}

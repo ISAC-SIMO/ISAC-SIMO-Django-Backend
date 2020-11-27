@@ -245,8 +245,9 @@ def publicProjectJoin(request, id):
 @user_passes_test(login_required, login_url=login_url)
 def publicProjectInfo(request, id):
     try:
-        project = Projects.objects.filter(Q(public=True) | Q(users__id=request.user.id)).distinct().get(id=id)
-        return render(request, 'public_project_info.html',{'project':project})
+        project = Projects.objects.filter(Q(public=True) | Q(users__id=request.user.id)).distinct().prefetch_related('object_types', 'object_types__classifiers','object_types__classifiers__offline_model').get(id=id)
+        joined = True if request.user.projects.filter(id=project.id).count() > 0 else False
+        return render(request, 'public_project_info.html',{'project':project, 'joined':joined})
     except(Projects.DoesNotExist):
         messages.error(request, "Invalid Project. The Project does not exist.")
         return redirect('public_projects')
