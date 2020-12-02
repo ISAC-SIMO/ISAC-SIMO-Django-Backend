@@ -466,7 +466,7 @@ class ObjectTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ObjectType
-        fields = ('id','name','project_id','image','instruction','verified','total_classifiers','created_by','project','created_at','updated_at')
+        fields = ('id','name','project_id','image','instruction','verified','wishlist','total_classifiers','created_by','project','created_at','updated_at')
         read_only_fields = ('id','created_by','created_at', 'updated_at','project')
 
     def create(self, validated_data):
@@ -482,7 +482,8 @@ class ObjectTypeSerializer(serializers.ModelSerializer):
                                     project=Projects.objects.get(id=validated_data.get('project_id')),
                                     image=validated_data.get('image'),
                                     instruction=validated_data.get('instruction'),
-                                    verified=True if validated_data.get('verified') else False)
+                                    verified=True if validated_data.get('verified') else False,
+                                    wishlist=True if validated_data.get('wishlist') else False,)
         return object_type
 
     def update(self, instance, validated_data):
@@ -502,6 +503,7 @@ class ObjectTypeSerializer(serializers.ModelSerializer):
         instance.project=Projects.objects.get(id=validated_data.get('project_id', instance.project_id))
         instance.instruction=validated_data.get('instruction', instance.instruction)
         instance.verified=True if validated_data.get('verified') else False
+        instance.wishlist=True if validated_data.get('wishlist') else False
         instance.save()
         return instance
         

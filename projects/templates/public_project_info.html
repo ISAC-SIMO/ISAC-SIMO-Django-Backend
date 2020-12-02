@@ -47,6 +47,11 @@
           <label style="width: 100%; display: flex; justify-content: flex-end; align-items: center;">Search: <input type="search" style="width:200px;" class="ml-2 form-control form-control-sm" id="filter-object-type" placeholder="Filter Object Type / Classifier"></label>
         </div>
       </div>
+      <div class="card empty-result" style="display:none;">
+        <div class="card-body">
+          <h6 class="text-danger m-0"><i class="fa fa-info-circle"></i> No Search Result</h6>
+        </div>
+      </div>
       {% if project.object_types.count > 0 %}
       {% for object_type in project.object_types.all %}
         <div class="card object_types">
@@ -106,8 +111,14 @@
           </div>
           <div class="card-footer" style="padding: .5rem;">
             <div style="float:right;">
-              <a href="#!" class="badge badge-success">View Helpful Contributions</a>
-              <a href="#!" class="badge badge-primary">View Your Contributions</a>
+              {% if object_type.wishlist %}
+                {% if joined %}
+                <a href="#!" onclick="showContributionModal('{{object_type.id}}','{{object_type.name|title}}','{{object_type.instruction}}','{{object_type.image}}')" class="badge badge-success">Contribute <i class="fa fa-plus-circle ml-1"></i></a>
+                {% else %}
+                <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Join {{project.project_name|title}} to Contribute')" href="{% url 'public_project_join' project.id %}" class="badge badge-success">Join To Contribute</a>
+                {% endif %}
+              {% endif %}
+              <a href="{% url 'contribution' project.id object_type.id %}" class="badge badge-primary">{% if user.is_admin or user.is_project_admin %}View Contributions{% else %}View Helpful Contributions{% endif %}</a>
             </div>
           </div>
         </div>
@@ -124,6 +135,59 @@
 {% endblock content %}
 
 {% block script %}
+    <div class="modal fade" id="contribution-modal">
+      <div class="modal-dialog" style="width: 50%; max-width: 90%; min-width: 200px;">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h4 class="modal-title">Contribute to <span id="contribution-modal-name"></span></h4>
+          </div>
+          <div class="modal-body">
+            <div class="row">
+              <div class="col-sm-6 col-md-2"><img id="contribution-modal-image" style="max-height: 100px;" class="img-fluid img-thumbnail float-right" src="" alt="Object Type Image"/></div>
+              <div class="col-sm-12 col-md-10">
+                <p id="contribution-modal-instruction"></p>
+              </div>
+            </div>
+            <hr/>
+            <form id="contribution-modal-form" method="POST" class="d-inline" enctype="multipart/form-data">
+              {% csrf_token %}
+              <div class="form-group mb-0">
+                  <label for="title" class="col-12 col-form-label">Title*</label>
+                  <div class="col-sm-12">
+                      <input type="text" placeholder="Contribution Title" class="form-control" id="title" name="title" required/>
+                  </div>
+              </div>
+              <div class="form-group mb-0">
+                  <label for="description" class="col-12 col-form-label">Description*</label>
+                  <div class="col-sm-12">
+                    <textarea placeholder="Brief Description" class="form-control" style="min-height: 65px;max-height: 250px;" id="description" name="description" max="2000" oninput="event.target.style.height='65px';event.target.style.height = (event.target.scrollHeight)+'px';" required></textarea>
+                  </div>
+                  <small class="col-sm-12 form-text text-muted">
+                      Describe the Contribution, linked files and why it should be considered.
+                  </small>
+              </div>
+              <div class="form-group">
+                  <label for="file" class="col-12 col-form-label">File</label>
+                  <div class="col-sm-12">
+                      <input type="file" id="file" name="file"/>
+                  </div>
+                  <small class="col-sm-12 form-text text-muted">
+                      Only Submit One Zipped File. (File is Optional if you think description is enough.)
+                  </small>
+              </div>
+            </form>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-danger pull-left" data-dismiss="modal">Close</button>
+            <button type="submit" class="btn btn-primary" form="contribution-modal-form">Submit Contribution</button>
+          </div>
+        </div>
+        <!-- /.modal-content -->
+      </div>
+      <!-- /.modal-dialog -->
+    </div>
+    <!-- /.modal -->
+    
     <script>
         $('#filter-object-type').on('input', function(e){
           $('.object_types').each(function(){
@@ -133,6 +197,30 @@
               $(this).slideUp();
             }
           })
+          .promise()
+          .done( function() {
+              if($('.object_types').filter(function() {
+                  return $(this).css('display') != 'none';
+              }).length <= 0){
+                $('.empty-result').slideDown();
+              }else{
+                $('.empty-result').slideUp();
+              }
+          });
         })
+
+        function showContributionModal(id, name, instruction, image){
+          $('#contribution-modal-name').text(name);
+          $('#contribution-modal-instruction').text(instruction);
+          $('#contribution-modal-image').attr('src', '/media/'+image);
+          $('#contribution-modal-form').attr('action', "/projects/public/{{project.id}}/object/"+id+"/contribution")
+          $('#contribution-modal-form #title').val("");
+          $('#contribution-modal-form #description').val("");
+          $('#contribution-modal-form #file').val(null);
+          $('#contribution-modal').modal({
+              backdrop: 'static',
+              keyboard: false
+          });
+        }
     </script>
 {% endblock script %}

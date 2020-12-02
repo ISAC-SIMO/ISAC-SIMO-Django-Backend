@@ -24,6 +24,7 @@ path_and_rename = PathAndRename("image")
 path_and_rename_offline_models = PathAndRename("offline_models")
 path_and_rename_object_types = PathAndRename("object_types")
 path_and_rename_file_upload = PathAndRename("file")
+path_and_rename_contributions = PathAndRename("contributions")
 
 class Image(models.Model):
     title = models.CharField(max_length=255, blank=True, null=True)
@@ -61,6 +62,7 @@ class ObjectType(models.Model):
     image = models.ImageField(upload_to=path_and_rename_object_types, default='object_types/default.jpg', blank=True)
     instruction = models.TextField(max_length=500, blank=True, null=True)
     verified = models.BooleanField(default=False)
+    wishlist = models.BooleanField(default=False) # Accept Contribution if project is marked public
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -155,3 +157,17 @@ class FileUpload(models.Model):
             return path
         except Exception as e:
             return self.filename()
+
+# Contribution in Wishlisted Object Type
+class Contribution(models.Model):
+    title = models.CharField(max_length=200)
+    description = models.TextField(blank=True, null=True)
+    file = models.FileField(upload_to=path_and_rename_contributions, blank=True, null=True)
+    object_type = models.ForeignKey(ObjectType, related_name='contributions', on_delete=models.CASCADE)
+    is_helpful = models.BooleanField(default=False)
+    created_by = models.ForeignKey("main.User", related_name='contributions', on_delete=models.SET_NULL, blank=True, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    def __str__(self):
+        return self.title

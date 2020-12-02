@@ -40,3 +40,4 @@ blockquote{color:#eee !important;}
 .custom-paginate-row{display: flex;justify-content: space-between;align-items: center;padding: 5px 10px;}
 .dt-button-background{display: none !important;}
 .toasts-bottom-right{bottom: 8px;right: 8px;}
+.card-footer .badge{font-size: 82%;border-radius:3px;padding: .35em 0.8em;}

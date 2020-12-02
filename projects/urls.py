@@ -11,4 +11,5 @@ urlpatterns = [
     path('public', views.publicProjects, name="public_projects"),
     path('public/join/<int:id>', views.publicProjectJoin, name="public_project_join"),
     path('public/<int:id>', views.publicProjectInfo, name="public_project_info"),
+    path('public/<int:id>/object/<int:object_id>/contribution', views.addContribution, name="contribution"),
 ]

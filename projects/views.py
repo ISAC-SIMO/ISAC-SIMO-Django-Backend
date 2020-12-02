@@ -1,3 +1,4 @@
+from api.models import Contribution, ObjectType
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
 from django.core.paginator import Paginator
@@ -250,4 +251,61 @@ def publicProjectInfo(request, id):
         return render(request, 'public_project_info.html',{'project':project, 'joined':joined})
     except(Projects.DoesNotExist):
         messages.error(request, "Invalid Project. The Project does not exist.")
+        return redirect('public_projects')
+
+# Add Contribution
+@user_passes_test(login_required, login_url=login_url)
+def addContribution(request, id, object_id):
+    try:
+        project = Projects.objects.filter(Q(public=True) | Q(users__id=request.user.id)).distinct().get(id=id)
+        joined = True if request.user.projects.filter(id=project.id).count() > 0 else False
+        object_type = ObjectType.objects.filter(project_id=project.id).get(id=object_id)
+
+        # List Contributions
+        if request.method == "GET":
+            contributions = []
+            query = request.GET.get('q','')
+            own = request.GET.get('own', False) == 'true'
+
+            if(request.user.is_admin or request.user.is_project_admin):
+                contributions = Contribution.objects
+            else:
+                contributions = Contribution.objects.filter(Q(is_helpful=True) | Q(created_by=request.user))
+            
+            if own:
+                contributions = contributions.filter(created_by=request.user)
+            if query:
+                contributions = contributions.filter(Q(title__icontains=query) |
+                                        Q(description__icontains=query))
+            
+            contributions = contributions.order_by('-created_at').distinct().all();
+
+            paginator = Paginator(contributions, 50)  # Show 50
+            page_number = request.GET.get('page', '1')
+            contributions = paginator.get_page(page_number)
+            return render(request, 'contribution_list.html',{'contributions':contributions, 'query':query, 'own':own, 'project': project, 'object_type':object_type,'joined':joined})
+        # Add Contributions
+        elif request.method == "POST":
+            if joined:
+                if object_type.wishlist:
+                    contribution = Contribution.objects.create(
+                        title=request.POST.get('title', None),
+                        description=request.POST.get('description', None),
+                        file=request.FILES.get('file', None),
+                        object_type=object_type,
+                        created_by=request.user
+                    )
+                    messages.success(request, "Contribution Submitted Successfully for Project: "+project.project_name+" & Object Type: "+object_type.name)
+                else:
+                    messages.error(request, "Contribution has not been enabled for this Object Type.")
+            else:
+                messages.error(request, "You have not Joined the Project. Please, Join to Contribute.")
+    except(Projects.DoesNotExist):
+        messages.error(request, "Invalid Project. The Project does not exist or is not available at the moment.")
+    except(Projects.DoesNotExist):
+        messages.error(request, "Invalid Object Type. The Object type you trying to access does not exist.")
+
+    if request.META.get('HTTP_REFERER', False):
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
         return redirect('public_projects')

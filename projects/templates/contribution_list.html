@@ -1,0 +1,307 @@
+{% extends 'master/base.html' %}
+
+{% block title %} Contributions for {{object_type.name|title}} - {{project.project_name}} {% endblock title %}
+{% block dashboard_title1 %} Contributions for {{object_type.name|title}} - {{project.project_name}} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} Contributions {% endblock dashboard_title2 %}
+{% load static %}
+
+{% block content %}
+    <style>
+        .bs-tooltip-auto[x-placement^=top] .arrow, .bs-tooltip-top .arrow{transform:translate(6px,0)}
+    </style>
+    <p style="margin: 5px 0;font-size:0.9em;" class="badge badge-success">{% if own %}Your Contribution{% endif %} Total Found: {{contributions.paginator.count}} </p>
+    <div class="row">
+        <div class="col-sm-12 col-md-8">
+            <div class="card">
+                <div class="card-body table table-responsive">
+                    <table id="file_upload_dt" class="table table-bordered table-hover table-striped">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>Title</th>
+                                <th>File</th>
+                                <th>Submitted By</th>
+                                <th style="width:110px;">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for contribution in contributions %}
+                                {% comment %} <tr data-object="{{crowdsource.object_type}}" data-id="{{crowdsource.id}}" data-url="{{crowdsource.file.url}}">
+                                    <td></td>
+                                    <td>{{crowdsource.object_type|title}}</td>
+                                    <td>{{crowdsource.image_type|title|default:'Raw'}}</td>
+                                    <td>{% if crowdsource.created_by %} {{crowdsource.created_by.full_name}} {% else %} {{crowdsource.username|default:'N/A'}} {% endif %}</td>
+                                    <td class="table-options" style="min-width: 110px;">
+                                        <a title="View Image" data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" onclick="showImagePop(event,'{{crowdsource.file.url}}')" href="{{crowdsource.file.url}}" class="btn text-primary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-file-image"></i>
+                                        </a>
+                                        <a onclick="editForm('{{crowdsource.id}}','{{crowdsource.name}}','{{crowdsource.file.url}}','{{crowdsource.object_type}}','{{crowdsource.image_type}}','{{crowdsource.username}}')" title="Edit" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                        {% if user.is_admin or crowdsource.created_by and user.id == crowdsource.created_by.id %}
+                                        <a onclick="deleteData(event, 'form-{{ crowdsource.id }}', 'Uploaded File')" title="Delete" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                            <i class="fa fa-trash text-danger"></i>
+                                        </a>
+                                        <form action="{% url 'crowdsource.delete' crowdsource.id %}" id="form-{{ crowdsource.id }}" method="POST" class="d-inline">
+                                            {% csrf_token %}
+                                        </form>
+                                        {% endif %}
+                                    </td>
+                                </tr> {% endcomment %}
+                            {% endfor %}
+                        </tbody> 
+                    </table>
+                    <div class="row custom-paginate-row">
+                      <div>
+                        <span class="current">
+                          Page {{ contributions.number }} of {{ contributions.paginator.num_pages }} (Total {% if query %}Filtered{% endif %} Items {{contributions.paginator.count}})
+                        </span>
+                      </div>
+                      <div>
+                        <ul class="pagination">
+                          {% if contributions.has_previous %}
+                            <li class="paginate_button page-item previous"><a class="page-link" href="?page={{ contributions.previous_page_number }}">Previous</a></li>
+                          {% else %}
+                            <li class="paginate_button page-item previous disabled"><a class="page-link" href="#">Previous</a></li>
+                          {% endif %}
+
+                          {% for num in contributions.paginator.page_range %}
+                            {% ifequal num contributions.number %}
+                              <li class="paginate_button page-item active"><a href="#" class="page-link">{{num}}</a></li>
+                            {% else %}
+                              <li class="paginate_button page-item"><a href="?page={{ num }}" class="page-link">{{num}}</a></li>
+                            {% endifequal %}
+                          {% endfor %}
+
+                          {% if contributions.has_next %}
+                            <li class="paginate_button page-item next"><a class="page-link" href="?page={{ contributions.next_page_number }}">Next</a></li>
+                          {% else %}
+                            <li class="paginate_button page-item next disabled"><a class="page-link" href="#">Next</a></li>
+                          {% endif %}
+                        </ul>
+                      </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-4">
+            <div class="card">
+                <div class="card-title ml-3 mt-3">
+                    <h5 id="file_title_status">Contribute to {{object_type.name|title}} - {{project.project_name}}</h5>
+                </div>
+                <hr style="margin:0.5rem;"/>
+                <div class="card-body pt-0">
+                    <form action="{% url 'contribution' project.id object_type.id %}" method="POST" id="file_upload_create_form" class="d-inline" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <input type="hidden" value="0" id="id_field" name="id"/>
+                        
+                        <p style="display:none;font-size:0.7em;" id="file_path"></p>
+                        <div class="form-group">
+                            <div class="col-sm-12" style="display: flex;justify-content: space-between;align-items: center;">
+                                <button class="btn btn-sm btn-primary" id="upload_btn" type="submit">Upload <i class="fa fa-upload ml-1" style="font-size: 80%;"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">Clear <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock content %}
+
+
+{% block script %}
+    <link rel="stylesheet" href="https://cdn.datatables.net/select/1.3.1/css/select.dataTables.min.css"/>
+    <link rel="stylesheet" href="https://cdn.datatables.net/buttons/1.6.4/css/buttons.dataTables.min.css"/>
+    <script src="https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js"></script>
+    <script src="https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js"></script>
+    <script>
+        var my_username = "{{request.user.full_name|default:''}}"
+        var dt = null;
+        var selected_nodes = [];
+        $(function () {
+          dt = $('#file_upload_dt').DataTable({
+            "paging": false,
+            "lengthChange": true,
+            "searching": true,
+            "ordering": false,
+            "info": false,
+            "autoWidth": true,
+            "order": [],
+            "language": {
+              "emptyTable": "No Contributions to show."
+            },
+            columnDefs: [ {
+              orderable: false,
+              className: 'select-checkbox',
+              targets: 0
+            }],
+            select: {
+              style: 'os',
+              selector: 'td:first-child'
+            },
+            dom: 'Bfrtip',
+            buttons: [
+              {
+                extend: 'collection',
+                text: 'Actions',
+                buttons: [
+                  {
+                    text: 'Download Images',
+                    action: function ( e, dt, node, config ) {
+                      function getDataUrl(name, url){
+                        return new Promise(function(resolve, reject){
+                          try{
+                            var imageBlob = fetch(url).then(response => response.blob());
+                            resolve(imageBlob);
+                          }catch{
+                            reject('Failed to Load An Image...');
+                          }
+                        })
+                      }
+
+                      $(document).Toasts('create', {
+                        title: 'Downloading Images',
+                        autohide: true,
+                        class: 'bg-info',
+                        position: 'bottomRight',
+                        delay: 4000,
+                        body: 'Zipping selected Images...<br/>Just a moment...'
+                      })
+
+                      var zip = new JSZip();
+                      zip.file("info.txt", ( 'Exported At: '+new Date().toLocaleString()+'\nTotal Images Exported: '+selected_nodes.length ) );
+                      selected_nodes.forEach(async function(n){
+                        var object = n.getAttribute('data-object');
+                        var url = n.getAttribute('data-url');
+                        var name = url.split('/').reverse()[0];
+                        zip.file((object+"/"+name), getDataUrl(name, url), {binary: true});
+                      });
+                      zip.generateAsync({type:"blob"})
+                      .then(function(content) {
+                          saveAs(content, "downloaded_crowdsource_"+(new Date().getTime().toString())+".zip");
+                      });
+                    }
+                  },
+                  {
+                    text: 'Delete Images',
+                    action: function ( e, dt, node, config ) {
+                      Swal.fire({
+                          title: "Delete Selected Images?",
+                          text: 'They will be deleted Permanently.',
+                          type: 'warning',
+                          showCancelButton: true,
+                          confirmButtonText: 'Yes',
+                          confirmButtonColor: '#ad2424',
+                          reverseButtons: true,
+                          cancelButtonText: 'No, cancel!',
+                          }).then((result) => {
+                          if (result.value) {
+                            var ids = [];
+                            selected_nodes.forEach(function(n){
+                              var id = n.getAttribute('data-id');
+                              ids.push(id);
+                            });
+                            var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                            $(document).Toasts('create', {
+                              title: 'Deleting Selected Images',
+                              autohide: true,
+                              class: 'bg-info',
+                              position: 'bottomRight',
+                              delay: 4000,
+                              body: 'Just a moment...'
+                            })
+
+                            Promise.all(ids.map(function(id){
+                              return fetch('/api/crowdsource/' + id + '/', {
+                                method: 'DELETE',
+                                credentials : 'same-origin',
+                                headers: {'X-CSRFToken': csrftoken}
+                              }).then((response) => {
+                                  return response.text();
+                              }).then((data) => {
+                                  return data;
+                              });
+                            })).then((values) => {
+                              Pace.restart();
+                              location.reload();
+                            }).catch(console.error.bind(console));
+                          }
+                      })
+                      $('.swal2-cancel').focus();
+                    }
+                  }
+                ]
+              },
+            ]
+          });
+          dt.on( 'select deselect', function ( e, dt_local, type, indexes ) {
+              selected_nodes = []
+              if ( type === 'row' ) {
+                var selected = dt_local.rows({ selected: true });
+                if(selected[0].length > 0){
+                  $('.dt-buttons').css('display','block');
+                  selected.nodes().toArray().forEach(function(n) {
+                    selected_nodes.push(n);
+                  });
+                }else{
+                  $('.dt-buttons').css('display','none');
+                }
+              }
+          });
+          $('.dt-buttons').css('display','none')
+          $('#id_object_type').attr('required',true);
+          $('#id_image_type').attr('required',true);
+          $('#file_upload_dt_filter input').attr('placeholder', 'Press Enter to Search')
+          $('#file_upload_dt_filter input').val('{{query}}')
+          $('#file_upload_dt_filter input', dt.table().container())
+            .off('.DT')
+            .on('keyup.DT', function (e) {
+              if(e.keyCode == 13 && (this.value.length > 0 || '{{query}}'.length > 0)) {
+                var url = new URL(location.href);
+                url.searchParams.set('q', this.value.toLowerCase());
+                location.href = url.href;
+              }
+            });
+
+          $('#id_object_type').select2();
+          $('#id_image_type').select2();
+          $('#id_username').val(my_username);
+        });
+
+        function editForm(id, name, url, object_type, image_type, username){
+          $('#id_field').val(id);
+          $('#id_object_type').val(object_type).trigger('change');
+          $('#div_id_object_type label p').remove();
+          if(!$('#id_object_type').val()){
+            $('#id_object_type').prop("selectedIndex", 0).trigger('change');
+            $('#div_id_object_type label').append('<p class="m-0"><small>(Previous Value "'+object_type+'" Not Available)<small></p>');
+          }
+          $('#id_image_type').val(image_type).trigger('change');
+          $('#file_path').css("display","block");
+          $('#file_path').html('Image:<br/><a href="'+url+'" target="_blank"><img src="'+url+'" style="min-height:200px;" class="img-fluid rounded mx-auto d-block img-thumbnail" alt="Did not Load..."/></a>');
+          $('#upload_btn').text("Edit Detail");
+          $('#id_file').attr('required',false);
+          $('#div_id_file').css('display','none');
+          $('#id_file').val('');
+          $('#id_username').val(username);
+        }
+
+        function createForm(event){
+          event.preventDefault();
+          $('#id_field').val(0);
+          $('#id_object_type').val('').trigger('change');
+          $('#div_id_object_type label p').remove();
+          $('#id_image_type').val('').trigger('change');
+          $('#file_path').css("display","none");
+          $('#file_path').html('');
+          $('#upload_btn').html('Upload <i class="fa fa-upload ml-1" style="font-size: 80%;"></i>');
+          $('#id_file').attr('required',true);
+          $('#div_id_file').css('display','block');
+          $('#id_file').val('');
+          $('#id_username').val(my_username);
+        }
+    </script>
+{% endblock script %}

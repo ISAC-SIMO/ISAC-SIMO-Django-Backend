@@ -1001,6 +1001,27 @@ def watsonObjectVerify(request, id):
         messages.error(request, 'Invalid Request')
         return redirect('watson.object.list')
 
+# Watson Object Type Add/Remove from Wishlist
+@user_passes_test(is_admin_or_project_admin, login_url=login_url)
+def watsonObjectWishlist(request, id):
+    if(request.method == "POST"):
+        try:
+            if request.user.user_type == 'project_admin':
+                projects = Projects.objects.filter(users__id=request.user.id)
+                object_type = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('-created_at').get(id=id)
+            else:
+                object_type = ObjectType.objects.get(id=id)
+            object_type.wishlist = not object_type.wishlist
+            object_type.save()
+            messages.success(request, 'Object Type has been '+ ("Added to Wishlist (Contribution are now accepted if the Project is marked Public)" if object_type.wishlist else "Removed from Wishlist (Contribution has been paused.)"))
+            return redirect('watson.object.list')
+        except(ObjectType.DoesNotExist):
+            messages.success(request, 'Object Not Found')
+            return redirect('watson.object.list')
+    else:
+        messages.error(request, 'Invalid Request')
+        return redirect('watson.object.list')
+
 ##################
 # OFFLINE MODELS #
 @user_passes_test(is_admin_or_project_admin, login_url=login_url)
