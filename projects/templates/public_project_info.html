@@ -92,7 +92,7 @@
                             <i class="fa fa-info-circle text-info"></i>
                         </a>
                         {% if classifier.offline_model.file %}
-                          <a title="Download" data-toggle="tooltip" data-placement="top" href="{{classifier.offline_model.file}}" download class="px-0 ml-2">
+                          <a title="Download" data-toggle="tooltip" data-placement="top" href="{{classifier.offline_model.file.url}}" download class="px-0 ml-2">
                               <i class="fas fa-file-download text-success"></i>
                           </a>
                         {% endif %}

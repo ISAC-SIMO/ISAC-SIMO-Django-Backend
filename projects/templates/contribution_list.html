@@ -107,6 +107,7 @@
                   </form>
                 </div>
                 {% else %}
+                {% if object_type.wishlist %}
                 <div class="card-body pt-0">
                     <form action="{% url 'contribution' project.id object_type.id %}" method="POST" id="file_upload_create_form" class="d-inline" enctype="multipart/form-data">
                         {% csrf_token %}
@@ -155,6 +156,12 @@
                         </div>
                     </form>
                 </div>
+                {% else %}
+                <div class="card-body pt-0">
+                  <h4>Object Type is not receiving Contributions</h4>
+                  <small><b>Wishlist has been disabled.</b></small>
+                </div>
+                {% endif %}
                 {% endif %}
             </div>
         </div>
