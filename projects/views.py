@@ -186,7 +186,7 @@ def testOfflineProject(request, id):
         return redirect("viewprojects")
 
 # View All Publicly Shared public=true Projects
-@user_passes_test(login_required, login_url=login_url)
+@login_required(login_url=login_url)
 def publicProjects(request):
     projects_list = []
     query = request.GET.get('q','')
@@ -217,7 +217,7 @@ def publicProjects(request):
     return render(request, 'public_projects.html',{'projects':projects,'joined_projects':joined_projects,'query':query,'joined':joined})
 
 # Join or Leave a Public Project
-@user_passes_test(login_required, login_url=login_url)
+@login_required(login_url=login_url)
 def publicProjectJoin(request, id):
     try:
         if request.method == "POST":
@@ -243,7 +243,7 @@ def publicProjectJoin(request, id):
         return redirect('public_projects')
 
 # Public Project Info Page with Object Types and Classifiers details
-@user_passes_test(login_required, login_url=login_url)
+@login_required(login_url=login_url)
 def publicProjectInfo(request, id):
     try:
         project = Projects.objects.filter(Q(public=True) | Q(users__id=request.user.id)).distinct().prefetch_related('object_types', 'object_types__classifiers','object_types__classifiers__offline_model').get(id=id)
@@ -254,7 +254,7 @@ def publicProjectInfo(request, id):
         return redirect('public_projects')
 
 # Add Contribution
-@user_passes_test(login_required, login_url=login_url)
+@login_required(login_url=login_url)
 def addContribution(request, id, object_id):
     try:
         project = Projects.objects.filter(Q(public=True) | Q(users__id=request.user.id)).distinct().get(id=id)
@@ -267,8 +267,11 @@ def addContribution(request, id, object_id):
             query = request.GET.get('q','')
             own = request.GET.get('own', False) == 'true'
 
-            if(request.user.is_admin or request.user.is_project_admin):
+            if request.user.is_admin:
                 contributions = Contribution.objects
+            elif request.user.is_project_admin:
+                projects = Projects.objects.filter(users__id=request.user.id).values_list('id', flat=True)
+                contributions = Contribution.objects.filter(object_type__project_id__in=projects)
             else:
                 contributions = Contribution.objects.filter(Q(is_helpful=True) | Q(created_by=request.user))
             
@@ -276,7 +279,7 @@ def addContribution(request, id, object_id):
                 contributions = contributions.filter(created_by=request.user)
             if query:
                 contributions = contributions.filter(Q(title__icontains=query) |
-                                        Q(description__icontains=query))
+                                        Q(description__icontains=query) | Q(created_by__full_name__icontains=query))
             
             contributions = contributions.order_by('-created_at').distinct().all();
 
@@ -286,24 +289,87 @@ def addContribution(request, id, object_id):
             return render(request, 'contribution_list.html',{'contributions':contributions, 'query':query, 'own':own, 'project': project, 'object_type':object_type,'joined':joined})
         # Add Contributions
         elif request.method == "POST":
-            if joined:
-                if object_type.wishlist:
-                    contribution = Contribution.objects.create(
-                        title=request.POST.get('title', None),
-                        description=request.POST.get('description', None),
-                        file=request.FILES.get('file', None),
-                        object_type=object_type,
-                        created_by=request.user
-                    )
-                    messages.success(request, "Contribution Submitted Successfully for Project: "+project.project_name+" & Object Type: "+object_type.name)
+            if request.POST.get('id', False) and request.POST.get('id') != "0": # Editing
+                contribution = False
+                if request.user.is_admin:
+                    contribution = Contribution.objects
+                elif request.user.is_project_admin:
+                    projects = Projects.objects.filter(users__id=request.user.id).values_list('id', flat=True)
+                    contribution = Contribution.objects.filter(object_type__project_id__in=projects) # If is Project_admin of that Project
                 else:
-                    messages.error(request, "Contribution has not been enabled for this Object Type.")
-            else:
-                messages.error(request, "You have not Joined the Project. Please, Join to Contribute.")
+                    contribution = Contribution.objects.filter(created_by=request.user)
+                
+                contribution = contribution.get(id=request.POST.get('id'));
+                contribution.title = request.POST.get('title', contribution.title)
+                contribution.description = request.POST.get('description', contribution.description)
+                if request.FILES.get('file', False):
+                    contribution.file = request.FILES.get('file')
+                
+                if (request.user.is_admin or request.user.is_project_admin):
+                    contribution.is_helpful = True if request.POST.get('is_helpful', False) else False
+
+                contribution.save()
+                messages.success(request, "Contribution Edited Successfully for Project: "+project.project_name+" & Object Type: "+object_type.name+("(Marked Helpful)" if contribution.is_helpful else ""))
+            else: # Adding
+                if joined:
+                    if object_type.wishlist:
+                        contribution = Contribution.objects.create(
+                            title=request.POST.get('title', None),
+                            description=request.POST.get('description', None),
+                            file=request.FILES.get('file', None),
+                            object_type=object_type,
+                            created_by=request.user
+                        )
+                        messages.success(request, "Contribution Submitted Successfully for Project: "+project.project_name+" & Object Type: "+object_type.name)
+                    else:
+                        messages.error(request, "Contribution has not been enabled for this Object Type.")
+                else:
+                    messages.error(request, "You have not Joined the Project. Please, Join to Contribute.")
+        else:
+            messages.error(request, "Invalid Request")
     except(Projects.DoesNotExist):
         messages.error(request, "Invalid Project. The Project does not exist or is not available at the moment.")
-    except(Projects.DoesNotExist):
+    except(ObjectType.DoesNotExist):
         messages.error(request, "Invalid Object Type. The Object type you trying to access does not exist.")
+    except(Contribution.DoesNotExist):
+        messages.error(request, "Invalid Request. The Contribution does not exist.")
+
+    if request.META.get('HTTP_REFERER', False):
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER'))
+    else:
+        return redirect('public_projects')
+
+# Delete Contribution
+@login_required(login_url=login_url)
+def deleteContribution(request, id, object_id, contribution_id):
+    try:
+        project = Projects.objects.filter(Q(public=True) | Q(users__id=request.user.id)).distinct().get(id=id)
+        joined = True if request.user.projects.filter(id=project.id).count() > 0 else False
+        object_type = ObjectType.objects.filter(project_id=project.id).get(id=object_id)
+
+        if request.method == "POST":
+            contribution = False
+
+            if request.user.is_admin:
+                contribution = Contribution.objects
+            elif request.user.is_project_admin:
+                projects = Projects.objects.filter(users__id=request.user.id).values_list('id', flat=True)
+                contribution = Contribution.objects.filter(object_type__project_id__in=projects) # If is Project_admin of that Project
+            else:
+                contribution = Contribution.objects.filter(created_by=request.user)
+            
+            contribution = contribution.get(id=contribution_id);
+            contribution.file.delete()
+            contribution.delete()
+            messages.success(request, "Contribution Deleted Successfully")
+        else:
+            messages.error(request, "Invalid Request")
+    except(Projects.DoesNotExist):
+        messages.error(request, "Invalid Project. The Project does not exist or is not available at the moment.")
+    except(ObjectType.DoesNotExist):
+        messages.error(request, "Invalid Object Type. The Object type you trying to access does not exist.")
+    except(Contribution.DoesNotExist):
+        messages.error(request, "Invalid Request. The Contribution does not exist.")
 
     if request.META.get('HTTP_REFERER', False):
         return HttpResponseRedirect(request.META.get('HTTP_REFERER'))

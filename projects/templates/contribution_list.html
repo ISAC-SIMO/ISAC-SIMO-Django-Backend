@@ -1,8 +1,8 @@
 {% extends 'master/base.html' %}
 
-{% block title %} Contributions for {{object_type.name|title}} - {{project.project_name}} {% endblock title %}
-{% block dashboard_title1 %} Contributions for {{object_type.name|title}} - {{project.project_name}} {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Contributions {% endblock dashboard_title2 %}
+{% block title %} {% if own %}Your{% endif %} Contributions for {{object_type.name|title}} - {{project.project_name}} {% endblock title %}
+{% block dashboard_title1 %} {% if own %}Your{% endif %} Contributions for {{object_type.name|title}} - {{project.project_name}} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% if own %}Your{% endif %} Contributions {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -26,28 +26,37 @@
                         </thead>
                         <tbody>
                             {% for contribution in contributions %}
-                                {% comment %} <tr data-object="{{crowdsource.object_type}}" data-id="{{crowdsource.id}}" data-url="{{crowdsource.file.url}}">
+                                <tr data-object="{{object_type}}" data-id="{{contribution.id}}" data-url="{% if contribution.file %}{{contribution.file.url}}{% endif %}">
                                     <td></td>
-                                    <td>{{crowdsource.object_type|title}}</td>
-                                    <td>{{crowdsource.image_type|title|default:'Raw'}}</td>
-                                    <td>{% if crowdsource.created_by %} {{crowdsource.created_by.full_name}} {% else %} {{crowdsource.username|default:'N/A'}} {% endif %}</td>
+                                    <td>{{contribution.title}}</td>
+                                    <td>
+                                      {% if contribution.file %}
+                                      <a title="Download File" download data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" href="{{contribution.file.url}}" class="text-primary px-0" style="margin: 0 3px !important;">
+                                          <i class="fa fa-file-download"></i>
+                                      </a>
+                                      {% endif %}
+                                      <a onclick="Swal.fire('Description for {{contribution.title}}','{{contribution.description}}');document.getElementsByClassName('swal2-show')[0].style.width='50%';" title="View Description" data-toggle="tooltip" data-placement="left" href="#!" class="text-info px-0" style="margin: 0 3px !important;">
+                                          <i class="fa fa-info-circle"></i>
+                                      </a>
+                                    </td>
+                                    <td>{% if contribution.created_by %} {{contribution.created_by.full_name}} {% else %} N/A {% endif %}
+                                    {% if contribution.created_by and user.id == contribution.created_by.id %}<b>[YOU]</b>{% endif %}
+                                    </td>
                                     <td class="table-options" style="min-width: 110px;">
-                                        <a title="View Image" data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" onclick="showImagePop(event,'{{crowdsource.file.url}}')" href="{{crowdsource.file.url}}" class="btn text-primary px-0" style="margin: 0 3px !important;">
-                                            <i class="fa fa-file-image"></i>
-                                        </a>
-                                        <a onclick="editForm('{{crowdsource.id}}','{{crowdsource.name}}','{{crowdsource.file.url}}','{{crowdsource.object_type}}','{{crowdsource.image_type}}','{{crowdsource.username}}')" title="Edit" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        {% if user.is_admin or user.is_project_admin or contribution.created_by and user.id == contribution.created_by.id %}
+                                        <a onclick="editForm('{{contribution.id}}','{{contribution.title}}','{{contribution.description|linebreaksbr}}','{% if contribution.file %}{{contribution.file.url}}{% endif %}',{% if contribution.is_helpful %}true{% else %}false{% endif %})" title="Edit" data-toggle="tooltip" data-placement="left" href="#" class="text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-edit"></i>
                                         </a>
-                                        {% if user.is_admin or crowdsource.created_by and user.id == crowdsource.created_by.id %}
-                                        <a onclick="deleteData(event, 'form-{{ crowdsource.id }}', 'Uploaded File')" title="Delete" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="deleteData(event, 'form-{{ contribution.id }}', 'Contribution')" title="Delete" data-toggle="tooltip" data-placement="left" href="#" class="text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <form action="{% url 'crowdsource.delete' crowdsource.id %}" id="form-{{ crowdsource.id }}" method="POST" class="d-inline">
+                                        <form action="{% url 'delete.contribution' project.id object_type.id contribution.id %}" id="form-{{ contribution.id }}" method="POST" class="d-inline">
                                             {% csrf_token %}
                                         </form>
                                         {% endif %}
+                                        {% if contribution.is_helpful %}<i title="Marked Helpful 👍" data-toggle="tooltip" data-placement="left" class="fa fa-check-circle text-success"></i>{% endif %}
                                     </td>
-                                </tr> {% endcomment %}
+                                </tr>
                             {% endfor %}
                         </tbody> 
                     </table>
@@ -87,15 +96,57 @@
         <div class="col-sm-12 col-md-4">
             <div class="card">
                 <div class="card-title ml-3 mt-3">
-                    <h5 id="file_title_status">Contribute to {{object_type.name|title}} - {{project.project_name}}</h5>
+                    <small id="file_title_status">Contributing to {{object_type.name|title}} - {{project.project_name}}</small>
                 </div>
                 <hr style="margin:0.5rem;"/>
+                {% if not joined and not user.is_admin %}
+                <div class="card-body pt-0">
+                  <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Join {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-success">Join Project To Contribute</a>
+                  <form action="{% url 'public_project_join' project.id %}?join=true" method="POST" id="form-{{ project.id }}" class="d-inline">
+                    {% csrf_token %}
+                  </form>
+                </div>
+                {% else %}
                 <div class="card-body pt-0">
                     <form action="{% url 'contribution' project.id object_type.id %}" method="POST" id="file_upload_create_form" class="d-inline" enctype="multipart/form-data">
                         {% csrf_token %}
                         <input type="hidden" value="0" id="id_field" name="id"/>
-                        
-                        <p style="display:none;font-size:0.7em;" id="file_path"></p>
+                        <div class="form-group mb-0">
+                            <label for="title" class="col-12 col-form-label">Title*</label>
+                            <div class="col-sm-12">
+                                <input type="text" placeholder="Contribution Title" class="form-control" id="title" name="title" required/>
+                            </div>
+                        </div>
+                        <div class="form-group mb-0">
+                            <label for="description" class="col-12 col-form-label">Description*</label>
+                            <div class="col-sm-12">
+                              <textarea placeholder="Brief Description" class="form-control" style="min-height: 65px;max-height: 250px;" id="description" name="description" max="2000" oninput="event.target.style.height='65px';event.target.style.height = (event.target.scrollHeight)+'px';" required></textarea>
+                            </div>
+                            <small class="col-sm-12 form-text text-muted">
+                                Describe the Contribution, linked files and why it should be considered.
+                            </small>
+                        </div>
+                        <div class="form-group">
+                            <label for="file" class="col-12 col-form-label">File</label>
+                            <div class="col-sm-12">
+                                <input type="file" id="file" name="file"/>
+                            </div>
+                            <small class="col-sm-12 form-text text-muted">
+                                Submit One Zipped File if required.
+                            </small>
+                        </div>
+                        {% if user.is_admin or user.is_project_admin %}
+                        <div class="form-group">
+                            <label for="is_helpful" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
+                                <input type="checkbox" name="is_helpful" id="is_helpful" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
+                                Is Helpful 👍
+                            </label>
+                            <small class="col-sm-12 form-text text-muted" style="margin:0;">
+                                Mark this Contribution as Helpful. So that other users can see and download it.
+                            </small>
+                        </div>
+                        {% endif %}
+                        <p style="display:none;font-size:0.7em;margin-left:6px;" id="file_path"></p>
                         <div class="form-group">
                             <div class="col-sm-12" style="display: flex;justify-content: space-between;align-items: center;">
                                 <button class="btn btn-sm btn-primary" id="upload_btn" type="submit">Upload <i class="fa fa-upload ml-1" style="font-size: 80%;"></i></button>
@@ -104,6 +155,7 @@
                         </div>
                     </form>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
@@ -144,12 +196,31 @@
             },
             dom: 'Bfrtip',
             buttons: [
+              {% if own %}
+              {
+                text: '<i class="fa fa-arrow-left"></i> View All Contributions',
+                action: function ( e, dt, node, config ) {
+                    var url = new URL(location.href);
+                    url.searchParams.delete('own');
+                    location.href = url.href;
+                }
+              },
+              {% else %}
+              {
+                text: 'Only Show Your Contributions',
+                action: function ( e, dt, node, config ) {
+                    var url = new URL(location.href);
+                    url.searchParams.set('own', 'true');
+                    location.href = url.href;
+                }
+              },
+              {% endif %}
               {
                 extend: 'collection',
                 text: 'Actions',
                 buttons: [
                   {
-                    text: 'Download Images',
+                    text: 'Download Files',
                     action: function ( e, dt, node, config ) {
                       function getDataUrl(name, url){
                         return new Promise(function(resolve, reject){
@@ -157,22 +228,22 @@
                             var imageBlob = fetch(url).then(response => response.blob());
                             resolve(imageBlob);
                           }catch{
-                            reject('Failed to Load An Image...');
+                            reject('Failed to Load A File...');
                           }
                         })
                       }
 
                       $(document).Toasts('create', {
-                        title: 'Downloading Images',
+                        title: 'Downloading Files',
                         autohide: true,
                         class: 'bg-info',
                         position: 'bottomRight',
                         delay: 4000,
-                        body: 'Zipping selected Images...<br/>Just a moment...'
+                        body: 'Zipping selected Files...<br/>Just a moment...'
                       })
 
                       var zip = new JSZip();
-                      zip.file("info.txt", ( 'Exported At: '+new Date().toLocaleString()+'\nTotal Images Exported: '+selected_nodes.length ) );
+                      zip.file("info.txt", ( 'Exported At: '+new Date().toLocaleString()+'\nTotal Files Exported: '+selected_nodes.length ) );
                       selected_nodes.forEach(async function(n){
                         var object = n.getAttribute('data-object');
                         var url = n.getAttribute('data-url');
@@ -181,15 +252,16 @@
                       });
                       zip.generateAsync({type:"blob"})
                       .then(function(content) {
-                          saveAs(content, "downloaded_crowdsource_"+(new Date().getTime().toString())+".zip");
+                          saveAs(content, "downloaded_contributions_"+(new Date().getTime().toString())+".zip");
                       });
                     }
                   },
+                  {% if user.is_admin or user.is_project_admin %}
                   {
-                    text: 'Delete Images',
+                    text: 'Delete Files',
                     action: function ( e, dt, node, config ) {
                       Swal.fire({
-                          title: "Delete Selected Images?",
+                          title: "Delete Selected Files?",
                           text: 'They will be deleted Permanently.',
                           type: 'warning',
                           showCancelButton: true,
@@ -206,7 +278,7 @@
                             });
                             var csrftoken = document.querySelector('[name=csrfmiddlewaretoken]').value;
                             $(document).Toasts('create', {
-                              title: 'Deleting Selected Images',
+                              title: 'Deleting Selected Files',
                               autohide: true,
                               class: 'bg-info',
                               position: 'bottomRight',
@@ -215,8 +287,8 @@
                             })
 
                             Promise.all(ids.map(function(id){
-                              return fetch('/api/crowdsource/' + id + '/', {
-                                method: 'DELETE',
+                              return fetch('/projects/public/{{project.id}}/object/{{object_type.id}}/contribution/delete/'+id, {
+                                method: 'POST',
                                 credentials : 'same-origin',
                                 headers: {'X-CSRFToken': csrftoken}
                               }).then((response) => {
@@ -233,6 +305,7 @@
                       $('.swal2-cancel').focus();
                     }
                   }
+                  {% endif %}
                 ]
               },
             ]
@@ -242,18 +315,16 @@
               if ( type === 'row' ) {
                 var selected = dt_local.rows({ selected: true });
                 if(selected[0].length > 0){
-                  $('.dt-buttons').css('display','block');
+                  $('.dt-button.buttons-collection').css('display','inline-block');
                   selected.nodes().toArray().forEach(function(n) {
                     selected_nodes.push(n);
                   });
                 }else{
-                  $('.dt-buttons').css('display','none');
+                  $('.dt-button.buttons-collection').css('display','none');
                 }
               }
           });
-          $('.dt-buttons').css('display','none')
-          $('#id_object_type').attr('required',true);
-          $('#id_image_type').attr('required',true);
+          $('.dt-button.buttons-collection').css('display','none')
           $('#file_upload_dt_filter input').attr('placeholder', 'Press Enter to Search')
           $('#file_upload_dt_filter input').val('{{query}}')
           $('#file_upload_dt_filter input', dt.table().container())
@@ -262,46 +333,41 @@
               if(e.keyCode == 13 && (this.value.length > 0 || '{{query}}'.length > 0)) {
                 var url = new URL(location.href);
                 url.searchParams.set('q', this.value.toLowerCase());
+                if(this.value.length <= 0){url.searchParams.delete('q');}
                 location.href = url.href;
               }
             });
-
-          $('#id_object_type').select2();
-          $('#id_image_type').select2();
-          $('#id_username').val(my_username);
         });
 
-        function editForm(id, name, url, object_type, image_type, username){
+        function editForm(id, title, description, url, is_helpful){
           $('#id_field').val(id);
-          $('#id_object_type').val(object_type).trigger('change');
-          $('#div_id_object_type label p').remove();
-          if(!$('#id_object_type').val()){
-            $('#id_object_type').prop("selectedIndex", 0).trigger('change');
-            $('#div_id_object_type label').append('<p class="m-0"><small>(Previous Value "'+object_type+'" Not Available)<small></p>');
-          }
-          $('#id_image_type').val(image_type).trigger('change');
           $('#file_path').css("display","block");
-          $('#file_path').html('Image:<br/><a href="'+url+'" target="_blank"><img src="'+url+'" style="min-height:200px;" class="img-fluid rounded mx-auto d-block img-thumbnail" alt="Did not Load..."/></a>');
-          $('#upload_btn').text("Edit Detail");
-          $('#id_file').attr('required',false);
-          $('#div_id_file').css('display','none');
-          $('#id_file').val('');
-          $('#id_username').val(username);
+          if(url){
+            $('#file_path').html('Current File:<br/><a href="'+url+'" target="_blank">'+url+'</a>');
+          }else{
+            $('#file_path').html('Current File: N/A');
+          }
+          $('#upload_btn').text("Edit Contribution");
+          $('#file').val('');
+          $('#title').val(title);
+          $('#description').val(description.replace(/(<br \/>)/g,'\n').replace(/(<br\/>)/g,'\n'));
+          $('#is_helpful').prop('checked', is_helpful)
+          var desc_field = document.getElementById('description')
+          desc_field.style.height='65px';desc_field.style.height = (desc_field.scrollHeight)+'px';
         }
 
         function createForm(event){
           event.preventDefault();
           $('#id_field').val(0);
-          $('#id_object_type').val('').trigger('change');
-          $('#div_id_object_type label p').remove();
-          $('#id_image_type').val('').trigger('change');
           $('#file_path').css("display","none");
           $('#file_path').html('');
           $('#upload_btn').html('Upload <i class="fa fa-upload ml-1" style="font-size: 80%;"></i>');
-          $('#id_file').attr('required',true);
-          $('#div_id_file').css('display','block');
-          $('#id_file').val('');
-          $('#id_username').val(my_username);
+          $('#file').val('');
+          $('#title').val('');
+          $('#description').val('');
+          $('#is_helpful').prop('checked', false)
+          var desc_field = document.getElementById('description')
+          desc_field.style.height='65px';desc_field.style.height = (desc_field.scrollHeight)+'px';
         }
     </script>
 {% endblock script %}

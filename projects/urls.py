@@ -12,4 +12,5 @@ urlpatterns = [
     path('public/join/<int:id>', views.publicProjectJoin, name="public_project_join"),
     path('public/<int:id>', views.publicProjectInfo, name="public_project_info"),
     path('public/<int:id>/object/<int:object_id>/contribution', views.addContribution, name="contribution"),
+    path('public/<int:id>/object/<int:object_id>/contribution/delete/<int:contribution_id>', views.deleteContribution, name="delete.contribution"),
 ]
