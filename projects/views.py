@@ -281,7 +281,7 @@ def addContribution(request, id, object_id):
                 contributions = contributions.filter(Q(title__icontains=query) |
                                         Q(description__icontains=query) | Q(created_by__full_name__icontains=query))
             
-            contributions = contributions.order_by('-created_at').distinct().all();
+            contributions = contributions.filter(object_type=object_type).order_by('-created_at').distinct().all();
 
             paginator = Paginator(contributions, 50)  # Show 50
             page_number = request.GET.get('page', '1')

@@ -13,7 +13,7 @@ from api.helpers import create_classifier, test_image
 
 from main.models import User
 
-from .models import Classifier, FileUpload, Image, ImageFile, ObjectType, OfflineModel
+from .models import Classifier, Contribution, FileUpload, Image, ImageFile, ObjectType, OfflineModel
 from projects.models import Projects
 
 class ProjectMinimalSerializer(serializers.ModelSerializer):
@@ -709,3 +709,55 @@ class OfflineModelSerializer(serializers.ModelSerializer):
             validated_data['offline_model_labels'] = offline_model_labels
         return super().update(instance, validated_data)
 
+class ContributionSerializer(serializers.ModelSerializer):
+    created_by = UserMinimalSerializer(many=False, read_only=True)
+    object_type = ObjectTypeMinimalSerializer(many=False, read_only=True)
+
+    def get_unique_name(self, obj):
+        return obj.unique_name()
+
+    class Meta:
+        model = Contribution
+        fields = ('id','title','description','file','object_type','is_helpful','created_by','created_at','updated_at')
+        read_only_fields = ('id','created_by','created_at','object_type', 'updated_at')
+
+    def create(self, validated_data):
+        try:
+            request = self.context.get("request")
+            object_type_id = self.context.get('object_type_id',0) # GET object id from url route parameter Passed from Views function
+            object_type = ObjectType.objects.get(id=object_type_id)
+            if object_type.wishlist:
+                contribution = Contribution.objects.create(
+                    title=validated_data.get('title'),
+                    description=validated_data.get('description'),
+                    file=validated_data.get('file', None),
+                    object_type=object_type,
+                    created_by=request.user
+                )
+                return contribution
+            else:
+                raise serializers.ValidationError({"message":"Object Type is Not Receiving Contributions."})
+        except(ObjectType.DoesNotExist):
+            raise serializers.ValidationError({"message":"Invalid Object Type. The Object type you trying to access does not exist."})
+
+    def update(self, instance, validated_data):
+        try:
+            request = self.context.get("request")
+            object_type_id = self.context.get('object_type_id',0) # GET object id from url route parameter Passed from Views function
+            object_type = ObjectType.objects.get(id=object_type_id)
+
+            instance.title = validated_data.get('title', instance.title)
+            instance.description = validated_data.get('description', instance.description)
+            if (request.user.is_admin or request.user.is_project_admin):
+                instance.is_helpful = True if validated_data.get('is_helpful', False) else False
+
+            if(validated_data.get('file')):
+                if instance.file:
+                    instance.file.delete()
+                instance.file = validated_data.get('file', None)
+            instance.save()
+            return instance
+        except(ObjectType.DoesNotExist):
+            raise serializers.ValidationError({"message":"Invalid Object Type. The Object type you trying to access does not exist."})
+        except(Contribution.DoesNotExist):
+            raise serializers.ValidationError({"message":"Invalid Contribution attempted to Edit. It does not exist."})

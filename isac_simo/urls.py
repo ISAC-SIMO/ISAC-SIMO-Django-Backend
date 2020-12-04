@@ -23,7 +23,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
 from api import views as api
-from api.views import ClassifierView, FileUploadView, ImageView, ObjectTypeView, OfflineModelView, ProfileView, ProjectView, UserView, VideoFrameView, clean_temp_view, fetch_classifier_detail, fetch_object_type_detail, retrain_classifier, terminal_view, test_view
+from api.views import ClassifierView, ContributionView, FileUploadView, ImageView, ObjectTypeView, OfflineModelView, ProfileView, ProjectView, UserView, VideoFrameView, clean_temp_view, fetch_classifier_detail, fetch_object_type_detail, retrain_classifier, terminal_view, test_view
 from main import views
 
 router = routers.DefaultRouter()
@@ -38,6 +38,7 @@ router.register('classifier', ClassifierView)
 router.register('offline_model', OfflineModelView)
 router.register('file', FileUploadView)
 router.register('crowdsource', CrowdsourceView)
+router.register(r'object/(?P<object_id>.+)/contribution', ContributionView)
 
 urlpatterns = [
     # API

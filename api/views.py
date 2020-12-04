@@ -33,7 +33,7 @@ import isac_simo.classifier_list as classifier_list
 from api.forms import OfflineModelForm, FileUploadForm
 from api.helpers import classifier_detail, create_classifier, markdownToHtml, object_detail, quick_test_detect_image, quick_test_image, quick_test_offline_image, retrain_image, test_image, quick_test_offline_image_pre_post
 from api.models import Classifier, ObjectType, OfflineModel, FileUpload
-from api.serializers import (ClassifierSerializer, FileUploadSerializer, ImageSerializer, ObjectTypeSerializer, OfflineModelSerializer, ProjectSerializer, TestSerializer, UserSerializer,
+from api.serializers import (ClassifierSerializer, ContributionSerializer, FileUploadSerializer, ImageSerializer, ObjectTypeSerializer, OfflineModelSerializer, ProjectSerializer, TestSerializer, UserSerializer,
                              VideoFrameSerializer)
 from main import authorization
 from main.authorization import *
@@ -41,7 +41,7 @@ from main.models import User
 from projects.models import Projects
 
 from .forms import ImageForm
-from .models import Image, ImageFile
+from .models import Contribution, Image, ImageFile
 
 
 def reload_classifier_list():
@@ -1698,6 +1698,24 @@ class ProjectView(viewsets.ModelViewSet):
 
         test_result = {'message': 'Test Failed. Either No Object Was Detected or the model is not in ready state.'}
         return JsonResponse(test_result, status=404)
+    
+    @action(detail=True, methods=['POST'])
+    def join(self, request, pk=None, *args, **kwargs):
+        try:
+            project = Projects.objects.filter(public=True).get(id=pk)
+            request.user.projects.add(project)
+            return JsonResponse({'message':'Project Joined Successfully'}, status=200)
+        except(Projects.DoesNotExist):
+            return JsonResponse({'message':'Invalid Project'}, status=404)
+
+    @action(detail=True, methods=['POST'])
+    def leave(self, request, pk=None, *args, **kwargs):
+        try:
+            project = Projects.objects.get(id=pk)
+            request.user.projects.remove(project)
+            return JsonResponse({'message':'Project Left Successfully'}, status=200)
+        except(Projects.DoesNotExist):
+            return JsonResponse({'message':'Invalid Project'}, status=404)
 
 class ObjectTypeView(viewsets.ModelViewSet):
     queryset = ObjectType.objects.all()
@@ -2084,4 +2102,52 @@ def retrain_classifier(request):
             return Response({'message':msg}, status=404)
         
     return Response({"message":"Unauthorized or Invalid Request"}, status=403)
+
+# Contribution
+class ContributionView(viewsets.ModelViewSet):
+    queryset = Contribution.objects.all()
+    serializer_class = ContributionSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_serializer_context(self):
+        context = super().get_serializer_context()
+        context["object_type_id"] = self.kwargs.get('object_id', 0) # GET object id from url route parameter and send to serializer
+        return context
+
+    def get_queryset(self):
+        object_type_id = self.kwargs.get('object_id', 0) # GET object id from url route parameter
+        if self.request.user.is_authenticated and object_type_id:
+            query = self.request.GET.get('q','')
+            own = self.request.GET.get('own', False) == 'true'
+            helpful = self.request.GET.get('helpful', False) == 'true'
+
+            if self.request.user.is_admin:
+                contributions = Contribution.objects
+            elif self.request.user.is_project_admin:
+                projects = Projects.objects.filter(users__id=self.request.user.id).values_list('id', flat=True)
+                contributions = Contribution.objects.filter(object_type__project_id__in=projects)
+            else:
+                if self.action == 'list':
+                    contributions = Contribution.objects.filter(Q(is_helpful=True) | Q(created_by=self.request.user))
+                else:
+                    contributions = Contribution.objects.filter(created_by=self.request.user)
+            
+            if own:
+                contributions = contributions.filter(created_by=self.request.user)
+            if helpful:
+                contributions = contributions.filter(is_helpful=True)
+            if query:
+                contributions = contributions.filter(Q(title__icontains=query) |
+                                        Q(description__icontains=query) | Q(created_by__full_name__icontains=query))
+            
+            contributions = contributions.filter(object_type_id=object_type_id).order_by('-created_at').distinct().all();
+            return contributions
+        
+        return []
+
+    def destroy(self, request, *args, **kwargs):
+        contribution = self.get_object()
+        if contribution.file:
+            contribution.file.delete()
+        return super().destroy(request, *args, **kwargs)
 
