@@ -9,6 +9,7 @@ import uuid
 from datetime import datetime
 from http.client import HTTPResponse
 from importlib import reload
+from django.core.paginator import Paginator
 from django.db.models.query import Prefetch
 
 import filetype
@@ -1645,10 +1646,38 @@ def test_view(request):
 class ProjectView(viewsets.ModelViewSet):
     queryset = Projects.objects.all()
     serializer_class = ProjectSerializer
-    permission_classes = [HasAdminOrProjectAdminPermission]
+    permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
-        reload_classifier_list()
+        # reload_classifier_list()
+        # PUBLIC PROJECTS ONLY
+        if self.action == 'list' and self.request.GET.get('public', False) == 'true':
+            projects_list = []
+            query = self.request.GET.get('q','')
+            joined = self.request.GET.get('joined',False)
+
+            projects_list = Projects.objects.order_by('-updated_at')
+
+            # FILTER AND SHOW ONLY JOINED
+            if joined == 'true':
+                projects_list = projects_list.filter(Q(users__id=self.request.user.id))
+            # ELSE ALL
+            else:
+                projects_list = projects_list.filter(Q(public=True) | Q(users__id=self.request.user.id))
+
+            # IF SEARCH
+            if query and len(query) > 0:
+                projects_list = projects_list.filter(Q(project_name__icontains=query) |
+                                                    Q(project_desc__icontains=query) |
+                                                    Q(object_types__name__icontains=query))
+            
+            projects_list = projects_list.distinct().all()
+            paginator = Paginator(projects_list, 25)  # Show 25
+            page_number = self.request.GET.get('page', '1')
+            projects_list = paginator.get_page(page_number)
+            return projects_list
+
+        # ALL PROJECTS
         if self.request.user.is_authenticated:
             if self.request.user.is_admin:
                 return Projects.objects.all().order_by('project_name')
@@ -1723,7 +1752,7 @@ class ObjectTypeView(viewsets.ModelViewSet):
     permission_classes = [HasAdminOrProjectAdminPermission]
 
     def get_queryset(self):
-        reload_classifier_list()
+        # reload_classifier_list()
         if self.request.user.is_authenticated:
             if self.request.user.is_project_admin:
                 projects = Projects.objects.filter(users__id=self.request.user.id)
@@ -1786,7 +1815,7 @@ class ClassifierView(viewsets.ModelViewSet):
     permission_classes = [HasAdminOrProjectAdminPermission]
 
     def get_queryset(self):
-        reload_classifier_list()
+        # reload_classifier_list()
         if self.request.user.is_authenticated:
             if self.request.user.is_admin:
                 if self.request.GET.get('object_type', False):
@@ -1900,7 +1929,7 @@ class OfflineModelView(viewsets.ModelViewSet):
     permission_classes = [HasAdminOrProjectAdminPermission]
 
     def get_queryset(self):
-        reload_classifier_list()
+        # reload_classifier_list()
         if self.request.user.is_authenticated:
             if self.request.user.is_admin:
                 return OfflineModel.objects.all().order_by('name')
