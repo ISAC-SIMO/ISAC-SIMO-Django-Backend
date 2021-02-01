@@ -25,6 +25,8 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
 from api import views as api
 from api.views import ClassifierView, ContributionView, FileUploadView, ImageView, ObjectTypeView, OfflineModelView, ProfileView, ProjectView, UserView, VideoFrameView, clean_temp_view, fetch_classifier_detail, fetch_object_type_detail, retrain_classifier, terminal_view, test_view
 from main import views
+from django.conf.urls.i18n import i18n_patterns
+
 
 router = routers.DefaultRouter()
 router.register('register', UserView)
@@ -41,6 +43,7 @@ router.register('crowdsource', CrowdsourceView)
 router.register(r'object/(?P<object_id>.+)/contribution', ContributionView)
 
 urlpatterns = [
+    path('i18n/', include('django.conf.urls.i18n')),
     # API
     path('api/user/', include('rest_framework.urls')), # REST_FRAMEWORK_URL_FOR_TEST
     path('api/auth/', TokenObtainPairView.as_view(), name='auth'),
@@ -69,6 +72,10 @@ urlpatterns = [
     path('serviceworker.js', views.serviceworker, name="serviceworker"),
     path('offline', views.offline, name="offline")
 ]
+# This is for further model field translation and other..
+urlpatterns += i18n_patterns(
+
+)
 
 if settings.DEBUG:
     urlpatterns += static(settings.STATIC_URL, document_root=settings.STATIC_ROOT)
