@@ -1,9 +1,6 @@
 version: 2
 jobs:
   build:
-    filters:
-      branches:
-        only: master
     docker:
       # Specify the version you desire here
       - image: circleci/python:3.8.2
@@ -81,4 +78,7 @@ workflows:
   version: 2
   notify_deploy:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              only: master
