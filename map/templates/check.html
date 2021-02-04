@@ -1,7 +1,8 @@
 {% extends 'master/base.html' %}
-{% block title %} Google Map Check with Streetview {% endblock title %}
-{% block dashboard_title1 %} Google Map Street View Check {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Google Map {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "Google Map Check with Streetview" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Google Map Street View Check" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "Google Map" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -16,21 +17,21 @@
 
                     <div class="row">
                         <div class="form-group col-sm-12 col-md-6">
-                            <label for="latlng" class="col-sm-12 col-form-label">Latitude/Longitude</label>
+                            <label for="latlng" class="col-sm-12 col-form-label">{% trans "Latitude/Longitude" %}</label>
                             <div class="col-sm-12">
                                 <input type="text" name="latlng" class="form-control" id="latlng" placeholder="Click on Map to get Latitude and Longitude or type in e.g.(24.44,54.22)" required/>
                             </div>
                             <small class="col-sm-12 form-text mt-1 text-danger" id="latlng_msg" style="margin:0;"></small>
                         </div>
                         <div class="form-group col-sm-12 col-md-6">
-                            <label for="coordinates" class="col-sm-12 col-form-label">Coordinates</label>
+                            <label for="coordinates" class="col-sm-12 col-form-label">{% trans "Coordinates" %}</label>
                             <div class="col-sm-12" id="coordinates">
-                                <b class="form-control ">-OR- Add Polygon in the map to use Coordinates for getting images</b>
+                                <b class="form-control ">-{% trans "OR- Add Polygon in the map to use Coordinates for getting images" %}</b>
                             </div>
                         </div>
                     </div>
                     <div class="form-group">
-                        <button type="submit" id="map_check_btn" class="ml-2 btn btn-primary">Check</button>
+                        <button type="submit" id="map_check_btn" class="ml-2 btn btn-primary">{% trans "Check" %}</button>
                         <p class="mt-2">
                             <small class="d-block ml-2">Angle: 30, 220, 0, 90, 180, 270</small>
                             <small class="d-block ml-2">FOV: 120</small>
@@ -38,13 +39,13 @@
                     </div>
                     <div class="form-group">
                         <hr/>
-                        <h4 class="ml-2">Image Result:</h4>
-                        <div id="image-container" class="row"><div class="ml-3">No Result !!</div></div>
+                        <h4 class="ml-2">{% trans "Image Result" %}:</h4>
+                        <div id="image-container" class="row"><div class="ml-3">{% trans "No Result" %} !!</div></div>
                     </div>
                     <div class="form-group">
                         <input type="hidden" id="image_list" name="image_list" value=''/>
                         <div class="form-group">
-                            <label for="object_id" class="col-sm-12 col-md-5 col-form-label">Select the Object Model to test on:</label>
+                            <label for="object_id" class="col-sm-12 col-md-5 col-form-label">{% trans "Select the Object Model to test on" %}:</label>
                             <div class="col-sm-12 col-md-5">
                                 <select name="object_id" class="form-control select2" id="object_id" required>
                                     {% comment %} {% if default_object_model %}
@@ -55,19 +56,19 @@
                                             {% if project.detect_model %}
                                                 <option data-project-id="{{project.id}}" data-project="{{project.project_name}}" value="{{project.detect_model}}">{{project.detect_model}}</option>
                                             {% elif project.offline_model %}
-                                                <option data-project-id="{{project.id}}" data-project="{{project.project_name}}" value="{{project.offline_model}}">Offline Model - {{project.offline_model}}</option>
+                                                <option data-project-id="{{project.id}}" data-project="{{project.project_name}}" value="{{project.offline_model}}">{% trans "Offline Model" %} - {{project.offline_model}}</option>
                                             {% endif %}
                                         {% endfor %}
                                     {% endif %}
                                 </select>
                             </div>
                         </div>
-                        <button type="submit" id="test_images_btn" style="display:none;" class="ml-2 btn btn-primary">Test Images</button>
-                        <p id="test_images_btn_text" style="display:none;margin-left: 8px;margin-top: 2px;">Might take some time depending on the total images...</p>
+                        <button type="submit" id="test_images_btn" style="display:none;" class="ml-2 btn btn-primary">{% trans "Test Images" %}</button>
+                        <p id="test_images_btn_text" style="display:none;margin-left: 8px;margin-top: 2px;">{% trans "Might take some time depending on the total images" %}...</p>
                     </div>
 
                     <div class="form-group mt-1" id="clean-image-btn" style="display:none;">
-                        <a href="#!" onclick="simpleConfirm(event,'{% url 'watson.cleantempstreetview' %}','Clean All Temporarily Saved Street View Images?')" class="ml-2 mt-2 btn btn-danger btn-sm">Clean Saved Street View Images</a>
+                        <a href="#!" onclick="simpleConfirm(event,'{% url 'watson.cleantempstreetview' %}','Clean All Temporarily Saved Street View Images?')" class="ml-2 mt-2 btn btn-danger btn-sm">{% trans "Clean Saved Street View Images" %}</a>
                     </div>
                 </div>
             </div>

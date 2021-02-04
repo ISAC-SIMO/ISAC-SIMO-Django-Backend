@@ -1,7 +1,8 @@
 {% extends 'master/base.html' %}
-{% block title %} Profile {% endblock title %}
-{% block dashboard_title1 %} User Profile {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Profile {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "Profile" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "User Profile" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "Profile" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -18,8 +19,8 @@
                         <form action="{% url 'profile' %}" method="POST" class="form-group" enctype="multipart/form-data">
                             {% csrf_token %}
                             {{ form|crispy }}
-                            <p><small>User Type: <b>{{ user.user_type|title }}</b></small></p>
-                            <button type="submit" class="btn btn-success">Update User Info</button>
+                            <p><small>{% trans "User Type" %}: <b>{{ user.user_type|title }}</b></small></p>
+                            <button type="submit" class="btn btn-success">{% trans "Update User Info" %}</button>
                         </form>
                     </div>
                 </div>
@@ -30,8 +31,8 @@
             <div class="card">
                 <div class="card-body">
                     <div class="col-sm-12">
-                        <h4>Want to Generate Access Token to use with APIs?</h4>
-                        <button type="submit" id="generate-token" class="btn btn-success">Generate Token</button>
+                        <h4>{% trans "Want to Generate Access Token to use with APIs" %}?</h4>
+                        <button type="submit" id="generate-token" class="btn btn-success">{% trans "Generate Token" %}</button>
                     </div>
                 </div>
             </div>

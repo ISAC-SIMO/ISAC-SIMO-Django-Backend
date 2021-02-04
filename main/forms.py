@@ -5,7 +5,7 @@ from django.forms.widgets import FileInput
 
 from .models import USER_TYPE, BASIC_USER_TYPE, PROJECT_ADMIN_ADDABLE_USER_TYPE, User
 from projects.models import Projects
-
+from django.utils.translation import gettext_lazy as _
 
 class LoginForm(forms.ModelForm):
     password = forms.CharField(widget=forms.PasswordInput())
@@ -14,8 +14,8 @@ class LoginForm(forms.ModelForm):
         model = User     
         fields = ('email', 'password')
         labels = {
-            'email': 'Email',
-            'password': 'Password',
+            'email': _('Email'),
+            'password': _('Password'),
         }
 
     def __init__(self, *args, **kwargs):
@@ -29,18 +29,18 @@ class RegisterForm(UserCreationForm):
         model = User
         fields = ('email', 'full_name', 'image', 'password1', 'password2', 'type')
         labels = {
-            'email': 'Email',
-            'full_name': 'Full Name',
-            'image': 'Profile Picture',
-            'type': 'User Type',
+            'email':  _('Email'),
+            'full_name': _('Full Name'),
+            'image': _('Profile Picture'),
+            'type': _('User Type'),
         }
 
     def __init__(self, *args, **kwargs):
         super(RegisterForm, self).__init__(*args, **kwargs)
         self.fields['image'].required = False
         self.fields['full_name'].required = True
-        self.fields['password1'].help_text = 'Use strong password with at least 8 characters.'
-        self.fields['password2'].help_text = 'Enter the same password.'
+        self.fields['password1'].help_text = _('Use strong password with at least 8 characters.')
+        self.fields['password2'].help_text = _('Enter the same password.')
 
 
 class AdminRegisterForm(UserCreationForm):
@@ -52,12 +52,12 @@ class AdminRegisterForm(UserCreationForm):
         model = User
         fields = ('email', 'full_name', 'image', 'password1', 'password2', 'user_type', 'projects')
         labels = {
-            'email': 'Email',
-            'full_name': 'Full Name',
-            'image': 'Profile Picture',
-            'password1': 'Password',
-            'password2': 'Confirm Password',
-            'user_type': 'User Type'
+            'email':  _('Email'),
+            'full_name':  _('Full Name'),
+            'image':  _('Profile Picture'),
+            'password1':  _('Password'),
+            'password2':  _('Confirm Password'),
+            'user_type':  _('User Type')
         }
         widgets = {
             'projects': forms.CheckboxSelectMultiple(),
@@ -83,12 +83,12 @@ class AdminEditForm(UserCreationForm):
         model = User
         fields = ('email', 'full_name', 'image', 'password1', 'password2', 'user_type', 'projects', 'active')
         labels = {
-            'email': 'Email',
-            'full_name': 'Full Name',
-            'image': 'Profile Picture',
-            'password1': 'Password',
-            'password2': 'Confirm Password',
-            'user_type': 'User Type'
+            'email':  _('Email'),
+            'full_name':  _('Full Name'),
+            'image':  _('Profile Picture'),
+            'password1':  _('Password'),
+            'password2':  _('Confirm Password'),
+            'user_type':  _('User Type')
         }
         widgets = {
             'projects': forms.CheckboxSelectMultiple(),
@@ -100,11 +100,11 @@ class AdminEditForm(UserCreationForm):
         self.fields['image'].required = False
         self.fields['password1'].required = False
         self.fields['password2'].required = False
-        self.fields['user_type'].help_text = 'Choose User Type Wisely'
-        self.fields['projects'].help_text = 'Assign to Multiple Projects (User can view or take action depending on the projects they are assigned on)'
+        self.fields['user_type'].help_text =  _('Choose User Type Wisely)')
+        self.fields['projects'].help_text = _('Assign to Multiple Projects (User can view or take action depending on the projects they are assigned on)')
         if self.instance and self.instance.user_type == 'admin': # If User Model being edited is Admin type
-            self.fields['user_type'].help_text = 'Choose User Type Wisely (This user is currently admin)'
-            self.fields['projects'].help_text = 'Admin user can manipulate any projects (but selecting these is useful for api)'
+            self.fields['user_type'].help_text = _('Choose User Type Wisely (This user is currently admin)')
+            self.fields['projects'].help_text = _('Admin user can manipulate any projects (but selecting these is useful for api)')
         if self.request and self.request.user.user_type == 'project_admin': # If Project Admin is Editing User
             self.fields['projects'].queryset = Projects.objects.filter(users__id=self.request.user.id)
             self.fields['user_type'].choices = PROJECT_ADMIN_ADDABLE_USER_TYPE
@@ -113,17 +113,17 @@ class AdminEditForm(UserCreationForm):
 
 class ProfileForm(UserCreationForm):
     email = forms.EmailField()
-    image = forms.ImageField(label='Profile Image',required=False,
+    image = forms.ImageField(label=_('Profile Image'),required=False,
                             error_messages ={'invalid':"Image files only"},
                             widget=FileInput)
     class Meta:
         model = User
         fields = ('email', 'full_name', 'image', 'password1', 'password2')
         labels = {
-            'email': 'Email',
-            'full_name': 'Full Name',
-            'password1': 'Password',
-            'password2': 'Confirm Password',
+            'email':  _('Email'),
+            'full_name':  _('Full Name'),
+            'password1':  _('Password'),
+            'password2':  _('Confirm Password'),
         }
 
     def __init__(self, *args, **kwargs):
@@ -136,5 +136,5 @@ class ProfileForm(UserCreationForm):
         self.fields['password1'].help_text = ''
         self.fields['password1'].widget.attrs['placeholder'] = '*****'
         self.fields['password2'].required = False
-        self.fields['password2'].help_text = 'Keep Password blank to not change it.'
+        self.fields['password2'].help_text = _('Keep Password blank to not change it.')
         self.fields['password2'].widget.attrs['placeholder'] = '*****'

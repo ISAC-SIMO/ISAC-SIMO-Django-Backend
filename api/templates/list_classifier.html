@@ -1,8 +1,9 @@
 {% extends 'master/base.html' %}
+{% load i18n %}
 
-{% block title %} Classifiers List {% if object_type %}for {{object_type|title}}{% endif %} {% endblock title %}
-{% block dashboard_title1 %} Classifiers {% if object_type %}for {{object_type|title}}{% endif %} {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} All Classifiers {% if object_type %} ({{object_type|title}}){% endif %} {% endblock dashboard_title2 %}
+{% block title %} {% trans "Classifiers List" %} {% if object_type %}for {{object_type|title}}{% endif %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Classifiers" %} {% if object_type %}for {{object_type|title}}{% endif %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "All Classifiers" %} {% if object_type %} ({{object_type|title}}){% endif %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -14,25 +15,25 @@
             <div class="card">
                 <div class="card-title ml-3 mt-2">
                     <a href="{% url 'watson.classifier.create' %}"  class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Create New Classifier
+                        <i class="fas fa-plus"></i> {% trans "Create New Classifier" %}
                     </a>
                     <a href="{% url 'watson.classifier' %}"  class="d-none d-md-inline-block btn btn-primary">
-                        <i class="fas fa-plus"></i> Fetch Classifier Details
+                        <i class="fas fa-plus"></i> {% trans "Fetch Classifier Details" %}
                     </a>
                     <a href="{% url 'watson.train' %}"  class="float-md-right d-none d-md-inline-block mr-2 btn btn-success">
-                        <i class="fas fa-plus"></i> Re-Train Classifiers
+                        <i class="fas fa-plus"></i> {% trans "Re-Train Classifiers" %}
                     </a>
                 </div>
                 <div class="card-body table table-responsive">
                     <table id="classifierTable" class="table table-bordered table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Project</th>
-                                <th>Object Type</th>
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Project" %}</th>
+                                <th>{% trans "Object Type" %}</th>
                                 {% comment %} <th>Added By</th> {% endcomment %}
-                                <th>Order</th>
-                                {% if user.is_admin or user.is_project_admin %}<th style="min-width:100px;">Actions</th>{% endif %}
+                                <th>{% trans "Order" %}</th>
+                                {% if user.is_admin or user.is_project_admin %}<th style="min-width:100px;">{% trans "Actions" %}</th>{% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -40,10 +41,10 @@
                                 <tr>
                                     <td title="Given Name: {{classifier.given_name|default:'None'}}">{{classifier.name}} {% if classifier.offline_model %}<small style="color:teal;"><b>( Local: <a href="{% url 'offline.model.edit' classifier.offline_model.id %}">{{classifier.offline_model.name}}</a></b> )</small>
                                         {% if classifier.offline_model.preprocess %}
-                                        <i class="fa fa-dot-circle text-green" title="Pre-Process" data-toggle="tooltip" data-placement="right"></i>
+                                        <i class="fa fa-dot-circle text-green" title="{% trans 'Pre-Process' %}" data-toggle="tooltip" data-placement="right"></i>
                                         {% endif %}
                                         {% if classifier.offline_model.postprocess %}
-                                        <i class="fa fa-check-circle text-orange" title="Post-Process" data-toggle="tooltip" data-placement="right"></i>
+                                        <i class="fa fa-check-circle text-orange" title="{% trans 'Post-Process' %}" data-toggle="tooltip" data-placement="right"></i>
                                         {% endif %}
                                     {% endif %}</td>
                                     <td>{{classifier.project.project_name|title|default:'<i class="fas fa-exclamation-triangle text-warning"></i> &nbsp; No Project'}}</td>
@@ -52,16 +53,16 @@
                                     <td>{{classifier.order}}</td>
                                     {% if user.is_admin or user.is_project_admin %}
                                     <td class="table-options" style="min-width: 95px;">
-                                        <a onclick="deleteDataWriteConfirm(event, 'classifiers-{{ classifier.id }}', 'Image')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.classifier.delete' classifier.id %}" class="btn text-secondary px-0">
+                                        <a onclick="deleteDataWriteConfirm(event, 'classifiers-{{ classifier.id }}', 'Image')" title="{% trans 'Delete' %}" data-toggle="tooltip" data-placement="left" href="{% url 'watson.classifier.delete' classifier.id %}" class="btn text-secondary px-0">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <a onclick="Swal.fire(JSON.stringify({{classifier.classes|safe}}), 'Created By: {{classifier.created_by.full_name|default:'user'|title}}<br/>Created At: {{classifier.created_at}}{% if classifier.is_object_detection %}<br/><b><i>Is Object Detection</i></b>{% endif %}{% if classifier.ibm_api_key %}<br/><small><b>IBM API KEY:</b> {{classifier.ibm_api_key}}</small>{% endif %}')" title="Info" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0">
+                                        <a onclick="Swal.fire(JSON.stringify({{classifier.classes|safe}}), 'Created By: {{classifier.created_by.full_name|default:'user'|title}}<br/>Created At: {{classifier.created_at}}{% if classifier.is_object_detection %}<br/><b><i>Is Object Detection</i></b>{% endif %}{% if classifier.ibm_api_key %}<br/><small><b>IBM API KEY:</b> {{classifier.ibm_api_key}}</small>{% endif %}')" title="{% trans 'Info' %}" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0">
                                             <i class="fa fa-info text-info"></i>
                                         </a>
-                                        <a title="Edit" data-toggle="tooltip" data-placement="left" href="{% url 'watson.classifier.edit' classifier.id %}" class="btn text-secondary px-0">
+                                        <a title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="{% url 'watson.classifier.edit' classifier.id %}" class="btn text-secondary px-0">
                                             <i class="far fa-edit text-info"></i>
                                         </a>
-                                        <a title="Test Image" data-toggle="tooltip" data-placement="left" href="{% url 'watson.classifier.test' classifier.id %}" class="btn text-secondary px-0">
+                                        <a title="{% trans 'Test Image' %}" data-toggle="tooltip" data-placement="left" href="{% url 'watson.classifier.test' classifier.id %}" class="btn text-secondary px-0">
                                             <i class="far fa-file-image text-secondary"></i>
                                         </a>
                                         <form action="{% url 'watson.classifier.delete' classifier.id %}" id="classifiers-{{ classifier.id }}" class="d-inline">
@@ -74,12 +75,12 @@
                         </tbody>
                         <tfoot>
                             <tr>
-                                <th>Name</th>
-                                <th filterable="Project">Project</th>
-                                <th filterable="Object Type">Object Type</th>
+                                <th>{% trans "Name" %}</th>
+                                <th filterable="Project">{% trans "Project" %}</th>
+                                <th filterable="Object Type">{% trans "Object Type" %}</th>
                                 {% comment %} <th>Added By</th> {% endcomment %}
-                                <th>Order</th>
-                                <th>Actions</th>
+                                <th>{% trans "Order" %}</th>
+                                <th>{% trans "Actions" %}</th>
                             </tr>
                         </tfoot>
                     </table>

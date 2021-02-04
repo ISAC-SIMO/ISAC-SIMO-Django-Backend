@@ -7,20 +7,20 @@ from isac_simo.classifier_list import detect_object_model_id
 from main.models import User
 
 from .models import Projects
-
+from django.utils.translation import gettext_lazy as _
 
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Projects     
         fields = ('project_name', 'project_desc', 'detect_model', 'ibm_api_key', 'offline_model', 'image', 'public')
         labels = {
-            'project_name': 'Project Name',
-            'project_desc': 'Description',
-            'image': "Project Image",
-            'detect_model': "Online Object Detect Model",
-            'offline_model': "Offline Object Detect Model",
-            'ibm_api_key': "IBM API KEY",
-            'public': 'Is Publicly Visible'
+            'project_name': _('Project Name'),
+            'project_desc': _('Description'),
+            'image': _("Project Image"),
+            'detect_model': _("Online Object Detect Model"),
+            'offline_model': _("Offline Object Detect Model"),
+            'ibm_api_key': _("IBM API KEY"),
+            'public': _('Is Publicly Visible')
         }
         widgets = {
           'project_desc': Textarea(attrs={'rows':4, 'cols':20}),

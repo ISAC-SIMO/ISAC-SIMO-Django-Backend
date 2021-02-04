@@ -1,10 +1,10 @@
 {% extends 'master/base.html' %}
+{% load i18n %}
+{% block title %} {% trans "Projects" %} {% endblock title %}
 
-{% block title %} Projects {% endblock title %}
+{% block dashboard_title1 %} {% trans "Projects" %} {% endblock dashboard_title1 %}
 
-{% block dashboard_title1 %} Projects {% endblock dashboard_title1 %}
-
-{% block dashboard_title2 %} Projects {% endblock dashboard_title2 %}
+{% block dashboard_title2 %} {% trans "Projects" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -13,18 +13,18 @@
                 <div class="card">
                     <div class="card-title ml-3 mt-2">
                         <a href="{% url 'addproject' %}"  class="btn btn-primary">
-                            <i class="fas fa-plus"></i> Add New Project
+                            <i class="fas fa-plus"></i> {% trans "Add New Project" %}
                         </a>
                     </div>
                     <div class="card-body table table-responsive">
                         <table id="projectsTable" class="table table-bordered table-hover table-striped">
                             <thead>
                                 <tr>
-                                    <th>Id</th>
-                                    <th>Name</th>
-                                    <th>Description</th>
-                                    <th>Image</th>
-                                    <th style="min-width: 110px;">Actions</th>
+                                    <th>{% trans "Id" %}</th>
+                                    <th>{% trans "Name" %}</th>
+                                    <th>{% trans "Description" %}</th>
+                                    <th>{% trans "Image" %}</th>
+                                    <th style="min-width: 110px;">{% trans "Actions" %}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -37,13 +37,13 @@
                                             <a href="#!" onclick="showImagePop(event, '{% if project.image %}{{project.image.url}}{% else %}{% static 'dist/img/avatar5.png' %}{% endif %}','{{ project.project_name|default:"This" }} image failed to load.')">View</a>
                                         </td>
                                         <td class="table-options">
-                                            <a title="Edit" data-toggle="tooltip" data-placement="left" href="{% url 'updateproject' project.id %}" class="btn text-secondary px-0">
+                                            <a title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="{% url 'updateproject' project.id %}" class="btn text-secondary px-0">
                                                 <i class="fa fa-edit"></i>
                                             </a>
-                                            <a onclick="deleteDataWriteConfirm(event, 'form-{{ project.id }}', 'Project')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'deleteproject' project.id %}" class="btn text-secondary px-0">
+                                            <a onclick="deleteDataWriteConfirm(event, 'form-{{ project.id }}', 'Project')" title="{% trans 'Delete'%}" data-toggle="tooltip" data-placement="left" href="{% url 'deleteproject' project.id %}" class="btn text-secondary px-0">
                                                 <i class="fa fa-trash text-danger"></i>
                                             </a>
-                                            <a title="Test Image with Detect Model" data-toggle="tooltip" data-placement="left" href="{% url 'testofflineproject' project.id %}" class="btn text-secondary px-0">
+                                            <a title="{% trans 'Test Image with Detect Model'%}" data-toggle="tooltip" data-placement="left" href="{% url 'testofflineproject' project.id %}" class="btn text-secondary px-0">
                                                 <i class="far fa-file-image text-secondary"></i>
                                             </a>
                                             <a data-html="true" title="View Object Type for {{project.project_name|title}} <br/> {{project.object_types.count}} Detect Object Available" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.list' %}?project={{project.id}}" class="btn text-secondary px-0">

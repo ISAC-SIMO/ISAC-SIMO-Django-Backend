@@ -1,10 +1,10 @@
 {% extends 'master/base.html' %}
+{% load i18n %}
+{% block title %} {% trans "Public Projects" %} {% endblock title %}
 
-{% block title %} Public Projects {% endblock title %}
+{% block dashboard_title1 %} {% trans "Public Projects" %} {% if joined %} (Filtered By Joined) {% endif %} {% endblock dashboard_title1 %}
 
-{% block dashboard_title1 %} Public Projects {% if joined %} (Filtered By Joined) {% endif %} {% endblock dashboard_title1 %}
-
-{% block dashboard_title2 %} Public Projects {% endblock dashboard_title2 %}
+{% block dashboard_title2 %} {% trans "Public Projects" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -16,7 +16,7 @@
                             <thead>
                                 <tr>
                                     <th>Id</th>
-                                    <th>Name</th>
+                                    <th>{% trans "Name" %}</th>
                                     <th style="min-width: 110px;"></th>
                                 </tr>
                             </thead>
@@ -24,14 +24,14 @@
                                 {% for project in projects %}
                                     <tr>
                                         <td style="width:15px;">#{{project.id}}</td>
-                                        <td>{{project.project_name|title}} {% if project.guest %} <i class="fa fa-globe text-success ml-1" title="Global Project" data-toggle="tooltip" data-placement="right"></i> {% endif %} {% if not project.public %} <span class="badge badge-sm badge-warning ml-1" title="You have Joined this Project. But is not Public." data-toggle="tooltip" data-placement="right">Not Public</a> {% endif %}</td>
+                                        <td>{{project.project_name|title}} {% if project.guest %} <i class="fa fa-globe text-success ml-1" title="{% trans 'Global Project' %}" data-toggle="tooltip" data-placement="right"></i> {% endif %} {% if not project.public %} <span class="badge badge-sm badge-warning ml-1" title="You have Joined this Project. But is not Public." data-toggle="tooltip" data-placement="right">Not Public</a> {% endif %}</td>
                                         <td class="table-options">
-                                            <a title="Info" onclick="Swal.fire('{{project.project_name|title}}','{{project.project_desc}}<br/><br/><small><b>Online Detect Model:</b> {% if project.detect_model %}Yes{% else %}No{% endif %} {% if project.offline_model %}<br/><b>Offline Detect Model:</b> {{project.offline_model}}{% endif %}</small><br/><br/><img style=\'max-height:150px;\' src=\'{{project.image.url}}\'/>')" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0">
+                                            <a title="{% trans 'Info' %}" onclick="Swal.fire('{{project.project_name|title}}','{{project.project_desc}}<br/><br/><small><b>Online Detect Model:</b> {% if project.detect_model %}Yes{% else %}No{% endif %} {% if project.offline_model %}<br/><b>Offline Detect Model:</b> {{project.offline_model}}{% endif %}</small><br/><br/><img style=\'max-height:150px;\' src=\'{{project.image.url}}\'/>')" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0">
                                                 <i class="fa fa-info-circle text-primary"></i>
                                             </a>
-                                            <a href="{% url 'public_project_info' project.id %}" class="btn btn-sm btn-primary">View More</a>
+                                            <a href="{% url 'public_project_info' project.id %}" class="btn btn-sm btn-primary">{% trans "View More" %}</a>
                                             {% if project.id in joined_projects %}
-                                              <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Leave {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-sm btn-primary" title="Leave" data-toggle="tooltip" data-placement="top"><i class="fa fa-check"></i> Joined</a>
+                                              <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Leave {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-sm btn-primary" title="{% trans 'Leave' %}" data-toggle="tooltip" data-placement="top"><i class="fa fa-check"></i> Joined</a>
                                               <form action="{% url 'public_project_join' project.id %}" method="POST" id="form-{{ project.id }}" class="d-inline">
                                                 {% csrf_token %}
                                               </form>
@@ -104,7 +104,7 @@
             buttons: [
               {% if joined %}
               {
-                text: '<i class="fa fa-arrow-left"></i> Show All Public Projects',
+                text: '<i class="fa fa-arrow-left"></i> {% trans "Show All Public Projects" %}',
                 action: function ( e, dt, node, config ) {
                     var url = new URL(location.href);
                     url.searchParams.delete('joined');
@@ -113,7 +113,7 @@
               },
               {% else %}
               {
-                text: 'Only Show Joined Projects',
+                text: '{% trans "Show Joined Projects" %}',
                 action: function ( e, dt, node, config ) {
                     var url = new URL(location.href);
                     url.searchParams.set('joined', 'true');
@@ -124,7 +124,7 @@
 
               {% if user.is_admin or user.is_project_admin %}
               {
-                text: 'Add New Project',
+                text: '{% trans "Add New Project" %}',
                 action: function ( e, dt, node, config ) {
                     location.href = "{% url 'addproject' %}"
                 }

@@ -1,10 +1,11 @@
 {% extends 'master/base.html' %}
+{% load i18n %}
 
-{% block title %} Dashboard {% endblock title %}
+{% block title %} {% trans "Dashboard" %} {% endblock title %}
 
-{% block dashboard_title1 %} Dashboard {% endblock dashboard_title1 %}
+{% block dashboard_title1 %} {% trans "Dashboard" %} {% endblock dashboard_title1 %}
 
-{% block dashboard_title2 %} Dashboard {% endblock dashboard_title2 %}
+{% block dashboard_title2 %} {% trans "Dashboard" %} {% endblock dashboard_title2 %}
 
 {% block content %}
     {% load static %}
@@ -26,12 +27,12 @@
                         <div class="inner">
                             <h3>{{images.count}}</h3>
 
-                            <p>Image(s)</p>
+                            <p>{% trans "Image(s)" %}</p>
                         </div>
                         <div class="icon">
                             <i class="ion ion-image"></i>
                         </div>
-                        <a href="{% url 'images' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                        <a href="{% url 'images' %}" class="small-box-footer">{% trans "More info" %} <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <!-- ./col -->
@@ -41,12 +42,12 @@
                         <div class="inner">
                             <h3>{{image_files_count}}<sup style="font-size: 15px">+</sup></h3>
 
-                            <p>Total Tested Images</p>
+                            <p>{% trans "Total Tested Images" %}</p>
                         </div>
                         <div class="icon">
                             <i class="ion ion-stats-bars"></i>
                         </div>
-                        <a href="{% url 'images' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                        <a href="{% url 'images' %}" class="small-box-footer">{% trans "More info" %} <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <!-- ./col -->
@@ -57,12 +58,12 @@
                         <div class="inner">
                             <h3>{{user_count}}</h3>
 
-                            <p>User Registrations {% if user.is_project_admin %}<span style="font-size: 0.7em;">(Your Projects Only)</span>{% endif %}</p>
+                            <p>{% trans "User Registrations" %} {% if user.is_project_admin %}<span style="font-size: 0.7em;">({% trans "Your Projects Only" %})</span>{% endif %}</p>
                         </div>
                         <div class="icon">
                             <i class="ion ion-person-add"></i>
                         </div>
-                        <a href="{% url 'allusers' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                        <a href="{% url 'allusers' %}" class="small-box-footer">{% trans "More info" %} <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     <!-- ./col -->
@@ -72,12 +73,12 @@
                         <div class="inner">
                             <h3>{{project_count}}</h3>
 
-                            <p>Projects</p>
+                            <p>{% trans "Projects" %}</p>
                         </div>
                         <div class="icon">
                             <i class="ion ion-pie-graph"></i>
                         </div>
-                        <a href="{% url 'viewprojects' %}" class="small-box-footer">More info <i class="fas fa-arrow-circle-right"></i></a>
+                        <a href="{% url 'viewprojects' %}" class="small-box-footer">{% trans "More info" %} <i class="fas fa-arrow-circle-right"></i></a>
                         </div>
                     </div>
                     {% endif %}
@@ -85,7 +86,7 @@
                 </div>
             {% endif %}
 
-            <center><small>Logged In User Type: {{ user.user_type|upper }}</small></center>
+            <center><small>{% trans "Logged In User Type" %}: {{ user.user_type|upper }}</small></center>
             <!-- /.row -->
         <!-- /.content -->
     </div>

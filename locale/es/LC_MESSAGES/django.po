@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-01 22:02+0545\n"
+"POT-Creation-Date: 2021-02-04 09:53+0545\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,14 +18,1433 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
+#: .\api\forms.py:19
+msgid "Latitude"
+msgstr "Latitud"
+
+#: .\api\forms.py:20
+msgid "Longitude"
+msgstr "Longitud"
+
+#: .\api\forms.py:35
+#, fuzzy
+#| msgid "View Images"
+msgid "Multiple Images"
+msgstr "Varias Imágenes"
+
+#: .\api\forms.py:49 .\api\models.py:107
+#, fuzzy
+#| msgid "Logged In User Type"
+msgid "Model Type"
+msgstr "Tipo de usuario"
+
+#: .\api\forms.py:50
+#, fuzzy
+#| msgid "Format"
+msgid "Model File Format"
+msgstr "Formato"
+
+#: .\api\forms.py:51 .\api\models.py:44 .\api\models.py:109 .\api\models.py:138
+#: .\api\models.py:165 .\crowdsource\models.py:30
+#, fuzzy
+#| msgid "Files"
+msgid "File"
+msgstr "Archivos"
+
+#: .\api\forms.py:56
+msgid "Choose a format or type yourself"
+msgstr ""
+
+#: .\api\forms.py:57
+msgid ""
+"Mark this Offline Model as Pre-Process (e.g. Gaussian Blur to preprocess the "
+"image uploaded)"
+msgstr ""
+
+#: .\api\forms.py:58
+msgid ""
+"Mark this Offline Model as Post-Process (e.g. Customize the pipeline result "
+"or go/nogo result)"
+msgstr ""
+
+#: .\api\forms.py:62
+msgid ""
+"Model Type Cannot be Changed because this is being used by projects/"
+"classifiers. <br/> Model Type: Processor"
+msgstr ""
+
+#: .\api\models.py:30 .\api\models.py:163 .\api\templates\image.html:31
+msgid "Title"
+msgstr "Título"
+
+#: .\api\models.py:31 .\api\models.py:164 .\api\templates\image.html:32
+#: .\projects\forms.py:18 .\projects\templates\projects.html:25
+msgid "Description"
+msgstr "Descripción"
+
+#: .\api\models.py:32 .\api\models.py:43 .\api\templates\image.html:33
+#, fuzzy
+#| msgid "Users"
+msgid "User"
+msgstr "Usuaria"
+
+#: .\api\models.py:35 .\api\models.py:61 .\api\models.py:76
+#: .\api\templates\classifiers.html:15
+#: .\api\templates\create_classifier.html:161
+#: .\api\templates\create_objects.html:31
+#: .\api\templates\create_objects.html:126 .\api\templates\image.html:34
+#: .\api\templates\list_classifier.html:32
+#: .\api\templates\list_classifier.html:81 .\api\templates\train.html:15
+#, fuzzy
+#| msgid "Projects"
+msgid "Project"
+msgstr "Proyecto"
+
+#: .\api\models.py:36 .\api\models.py:52 .\api\models.py:66 .\api\models.py:83
+#: .\api\models.py:114 .\api\models.py:140 .\api\models.py:169
+#: .\crowdsource\models.py:35
+msgid "created_at"
+msgstr "creado_en"
+
+#: .\api\models.py:37 .\api\models.py:53 .\api\models.py:67 .\api\models.py:84
+#: .\api\models.py:115 .\api\models.py:141 .\api\models.py:170
+#: .\crowdsource\models.py:36
+msgid "updated_at"
+msgstr "updated_at"
+
+#: .\api\models.py:45
+#, fuzzy
+#| msgid "Add / Test Images"
+msgid "Tested"
+msgstr "Imágenes de prueba rápida"
+
+#: .\api\models.py:46 .\api\templates\create_classifier.html:15
+#: .\api\templates\train.html:39
+msgid "Result"
+msgstr "Resultado"
+
+#: .\api\models.py:47
+msgid "Score"
+msgstr "Puntuación"
+
+#: .\api\models.py:48 .\api\models.py:77 .\api\models.py:166
+#: .\api\templates\add_image.html:41 .\api\templates\create_classifier.html:175
+#: .\api\templates\create_objects.html:4 .\api\templates\create_objects.html:5
+#: .\api\templates\create_objects.html:117
+#: .\api\templates\list_classifier.html:33
+#: .\api\templates\list_classifier.html:82
+#: .\api\templates\objects_detail.html:5 .\crowdsource\models.py:31
+#: .\crowdsource\templates\crowdsource_images.html:21
+#, fuzzy
+#| msgid "Object Types"
+msgid "Object Type"
+msgstr "Tipos de objetos"
+
+#: .\api\models.py:49
+msgid "Retrained"
+msgstr "Reentrenado"
+
+#: .\api\models.py:50 .\api\models.py:64
+#, fuzzy
+#| msgid "Mark Verified"
+msgid "Verified"
+msgstr "Verificada"
+
+#: .\api\models.py:51
+msgid "Pipeline Status"
+msgstr "Estado de la canalización"
+
+#: .\api\models.py:59 .\api\models.py:73 .\api\models.py:106
+#: .\api\models.py:137 .\api\templates\create_objects.html:30
+#: .\api\templates\file_upload.html:19 .\api\templates\list_classifier.html:31
+#: .\api\templates\list_classifier.html:80
+#: .\api\templates\offline_model\list.html:25
+#: .\main\templates\users\allusers.html:22
+#: .\projects\templates\projects.html:24
+#: .\projects\templates\public_projects.html:19
+msgid "Name"
+msgstr "Nombre"
+
+#: .\api\models.py:60 .\api\models.py:82 .\api\models.py:111
+#: .\api\models.py:139 .\api\models.py:168
+#, fuzzy
+#| msgid "Create Users"
+msgid "Created By"
+msgstr "Crear usuarias"
+
+#: .\api\models.py:62 .\api\templates\image.html:35 .\main\models.py:84
+#: .\main\templates\master\base.html:197
+#: .\main\templates\users\allusers.html:26
+#: .\projects\templates\projects.html:26
+msgid "Image"
+msgstr "Imagen"
+
+#: .\api\models.py:63 .\api\templates\create_objects.html:137
+#, fuzzy
+#| msgid "Attribution"
+msgid "Instruction"
+msgstr "Instrucción"
+
+#: .\api\models.py:65
+#, fuzzy
+#| msgid "Add to Wishlist"
+msgid "Wishlist"
+msgstr "Añadir a la lista de deseos"
+
+#: .\api\models.py:74
+msgid "Given Name"
+msgstr "Nombre de pila"
+
+#: .\api\models.py:75
+#, fuzzy
+#| msgid "Re-Train Classifier"
+msgid "Classes"
+msgstr "Clasificadora de reentrenamiento"
+
+#: .\api\models.py:78 .\api\templates\create_classifier.html:190
+#: .\api\templates\list_classifier.html:36
+#: .\api\templates\list_classifier.html:85
+msgid "Order"
+msgstr "Orden"
+
+#: .\api\models.py:79 .\api\templates\create_classifier.html:34
+#: .\api\templates\create_classifier.html:120
+#: .\api\templates\offline_model\list.html:4
+#: .\api\templates\offline_model\list.html:5 .\map\templates\check.html:60
+#, fuzzy
+#| msgid "Create Offline Model"
+msgid "Offline Model"
+msgstr "Crear modelo sin conexión"
+
+#: .\api\models.py:80 .\api\templates\create_classifier.html:145
+#, fuzzy
+#| msgid "Test Image with Detect Model"
+msgid "Is Object Detection"
+msgstr "Modelo de detección de objetos en línea"
+
+#: .\api\models.py:81 .\api\templates\create_classifier.html:152
+#: .\projects\forms.py:22
+msgid "IBM API KEY"
+msgstr "IBM API KEY"
+
+#: .\api\models.py:108
+#, fuzzy
+#| msgid "Format"
+msgid "Model Format"
+msgstr "Formato"
+
+#: .\api\models.py:110 .\api\templates\offline_model\create.html:39
+#, fuzzy
+#| msgid "Create Offline Model"
+msgid "Offline Model Labels"
+msgstr "Crear modelo sin conexión"
+
+#: .\api\models.py:112
+#, fuzzy
+#| msgid "Pre-Process"
+msgid "Preprocess"
+msgstr "Preproceso"
+
+#: .\api\models.py:113
+#, fuzzy
+#| msgid "Post-Process"
+msgid "Postprocess"
+msgstr "Proceso después de"
+
+#: .\api\models.py:167
+msgid "Is Helpful"
+msgstr "Es útil"
+
+#: .\api\templates\add_image.html:5 .\api\templates\add_image.html:13
+#: .\api\templates\add_image.html:70
+#, fuzzy
+#| msgid "Upload/Add Image"
+msgid "Update Image"
+msgstr "Cargar / Agregar imagen"
+
+#: .\api\templates\add_image.html:7 .\api\templates\add_image.html:15
+#: .\api\templates\add_image.html:23 .\api\templates\add_image.html:72
+#, fuzzy
+#| msgid "Upload/Add Image"
+msgid "Add Image"
+msgstr "Cargar / Agregar imagen"
+
+#: .\api\templates\add_image.html:21
+#, fuzzy
+#| msgid "Add / Test Images"
+msgid "Edit Image"
+msgstr "Imágenes de prueba rápida"
+
+#: .\api\templates\add_image.html:57
+msgid ""
+"You Can Choose an Object Type to Force and use that type (Or Else object "
+"detect model is used to detect automatically"
+msgstr ""
+"You Can Choose an Object Type to Force and use that type (Or Else object "
+"detect model is used to detect automatically"
+
+#: .\api\templates\add_image.html:59
+msgid ""
+"If Object Type is Selected, it is given higher priority then selected Project"
+msgstr ""
+"Si se selecciona el tipo de objeto, se le da mayor prioridad que el proyecto "
+"seleccionado"
+
+#: .\api\templates\add_image.html:64
+#, fuzzy
+#| msgid "Added By"
+msgid "Added By User"
+msgstr "Añadido por"
+
+#: .\api\templates\add_image.html:66
+msgid "Adding As"
+msgstr "Agregar como"
+
+#: .\api\templates\add_image.html:77
+#, fuzzy
+#| msgid "Image"
+msgid "Old Images"
+msgstr "Imágenes Antiguas"
+
+#: .\api\templates\add_image.html:100
+msgid " Unable to Fetch Image"
+msgstr "No se pudo recuperar la imagen"
+
+#: .\api\templates\add_image.html:111
+msgid "If Images are Supplied on Update it will be appended"
+msgstr "Si se proporcionan imágenes en la actualización, se adjuntarán"
+
+#: .\api\templates\add_image.html:121
+msgid "Retrain AI model using these Images"
+msgstr "Vuelva a entrenar el modelo de IA usando estas imágenes"
+
+#: .\api\templates\add_image.html:127
+#, fuzzy
+#| msgid "View Projects"
+msgid "View in Map"
+msgstr "Ver proyectos"
+
+#: .\api\templates\classifiers.html:3
+#, fuzzy
+#| msgid "Fetch Object Type Details"
+msgid "Classifiers Details"
+msgstr "Obtener detalles de tipo de objeto"
+
+#: .\api\templates\classifiers.html:4
+#, fuzzy
+#| msgid "Fetch Object Type Details"
+msgid "Image Classifier Detail"
+msgstr "Detalle del clasificador de imágenes"
+
+#: .\api\templates\classifiers.html:5 .\api\templates\list_classifier.html:5
+#, fuzzy
+#| msgid "Re-Train Classifier"
+msgid "Classifiers"
+msgstr "Clasificadora de reentrenamiento"
+
+#: .\api\templates\classifiers.html:18 .\api\templates\train.html:18
+#, fuzzy
+#| msgid "Projects"
+msgid "No Projects Found"
+msgstr "Solo sus proyectos"
+
+#: .\api\templates\classifiers.html:23 .\api\templates\classifiers.html:41
+#: .\api\templates\train.html:23
+#, fuzzy
+#| msgid "Object Types"
+msgid "Object"
+msgstr "Tipos de objetos"
+
+#: .\api\templates\classifiers.html:26 .\api\templates\train.html:26
+msgid "No Objects Found"
+msgstr "No se encontraron objetos"
+
+#: .\api\templates\classifiers.html:31 .\api\templates\classifiers.html:41
+#: .\api\templates\train.html:31
+#, fuzzy
+#| msgid "Models"
+msgid "Model"
+msgstr "Modelos"
+
+#: .\api\templates\classifiers.html:34
+msgid "No Models Found"
+msgstr "No se encontraron modelos"
+
+#: .\api\templates\classifiers.html:46 .\api\templates\objects_detail.html:37
+msgid "Get Detail"
+msgstr "Obtener detalles"
+
+#: .\api\templates\create_classifier.html:3
+#: .\api\templates\list_classifier.html:18
+#, fuzzy
+#| msgid "Create New Models"
+msgid "Create New Classifier"
+msgstr "Crear nuevos modelos"
+
+#: .\api\templates\create_classifier.html:4
+#: .\api\templates\create_classifier.html:197
+#, fuzzy
+#| msgid "Create New Models"
+msgid "Create Classifier"
+msgstr "Crear nuevos modelos"
+
+#: .\api\templates\create_classifier.html:5
+#, fuzzy
+#| msgid "Create New Models"
+msgid "New Classifier"
+msgstr "Crear nuevos modelos"
+
+#: .\api\templates\create_classifier.html:17
+#: .\main\templates\users\admin_register.html:53
+msgid "Note"
+msgstr "Nota"
+
+#: .\api\templates\create_classifier.html:19
+msgid "Zip files were bad"
+msgstr "Los archivos zip eran malos"
+
+#: .\api\templates\create_classifier.html:21
+msgid ""
+"If the Classifier was not added, contact the Server Admin to add this "
+"Classifier in this web application"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:22
+msgid "Send a copy of this response"
+msgstr "Envíe una copia de esta respuesta"
+
+#: .\api\templates\create_classifier.html:30
+#, fuzzy
+#| msgid "Current Models"
+msgid "Source of the Model"
+msgstr "Modelos actuales"
+
+#: .\api\templates\create_classifier.html:33
+#, fuzzy
+#| msgid "IBM Watson & More"
+msgid "IBM Watson"
+msgstr "IBM Watson"
+
+#: .\api\templates\create_classifier.html:42
+msgid "Would you like to Train Model or Add Pre-Trained Model"
+msgstr ""
+"¿Le gustaría entrenar un modelo o agregar un modelo previamente entrenado"
+
+#: .\api\templates\create_classifier.html:47
+#, fuzzy
+#| msgid "Create New Models"
+msgid "Train New Model"
+msgstr "Crear nuevos modelos"
+
+#: .\api\templates\create_classifier.html:50
+#, fuzzy
+#| msgid "View All Offline Model"
+msgid "Add Pre-Trained Model"
+msgstr "Ver todos los modelos sin conexión"
+
+#: .\api\templates\create_classifier.html:55
+#, fuzzy
+#| msgid "Files"
+msgid "Zip Files"
+msgstr "Archivos zip"
+
+#: .\api\templates\create_classifier.html:65
+msgid "Negative Zip Files"
+msgstr "Archivos zip negativos"
+
+#: .\api\templates\create_classifier.html:86 .\api\templates\train.html:53
+msgid "Also Process & Transform the Images"
+msgstr "También procesa y transforma las imágenes"
+
+#: .\api\templates\create_classifier.html:89 .\api\templates\train.html:56
+msgid "This will add transformed, flipped images within the zip file"
+msgstr ""
+"Esto agregará imágenes transformadas y volteadas dentro del archivo zip"
+
+#: .\api\templates\create_classifier.html:95 .\api\templates\train.html:62
+msgid "And Rotate (30, 60, -60, 120) degree"
+msgstr "Y girar (30, 60, -60, 120) grados"
+
+#: .\api\templates\create_classifier.html:98 .\api\templates\train.html:65
+msgid "This will add rotated images within the zip file"
+msgstr "Esto agregará imágenes rotadas dentro del archivo zip"
+
+#: .\api\templates\create_classifier.html:104 .\api\templates\train.html:71
+msgid "And Warp Perspective of Images (Left, Right, Bottom, Top)"
+msgstr ""
+"Y deformar la perspectiva de las imágenes (izquierda, derecha, abajo, arriba)"
+
+#: .\api\templates\create_classifier.html:107 .\api\templates\train.html:74
+msgid "This will add warp perspective images within the zip file"
+msgstr "Esto agregará imágenes en perspectiva warp dentro del archivo zip"
+
+#: .\api\templates\create_classifier.html:113 .\api\templates\train.html:80
+msgid "And Inverse and Canny Images"
+msgstr "E imágenes inversas y astutas"
+
+#: .\api\templates\create_classifier.html:113
+msgid "Negative"
+msgstr "Negativa"
+
+#: .\api\templates\create_classifier.html:116 .\api\templates\train.html:83
+msgid "This will add Inverted / Negative and Edge of image within the zip file"
+msgstr ""
+"Esto agregará Invertido / Negativo y Borde de la imagen dentro del archivo "
+"'zip'"
+
+#: .\api\templates\create_classifier.html:130
+msgid "If Offline Model is added it is used with 1st priority"
+msgstr "Si se agrega el modelo sin conexión, se usa con la primera prioridad"
+
+#: .\api\templates\create_classifier.html:134
+#, fuzzy
+#| msgid "Re-Train Classifier"
+msgid "Classifier Name"
+msgstr "Clasificadora de reentrenamiento"
+
+#: .\api\templates\create_classifier.html:139
+msgid "This is What is used to Call Watson AI"
+msgstr "Esto es lo que se utiliza para llamar a Watson AI"
+
+#: .\api\templates\create_classifier.html:148
+msgid ""
+"Check this if you are using IBM Watson Object Detection Model to act as "
+"Classifier"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:157
+msgid ""
+"If Provided the Classifier/Model will be linked or created in given Watson "
+"Service"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:171
+msgid "Links Classifiers to specific Project"
+msgstr "Vincula clasificadores a un proyecto específico"
+
+#: .\api\templates\create_classifier.html:185
+msgid "Select the Object Type for which to create this classifier"
+msgstr "Seleccione el tipo de objeto para el que crear este clasificador"
+
+#: .\api\templates\create_classifier.html:186
+#, fuzzy
+#| msgid "View & Create Object Type"
+msgid "To Create new Object Type"
+msgstr "Ver y crear tipo de objeto"
+
+#: .\api\templates\create_classifier.html:186
+msgid "Go Here"
+msgstr "Ven aquí"
+
+#: .\api\templates\create_objects.html:6
+msgid "View & Create Object Type"
+msgstr "Ver y crear tipo de objeto"
+
+#: .\api\templates\create_objects.html:18
+#, fuzzy
+#| msgid "Fetch Object Type Details"
+msgid "Fetch Object Type Details from IBM Watson"
+msgstr "Obtener detalles de tipo de objeto de IBM Watson"
+
+#: .\api\templates\create_objects.html:22
+msgid "Show all"
+msgstr "Mostrar todo"
+
+#: .\api\templates\create_objects.html:32 .\api\templates\file_upload.html:20
+#: .\api\templates\offline_model\list.html:28
+msgid "Added By"
+msgstr "Añadido por"
+
+#: .\api\templates\create_objects.html:33 .\api\templates\file_upload.html:21
+#: .\api\templates\image.html:36 .\api\templates\list_classifier.html:37
+#: .\api\templates\list_classifier.html:86
+#: .\api\templates\offline_model\list.html:31
+#: .\crowdsource\templates\crowdsource_images.html:24
+#: .\main\templates\users\allusers.html:27
+#: .\projects\templates\projects.html:27
+msgid "Actions"
+msgstr "Comportamiento"
+
+#: .\api\templates\create_objects.html:44
+#: .\crowdsource\templates\crowdsource_images.html:35
+#, fuzzy
+#| msgid "View Images"
+msgid "View Image"
+msgstr "Ver Imágenes"
+
+#: .\api\templates\create_objects.html:48
+#, fuzzy
+#| msgid "Add / Test Images"
+msgid "Quick Test Images"
+msgstr "Imágenes de prueba rápida"
+
+#: .\api\templates\create_objects.html:52 .\api\templates\file_upload.html:37
+#: .\api\templates\image.html:57 .\api\templates\list_classifier.html:58
+#: .\api\templates\offline_model\list.html:54
+#: .\crowdsource\templates\crowdsource_images.html:42
+#: .\main\templates\users\allusers.html:46
+#: .\projects\templates\projects.html:43
+msgid "Delete"
+msgstr "Eliminar"
+
+#: .\api\templates\create_objects.html:55 .\api\templates\file_upload.html:40
+#: .\api\templates\image.html:54 .\api\templates\list_classifier.html:64
+#: .\api\templates\offline_model\list.html:57
+#: .\crowdsource\templates\crowdsource_images.html:38
+#: .\main\templates\users\allusers.html:42
+#: .\projects\templates\projects.html:40
+msgid "Edit"
+msgstr "Editar"
+
+#: .\api\templates\create_objects.html:58
+#, fuzzy
+#| msgid "Re-Train Classifier"
+msgid "Quick Order Classifiers"
+msgstr "Clasificadores de pedido rápido"
+
+#: .\api\templates\create_objects.html:64
+msgid "Mark Un-Verified"
+msgstr "Marcar como no verificado"
+
+#: .\api\templates\create_objects.html:68
+msgid "Mark Verified"
+msgstr "Marcar como verificado"
+
+#: .\api\templates\create_objects.html:80
+msgid "Add to Wishlist"
+msgstr "Añadir a la lista de deseos"
+
+#: .\api\templates\create_objects.html:109
+#, fuzzy
+#| msgid "View & Create Object Type"
+msgid "Create Object Type"
+msgstr "Ver y crear tipo de objeto"
+
+#: .\api\templates\create_objects.html:122
+msgid "Must be unique and lowercase for each project"
+msgstr "Debe ser única y minúscula para cada proyecto"
+
+#: .\api\templates\create_objects.html:143
+#, fuzzy
+#| msgid "Projects"
+msgid "Instruction Image"
+msgstr "Imagen de instrucción"
+
+#: .\api\templates\create_objects.html:151
+msgid "Add"
+msgstr "Añadir"
+
+#: .\api\templates\create_objects.html:152 .\api\templates\file_upload.html:71
+#: .\api\templates\terminal.html:26
+#: .\crowdsource\templates\crowdsource_images.html:103
+msgid "Clear"
+msgstr "Clara"
+
+#: .\api\templates\file_upload.html:3 .\api\templates\file_upload.html:4
+#: .\main\templates\master\base.html:412
+msgid "File Upload"
+msgstr "Subir archivo"
+
+#: .\api\templates\file_upload.html:5
+msgid "Files"
+msgstr "Archivos"
+
+#: .\api\templates\file_upload.html:31
+#, fuzzy
+#| msgid "Download"
+msgid "Download File"
+msgstr "Descargar"
+
+#: .\api\templates\file_upload.html:34
+msgid "Copy Path"
+msgstr "Copiar ruta"
+
+#: .\api\templates\file_upload.html:58
+msgid "Upload File"
+msgstr "Subir archivo"
+
+#: .\api\templates\file_upload.html:70
+#: .\crowdsource\templates\crowdsource_images.html:102
+#, fuzzy
+#| msgid "File Upload"
+msgid "Upload"
+msgstr "Subir"
+
+#: .\api\templates\image.html:3 .\api\templates\image.html:4
+#: .\api\templates\image.html:5 .\api\templates\train.html:45
+#, fuzzy
+#| msgid "Image"
+msgid "Images"
+msgstr "Imagen"
+
+#: .\api\templates\image.html:18
+msgid "Upload/Add Image"
+msgstr "Cargar / Agregar imagen"
+
+#: .\api\templates\image.html:30 .\projects\templates\projects.html:23
+msgid "Id"
+msgstr "Id"
+
+#: .\api\templates\image.html:64
+msgid "Map"
+msgstr "Mapa"
+
+#: .\api\templates\image.html:67
+msgid "Copy Latitude,Longitude to Clipboard"
+msgstr "Copiar latitud, longitud al portapapeles"
+
+#: .\api\templates\list_classifier.html:4
+#, fuzzy
+#| msgid "Fetch Object Type Details"
+msgid "Classifiers List"
+msgstr "Obtener detalles de tipo de objeto"
+
+#: .\api\templates\list_classifier.html:6
+#, fuzzy
+#| msgid "Users"
+msgid "All Classifiers"
+msgstr "Todas las usuarias"
+
+#: .\api\templates\list_classifier.html:21
+#: .\main\templates\master\base.html:362
+#, fuzzy
+#| msgid "Fetch Object Type Details"
+msgid "Fetch Classifier Details"
+msgstr "Obtener detalles de tipo de objeto"
+
+#: .\api\templates\list_classifier.html:24
+#, fuzzy
+#| msgid "Re-Train Classifier"
+msgid "Re-Train Classifiers"
+msgstr "Clasificadora de reentrenamiento"
+
+#: .\api\templates\list_classifier.html:45
+msgid "Pre-Process"
+msgstr "Preproceso"
+
+#: .\api\templates\list_classifier.html:48
+msgid "Post-Process"
+msgstr "Proceso después de"
+
+#: .\api\templates\list_classifier.html:61
+#: .\projects\templates\public_projects.html:29
+msgid "Info"
+msgstr "Info"
+
+#: .\api\templates\list_classifier.html:67
+#: .\api\templates\offline_model\list.html:69
+#, fuzzy
+#| msgid "Add / Test Images"
+msgid "Test Image"
+msgstr "Imágenes de prueba rápida"
+
+#: .\api\templates\objects_detail.html:3 .\main\templates\master\base.html:378
+msgid "Fetch Object Type Details"
+msgstr "Obtener detalles de tipo de objeto"
+
+#: .\api\templates\objects_detail.html:4
+#, fuzzy
+#| msgid "Fetch Object Type Details"
+msgid "Object Type Detail"
+msgstr "Obtener detalles de tipo de objeto"
+
+#: .\api\templates\objects_detail.html:15
+#, fuzzy
+#| msgid "Object Types"
+msgid "Object Model"
+msgstr "Tipos de objetos"
+
+#: .\api\templates\offline_model\create.html:5
+#: .\api\templates\offline_model\create.html:13
+#, fuzzy
+#| msgid "Create Offline Model"
+msgid "Update Offline Model"
+msgstr "Crear modelo sin conexión"
+
+#: .\api\templates\offline_model\create.html:7
+#: .\api\templates\offline_model\create.html:15
+#: .\api\templates\offline_model\create.html:23
+#: .\api\templates\offline_model\list.html:17
+#, fuzzy
+#| msgid "View All Offline Model"
+msgid "Add Offline Model"
+msgstr "Ver todos los modelos sin conexión"
+
+#: .\api\templates\offline_model\create.html:21
+#, fuzzy
+#| msgid "View All Offline Model"
+msgid "Edit Offline Model"
+msgstr "Ver todos los modelos sin conexión"
+
+#: .\api\templates\offline_model\create.html:51
+msgid ""
+"Add Multiple Indexes starting from zero (So, that the classifier will know "
+"the scores respective class/result)"
+msgstr ""
+
+#: .\api\templates\offline_model\create.html:56
+#, fuzzy
+#| msgid "Create Users"
+msgid "Update Model"
+msgstr "Crear usuarias"
+
+#: .\api\templates\offline_model\create.html:58
+#, fuzzy
+#| msgid "Models"
+msgid "Add Model"
+msgstr "Modelos"
+
+#: .\api\templates\offline_model\create.html:66
+#, fuzzy
+#| msgid "View Projects"
+msgid "Linked Projects"
+msgstr "Ver proyectos"
+
+#: .\api\templates\offline_model\create.html:74
+#: .\api\templates\offline_model\create.html:87
+#, fuzzy
+#| msgid "Projects"
+msgid "No project linked yet"
+msgstr "Solo sus proyectos"
+
+#: .\api\templates\offline_model\create.html:79
+#, fuzzy
+#| msgid "Re-Train Classifier"
+msgid "Linked Classifiers"
+msgstr "Clasificadora de reentrenamiento"
+
+#: .\api\templates\offline_model\list.html:3
+#, fuzzy
+#| msgid "Create Offline Model"
+msgid "Offline Models"
+msgstr "Crear modelo sin conexión"
+
+#: .\api\templates\offline_model\list.html:19
+msgid "Readme for guide and example"
+msgstr "Léame para guía y ejemplo"
+
+#: .\api\templates\offline_model\list.html:26
+#: .\main\templates\users\allusers.html:24
+msgid "Type"
+msgstr "Tipo"
+
+#: .\api\templates\offline_model\list.html:27
+msgid "Format"
+msgstr "Formato"
+
+#: .\api\templates\offline_model\list.html:42
+#, fuzzy
+#| msgid "Pre-Process"
+msgid "Pre-Processing Model"
+msgstr "Modelo de preprocesamiento"
+
+#: .\api\templates\offline_model\list.html:45
+#, fuzzy
+#| msgid "Post-Process"
+msgid "Post-Processing Model"
+msgstr "Modelo de posprocesamiento"
+
+#: .\api\templates\offline_model\list.html:61
+msgid "Download"
+msgstr "Descargar"
+
+#: .\api\templates\offline_model\list.html:65
+msgid "Check Dependencies"
+msgstr "Verificar dependencias"
+
+#: .\api\templates\terminal.html:3 .\api\templates\terminal.html:4
+#: .\api\templates\terminal.html:5 .\main\templates\master\base.html:421
+msgid "Terminal"
+msgstr "Terminal"
+
+#: .\api\templates\terminal.html:16
+msgid "Command"
+msgstr "Mando"
+
+#: .\api\templates\terminal.html:23
+msgid "Run"
+msgstr "Carrera"
+
+#: .\api\templates\terminal.html:31
+msgid "Allowed Commands"
+msgstr "Comandos permitidos"
+
+#: .\api\templates\train.html:3 .\api\templates\train.html:4
+#, fuzzy
+#| msgid "View Images"
+msgid "Train Images"
+msgstr "Ver Imágenes"
+
+#: .\api\templates\train.html:5
+#, fuzzy
+#| msgid "Fetch Object Type Details"
+msgid "IBM Watson Image Classifier"
+msgstr "Detalle del clasificador de imágenes"
+
+#: .\api\templates\train.html:34
+msgid "All"
+msgstr "Todos"
+
+#: .\api\templates\train.html:86
+msgid ""
+"Retraining might take some time, so make sure no test will be running during "
+"that time"
+msgstr ""
+
+#: .\api\templates\train.html:89
+#, fuzzy
+#| msgid "Retrained"
+msgid "Re-Train"
+msgstr "Reentrenado"
+
+#: .\crowdsource\forms.py:28
+msgid "Only Upload Files of Chosen Object Type and Image Type."
+msgstr "Cargue solo archivos del tipo de objeto y tipo de imagen elegidos"
+
+#: .\crowdsource\forms.py:29
+#, fuzzy
+#| msgid "View Images"
+msgid "Multiple Files"
+msgstr "Varias Imágenes"
+
+#: .\crowdsource\models.py:32
+#: .\crowdsource\templates\crowdsource_images.html:22
+#, fuzzy
+#| msgid "Image"
+msgid "Image Type"
+msgstr "Tipo de imagen"
+
+#: .\crowdsource\models.py:33
+#, fuzzy
+#| msgid "Users"
+msgid "Username"
+msgstr "Nombre de usuario"
+
+#: .\crowdsource\models.py:34
+#, fuzzy
+#| msgid "Crowdsource"
+msgid "Crowdsources"
+msgstr "Crowdsource"
+
+#: .\crowdsource\templates\crowdsource_images.html:3
+#: .\crowdsource\templates\crowdsource_images.html:4
+msgid "Crowdsource Image Contributions"
+msgstr "Contribuciones de imagen de crowdsource"
+
+#: .\crowdsource\templates\crowdsource_images.html:5
+#, fuzzy
+#| msgid "Crowdsource"
+msgid "Crowdsource Image"
+msgstr "Imagen de crowdsource"
+
+#: .\crowdsource\templates\crowdsource_images.html:12
+#, fuzzy
+#| msgid "Add / Test Images"
+msgid "Total Crowdsource Images"
+msgstr "Total de imágenes probadas"
+
+#: .\crowdsource\templates\crowdsource_images.html:23
+msgid "Attribution"
+msgstr "Atribución"
+
+#: .\crowdsource\templates\crowdsource_images.html:90
+#, fuzzy
+#| msgid "Crowdsource"
+msgid "Contribute to Crowdsource"
+msgstr "Contribuir al Crowdsource"
+
+#: .\crowdsource\templates\crowdsource_images.html:107
+msgid "All Images Copyright will be transferred to ISAC-SIMO"
+msgstr ""
+"Todos los derechos de autor de las imágenes se transferirán a ISAC-SIMO"
+
 #: .\isac_simo\settings.py:253
 msgid "English"
-msgstr ""
+msgstr "Inglesa"
 
 #: .\isac_simo\settings.py:254
 msgid "Spanish"
-msgstr ""
+msgstr "Española"
 
 #: .\isac_simo\settings.py:255
 msgid "French "
+msgstr "Francesa"
+
+#: .\main\forms.py:17 .\main\forms.py:32 .\main\forms.py:55 .\main\forms.py:86
+#: .\main\forms.py:123 .\main\models.py:78
+#: .\main\templates\users\allusers.html:23
+msgid "Email"
+msgstr "Email"
+
+#: .\main\forms.py:18 .\main\forms.py:58 .\main\forms.py:89 .\main\forms.py:125
+msgid "Password"
+msgstr "Contraseña"
+
+#: .\main\forms.py:33 .\main\forms.py:56 .\main\forms.py:87 .\main\forms.py:124
+#: .\main\models.py:79
+#, fuzzy
+#| msgid "Name"
+msgid "Full Name"
+msgstr "Nombre completo"
+
+#: .\main\forms.py:34 .\main\forms.py:57 .\main\forms.py:88
+msgid "Profile Picture"
+msgstr "Foto de perfil"
+
+#: .\main\forms.py:35 .\main\forms.py:60 .\main\forms.py:91 .\main\models.py:81
+#: .\main\templates\auth\profile.html:22
+#, fuzzy
+#| msgid "Logged In User Type"
+msgid "User Type"
+msgstr "Tipo de usuario"
+
+#: .\main\forms.py:42
+msgid "Use strong password with at least 8 characters."
+msgstr "Utilice una contraseña segura con al menos 8 caracteres"
+
+#: .\main\forms.py:43
+msgid "Enter the same password."
+msgstr "Ingrese la misma contraseña"
+
+#: .\main\forms.py:59 .\main\forms.py:90 .\main\forms.py:126
+msgid "Confirm Password"
+msgstr "confirmar Contraseña"
+
+#: .\main\forms.py:103
+msgid "Choose User Type Wisely)"
+msgstr "Elija el tipo de usuario sabiamente)"
+
+#: .\main\forms.py:104
+msgid ""
+"Assign to Multiple Projects (User can view or take action depending on the "
+"projects they are assigned on)"
 msgstr ""
+
+#: .\main\forms.py:106
+msgid "Choose User Type Wisely (This user is currently admin)"
+msgstr ""
+"Elija el tipo de usuario sabiamente (este usuario es actualmente "
+"administrador)"
+
+#: .\main\forms.py:107
+msgid ""
+"Admin user can manipulate any projects (but selecting these is useful for "
+"api)"
+msgstr ""
+
+#: .\main\forms.py:116
+#, fuzzy
+#| msgid "Projects"
+msgid "Profile Image"
+msgstr "Imagen del proyecto"
+
+#: .\main\forms.py:139
+msgid "Keep Password blank to not change it."
+msgstr "Mantenga la contraseña en blanco para no cambiarla"
+
+#: .\main\models.py:48
+msgid "Users must have email address"
+msgstr "Las usuarios deben tener dirección de correo electrónico"
+
+#: .\main\models.py:50
+#, fuzzy
+#| msgid "Enter the same password."
+msgid "Users must have password"
+msgstr "Ingrese la misma contraseña"
+
+#: .\main\models.py:80
+#, fuzzy
+#| msgid "Actions"
+msgid "Active"
+msgstr "Comportamiento"
+
+#: .\main\models.py:82
+msgid "Is Staff"
+msgstr "Es personal"
+
+#: .\main\models.py:83
+msgid "Timestamp"
+msgstr "Marca de tiempo"
+
+#: .\main\models.py:85 .\main\templates\dashboard.html:76
+#: .\main\templates\master\base.html:260
+#: .\main\templates\users\allusers.html:25 .\projects\templates\projects.html:3
+#: .\projects\templates\projects.html:5 .\projects\templates\projects.html:7
+msgid "Projects"
+msgstr "Proyectos"
+
+#: .\main\templates\auth\profile.html:3 .\main\templates\auth\profile.html:5
+#, fuzzy
+#| msgid "Profile Picture"
+msgid "Profile"
+msgstr "Foto de perfil"
+
+#: .\main\templates\auth\profile.html:4
+msgid "User Profile"
+msgstr "Perfil del usuario"
+
+#: .\main\templates\auth\profile.html:23
+#, fuzzy
+#| msgid "Create Users"
+msgid "Update User Info"
+msgstr "Crear usuarias"
+
+#: .\main\templates\auth\profile.html:34
+msgid "Want to Generate Access Token to use with APIs"
+msgstr "Quiere generar token de acceso para usar con API"
+
+#: .\main\templates\auth\profile.html:35
+msgid "Generate Token"
+msgstr "Generar token"
+
+#: .\main\templates\dashboard.html:4 .\main\templates\dashboard.html:6
+#: .\main\templates\dashboard.html:8 .\main\templates\master\base.html:183
+msgid "Dashboard"
+msgstr "Tablero"
+
+#: .\main\templates\dashboard.html:30
+#, fuzzy
+#| msgid "Image"
+msgid "Image(s)"
+msgstr "Imagen"
+
+#: .\main\templates\dashboard.html:35 .\main\templates\dashboard.html:50
+#: .\main\templates\dashboard.html:66 .\main\templates\dashboard.html:81
+msgid "More info"
+msgstr "Más información"
+
+#: .\main\templates\dashboard.html:45
+#, fuzzy
+#| msgid "Add / Test Images"
+msgid "Total Tested Images"
+msgstr "Total de imágenes probadas"
+
+#: .\main\templates\dashboard.html:61
+msgid "User Registrations"
+msgstr "Registros de usuarios"
+
+#: .\main\templates\dashboard.html:61
+#, fuzzy
+#| msgid "Projects"
+msgid "Your Projects Only"
+msgstr "Solo sus proyectos"
+
+#: .\main\templates\dashboard.html:89
+msgid "Logged In User Type"
+msgstr "Tipo de usuario conectado"
+
+#: .\main\templates\master\base.html:206
+msgid "View Images"
+msgstr "Ver Imágenes"
+
+#: .\main\templates\master\base.html:216
+msgid "Add / Test Images"
+msgstr "Agregar / probar imágenes"
+
+#: .\main\templates\master\base.html:233 .\main\templates\users\allusers.html:3
+#: .\main\templates\users\allusers.html:5
+msgid "Users"
+msgstr "Usuarias"
+
+#: .\main\templates\master\base.html:242
+msgid "View Users"
+msgstr "Ver Usuarias"
+
+#: .\main\templates\master\base.html:249
+msgid "Create Users"
+msgstr "Crear usuarias"
+
+#: .\main\templates\master\base.html:269
+msgid "View Projects"
+msgstr "Ver proyectos"
+
+#: .\main\templates\master\base.html:276
+#: .\projects\templates\add_project.html:7
+#: .\projects\templates\add_project.html:15
+msgid "Create Project"
+msgstr "Ver proyectos"
+
+#: .\main\templates\master\base.html:286
+msgid "Object Types"
+msgstr "Tipos de objetos"
+
+#: .\main\templates\master\base.html:297
+msgid "Models"
+msgstr "Modelos"
+
+#: .\main\templates\master\base.html:306
+msgid "Current Models"
+msgstr "Modelos actuales"
+
+#: .\main\templates\master\base.html:313
+msgid "Create New Models"
+msgstr "Crear nuevos modelos"
+
+#: .\main\templates\master\base.html:324
+msgid "Offline Model / Scripts"
+msgstr "Modelo / scripts sin conexión"
+
+#: .\main\templates\master\base.html:333
+msgid "View All Offline Model"
+msgstr "Ver todos los modelos sin conexión"
+
+#: .\main\templates\master\base.html:342
+msgid "Create Offline Model"
+msgstr "Crear modelo sin conexión"
+
+#: .\main\templates\master\base.html:353
+msgid "IBM Watson & More"
+msgstr "IBM Watson y más"
+
+#: .\main\templates\master\base.html:370
+msgid "Re-Train Classifier"
+msgstr "Clasificadora de reentrenamiento"
+
+#: .\main\templates\master\base.html:393
+msgid "Google Maps"
+msgstr "mapas de Google"
+
+#: .\main\templates\master\base.html:402
+msgid "Check Street View"
+msgstr "Comprobar Street View"
+
+#: .\main\templates\master\base.html:435
+#: .\projects\templates\public_projects.html:3
+#: .\projects\templates\public_projects.html:5
+#: .\projects\templates\public_projects.html:7
+msgid "Public Projects"
+msgstr "Proyectos Públicos"
+
+#: .\main\templates\master\base.html:444
+msgid "Crowdsource"
+msgstr "Crowdsource"
+
+#: .\main\templates\master\base.html:467
+msgid "Home"
+msgstr "Hogar"
+
+#: .\main\templates\users\admin_register.html:5
+#: .\main\templates\users\admin_register.html:13
+#: .\main\templates\users\admin_register.html:21
+#, fuzzy
+#| msgid "Add / Test Images"
+msgid "Edit User"
+msgstr "editar usuario"
+
+#: .\main\templates\users\admin_register.html:7
+#: .\main\templates\users\admin_register.html:15
+#: .\main\templates\users\admin_register.html:41
+#, fuzzy
+#| msgid "Create Users"
+msgid "Register User"
+msgstr "Registrar usuario"
+
+#: .\main\templates\users\admin_register.html:23
+#, fuzzy
+#| msgid "View Users"
+msgid "Add User"
+msgstr "Agregar nueva usuaria"
+
+#: .\main\templates\users\admin_register.html:39
+#, fuzzy
+#| msgid "Create Users"
+msgid "Update User"
+msgstr "Crear usuarias"
+
+#: .\main\templates\users\admin_register.html:53
+msgid "You Are Editing Yourself"
+msgstr "Te estás editando a ti mismo"
+
+#: .\main\templates\users\allusers.html:4
+#, fuzzy
+#| msgid "Users"
+msgid "All Users"
+msgstr "Todas las usuarias"
+
+#: .\main\templates\users\allusers.html:14
+#, fuzzy
+#| msgid "View Users"
+msgid "Add New User"
+msgstr "Agregar nueva usuaria"
+
+#: .\map\templates\check.html:3
+#, fuzzy
+#| msgid "Check Street View"
+msgid "Google Map Check with Streetview"
+msgstr "Comprobar Street View"
+
+#: .\map\templates\check.html:4
+msgid "Google Map Street View Check"
+msgstr "Verificación de Google Map Street View"
+
+#: .\map\templates\check.html:5
+#, fuzzy
+#| msgid "Google Maps"
+msgid "Google Map"
+msgstr "mapas de Google"
+
+#: .\map\templates\check.html:20
+#, fuzzy
+#| msgid "Longitude"
+msgid "Latitude/Longitude"
+msgstr "Latitud/longitud"
+
+#: .\map\templates\check.html:27
+msgid "Coordinates"
+msgstr "Coordenadas"
+
+#: .\map\templates\check.html:29
+msgid "OR- Add Polygon in the map to use Coordinates for getting images"
+msgstr ""
+"O- Agregue Polígono en el mapa para usar Coordenadas para obtener imágenes"
+
+#: .\map\templates\check.html:34
+msgid "Check"
+msgstr "Cheque"
+
+#: .\map\templates\check.html:42
+#, fuzzy
+#| msgid "Result"
+msgid "Image Result"
+msgstr "Resultado"
+
+#: .\map\templates\check.html:43
+#, fuzzy
+#| msgid "Result"
+msgid "No Result"
+msgstr "Resultado"
+
+#: .\map\templates\check.html:48
+msgid "Select the Object Model to test on"
+msgstr "Seleccione el modelo de objeto para probar"
+
+#: .\map\templates\check.html:67
+#, fuzzy
+#| msgid "Add / Test Images"
+msgid "Test Images"
+msgstr "Imágenes de prueba rápida"
+
+#: .\map\templates\check.html:68
+msgid "Might take some time depending on the total images"
+msgstr "Puede llevar algún tiempo dependiendo del total de imágenes."
+
+#: .\map\templates\check.html:72
+msgid "Clean Saved Street View Images"
+msgstr "Limpiar imágenes guardadas de Street View"
+
+#: .\projects\forms.py:17
+#, fuzzy
+#| msgid "Projects"
+msgid "Project Name"
+msgstr "Nombre del proyecto"
+
+#: .\projects\forms.py:19
+#, fuzzy
+#| msgid "Projects"
+msgid "Project Image"
+msgstr "Imagen del proyecto"
+
+#: .\projects\forms.py:20
+#, fuzzy
+#| msgid "Test Image with Detect Model"
+msgid "Online Object Detect Model"
+msgstr "Modelo de detección de objetos en línea"
+
+#: .\projects\forms.py:21
+#, fuzzy
+#| msgid "Create Offline Model"
+msgid "Offline Object Detect Model"
+msgstr "Modelo de detección de objetos sin conexión"
+
+#: .\projects\forms.py:23
+msgid "Is Publicly Visible"
+msgstr "Es visible públicamente"
+
+#: .\projects\templates\add_project.html:5
+#: .\projects\templates\add_project.html:13
+#: .\projects\templates\add_project.html:64
+#, fuzzy
+#| msgid "Create Project"
+msgid "Update Project"
+msgstr "Ver proyectos"
+
+#: .\projects\templates\add_project.html:21
+#, fuzzy
+#| msgid "Projects"
+msgid "Edit Project"
+msgstr "Proyecto"
+
+#: .\projects\templates\add_project.html:23
+#: .\projects\templates\add_project.html:66
+#, fuzzy
+#| msgid "View Projects"
+msgid "Add Project"
+msgstr "Agregar nuevo proyecto"
+
+#: .\projects\templates\add_project.html:42
+msgid "Remove All Linked Users from this Project"
+msgstr "Eliminar a todos los usuarios vinculados de este proyecto"
+
+#: .\projects\templates\add_project.html:45
+msgid "Also Note that User Contributions will no longer be visible"
+msgstr ""
+"También tenga en cuenta que las contribuciones de los usuarios ya no serán "
+"visibles"
+
+#: .\projects\templates\add_project.html:55
+msgid "Mark as GLOBAL Project"
+msgstr "Marcar como proyecto GLOBAL"
+
+#: .\projects\templates\add_project.html:58
+msgid ""
+"Will be used for Guest/Offline Users in Mobile App. Logged in user will be "
+"shown via linked projects. <br/>  Note: Only One Project should be marked as "
+"Global (Best Practice)"
+msgstr ""
+
+#: .\projects\templates\add_project.html:72
+msgid "Users Linked to this Project"
+msgstr "Usuarios vinculadas a este proyecto"
+
+#: .\projects\templates\add_project.html:80
+msgid "No Users for this project yet"
+msgstr "Aún no hay usuarios para este proyecto"
+
+#: .\projects\templates\projects.html:16
+#: .\projects\templates\public_projects.html:127
+#, fuzzy
+#| msgid "View Projects"
+msgid "Add New Project"
+msgstr "Agregar nuevo proyecto"
+
+#: .\projects\templates\projects.html:46
+msgid "Test Image with Detect Model"
+msgstr "Prueba de imagen con Detectar modelo"
+
+#: .\projects\templates\public_projects.html:27
+#, fuzzy
+#| msgid "Public Projects"
+msgid "Global Project"
+msgstr "Proyecto Global"
+
+#: .\projects\templates\public_projects.html:32
+#, fuzzy
+#| msgid "View Projects"
+msgid "View More"
+msgstr "Ver proyectos"
+
+#: .\projects\templates\public_projects.html:34
+msgid "Leave"
+msgstr "Salir"
+
+#: .\projects\templates\public_projects.html:107
+#, fuzzy
+#| msgid "Public Projects"
+msgid "Show All Public Projects"
+msgstr "Mostrar todos los proyectos públicos"
+
+#: .\projects\templates\public_projects.html:116
+#, fuzzy
+#| msgid "View Projects"
+msgid "Show Joined Projects"
+msgstr "Mostrar proyectos unidos"

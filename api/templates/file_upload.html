@@ -1,8 +1,8 @@
 {% extends 'master/base.html' %}
-
-{% block title %} File Upload {% endblock title %}
-{% block dashboard_title1 %} File Upload {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Files {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "File Upload" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "File Upload" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "Files" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -16,9 +16,9 @@
                     <table id="file_upload_dt" class="table table-bordered table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Added By</th>
-                                {% if user.is_admin %}<th style="width:110px;">Actions</th>{% endif %}
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Added By" %}</th>
+                                {% if user.is_admin %}<th style="width:110px;">{% trans "Actions" %}</th>{% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -28,16 +28,16 @@
                                     <td>{{file_upload.created_by.full_name|default:'Anonymous'}}</td>
                                     {% if user.is_admin %}
                                     <td class="table-options" style="min-width: 110px;">
-                                        <a title="Download File" data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" download href="{{file_upload.file.url}}" style="margin: 0 4px !important;">
+                                        <a title="{% trans 'Download File' %}" data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" download href="{{file_upload.file.url}}" style="margin: 0 4px !important;">
                                             <i class="fa fa-download"></i>
                                         </a>
-                                        <a onclick="prompt('Use this as File Path in Pre/Post Processor or elsewhere','{{ file_upload.filepath }}')" title="Copy Path" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="prompt('Use this as File Path in Pre/Post Processor or elsewhere','{{ file_upload.filepath }}')" title="{% trans 'Copy Path' %}" data-toggle="tooltip" data-placement="left" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-copy text-black"></i>
                                         </a>
-                                        <a onclick="deleteDataWriteConfirm(event, 'form-{{ file_upload.id }}', 'Uploaded File')" title="Delete" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="deleteDataWriteConfirm(event, 'form-{{ file_upload.id }}', 'Uploaded File')" title="{% trans 'Delete' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <a onclick="editForm('{{file_upload.id}}','{{file_upload.name}}','{{file_upload.file.url}}')" title="Edit" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="editForm('{{file_upload.id}}','{{file_upload.name}}','{{file_upload.file.url}}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                         <form action="{% url 'file_upload.delete' file_upload.id %}" id="form-{{ file_upload.id }}" class="d-inline">
@@ -55,7 +55,7 @@
         <div class="col-sm-12 col-md-4">
             <div class="card">
                 <div class="card-title ml-3 mt-3">
-                    <h5 id="file_title_status">Upload File</h5>
+                    <h5 id="file_title_status">{% trans 'Upload File' %}</h5>
                 </div>
                 <hr style="margin:0.5rem;"/>
                 <div class="card-body pt-0">
@@ -67,8 +67,8 @@
                         <p style="display:none;font-size:0.7em;" id="file_path"></p>
                         <div class="form-group">
                             <div class="col-sm-12" style="display: flex;justify-content: space-between;align-items: center;">
-                                <button class="btn btn-sm btn-primary" id="upload_btn" type="submit">Upload <i class="fa fa-upload ml-1" style="font-size: 80%;"></i></button>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">Clear <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
+                                <button class="btn btn-sm btn-primary" id="upload_btn" type="submit">{% trans 'Upload' %} <i class="fa fa-upload ml-1" style="font-size: 80%;"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">{% trans 'Clear' %} <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
                             </div>
                         </div>
                     </form>

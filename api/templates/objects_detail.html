@@ -1,8 +1,8 @@
 {% extends 'master/base.html' %}
-
-{% block title %} Fetch Object Type Details {% endblock title %}
-{% block dashboard_title1 %} Object Type Detail {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Object Type {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "Fetch Object Type Details" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Object Type Detail" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "Object Type" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -12,7 +12,7 @@
             <div class="card">
                 <div class="card-body">
                     <div class="form-group">
-                        <label for="object_id" class="col-sm-12 col-md-6 col-form-label">Object Model</label>
+                        <label for="object_id" class="col-sm-12 col-md-6 col-form-label">{% trans "Object Model" %}</label>
                         <div class="col-sm-12 col-md-6">
                             <select name="object_id" class="form-control select2" id="object_id" required>
                                 {% if default_object_model %}
@@ -24,7 +24,7 @@
                                         {% if project.detect_model and project.detect_model != '' %}
                                             <option value="{{project.id}}" data-project="{{project.project_name}}">{{project.detect_model}}</option>
                                         {% elif project.offline_model %}
-                                            <option value="{{project.id}}" data-project="{{project.project_name}}">Offline Detect Model: {{project.offline_model}}</option>
+                                            <option value="{{project.id}}" data-project="{{project.project_name}}">{% trans "Offline Detect Model: {{project.offline_model}}</option>
                                         {% endif %}
                                     {% endfor %}
                                 {% endif %}
@@ -33,7 +33,7 @@
                     </div>
                     <hr/>
                     <div class="form-group">
-                        <button type="submit" id="object_btn" class="ml-2 btn btn-primary">Get Detail</button>
+                        <button type="submit" id="object_btn" class="ml-2 btn btn-primary">{% trans "Get Detail" %}</button>
                     </div>
                 </div>
             </div>
