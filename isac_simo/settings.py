@@ -80,6 +80,7 @@ INSTALLED_APPS = [
     'map',
     'crowdsource',
     'rest_framework',
+    'rosetta',
 ]
 
 AUTH_USER_MODEL = 'main.User'  # changes the built-in user model to ours

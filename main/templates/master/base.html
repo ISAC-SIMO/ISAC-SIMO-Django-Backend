@@ -437,7 +437,16 @@
                 </p>
               </a>
             </li>
-
+           <hr style="margin:0.5em 0;border-top:1px solid #555;"/>
+          <li class="nav-item">
+              <a href="{% url 'rosetta-file-list' 'project' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'translator' %} active {% endif %}">
+                <i class="nav-icon fas fa-language"></i>
+                <p>
+                  {% trans "Translator" %}
+                </p>
+              </a>
+            </li>
           </ul>
         </nav>
         <!-- /.sidebar-menu -->

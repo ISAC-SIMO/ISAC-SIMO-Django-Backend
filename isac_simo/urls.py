@@ -70,7 +70,8 @@ urlpatterns = [
     path('crowdsource/', include('crowdsource.urls')),
     # Service Worker js
     path('serviceworker.js', views.serviceworker, name="serviceworker"),
-    path('offline', views.offline, name="offline")
+    path('offline', views.offline, name="offline"),
+    path('translator/', include('main.translator.urls')),
 ]
 # This is for further model field translation and other..
 urlpatterns += i18n_patterns(
