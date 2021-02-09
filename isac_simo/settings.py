@@ -15,8 +15,10 @@ from datetime import timedelta
 import dj_database_url
 import environ
 from isac_simo.database_settings import database_config
+
 env = environ.Env()
 env.read_env(env.str('ENV_PATH', '.env'))
+from django.utils.translation import gettext_lazy as _
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -52,7 +54,8 @@ TEMPLATE_DEBUG = DEBUG
 GOOGLE_MAP_STREET_API = os.getenv('GOOGLE_MAP_STREET_API')
 GOOGLE_MAP_API = os.getenv('GOOGLE_MAP_API')
 
-ALLOWED_HOSTS = ['0.0.0.0','localhost','127.0.0.1','buildchange.pythonanywhere.com','isac-simo.net','www.isac-simo.net','149.81.165.216']
+ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'buildchange.pythonanywhere.com', 'isac-simo.net',
+                 'www.isac-simo.net', '149.81.165.216']
 
 INTERNAL_IPS = (
     '127.0.0.1',
@@ -77,9 +80,10 @@ INSTALLED_APPS = [
     'map',
     'crowdsource',
     'rest_framework',
+    'rosetta',
 ]
 
-AUTH_USER_MODEL = 'main.User'   #changes the built-in user model to ours
+AUTH_USER_MODEL = 'main.User'  # changes the built-in user model to ours
 
 if PRODUCTION:
     SESSION_COOKIE_SECURE = True
@@ -88,6 +92,7 @@ MIDDLEWARE = [
     'api.middleware.MaintenanceMode',
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
+    'django.middleware.locale.LocaleMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
@@ -115,7 +120,6 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = 'isac_simo.wsgi.application'
-
 
 # Database
 # https://docs.djangoproject.com/en/2.2/ref/settings/#databases
@@ -147,7 +151,6 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
 # https://docs.djangoproject.com/en/2.2/topics/i18n/
 
@@ -161,7 +164,6 @@ USE_L10N = True
 
 USE_TZ = True
 
-
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
@@ -171,10 +173,10 @@ STATICFILES_DIRS = [
     os.path.join(BASE_DIR, "static"),
 ]
 
-MEDIA_URL= '/media/'
+MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 
-DOCS_URL= '/docs/'
+DOCS_URL = '/docs/'
 DOCS_ROOT = os.path.join(BASE_DIR, 'docs')
 
 CRISPY_TEMPLATE_PACK = 'bootstrap4'
@@ -194,7 +196,7 @@ if DEBUG:
 CACHES = {
     'default': {
         'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.getenv('CACHE_LOCATION','/var/tmp/django_cache'),
+        'LOCATION': os.getenv('CACHE_LOCATION', '/var/tmp/django_cache'),
         'TIMEOUT': 3600,
         'OPTIONS': {
             'MAX_ENTRIES': 100
@@ -240,7 +242,17 @@ SIMPLE_JWT = {
     'SLIDING_TOKEN_REFRESH_LIFETIME': timedelta(days=1),
 }
 
-IBM_BUCKET_ENDPOINT = os.getenv('IBM_BUCKET_ENDPOINT','')
-IBM_BUCKET = os.getenv('IBM_BUCKET','')
-IBM_BUCKET_TOKEN = os.getenv('IBM_BUCKET_TOKEN','')
-IBM_BUCKET_CRN = os.getenv('IBM_BUCKET_CRN','')
+IBM_BUCKET_ENDPOINT = os.getenv('IBM_BUCKET_ENDPOINT', '')
+IBM_BUCKET = os.getenv('IBM_BUCKET', '')
+IBM_BUCKET_TOKEN = os.getenv('IBM_BUCKET_TOKEN', '')
+IBM_BUCKET_CRN = os.getenv('IBM_BUCKET_CRN', '')
+
+LOCALE_PATHS = (
+    os.path.join(BASE_DIR, "locale"),)
+
+LANGUAGES = [
+    ('en', _('English')),
+    ('es', _('Spanish')),
+    ('fr', _('French ')),
+    # ('hi', _('Hindi')),
+]

@@ -1,26 +1,26 @@
 {% extends 'master/base.html' %}
-
+{% load i18n %}
 {% block title %}
   {% if request.resolver_match.url_name == 'offline.model.edit' %}
-    Update Offline Model
+    {% trans "Update Offline Model" %}
   {% else %}  
-    Add Offline Model
+    {% trans "Add Offline Model" %}
   {% endif %} 
 {% endblock title %}
 
 {% block dashboard_title1 %}
   {% if request.resolver_match.url_name == 'offline.model.edit' %}
-    Update Offline Model
+    {% trans "Update Offline Model" %}
   {% else %}  
-    Add Offline Model
+    {% trans "Add Offline Model" %}
   {% endif %} 
 {% endblock dashboard_title1 %}
 
 {% block dashboard_title2 %}
   {% if request.resolver_match.url_name == 'offline.model.edit' %}
-    Edit Offline Model
+    {% trans "Edit Offline Model" %}
   {% else %}  
-    Add Offline Model
+    {% trans "Add Offline Model" %}
   {% endif %}
 {% endblock dashboard_title2 %}
 
@@ -36,7 +36,7 @@
                               {{ form|crispy }}
 
                               <div class="form-group" id="offline-model-label-group">
-                                  <label for="id_offline_model_labels">Offline Model Labels</label>
+                                  <label for="id_offline_model_labels">{% trans "Offline Model Labels" %}</label>
                                   <div class="">
                                       <select name="offline_model_labels" multiple id="id_offline_model_labels" class="form-control">
                                           <option></option>
@@ -48,14 +48,14 @@
                                       </select>
                                   </div>
                                   <small class=" form-text text-muted">
-                                      Add Multiple Indexes starting from zero (So, that the classifier will know the scores respective class/result)
+                                      {% trans "Add Multiple Indexes starting from zero (So, that the classifier will know the scores respective class/result)" %}
                                   </small>
                               </div>
 
                               {% if request.resolver_match.url_name == 'offline.model.edit' %}
-                                <button type="submit" class="btn btn-success">Update Model</button>
+                                <button type="submit" class="btn btn-success">{% trans "Update Model" %}</button>
                               {% else %}  
-                                <button type="submit" class="btn btn-success">Add Model</button>
+                                <button type="submit" class="btn btn-success">{% trans "Add Model" %}</button>
                               {% endif %}  
                         </form>
 
@@ -63,28 +63,28 @@
                         
                           <hr/>
                           {% if offlineModel.model_type == 'OBJECT_DETECT' %}
-                            <h4>Linked Projects:</h4>
+                            <h4>{% trans "Linked Projects" %}:</h4>
                             {% if offlineModel.projects and offlineModel.projects.all %}
                               <ul>
                                 {% for p in offlineModel.projects.all %}
                                   <li><a href="{% url 'updateproject' p.id %}">{{p.project_name}}</a></li>
                                 {% endfor %}
-                              <ul>
+                              </ul>
                             {% else %}
-                              No project linked yet !!
+                              {% trans "No project linked yet" %} !!
                             {% endif %}
                           {% endif %}
 
                           {% if offlineModel.model_type == 'CLASSIFIER' %}
-                            <h4>Linked Classifiers:</h4>
+                            <h4>{% trans "Linked Classifiers" %}:</h4>
                             {% if offlineModel.classifiers and offlineModel.classifiers.all %}
                               <ul>
                                 {% for c in offlineModel.classifiers.all %}
                                   <li><a href="{% url 'watson.classifier.edit' c.id %}">{{c.name}}</a></li>
                                 {% endfor %}
-                              <ul>
+                              </ul>
                             {% else %}
-                              No project linked yet !!
+                              {% trans "No project linked yet" %} !!
                             {% endif %}
                           {% endif %}
 

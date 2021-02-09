@@ -1,8 +1,9 @@
 {% extends 'master/base.html' %}
+{% load i18n %}
 
-{% block title %} Object Type {% if project_filter %}for {{project_filter|title}}{% endif %} {% endblock title %}
-{% block dashboard_title1 %} Object Type {% if project_filter %}for {{project_filter|title}}{% endif %} {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} View & Create Object Type {% endblock dashboard_title2 %}
+{% block title %} {% trans "Object Type" %} {% if project_filter %}for {{project_filter|title}}{% endif %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Object Type" %} {% if project_filter %}for {{project_filter|title}}{% endif %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "View & Create Object Type" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -14,11 +15,11 @@
             <div class="card">
                 <div class="card-title ml-3 mt-2">
                     <a href="{% url 'watson.object' %}"  class="btn btn-primary">
-                        <i class="fas fa-arrow-right"></i> Fetch Object Type Details from IBM Watson
+                        <i class="fas fa-arrow-right"></i> {% trans "Fetch Object Type Details from IBM Watson" %}
                     </a>
                     {% if project_filter %}
                         <a href="{% url 'watson.object.list' %}"  class="btn btn-secondary pull-right" style="float: right;margin-right: 10px;">
-                            <i class="fas fa-arrow-right"></i> Show all
+                            <i class="fas fa-arrow-right"></i> {% trans "Show all" %}
                         </a>
                     {% endif %}
                 </div>
@@ -26,10 +27,10 @@
                     <table id="object_types" class="table table-bordered table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Project</th>
-                                <th>Added By</th>
-                                {% if user.is_admin or user.is_project_admin %}<th style="width:210px;">Actions</th>{% endif %}
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Project" %}</th>
+                                <th>{% trans "Added By" %}</th>
+                                {% if user.is_admin or user.is_project_admin %}<th style="width:210px;">{% trans "Actions" %}</th>{% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -40,30 +41,30 @@
                                     <td>{{object_type.created_by.full_name|default:'User'}}</td>
                                     {% if user.is_admin or user.is_project_admin %}
                                     <td class="table-options" style="min-width: 170px;">
-                                        <a title="View Image" data-toggle="tooltip" data-placement="left" href="#!" onclick="showImagePop(event,'{% if object_type.image %}{{object_type.image.url}}{% else %}/media/object_types/default.jpg{% endif %}')" class="btn text-secondary px-0" style="margin: 0 4px !important;">
+                                        <a title="{% trans 'View Image' %}" data-toggle="tooltip" data-placement="left" href="#!" onclick="showImagePop(event,'{% if object_type.image %}{{object_type.image.url}}{% else %}/media/object_types/default.jpg{% endif %}')" class="btn text-secondary px-0" style="margin: 0 4px !important;">
                                             <i class="fa fa-file-image"></i>
                                         </a>
                                         {% if user.is_admin %}
-                                        <a title="Quick Test Images" data-toggle="tooltip" data-placement="left" href="{% url 'images.add' %}?object_type_id={{object_type.id}}" class="btn text-secondary px-0" style="margin: 0 4px !important;">
+                                        <a title="{% trans 'Quick Test Images' %}" data-toggle="tooltip" data-placement="left" href="{% url 'images.add' %}?object_type_id={{object_type.id}}" class="btn text-secondary px-0" style="margin: 0 4px !important;">
                                             <i class="fa fa-plus-circle" style="color:green;"></i>
                                         </a>
                                         {% endif %}
-                                        <a onclick="deleteDataWriteConfirm(event, 'form-{{ object_type.id }}', 'Object Type')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.delete' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="deleteDataWriteConfirm(event, 'form-{{ object_type.id }}', 'Object Type')" title="{% trans 'Delete' %}" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.delete' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <a onclick="editForm('{{object_type.id}}','{{object_type.name}}','{{object_type.image.url}}','{{object_type.project_id}}','{{object_type.instruction|default:''}}')" title="Edit" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="editForm('{{object_type.id}}','{{object_type.name}}','{{object_type.image.url}}','{{object_type.project_id}}','{{object_type.instruction|default:''}}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-edit"></i>
                                         </a>
-                                        <a data-html="true" title="Quick Order Classifiers" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.order' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a data-html="true" title="{% trans 'Quick Order Classifiers' %}" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.order' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-sort-amount-up text-secondary"></i>
                                         </a>
                                         {% comment %} VERIFY / UN-VERIFY {% endcomment %}
                                         {% if object_type.verified %}
-                                        <a onclick="confirmWithForm(event, 'form-verify-{{ object_type.id }}', 'Mark this Object ({{object_type.name|title}}) as Un-Verified')" title="Mark Un-Verified" data-toggle="tooltip" data-placement="right" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="confirmWithForm(event, 'form-verify-{{ object_type.id }}', 'Mark this Object ({{object_type.name|title}}) as Un-Verified')" title="{% trans 'Mark Un-Verified' %}" data-toggle="tooltip" data-placement="right" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-check-circle text-success"></i>
                                         </a>
                                         {% else %}
-                                        <a onclick="confirmWithForm(event, 'form-verify-{{ object_type.id }}', 'Mark this Object ({{object_type.name|title}}) as Verified ✓')" title="Mark Verified" data-toggle="tooltip" data-placement="right" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="confirmWithForm(event, 'form-verify-{{ object_type.id }}', 'Mark this Object ({{object_type.name|title}}) as Verified ✓')" title="{% trans 'Mark Verified' %}" data-toggle="tooltip" data-placement="right" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-times-circle text-orange"></i>
                                         </a>
                                         {% endif %}
@@ -74,7 +75,7 @@
                                             <i class="fa fa-bookmark text-success"></i>
                                         </a>
                                         {% else %}
-                                        <a onclick="confirmWithForm(event, 'form-wishlist-{{ object_type.id }}', 'Add to Wishlist? (Users will immediately be able to Contribute to {{object_type.name|title}})')" title="Add to Wishlist" data-toggle="tooltip" data-placement="right" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="confirmWithForm(event, 'form-wishlist-{{ object_type.id }}', 'Add to Wishlist? (Users will immediately be able to Contribute to {{object_type.name|title}})')" title="{% trans 'Add to Wishlist' %}" data-toggle="tooltip" data-placement="right" href="#!" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="far fa-bookmark text-orange"></i>
                                         </a>
                                         {% endif %}
@@ -103,7 +104,7 @@
         <div class="col-sm-12 col-md-4">
             <div class="card">
                 <div class="card-title ml-3 mt-3">
-                    <h5>Create Object Type</h5>
+                    <h5>{% trans "Create Object Type" %}</h5>
                 </div>
                 <hr style="margin:0.5rem;"/>
                 <div class="card-body pt-0">
@@ -111,16 +112,16 @@
                         {% csrf_token %}
                         <input type="hidden" value="0" id="id_field" name="id"/>
                         <div class="form-group mb-0">
-                            <label for="object_type" class="col-12 col-form-label">Object Type*</label>
+                            <label for="object_type" class="col-12 col-form-label">{% trans "Object Type" %}*</label>
                             <div class="col-sm-12">
                                 <input type="text" placeholder="Object Type (e.g. wall, rebar)" class="form-control" id="object_type" name="object_type" required/>
                             </div>
                             <small id="negativeHelp" class="col-sm-12 form-text text-muted">
-                                Must be unique and lowercase for each project
+                                {% trans "Must be unique and lowercase for each project" %}
                             </small>
                         </div>
                         <div class="form-group">
-                            <label for="project" class="col-12 col-form-label">Project*</label>
+                            <label for="project" class="col-12 col-form-label">{% trans "Project" %}*</label>
                             <div class="col-sm-12">
                                 <select class="form-control" id="project" name="project" required>
                                     {% for project in projects %}
@@ -131,13 +132,13 @@
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="instruction" class="col-12 col-form-label">Instruction</label>
+                            <label for="instruction" class="col-12 col-form-label">{% trans "Instruction" %}</label>
                             <div class="col-sm-12">
                                 <textarea placeholder="Instruction for Mobile User.&#10;How to take Picture/Video" class="form-control" id="instruction" name="instruction" max="500"></textarea>
                             </div>
                         </div>
                         <div class="form-group">
-                            <label for="image" class="col-12 col-form-label">Instruction Image</label>
+                            <label for="image" class="col-12 col-form-label">{% trans "Instruction Image" %}</label>
                             <div class="col-sm-12">
                                 <input type="file" id="image" name="image" accept="image/x-png,image/jpeg"/>
                             </div>
@@ -145,8 +146,8 @@
                         </div>
                         <div class="form-group">
                             <div class="col-sm-12" style="display: flex;justify-content: space-between;align-items: center;">
-                                <button class="btn btn-sm btn-primary" id="submit_button" type="submit">Add</button>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">Clear <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
+                                <button class="btn btn-sm btn-primary" id="submit_button" type="submit">{% trans "Add" %}</button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">{% trans "Clear" %} <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
                             </div>
                         </div>
                     </form>

@@ -1,8 +1,8 @@
 {% extends 'master/base.html' %}
-
-{% block title %} Train Images {% endblock title %}
-{% block dashboard_title1 %} Train Images {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} IBM Watson Image Classifier {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "Train Images" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Train Images" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "IBM Watson Image Classifier" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -12,37 +12,37 @@
             <div class="card">
                 <div class="card-body">
                     <div class="form-group">
-                        <label for="project" class="col-sm-5 col-md-4 col-form-label">Project</label>
+                        <label for="project" class="col-sm-5 col-md-4 col-form-label">{% trans "Project" %}</label>
                         <div class="col-sm-12 col-md-4">
                             <select name="project" class="form-control" id="project" required>
-                                <option disabled="" selected="">No Projects Found</option>
+                                <option disabled="" selected="">{% trans "No Projects Found" %}</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="object" class="col-sm-12 col-md-6 col-form-label">Object</label>
+                        <label for="object" class="col-sm-12 col-md-6 col-form-label">{% trans "Object" %}</label>
                         <div class="col-sm-12 col-md-4">
                             <select name="object" class="form-control" id="object" required>
-                                <option disabled="" selected="">No Objects Found</option>
+                                <option disabled="" selected="">{% trans "No Objects Found" %}</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="model" class="col-sm-12 col-md-6 col-form-label">Model (Select "All" Re-Trains in all these models)</label>
+                        <label for="model" class="col-sm-12 col-md-6 col-form-label">{% trans "Model" %} (Select "All" Re-Trains in all these models)</label>
                         <div class="col-sm-12 col-md-4">
                             <select name="model" class="form-control" id="model" required>
-                                <option value="all" selected="">All</option>
+                                <option value="all" selected="">{% trans "All" %}</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="result" class="col-sm-12 col-md-6 col-form-label">Result ("negative" will train these image as negative data <i onclick="document.getElementById('result').value = 'negative'" class="fa fa-plus"></i>)</label>
+                        <label for="result" class="col-sm-12 col-md-6 col-form-label">{% trans "Result" %} ("negative" will train these image as negative data <i onclick="document.getElementById('result').value = 'negative'" class="fa fa-plus"></i>)</label>
                         <div class="col-sm-12 col-md-4">
                             <input type="text" name="result" class="form-control" id="result" placeholder="e.g. go/nogo/negative etc." required>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="images" class="col-sm-12 col-md-6 col-form-label">Images (At least 10)</label>
+                        <label for="images" class="col-sm-12 col-md-6 col-form-label">{% trans "Images" %} (At least 10)</label>
                         <div class="col-sm-12 col-md-4">
                             <input type="file" name="images" id="images" accept="image/png, image/jpeg" multiple required>
                         </div>
@@ -50,43 +50,43 @@
                     <div class="form-group" id="process-group">
                         <label for="process" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                             <input type="checkbox" name="process" id="process" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
-                            Also Process & Transform the Images
+                            {% trans "Also Process & Transform the Images" %}
                         </label>
                         <small class="col-sm-12 form-text text-muted" style="margin:0;">
-                            This will add transformed, flipped images within the zip file
+                            {% trans "This will add transformed, flipped images within the zip file" %}
                         </small>
                     </div>
                     <div class="form-group" id="rotate-group" style="display:none;">
                         <label for="rotate" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                             <input type="checkbox" name="rotate" id="rotate" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
-                            And Rotate (30, 60, -60, 120) degree
+                            {% trans "And Rotate (30, 60, -60, 120) degree" %}
                         </label>
                         <small class="col-sm-12 form-text text-muted" style="margin:0;">
-                            This will add rotated images within the zip file
+                            {% trans "This will add rotated images within the zip file" %}
                         </small>
                     </div>
                     <div class="form-group" id="warp-group" style="display:none;">
                         <label for="warp" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                             <input type="checkbox" name="warp" id="warp" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
-                            And Warp Perspective of Images (Left, Right, Bottom, Top)
+                            {% trans "And Warp Perspective of Images (Left, Right, Bottom, Top)" %}
                         </label>
                         <small class="col-sm-12 form-text text-muted" style="margin:0;">
-                            This will add warp perspective images within the zip file
+                            {% trans "This will add warp perspective images within the zip file" %}
                         </small>
                     </div>
                     <div class="form-group" id="inverse-group" style="display:none;">
                         <label for="inverse" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                             <input type="checkbox" name="inverse" id="inverse" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
-                            And Inverse and Canny Images (<a href="https://i.imgur.com/SOgA04Kl.png" target="_blank">Negative</a> & <a href="https://i.imgur.com/8EFrhPPl.png" target="_blank">Edge</a>)
+                            {% trans "And Inverse and Canny Images" %} (<a href="https://i.imgur.com/SOgA04Kl.png" target="_blank">Negative</a> & <a href="https://i.imgur.com/8EFrhPPl.png" target="_blank">Edge</a>)
                         </label>
                         <small class="col-sm-12 form-text text-muted" style="margin:0;">
-                            This will add Inverted / Negative and Edge of image within the zip file
+                            {% trans "This will add Inverted / Negative and Edge of image within the zip file" %}
                         </small>
                     </div>
-                    <b class="ml-2 text-primary">Retraining might take some time, so make sure no test will be running during that time.</b>
+                    <b class="ml-2 text-primary">{% trans "Retraining might take some time, so make sure no test will be running during that time" %}.</b>
                     <hr/>
                     <div class="form-group">
-                        <button type="submit" id="retrain_btn" class="ml-2 btn btn-primary">Re-Train</button>
+                        <button type="submit" id="retrain_btn" class="ml-2 btn btn-primary">{% trans "Re-Train" %}</button>
                     </div>
                 </div>
             </div>

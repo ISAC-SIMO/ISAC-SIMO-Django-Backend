@@ -1,8 +1,8 @@
 {% extends 'master/base.html' %}
-
-{% block title %} Create New Classifier {% endblock title %}
-{% block dashboard_title1 %} Create Classifier {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} New Classifier {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "Create New Classifier" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Create Classifier" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "New Classifier" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -12,14 +12,14 @@
             <div class="card">
                 <div class="card-body">
                     {% if created %}
-                        <h3>Result:</h3>
+                        <h3>{% trans "Result" %}:</h3>
                         <pre style="border-left: 2px solid salmon;">{{created}}</pre>
-                        <h4>Note:</h4>
+                        <h4>{% trans "Note" %}:</h4>
                         {% if bad_zip and bad_zip != 0 %}
-                            <small style="color:red;font-size: 1em;">{{bad_zip}} Zip files were bad.</small> <br/>
+                            <small style="color:red;font-size: 1em;">{{bad_zip}} {% trans "Zip files were bad" %}.</small> <br/>
                         {% endif %}
-                        <b>If the Classifier was not added, contact the Server Admin to add this Classifier in this web application</b> <br/>
-                        <small>Send a copy of this response</small>
+                        <b>{% trans "If the Classifier was not added, contact the Server Admin to add this Classifier in this web application" %}</b> <br/>
+                        <small>{% trans "Send a copy of this response" %}</small>
                         <script>
                             //window.onbeforeunload = function(){
                                 //return 'Are you sure you want to leave?';
@@ -27,30 +27,30 @@
                         </script>
                     {% else %}
                         <div class="form-group">
-                            <label for="source" class="col-sm-12 col-md-6 col-form-label">Source of the Model*</label>
+                            <label for="source" class="col-sm-12 col-md-6 col-form-label">{% trans "Source of the Model" %}*</label>
                             <div class="col-sm-12 col-md-4">
                                 <select class="form-control" name="source" id="source">
-                                    <option value="ibm">IBM Watson</option>
-                                    <option value="offline">Offline Model</option>
+                                    <option value="ibm">{% trans "IBM Watson" %}</option>
+                                    <option value="offline">{% trans "Offline Model" %}</option>
                                 </select>
                             </div>
                             <small class="col-sm-12 form-text text-muted">
-                                Choose the Source of Model. IBM Watson for adding trained/pretrained classifier or object detection.<br/>Offline Model to add Offline Model/Pre/Post/Processor.
+                                {% trans "Choose the Source of Model. IBM Watson for adding trained/pretrained classifier or object detection.<br/>Offline Model to add Offline Model/Pre/Post/Processor.
                             </small>
                         </div>
                         <div class="form-group" id="trained-group">
-                            <label for="trained" class="col-sm-12 col-md-6 col-form-label">Would you like to Train Model or Add Pre-Trained Model?*</label>
+                            <label for="trained" class="col-sm-12 col-md-6 col-form-label">{% trans "Would you like to Train Model or Add Pre-Trained Model" %}?*</label>
                             <div class="col-sm-12 col-md-4">
                                 <select class="form-control" name="trained" id="trained">
                                     {% comment %} {% if not user.is_project_admin %} {% endcomment %}
-                                    <option value="false">Train New Model</option>
+                                    <option value="false">{% trans "Train New Model" %}</option>
                                     {% comment %} {% endif %} {% endcomment %}
-                                    <option value="true">Add Pre-Trained Model</option>
+                                    <option value="true">{% trans "Add Pre-Trained Model" %}</option>
                                 </select>
                             </div>
                         </div>
                         <div class="form-group" id="zip-group">
-                            <label for="zip" class="col-sm-12 col-md-6 col-form-label">Zip Files*</label>
+                            <label for="zip" class="col-sm-12 col-md-6 col-form-label">{% trans "Zip Files" %}*</label>
                             <div class="col-sm-12 col-md-4">
                                 <input type="file" name="zip" id="zip" accept=".zip" multiple required aria-describedby="fileHelp">
                             </div>
@@ -60,7 +60,7 @@
                             </small>
                         </div>
                         <div class="form-group" id="negative-group">
-                            <label for="negative" class="col-sm-12 col-md-6 col-form-label">Negative Zip Files</label>
+                            <label for="negative" class="col-sm-12 col-md-6 col-form-label">{% trans "Negative Zip Files" %}</label>
                             <div class="col-sm-12 col-md-4">
                                 <input type="file" name="negative" id="negative" accept=".zip" aria-describedby="negativeHelp">
                             </div>
@@ -80,41 +80,41 @@
                         <div class="form-group" id="process-group">
                             <label for="process" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                                 <input type="checkbox" name="process" id="process" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
-                                Also Process & Transform the Images
+                                {% trans "Also Process & Transform the Images" %}
                             </label>
                             <small class="col-sm-12 form-text text-muted" style="margin:0;">
-                                This will add transformed, flipped images within the zip file
+                                {% trans "This will add transformed, flipped images within the zip file" %}
                             </small>
                         </div>
                         <div class="form-group" id="rotate-group" style="display:none;">
                             <label for="rotate" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                                 <input type="checkbox" name="rotate" id="rotate" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
-                                And Rotate (30, 60, -60, 120) degree
+                                {% trans "And Rotate (30, 60, -60, 120) degree" %}
                             </label>
                             <small class="col-sm-12 form-text text-muted" style="margin:0;">
-                                This will add rotated images within the zip file
+                                {% trans "This will add rotated images within the zip file" %}
                             </small>
                         </div>
                         <div class="form-group" id="warp-group" style="display:none;">
                             <label for="warp" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                                 <input type="checkbox" name="warp" id="warp" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
-                                And Warp Perspective of Images (Left, Right, Bottom, Top)
+                                {% trans "And Warp Perspective of Images (Left, Right, Bottom, Top)" %}
                             </label>
                             <small class="col-sm-12 form-text text-muted" style="margin:0;">
-                                This will add warp perspective images within the zip file
+                                {% trans "This will add warp perspective images within the zip file" %}
                             </small>
                         </div>
                         <div class="form-group" id="inverse-group" style="display:none;">
                             <label for="inverse" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                                 <input type="checkbox" name="inverse" id="inverse" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
-                                And Inverse and Canny Images (<a href="https://i.imgur.com/SOgA04Kl.png" target="_blank">Negative</a> & <a href="https://i.imgur.com/8EFrhPPl.png" target="_blank">Edge</a>)
+                                {% trans "And Inverse and Canny Images" %} (<a href="https://i.imgur.com/SOgA04Kl.png" target="_blank">{% trans "Negative" %}</a> & <a href="https://i.imgur.com/8EFrhPPl.png" target="_blank">Edge</a>)
                             </label>
                             <small class="col-sm-12 form-text text-muted" style="margin:0;">
-                                This will add Inverted / Negative and Edge of image within the zip file
+                                {% trans "This will add Inverted / Negative and Edge of image within the zip file" %}
                             </small>
                         </div>
                         <div class="form-group animated fast fadeIn" id="offline-model-group" style="display:none;">
-                            <label for="offlineModel" class="col-sm-5 col-md-4 col-form-label">Offline Model</label>
+                            <label for="offlineModel" class="col-sm-5 col-md-4 col-form-label">{% trans "Offline Model" %}</label>
                             <div class="col-sm-12 col-md-4">
                                 <select name="offlineModel" id="offlineModel" class="form-control">
                                     <option></option>
@@ -124,38 +124,38 @@
                                 </select>
                             </div>
                             <small class="col-sm-12 form-text text-muted">
-                                If Offline Model is added it is used with 1st priority
+                                {% trans "If Offline Model is added it is used with 1st priority" %}
                             </small>
                         </div>
                         <div class="form-group">
-                            <label for="name" class="col-sm-5 col-md-4 col-form-label">Classifier Name*</label>
+                            <label for="name" class="col-sm-5 col-md-4 col-form-label">{% trans "Classifier Name" %}*</label>
                             <div class="col-sm-12 col-md-4">
                                 <input type="text" placeholder="The name of the new classifier" class="form-control" id="name" name="name" required/>
                             </div>
                             <small id="model_id_msg" class="col-sm-12 form-text text-muted">
-                                * This is What is used to Call Watson AI
+                                * {% trans "This is What is used to Call Watson AI" %}
                             </small>
                         </div>
                         <div class="form-group" id="is_object_detection_group" style="display: none;">
                             <label for="is_object_detection" class="col-sm-12 col-md-6 col-form-label" style="padding-bottom:0;">
                                 <input type="checkbox" name="is_object_detection" id="is_object_detection" style="transform: scale(1.3) translate(0px,1px);margin-right: 5px;">
-                                Is Object Detection ?
+                                {% trans "Is Object Detection" %} ?
                             </label>
                             <small class="col-sm-12 form-text text-muted" style="margin:0;">
-                                Check this if you are using IBM Watson Object Detection Model to act as Classifier.
+                                {% trans "Check this if you are using IBM Watson Object Detection Model to act as Classifier" %}.
                             </small>
                         </div>
                         <div class="form-group" id="ibm_api_key_group">
-                            <label for="ibm_api_key" class="col-sm-5 col-md-4 col-form-label">IBM API KEY</label>
+                            <label for="ibm_api_key" class="col-sm-5 col-md-4 col-form-label">{% trans "IBM API KEY" %}</label>
                             <div class="col-sm-12 col-md-4">
                                 <input type="text" placeholder="Enter your IBM Watson API KEY" class="form-control" id="ibm_api_key" name="ibm_api_key"/>
                             </div>
                             <small class="col-sm-12 form-text text-muted">
-                                If Provided the Classifier/Model will be linked or created in given Watson Service.
+                                {% trans "If Provided the Classifier/Model will be linked or created in given Watson Service" %}.
                             </small>
                         </div>
                         <div class="form-group">
-                            <label for="project" class="col-sm-5 col-md-4 col-form-label">Project*</label>
+                            <label for="project" class="col-sm-5 col-md-4 col-form-label">{% trans "Project" %}*</label>
                             <div class="col-sm-12 col-md-4">
                                 <select name="project" id="project" class="form-control" required>
                                     <option></option>
@@ -165,11 +165,11 @@
                                 </select>
                             </div>
                             <small class="col-sm-12 form-text text-muted">
-                                Links Classifiers to specific Project
+                                {% trans "Links Classifiers to specific Project" %}
                             </small>
                         </div>
                         <div class="form-group">
-                            <label for="object_type" class="col-sm-5 col-md-4 col-form-label">Object Type*</label>
+                            <label for="object_type" class="col-sm-5 col-md-4 col-form-label">{% trans "Object Type" %}*</label>
                             <div class="col-sm-12 col-md-4">
                                 <select name="object_type" id="object_type" class="form-control" required>
                                     <option></option>
@@ -179,19 +179,19 @@
                                 </select>
                             </div>
                             <small class="col-sm-12 form-text text-muted">
-                                Select the Object Type for which to create this classifier. <br/>
-                                To Create new Object Type <a href="{% url 'watson.object.list' %}">Go Here</a>
+                                {% trans "Select the Object Type for which to create this classifier" %}. <br/>
+                                {% trans "To Create new Object Type" %} <a href="{% url 'watson.object.list' %}">{% trans "Go Here" %}</a>
                             </small>
                         </div>
                         <div class="form-group">
-                            <label for="order" class="col-sm-5 col-md-4 col-form-label">Order*</label>
+                            <label for="order" class="col-sm-5 col-md-4 col-form-label">{% trans "Order" %}*</label>
                             <div class="col-sm-12 col-md-4">
                                 <input type="number" min="0" max="500" placeholder="Order in which training is done. Check and use carefully" class="form-control" id="order" name="order" value="0" required/>
                             </div>
                         </div>
                         <hr/>
                         <div class="form-group">
-                            <button type="submit" id="classifier_btn" class="ml-2 btn btn-primary">Create Classifier</button>
+                            <button type="submit" id="classifier_btn" class="ml-2 btn btn-primary">{% trans "Create Classifier" %}</button>
                         </div>
                     {% endif %}
                 </div>

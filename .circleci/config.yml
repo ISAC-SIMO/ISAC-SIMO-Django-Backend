@@ -78,4 +78,7 @@ workflows:
   version: 2
   notify_deploy:
     jobs:
-      - build
+      - build:
+          filters:
+            branches:
+              only: master

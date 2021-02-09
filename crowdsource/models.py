@@ -6,6 +6,7 @@ from django.utils.deconstruct import deconstructible
 
 # from main.models import User
 from projects.models import Projects
+from django.utils.translation import gettext_lazy as _
 
 @deconstructible
 class PathAndRename(object):
@@ -26,13 +27,13 @@ IMAGE_TYPE = [
 
 # File Upload
 class Crowdsource(models.Model):
-    file = models.ImageField(upload_to=path_and_rename_crowdsource)
-    object_type = models.CharField(max_length=200, default='other') # wall,rebar,door,brick etc.
-    image_type = models.CharField(max_length=50, choices=IMAGE_TYPE, default='raw') # raw or processed
-    username = models.CharField(max_length=200, blank=True, null=True)
-    created_by = models.ForeignKey("main.User", related_name='crowdsources', on_delete=models.SET_NULL, blank=True, null=True)
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    file = models.ImageField(_("File"), upload_to=path_and_rename_crowdsource)
+    object_type = models.CharField(_("Object Type"),max_length=200, default='other') # wall,rebar,door,brick etc.
+    image_type = models.CharField(_("Image Type"),max_length=50, choices=IMAGE_TYPE, default='raw') # raw or processed
+    username = models.CharField(_("Username"),max_length=200, blank=True, null=True)
+    created_by = models.ForeignKey("main.User", related_name='crowdsources', verbose_name=_("Crowdsources"), on_delete=models.SET_NULL, blank=True, null=True)
+    created_at = models.DateTimeField(_("created_at"),auto_now_add=True)
+    updated_at = models.DateTimeField(_("updated_at"),auto_now=True)
 
     def __str__(self):
         return self.file.url or 'N/A'

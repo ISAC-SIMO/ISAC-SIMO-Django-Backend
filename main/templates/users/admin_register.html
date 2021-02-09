@@ -1,26 +1,26 @@
 {% extends 'master/base.html' %}
-
+{% load i18n %}
 {% block title %}  
   {% if request.resolver_match.url_name == 'update_user' %}
-  Edit User
+  {% trans "Edit User" %}
   {% else %}  
-  Register User
+  {% trans "Register User" %}
   {% endif %} 
 {% endblock title %}
 
 {% block dashboard_title1 %} 
   {% if request.resolver_match.url_name == 'update_user' %}
-    Edit User
+    {% trans "Edit User" %}
   {% else %}  
-    Register User
+    {% trans "Register User" %}
   {% endif %} 
 {% endblock dashboard_title1 %}
 
 {% block dashboard_title2 %} 
   {% if request.resolver_match.url_name == 'update_user' %}
-    Edit User
+    {% trans "Edit User" %}
   {% else %}  
-    Add User
+    {% trans "Add User" %}
   {% endif %} 
 {% endblock dashboard_title2 %}
 
@@ -36,9 +36,9 @@
                               {{ form|crispy }}
 
                               {% if request.resolver_match.url_name == 'update_user' %}
-                                <button type="submit" class="btn btn-success">Update User</button>
+                                <button type="submit" class="btn btn-success"> {% trans "Update User" %}</button>
                               {% else %}  
-                                <button type="submit" class="btn btn-success">Register User</button>
+                                <button type="submit" class="btn btn-success"> {% trans "Register User" %}</button>
                               {% endif %}  
                           </form>
                     </div>
@@ -50,7 +50,7 @@
         <script>
           {% if form.email.value == user.email %}
             document.getElementById('div_id_active').style.display = 'none';
-            document.getElementById('hint_id_projects').innerHTML = document.getElementById('hint_id_projects').innerHTML + '<h5><b>Note:</b> You Are Editing Yourself.</h5>'
+            document.getElementById('hint_id_projects').innerHTML = document.getElementById('hint_id_projects').innerHTML + '<h5><b>{% trans "Note" %}:</b> {% trans "You Are Editing Yourself" %}.</h5>'
           {% endif %}
         </script>
 {% endblock content %}

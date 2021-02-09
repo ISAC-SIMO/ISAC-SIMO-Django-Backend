@@ -1,8 +1,8 @@
 {% extends 'master/base.html' %}
-
-{% block title %} Terminal {% endblock title %}
-{% block dashboard_title1 %} Terminal {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Terminal {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "Terminal" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Terminal" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "Terminal" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -13,22 +13,22 @@
             </div>
 
             <div class="form-group">
-                <label for="cmd" class="col-sm-12 col-md-6 col-form-label">Command</label>
+                <label for="cmd" class="col-sm-12 col-md-6 col-form-label">{% trans "Command" %}</label>
                 <div class="col-sm-12 col-md-6">
                     <input type="text" name="cmd" class="form-control" id="cmd" placeholder="pip install <package_name>" required>
                 </div>
             </div>
 
             <div class="form-group">
-                <button id="run" style="height: 55px;" class="ml-2 btn btn-primary">Run <span style="margin-left:5px;font-size:1.3em;">↵</span></button>
+                <button id="run" style="height: 55px;" class="ml-2 btn btn-primary">{% trans "Run" %} <span style="margin-left:5px;font-size:1.3em;">↵</span></button>
             </div>
             <div class="form-group" id="clear-container" style="display:none;">
-                <button id="clear" class="ml-2 btn btn-sm btn-danger">Clear <i class="fa fa-trash" style="margin-left:5px;"></i></button>
+                <button id="clear" class="ml-2 btn btn-sm btn-danger">{% trans "Clear" %} <i class="fa fa-trash" style="margin-left:5px;"></i></button>
             </div>
             <hr/>
             <b class="ml-2 text-primary">All Commands will run inside the project's environment. Know what you are doing.</b>
             <hr/>
-            <b class="ml-2">Allowed Commands:</b>
+            <b class="ml-2">{% trans "Allowed Commands" %}:</b>
             <ul style="padding-left: 25px;">
                 {% for cmd in cmd_list %}
                     <li>{{cmd}}</li>
