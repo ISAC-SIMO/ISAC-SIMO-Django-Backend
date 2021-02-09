@@ -1,15 +1,15 @@
 {% extends 'master/base.html' %}
-
-{% block title %} Crowdsource Image Contributions {% endblock title %}
-{% block dashboard_title1 %} Crowdsource Image Contributions {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Crowdsource Image {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "Crowdsource Image Contributions" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Crowdsource Image Contributions" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "Crowdsource Image" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
     <style>
         .bs-tooltip-auto[x-placement^=top] .arrow, .bs-tooltip-top .arrow{transform:translate(6px,0)}
     </style>
-    <p style="margin: 5px 0;font-size:0.9em;" class="badge badge-success">Total Crowdsource Images: {{crowdsources.paginator.count}} </p>
+    <p style="margin: 5px 0;font-size:0.9em;" class="badge badge-success">{% trans "Total Crowdsource Images" %}: {{crowdsources.paginator.count}} </p>
     <div class="row">
         <div class="col-sm-12 col-md-8">
             <div class="card">
@@ -18,10 +18,10 @@
                         <thead>
                             <tr>
                                 <th></th>
-                                <th>Object Type</th>
-                                <th>Image Type</th>
-                                <th>Attribution</th>
-                                <th style="width:110px;">Actions</th>
+                                <th>{% trans "Object Type" %}</th>
+                                <th>{% trans "Image Type" %}</th>
+                                <th>{% trans "Attribution" %}</th>
+                                <th style="width:110px;">{% trans "Actions" %}</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -32,14 +32,14 @@
                                     <td>{{crowdsource.image_type|title|default:'Raw'}}</td>
                                     <td>{% if crowdsource.created_by %} {{crowdsource.created_by.full_name}} {% else %} {{crowdsource.username|default:'N/A'}} {% endif %}</td>
                                     <td class="table-options" style="min-width: 110px;">
-                                        <a title="View Image" data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" onclick="showImagePop(event,'{{crowdsource.file.url}}')" href="{{crowdsource.file.url}}" class="btn text-primary px-0" style="margin: 0 3px !important;">
+                                        <a title="{% trans 'View Image' %}" data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" onclick="showImagePop(event,'{{crowdsource.file.url}}')" href="{{crowdsource.file.url}}" class="btn text-primary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-file-image"></i>
                                         </a>
-                                        <a onclick="editForm('{{crowdsource.id}}','{{crowdsource.name}}','{{crowdsource.file.url}}','{{crowdsource.object_type}}','{{crowdsource.image_type}}','{{crowdsource.username}}')" title="Edit" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="editForm('{{crowdsource.id}}','{{crowdsource.name}}','{{crowdsource.file.url}}','{{crowdsource.object_type}}','{{crowdsource.image_type}}','{{crowdsource.username}}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                         {% if user.is_admin or crowdsource.created_by and user.id == crowdsource.created_by.id %}
-                                        <a onclick="deleteData(event, 'form-{{ crowdsource.id }}', 'Uploaded File')" title="Delete" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="deleteData(event, 'form-{{ crowdsource.id }}', 'Uploaded File')" title="{% trans 'Delete' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
                                         <form action="{% url 'crowdsource.delete' crowdsource.id %}" id="form-{{ crowdsource.id }}" method="POST" class="d-inline">
@@ -87,7 +87,7 @@
         <div class="col-sm-12 col-md-4">
             <div class="card">
                 <div class="card-title ml-3 mt-3">
-                    <h5 id="file_title_status">Contribute to Crowdsource</h5>
+                    <h5 id="file_title_status">{% trans "Contribute to Crowdsource" %}</h5>
                 </div>
                 <hr style="margin:0.5rem;"/>
                 <div class="card-body pt-0">
@@ -99,12 +99,12 @@
                         <p style="display:none;font-size:0.7em;" id="file_path"></p>
                         <div class="form-group">
                             <div class="col-sm-12" style="display: flex;justify-content: space-between;align-items: center;">
-                                <button class="btn btn-sm btn-primary" id="upload_btn" type="submit">Upload <i class="fa fa-upload ml-1" style="font-size: 80%;"></i></button>
-                                <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">Clear <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
+                                <button class="btn btn-sm btn-primary" id="upload_btn" type="submit">{% trans "Upload" %} <i class="fa fa-upload ml-1" style="font-size: 80%;"></i></button>
+                                <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">{% trans "Clear" %} <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
                             </div>
                         </div>
                     </form>
-                  <small><b><i class="far fa-check-circle"></i> All Images Copyright will be transferred to ISAC-SIMO.<br/><i class="far fa-check-circle"></i> You agree that it can be used and shared freely.</b></small>
+                  <small><b><i class="far fa-check-circle"></i> {% trans "All Images Copyright will be transferred to ISAC-SIMO" %}.<br/><i class="far fa-check-circle"></i> You agree that it can be used and shared freely.</b></small>
                 </div>
             </div>
         </div>

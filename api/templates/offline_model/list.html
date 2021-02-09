@@ -1,8 +1,8 @@
 {% extends 'master/base.html' %}
-
-{% block title %} Offline Models {% endblock title %}
-{% block dashboard_title1 %} Offline Model {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Offline Model {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "Offline Models" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Offline Model" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "Offline Model" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -14,20 +14,20 @@
             <div class="card">
                 <div class="card-title ml-3 mt-2">
                     <a href="{% url 'offline.model.create' %}"  class="btn btn-primary">
-                        <i class="fas fa-plus"></i> Add Offline Model
+                        <i class="fas fa-plus"></i> {% trans "Add Offline Model" %}
                     </a>
-                    <a href="{% url 'offline.model.readme' %}" target="_blank"><button title="Click to View useful Info" data-toggle="tooltip" data-placement="left" class="btn btn-sm px-0 mr-3 text-info float-right"><i class="fa fa-question-circle"></i> Readme for guide and example</button></a>
+                    <a href="{% url 'offline.model.readme' %}" target="_blank"><button title="Click to View useful Info" data-toggle="tooltip" data-placement="left" class="btn btn-sm px-0 mr-3 text-info float-right"><i class="fa fa-question-circle"></i> {% trans "Readme for guide and example" %}</button></a>
                 </div>
                 <div class="card-body table table-responsive">
                     <table id="offlineModelTable" class="table table-bordered table-hover table-striped">
                         <thead>
                             <tr>
-                                <th>Name</th>
-                                <th>Type</th>
-                                <th>Format</th>
-                                <th>Added By</th>
+                                <th>{% trans "Name" %}</th>
+                                <th>{% trans "Type" %}</th>
+                                <th>{% trans "Format" %}</th>
+                                <th>{% trans "Added By" %}</th>
                                 {% comment %} <th>Added At</th> {% endcomment %}
-                                {% if user.is_admin or user.is_project_admin %}<th style="min-width: 120px;">Actions</th>{% endif %}
+                                {% if user.is_admin or user.is_project_admin %}<th style="min-width: 120px;">{% trans "Actions" %}</th>{% endif %}
                             </tr>
                         </thead>
                         <tbody>
@@ -38,10 +38,10 @@
                                     </td>
                                     <td>{% if model.preprocess %}Pre-Process{% elif model.postprocess %}Post-Process{% else %}{{model.model_type|title}}{% endif %}
                                     {% if model.preprocess %}
-                                        <i class="fa fa-dot-circle text-green" title="Pre-Processing Model" data-toggle="tooltip" data-placement="right"></i>
+                                        <i class="fa fa-dot-circle text-green" title="{% trans 'Pre-Processing Model' %}" data-toggle="tooltip" data-placement="right"></i>
                                     {% endif %}
                                     {% if model.postprocess %}
-                                        <i class="fa fa-check-circle text-orange" title="Post-Processing Model" data-toggle="tooltip" data-placement="right"></i>
+                                        <i class="fa fa-check-circle text-orange" title="{% trans 'Post-Processing Model' %}" data-toggle="tooltip" data-placement="right"></i>
                                     {% endif %}
                                     </td>
                                     <td>{{model.model_format}}</td>
@@ -49,22 +49,22 @@
                                     {% comment %} <td>{{model.created_at}}</td> {% endcomment %}
                                     {% if user.is_admin or user.is_project_admin %}
                                     <td class="table-options" style="min-width: 95px;">
-                                        <a onclick="deleteDataWriteConfirm(event, 'offline-model-{{ model.id }}', 'Offline Model')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'offline.model.delete' model.id %}" class="btn text-secondary px-0">
+                                        <a onclick="deleteDataWriteConfirm(event, 'offline-model-{{ model.id }}', 'Offline Model')" title="{% trans 'Delete' %}" data-toggle="tooltip" data-placement="left" href="{% url 'offline.model.delete' model.id %}" class="btn text-secondary px-0">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <a title="Edit" data-toggle="tooltip" data-placement="left" href="{% url 'offline.model.edit' model.id %}" class="btn text-secondary px-0">
+                                        <a title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="{% url 'offline.model.edit' model.id %}" class="btn text-secondary px-0">
                                             <i class="far fa-edit text-info"></i>
                                         </a>
                                         {% if model.file %}
-                                            <a title="Download {{model.filename}}" data-toggle="tooltip" data-placement="top" href="{{model.file.url}}" download class="btn text-secondary px-0">
+                                            <a title="{% trans 'Download' %} {{model.filename}}" data-toggle="tooltip" data-placement="top" href="{{model.file.url}}" download class="btn text-secondary px-0">
                                                 <i class="fas fa-file-download text-info"></i>
                                             </a>
                                             {% if model.model_format in 'py' %}
-                                                <a title="Check Dependencies" data-toggle="tooltip" data-placement="top" onclick="atopost(event, '{% url 'offline.model.dependencies' model.id %}', '{{csrf_token}}')" href="#!" class="btn text-secondary px-0">
+                                                <a title="{% trans 'Check Dependencies' %}" data-toggle="tooltip" data-placement="top" onclick="atopost(event, '{% url 'offline.model.dependencies' model.id %}', '{{csrf_token}}')" href="#!" class="btn text-secondary px-0">
                                                     <i class="fas fa-code-branch text-info"></i>
                                                 </a>
                                             {% endif %}
-                                            <a title="Test Image" data-toggle="tooltip" data-placement="left" href="{% url 'offline.model.test' model.id %}" class="btn text-secondary px-0">
+                                            <a title="{% trans 'Test Image' %}" data-toggle="tooltip" data-placement="left" href="{% url 'offline.model.test' model.id %}" class="btn text-secondary px-0">
                                                 <i class="far fa-file-image text-secondary"></i>
                                             </a>
                                         {% endif %}

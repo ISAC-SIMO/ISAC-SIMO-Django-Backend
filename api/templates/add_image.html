@@ -1,26 +1,26 @@
 {% extends 'master/base.html' %}
-
+{% load i18n %}
 {% block title %}
   {% if request.resolver_match.url_name == 'images.update' %}
-    Update Image
+    {% trans "Update Image" %}
   {% else %}  
-    Add Image
+    {% trans "Add Image" %}
   {% endif %} 
 {% endblock title %}
 
 {% block dashboard_title1 %}
   {% if request.resolver_match.url_name == 'images.update' %}
-    Update Image [ I-{{id}} ]
+    {% trans "Update Image" %} [ I-{{id}} ]
   {% else %}  
-    Add Image
+    {% trans "Add Image" %}
   {% endif %} 
 {% endblock dashboard_title1 %}
 
 {% block dashboard_title2 %}
   {% if request.resolver_match.url_name == 'images.update' %}
-    Edit Image
+    {% trans "Edit Image" %}
   {% else %}  
-    Add Image
+    {% trans "Add Image" %}
   {% endif %}
 {% endblock dashboard_title2 %}
 
@@ -38,7 +38,7 @@
                               {{ form|crispy }}
 
                               <div class="form-group">
-                                  <label for="object_type_id" class="col-form-label">Object Type</label>
+                                  <label for="object_type_id" class="col-form-label">{% trans "Object Type" %}</label>
                                   <div>
                                       <select name="object_type_id" id="object_type_id" class="form-control">
                                           <option></option>
@@ -54,27 +54,27 @@
                                       </select>
                                   </div>
                                   <small class="form-text text-muted" style="font-size:0.9em;">
-                                      <i class="fa fa-info-circle text-warning pr-1" style="font-size:1.2em;"></i> You Can Choose an Object Type to Force and use that type (Or Else object detect model is used to detect automatically)
+                                      <i class="fa fa-info-circle text-warning pr-1" style="font-size:1.2em;"></i> {% trans "You Can Choose an Object Type to Force and use that type (Or Else object detect model is used to detect automatically" %})
                                       <br/>
-                                      <i class="fa fa-info-circle text-warning pr-1" style="font-size:1.2em;"></i> If Object Type is Selected, it is given higher priority then selected Project.
+                                      <i class="fa fa-info-circle text-warning pr-1" style="font-size:1.2em;"></i> {% trans "If Object Type is Selected, it is given higher priority then selected Project" %}.
                                   </small>
                               </div>
 
                               {% if request.resolver_match.url_name == 'images.update' %}
-                              <p><b>Added By User: <a style="color: teal;" href="{% if user_id > 0 %}{% url 'update_user' user_id %}{% else %}#!{% endif %}">{{user_name|default:'User'}}</a></b></p>
+                              <p><b>{% trans "Added By User" %}: <a style="color: teal;" href="{% if user_id > 0 %}{% url 'update_user' user_id %}{% else %}#!{% endif %}">{{user_name|default:'User'}}</a></b></p>
                               {% else %}
-                              <p><b>Adding As: <a style="color: teal;" href="#!">{{user.full_name|default:'User'}}</a></b></p>
+                              <p><b>{% trans "Adding As" %}: <a style="color: teal;" href="#!">{{user.full_name|default:'User'}}</a></b></p>
                               {% endif %}
 
                               {% if request.resolver_match.url_name == 'images.update' %}
-                                <button type="submit" class="btn btn-success">Update Image</button>
+                                <button type="submit" class="btn btn-success">{% trans "Update Image" %}</button>
                               {% else %}  
-                                <button type="submit" class="btn btn-success">Add Image</button>
+                                <button type="submit" class="btn btn-success">{% trans "Add Image" %}</button>
                               {% endif %}  
                         </form>
 
                         {% if request.resolver_match.url_name == 'images.update' %}
-                            <small>Old Images:</small>
+                            <small>{% trans "Old Images" %}:</small>
                             {% comment %} {% for image_file in image_files %}
                                 <a style="padding:0 6px;background:#ddd;" href="#!" onclick="showImagePop(event, '{% if image_file.file %}{{image_file.file.url}}{% else %}{% static 'dist/img/default-150x150.png' %}{% endif %}','Image failed to load.')">{{forloop.counter}}</a>
                             {% endfor %} {% endcomment %}
@@ -96,7 +96,7 @@
                                               <span href="#!" class="corner-star mr-3"><i class="fa fa-star"></i></span>
                                               {% endif %}
                                             {% else %}
-                                              <b><i class="fa fa-exclamation-triangle"> Unable to Fetch Image</i></b>
+                                              <b><i class="fa fa-exclamation-triangle">{% trans " Unable to Fetch Image" %}</i></b>
                                             {% endif %}
                                             <a class="img-delete img-id">{{image_file.id}}</a>
                                             <a title="Delete" data-toggle="tooltip" data-placement="top" onclick="deleteData(event,'image_file_{{image_file.id}}','Uploaded Image No. {{image_file.id}}')" class="img-delete" style="color:red !important;"><i class="fa fa-trash-alt"></i></a>
@@ -107,7 +107,7 @@
                                     {% endfor %}
                                 </div>
                             </div>
-                            <p><small style="color:Red;">(If Images are Supplied on Update it will be appended)</small></p>
+                            <p><small style="color:Red;">({% trans "If Images are Supplied on Update it will be appended" %})</small></p>
 
                             {% if can_retrain %}
                               {% if debug %}
@@ -117,13 +117,13 @@
                               <form action="{% url 'images.retrain' id %}" method="POST" style="display: inline-block;">
                                   {% csrf_token %}
                                   <button title="Only allowed if 10 verified and tested images for any result exists.<br/> <i>(Test might not work for a while)</i>" data-html="true" data-toggle="tooltip" data-placement="bottom" class="btn btn-info">
-                                    Retrain AI model using these Images &nbsp; <i class="fa fa-sync"></i>
+                                    {% trans "Retrain AI model using these Images" %} &nbsp; <i class="fa fa-sync"></i>
                                   </button>
                               </form>
                             {% endif %}
 
                             <a href="{% url 'dashboard' %}?focus_at={{ id }}" class="btn btn-secondary">
-                              View in Map &nbsp; <i class="fa fa-map-marker-alt"></i>
+                              {% trans "View in Map" %} &nbsp; <i class="fa fa-map-marker-alt"></i>
                             </a>
                         {% endif %}
                     </div>

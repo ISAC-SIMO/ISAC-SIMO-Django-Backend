@@ -9,6 +9,7 @@ from django.db.models import Q
 
 from projects.models import Projects
 from api.models import ObjectType
+from django.utils.translation import gettext_lazy as _
 
 USER_TYPE = [
     ('user', "User"),
@@ -44,9 +45,9 @@ path_and_rename = PathAndRename("user_images")
 class UserManager(BaseUserManager):
     def create_user(self, email,  password=None, user_type='user', is_active=True):
         if not email:
-            raise ValueError("Users must have email address")
+            raise ValueError(_("Users must have email address"))
         if not password:
-            raise ValueError("Users must have password")
+            raise ValueError(_("Users must have password"))
         else:
             user_obj = self.model(
                 email=self.normalize_email(email)
@@ -74,14 +75,14 @@ class UserManager(BaseUserManager):
         return super_user
 
 class User(AbstractBaseUser):
-    email = models.EmailField(max_length=255, unique=True)
-    full_name = models.CharField(max_length=255, blank=True, null=True)
-    active = models.BooleanField(default=True) #can login
-    user_type = models.CharField(max_length=50, choices=USER_TYPE, default='user')
-    is_staff = models.BooleanField(default=False)
-    timestamp = models.DateTimeField(auto_now_add = True)
-    image = models.ImageField(upload_to=path_and_rename, default='user_images/default.png', blank=True)
-    projects = models.ManyToManyField('projects.Projects', blank=True, related_name='users')
+    email = models.EmailField(_("Email"),max_length=255, unique=True)
+    full_name = models.CharField(_("Full Name"), max_length=255, blank=True, null=True)
+    active = models.BooleanField(_("Active"),default=True) #can login
+    user_type = models.CharField(_("User Type"), max_length=50, choices=USER_TYPE, default='user')
+    is_staff = models.BooleanField(_("Is Staff"), default=False)
+    timestamp = models.DateTimeField(_("Timestamp"), auto_now_add = True)
+    image = models.ImageField(_("Image"), upload_to=path_and_rename, default='user_images/default.png', blank=True)
+    projects = models.ManyToManyField('projects.Projects', verbose_name=_("Projects"), blank=True, related_name='users')
     # USER IS LINKED TO PROJECT WITH m2m AND USER CAN UPLOAD IMAGE FOR SPECIFIC PROJECT
     # AND VIEW THE IMAGES EITHER ADDED BY THIS USER -OR- BELONGS TO THIS USERS m2m PROJECTS
 

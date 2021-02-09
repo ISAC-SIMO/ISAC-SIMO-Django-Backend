@@ -1,7 +1,8 @@
 {% extends 'master/base.html' %}
-{% block title %} Users {% endblock title %}
-{% block dashboard_title1 %} All Users {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Users {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "Users" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "All Users" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "Users" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -10,7 +11,7 @@
                 <div class="card">
                     <div class="card-title ml-3 mt-2">
                         <a href="{% url 'admin_adduser' %}"  class="btn btn-primary">
-                            <i class="fas fa-plus" style="margin-right: 5px;"></i> Add New User
+                            <i class="fas fa-plus" style="margin-right: 5px;"></i> {% trans "Add New User" %}
                         </a>
                     </div>
                     <div class="card-body table table-responsive">
@@ -18,12 +19,12 @@
                             <thead>
                                 <tr>
                                     <th>#</th>
-                                    <th>Name</th>
-                                    <th>Email</th>
-                                    <th>Type</th>
-                                    <th>Projects</th>
-                                    <th>Image</th>
-                                    <th>Actions</th>
+                                    <th>{% trans "Name" %}</th>
+                                    <th>{% trans "Email" %}</th>
+                                    <th>{% trans "Type" %}</th>
+                                    <th>{% trans "Projects" %}</th>
+                                    <th>{% trans "Image" %}</th>
+                                    <th>{% trans "Actions" %}</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -38,11 +39,11 @@
                                             <a href="#!" onclick="showImagePop(event, '{% if u.image %}{{u.image.url}}{% else %}{% static 'dist/img/avatar5.png' %}{% endif %}','{{ u.full_name|default:"User" }} image failed to load.')">View</a>
                                         </td>
                                         <td class="table-options">
-                                            <a title="Edit" data-toggle="tooltip" data-placement="left" href="{% url 'update_user' u.id %}" class="btn text-secondary px-0">
+                                            <a title="{% trans 'Edit'%}" data-toggle="tooltip" data-placement="left" href="{% url 'update_user' u.id %}" class="btn text-secondary px-0">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                             {% if user.is_admin %}
-                                            <a onclick="deleteDataWriteConfirm(event, 'form-{{ u.id }}', 'User')" title="Delete" data-toggle="tooltip" data-placement="left" href="{% url 'admin_deleteuser' u.id %}" class="btn text-secondary px-0">
+                                            <a onclick="deleteDataWriteConfirm(event, 'form-{{ u.id }}', 'User')" title="{% trans 'Delete'%}" data-toggle="tooltip" data-placement="left" href="{% url 'admin_deleteuser' u.id %}" class="btn text-secondary px-0">
                                                 <i class="fa fa-trash text-danger"></i>
                                             </a>
                                             <form action="{% url 'admin_deleteuser' u.id %}" id="form-{{ u.id }}" class="d-inline">

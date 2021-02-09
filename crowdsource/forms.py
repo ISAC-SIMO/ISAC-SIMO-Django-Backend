@@ -2,6 +2,7 @@ from crowdsource.models import Crowdsource
 from django import forms
 from api.models import ObjectType
 from django.core.cache import cache
+from django.utils.translation import gettext_lazy as _
 
 class CrowdsourceForm(forms.ModelForm):
     file = forms.ImageField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
@@ -24,7 +25,7 @@ class CrowdsourceForm(forms.ModelForm):
             OBJECT_TYPE.append((o, o.title()))
           cache.set('all_object_type_choices', OBJECT_TYPE)
           
-        self.fields['file'].help_text = 'Only Upload Files of Chosen Object Type and Image Type.'
-        self.fields['file'].label = 'Multiple Files'
+        self.fields['file'].help_text = _('Only Upload Files of Chosen Object Type and Image Type.')
+        self.fields['file'].label =  _('Multiple Files')
         self.fields['object_type'].widget = forms.Select(choices=OBJECT_TYPE)
         self.fields['username'].widget = forms.HiddenInput()

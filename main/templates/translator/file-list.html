@@ -1,0 +1,81 @@
+{% extends 'master/base.html' %}
+{% load static i18n %}
+
+{% block title %} {% trans "Translator" %} {% endblock title %}
+
+{% block dashboard_title1 %} {% trans "Translator" %} {% endblock dashboard_title1 %}
+
+{% block dashboard_title2 %} {% trans "Translator" %} {% endblock dashboard_title2 %}
+{% block style %}
+    <link rel="stylesheet" href="{% static "admin/css/base.css" %}" type="text/css"/>
+    <link rel="stylesheet" href="{% static "admin/css/forms.css" %}" type="text/css"/>
+    <link rel="stylesheet" href="{% static "admin/css/changelists.css" %}" type="text/css"/>
+    <style type="text/css" media="screen">
+        {% include 'rosetta/css/rosetta.css' %}
+    </style>
+    <script src="//www.google.com/jsapi" type="text/javascript"></script>
+    <script src="{% static 'plugins/jquery/jquery.min.js'%}"></script>
+    <script type="text/javascript">
+    //<!--
+        google.load("jquery", "1.3");
+        {% if rosetta_settings.ENABLE_TRANSLATION_SUGGESTIONS %}google.load("language", "1");{% endif %}
+        {% include 'rosetta/js/rosetta.js' %}
+    //-->
+    </script>
+
+{% endblock style %}
+{% block content %}
+
+    {% if has_pos %}
+
+    {% for lid,language,pos in languages1 %}
+    {% if pos %}
+
+        <div class="module">
+            <h2>{{language}}</h2>
+            <table cellspacing="0">
+                <thead>
+                    <tr>
+                        <th>{% trans "Language" %}</th>
+                        <th class="r">{% trans "Progress"%}</th>
+                        <th class="r">{% trans "Messages" %}</th>
+                        <th class="r">{% trans "Translated" %}</th>
+                        <th class="info-tip r" title="{% trans "Fuzzy entries call for revision by the translator." %}">{% trans "Fuzzy"%}</th>
+                        <th class="r">{% trans "Obsolete"%}</th>
+                      {% comment %}
+                        <th>{% trans "File" %}</th>
+                      {% endcomment %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for app,path,po in pos %}
+                    <tr class="{% cycle 'row1' 'row2' %}">
+                        <td><a href="{% url 'rosetta-form' po_filter=po_filter lang_id=lid idx=forloop.counter0 %}">{{ language }}</a></td>
+                        <td class="ch-progress r">{{po.percent_translated}}%</td>
+                        {% with po.untranslated_entries|length as len_untranslated_entries %}
+                        <td class="ch-messages r">{{po.translated_entries|length|add:len_untranslated_entries}}</td>
+                        {% endwith %}
+                        <td class="ch-translated r">{{po.translated_entries|length}}</td>
+                        <td class="ch-fuzzy r">{{po.fuzzy_entries|length}}</td>
+                        <td class="ch-obsolete r">{{po.obsolete_entries|length}}</td>
+                      {% comment %}
+                        <td class="hint">{{ path }}</td>
+                       {% endcomment %}
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    {% endif %}
+    {% endfor %}
+    {% else %}
+    <h1>{% trans "Nothing to translate!" %}</h1>
+    <p>{% trans "You haven't specified any languages in your settings file, or haven't yet generated a batch of translation catalogs." %}</p>
+    <p>{% blocktrans with "http://docs.djangoproject.com/en/dev/topics/i18n/#topics-i18n" as i18n_doc_link  %}Please refer to <a href="{{i18n_doc_link}}">Django's I18N documentation</a> for a guide on how to set up internationalization for your project.{% endblocktrans %}</p>
+    {% endif %}
+{% endblock content %}
+
+
+{% block script %}
+
+{% endblock script %}

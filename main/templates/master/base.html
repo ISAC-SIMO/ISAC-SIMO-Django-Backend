@@ -1,3 +1,4 @@
+{% load static i18n %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -88,6 +89,7 @@
       </form> {% endcomment %}
 
       <!-- Right navbar links -->
+
       <ul class="navbar-nav ml-auto">
         <!-- Messages Dropdown Menu -->
         {% if user.is_authenticated %}
@@ -119,6 +121,22 @@
             <i class="fas fa-th-large"></i>
           </a>
         </li>
+          {% get_current_language as LANGUAGE_CODE %}
+          {% get_available_languages as LANGUAGES %}
+          {% get_language_info_list for LANGUAGES as languages %}
+          <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+              <input name="next" type="hidden" value="{{ redirect_to }}" />
+              <div class="form-group">
+                  <select name="language" class="custom-select form-control-border" onchange="this.form.submit()">
+                      {% for language in languages %}
+                          <img src="https://www.sic-info.org/wp-content/uploads/2014/01/np.png" alt="">
+                          <option style="background-image: url('https://www.sic-info.org/wp-content/uploads/2014/01/np.png')no-repeat 100% 100%;" {% if LANGUAGE_CODE == language.code %} selected {% endif %} value="{{ language.code }}">
+                              {{ language.name }}</option>
+
+                      {% endfor %}
+                  </select>
+              </div>
+          </form>
       </ul>
     </nav>
     <!-- /.navbar -->
@@ -159,7 +177,7 @@
                 class="nav-link {% if request.resolver_match.url_name == 'dashboard' %} active {% endif %}">
                 <i class="nav-icon fas fa-tachometer-alt"></i>
                 <p>
-                  Dashboard
+                 {% trans "Dashboard" %}
                 </p>
               </a>
             </li>
@@ -172,7 +190,7 @@
                 class="nav-link {% if request.resolver_match.url_name == 'images' or request.resolver_match.url_name == 'images.add' or request.resolver_match.url_name == 'images.update' %} active {% endif %}">
                 <i class="nav-icon fas fa-image"></i>
                 <p>
-                  Image
+                  {% trans "Image" %}
                   <i class="fas fa-angle-left right"></i>
                 </p>
               </a>
@@ -181,7 +199,7 @@
                   <a href="{% url 'images' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'images' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-info"></i>
-                    <p>View Images</p>
+                    <p>{% trans "View Images" %}</p>
                   </a>
                 </li>
                 {% comment %} {% if debug and user.is_admin %} {% endcomment %}
@@ -190,7 +208,7 @@
                   <a href="{% url 'images.add' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'images.add' %} active {% endif %}">
                     <i class="nav-icon far fa-plus-square text-warning"></i>
-                    <p>Add / Test Images</p>
+                    <p>{% trans "Add / Test Images" %}</p>
                   </a>
                 </li>
                 {% endif %}
@@ -206,7 +224,7 @@
                 class="nav-link {% if request.resolver_match.url_name == 'allusers' or request.resolver_match.url_name == 'update_user' or request.resolver_match.url_name == 'admin_adduser'  %} active {% endif %}">
                 <i class="nav-icon fas fa-users"></i>
                 <p>
-                  Users
+                  {% trans "Users" %}
                   <i class="fas fa-angle-left right"></i>
                 </p>
               </a>
@@ -215,14 +233,14 @@
                   <a href="{% url 'allusers' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'allusers' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-info"></i>
-                    <p>View Users</p>
+                    <p>{% trans "View Users" %}</p>
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="{% url 'admin_adduser' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'admin_adduser' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-success"></i>
-                    <p>Create Users</p>
+                    <p>{% trans "Create Users" %}</p>
                   </a>
                 </li>
               </ul>
@@ -233,7 +251,7 @@
                 class="nav-link {% if request.resolver_match.url_name == 'viewprojects' or request.resolver_match.url_name == 'updateproject' or request.resolver_match.url_name == 'addproject'  %} active {% endif %}">
                 <i class="nav-icon fas fa-database"></i>
                 <p>
-                  Projects
+                  {% trans "Projects" %}
                   <i class="fas fa-angle-left right"></i>
                 </p>
               </a>
@@ -242,14 +260,14 @@
                   <a href="{% url 'viewprojects' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'viewprojects' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-info"></i>
-                    <p>View Projects</p>
+                    <p>{% trans "View Projects" %}</p>
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="{% url 'addproject' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'addproject' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-success"></i>
-                    <p>Create Project</p>
+                    <p>{% trans "Create Project" %}</p>
                   </a>
                 </li>
 
@@ -259,7 +277,7 @@
               <a href="{% url 'watson.object.list' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'watson.object.list' %} active {% endif %}">
                 <i class="nav-icon far fa-object-ungroup"></i>
-                <p>Object Types</p>
+                <p>{% trans "Object Types" %}</p>
               </a>
             </li>
             {% comment %} Models = Classifiers (You know *air quote* requirements) {% endcomment %}
@@ -269,7 +287,7 @@
                 class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.list' or request.resolver_match.url_name == 'watson.classifier.create' %} active {% endif %}">
                 <i class="nav-icon fa fa-layer-group"></i>
                 <p>
-                  Models
+                  {% trans "Models" %}
                   <i class="fas fa-angle-left right"></i>
                 </p>
               </a>
@@ -278,14 +296,14 @@
                   <a href="{% url 'watson.classifier.list' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.list' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-info"></i>
-                    <p>Current Models</p>
+                    <p>{% trans "Current Models" %}</p>
                   </a>
                 </li>
                 <li class="nav-item">
                   <a href="{% url 'watson.classifier.create' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.classifier.create' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-success"></i>
-                    <p>Create New Models</p>
+                    <p>{% trans "Create New Models" %}</p>
                   </a>
                 </li>
               </ul>
@@ -296,7 +314,7 @@
                 class="nav-link {% if request.resolver_match.url_name == 'offline.model.list' or request.resolver_match.url_name == 'offline.model.create' or request.resolver_match.url_name == 'offline.model.edit' or request.resolver_match.url_name == 'offline.model.delete' or request.resolver_match.url_name == 'offline.model.test' %} active {% endif %}">
                 <i class="nav-icon fas fa-leaf"></i>
                 <p>
-                  Offline Model / Scripts
+                  {% trans "Offline Model / Scripts" %}
                   <i class="fas fa-angle-left right"></i>
                 </p>
               </a>
@@ -305,7 +323,7 @@
                   <a href="{% url 'offline.model.list' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'offline.model.list' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-info"></i>
-                    <p>View All Offline Model</p>
+                    <p>{% trans "View All Offline Model" %}</p>
                   </a>
                 </li>
               </ul>
@@ -314,7 +332,7 @@
                   <a href="{% url 'offline.model.create' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'offline.model.create' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-success"></i>
-                    <p>Create Offline Model</p>
+                    <p>{% trans "Create Offline Model" %}</p>
                   </a>
                 </li>
               </ul>
@@ -325,7 +343,7 @@
                 class="nav-link {% if request.resolver_match.url_name == 'watson.train' or request.resolver_match.url_name == 'watson.classifier' or request.resolver_match.url_name == 'watson.object' or request.resolver_match.url_name == 'watson.classifier.edit' or request.resolver_match.url_name == 'watson.classifier.test'  %} active {% endif %}">
                 <i class="nav-icon fab fa-cloudversify"></i>
                 <p>
-                  IBM Watson & More
+                  {% trans "IBM Watson & More" %}
                   <i class="fas fa-angle-left right"></i>
                 </p>
               </a>
@@ -334,7 +352,7 @@
                   <a href="{% url 'watson.classifier' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.classifier' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-info"></i>
-                    <p>Fetch Classifier Details</p>
+                    <p>{% trans "Fetch Classifier Details" %}</p>
                   </a>
                 </li>
                 {% if user.is_admin %}
@@ -342,7 +360,7 @@
                   <a href="{% url 'watson.train' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.train' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-danger"></i>
-                    <p>Re-Train Classifier</p>
+                    <p>{% trans "Re-Train Classifier" %}</p>
                   </a>
                 </li>
                 {% endif %}
@@ -350,7 +368,7 @@
                   <a href="{% url 'watson.object' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'watson.object' %} active {% endif %}">
                     <i class="nav-icon far fa-circle text-warning"></i>
-                    <p>Fetch Object Type Details</p>
+                    <p>{% trans "Fetch Object Type Details" %}</p>
                   </a>
                 </li>
 
@@ -365,7 +383,7 @@
                 class="nav-link {% if request.resolver_match.url_name == 'map.check'  %} active {% endif %}">
                 <i class="nav-icon fas fa-map-marker-alt"></i>
                 <p>
-                  Google Maps
+                  {% trans "Google Maps" %}
                   <i class="fas fa-angle-left right"></i>
                 </p>
               </a>
@@ -374,7 +392,7 @@
                   <a href="{% url 'map.check' %}"
                     class="nav-link {% if request.resolver_match.url_name == 'map.check' %} active {% endif %}">
                     <i class="nav-icon fas fa-street-view text-info"></i>
-                    <p>Check Street View</p>
+                    <p>{% trans "Check Street View" %}</p>
                   </a>
                 </li>
               </ul>
@@ -384,7 +402,7 @@
                 class="nav-link mellowyellow {% if request.resolver_match.url_name == 'file_upload' %} active {% endif %}">
                 <i class="nav-icon fas fa-folder"></i>
                 <p>
-                  File Upload
+                  {% trans "File Upload" %}
                 </p>
               </a>
             </li>
@@ -393,7 +411,7 @@
                 class="nav-link {% if request.resolver_match.url_name == 'terminal' %} active {% endif %}">
                 <i class="nav-icon fas fa-terminal"></i>
                 <p>
-                  Terminal
+                  {% trans "Terminal" %}
                 </p>
               </a>
             </li>
@@ -406,7 +424,7 @@
                 class="nav-link {% if request.resolver_match.url_name in 'public_projects,public_project_info,contribution' %} active {% endif %}">
                 <i class="nav-icon fas fa-bullhorn"></i>
                 <p>
-                  Public Projects
+                  {% trans "Public Projects" %}
                 </p>
               </a>
             </li>
@@ -415,11 +433,20 @@
                 class="nav-link {% if request.resolver_match.url_name == 'crowdsource' %} active {% endif %}">
                 <i class="nav-icon fas fa-child"></i>
                 <p>
-                  Crowdsource
+                  {% trans "Crowdsource" %}
                 </p>
               </a>
             </li>
-
+           <hr style="margin:0.5em 0;border-top:1px solid #555;"/>
+          <li class="nav-item">
+              <a href="{% url 'rosetta-file-list' 'project' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'translator' %} active {% endif %}">
+                <i class="nav-icon fas fa-language"></i>
+                <p>
+                  {% trans "Translator" %}
+                </p>
+              </a>
+            </li>
           </ul>
         </nav>
         <!-- /.sidebar-menu -->
@@ -438,7 +465,7 @@
             </div><!-- /.col -->
             <div class="col-sm-6">
               <ol class="breadcrumb float-sm-right">
-                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">Home</a></li>
+                <li class="breadcrumb-item"><a href="{% url 'dashboard' %}">{% trans "Home" %}</a></li>
                 <li class="breadcrumb-item active">
                   {% block dashboard_title2 %}{% endblock dashboard_title2 %}
                 </li>

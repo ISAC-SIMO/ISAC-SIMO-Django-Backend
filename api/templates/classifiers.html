@@ -1,8 +1,8 @@
 {% extends 'master/base.html' %}
-
-{% block title %} Classifiers Details {% endblock title %}
-{% block dashboard_title1 %} Image Classifier Detail {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Classifiers {% endblock dashboard_title2 %}
+{% load i18n %}
+{% block title %} {% trans "Classifiers Details" %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Image Classifier Detail" %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "Classifiers" %} {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -12,38 +12,38 @@
             <div class="card">
                 <div class="card-body">
                     <div class="form-group">
-                        <label for="project" class="col-sm-5 col-md-4 col-form-label">Project</label>
+                        <label for="project" class="col-sm-5 col-md-4 col-form-label">{% trans "Project" %}</label>
                         <div class="col-sm-12 col-md-4">
                             <select name="project" class="form-control" id="project" required>
-                                <option disabled="" selected="">No Projects Found</option>
+                                <option disabled="" selected="">{% trans "No Projects Found" %}</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="object" class="col-sm-5 col-md-4 col-form-label">Object</label>
+                        <label for="object" class="col-sm-5 col-md-4 col-form-label">{% trans "Object" %}</label>
                         <div class="col-sm-12 col-md-4">
                             <select name="object" class="form-control" id="object" required>
-                                <option disabled="" selected="">No Objects Found</option>
+                                <option disabled="" selected="">{% trans "No Objects Found" %}</option>
                             </select>
                         </div>
                     </div>
                     <div class="form-group">
-                        <label for="model" class="col-sm-5 col-md-4 col-form-label">Model</label>
+                        <label for="model" class="col-sm-5 col-md-4 col-form-label">{% trans "Model" %}</label>
                         <div class="col-sm-12 col-md-4">
                             <select name="model" class="form-control" id="model" required>
-                                <option disabled="" selected="">No Models Found</option>
+                                <option disabled="" selected="">{% trans "No Models Found" %}</option>
                             </select>
                         </div>
                     </div>
                     <hr/>
                     {% if detail %}
                     <h3>Result:</h3>
-                    <small><b>Project: {{project|title}} <br/> Object: {{object|title}} <br/> Model: {{model}}</b></small>
+                    <small><b>Project: {{project|title}} <br/> {% trans "Object" %}: {{object|title}} <br/> {% trans "Model" %}: {{model}}</b></small>
                     <pre style="border-left: 2px solid salmon;">{{detail}}</pre>
                     <hr/>
                     {% endif %}
                     <div class="form-group">
-                        <button type="submit" id="classifier_btn" class="ml-2 btn btn-primary">Get Detail</button>
+                        <button type="submit" id="classifier_btn" class="ml-2 btn btn-primary">{% trans "Get Detail" %}</button>
                     </div>
                 </div>
             </div>
