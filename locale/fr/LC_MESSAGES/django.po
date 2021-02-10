@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2021-02-02 10:09+0545\n"
+"POT-Creation-Date: 2021-02-09 23:29+0545\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -18,14 +18,1334 @@ msgstr ""
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n > 1);\n"
 
-#: .\isac_simo\settings.py:253
-msgid "English"
+#: .\api\forms.py:19
+msgid "Latitude"
+msgstr ""
+
+#: .\api\forms.py:20
+msgid "Longitude"
+msgstr ""
+
+#: .\api\forms.py:35
+msgid "Multiple Images"
+msgstr ""
+
+#: .\api\forms.py:49 .\api\models.py:107
+msgid "Model Type"
+msgstr ""
+
+#: .\api\forms.py:50
+msgid "Model File Format"
+msgstr ""
+
+#: .\api\forms.py:51 .\api\models.py:44 .\api\models.py:109 .\api\models.py:138
+#: .\api\models.py:165 .\crowdsource\models.py:30
+msgid "File"
+msgstr ""
+
+#: .\api\forms.py:56
+msgid "Choose a format or type yourself"
+msgstr ""
+
+#: .\api\forms.py:57
+msgid ""
+"Mark this Offline Model as Pre-Process (e.g. Gaussian Blur to preprocess the "
+"image uploaded)"
+msgstr ""
+
+#: .\api\forms.py:58
+msgid ""
+"Mark this Offline Model as Post-Process (e.g. Customize the pipeline result "
+"or go/nogo result)"
+msgstr ""
+
+#: .\api\forms.py:62
+msgid ""
+"Model Type Cannot be Changed because this is being used by projects/"
+"classifiers. <br/> Model Type: Processor"
+msgstr ""
+
+#: .\api\models.py:30 .\api\models.py:163 .\api\templates\image.html:31
+msgid "Title"
+msgstr ""
+
+#: .\api\models.py:31 .\api\models.py:164 .\api\templates\image.html:32
+#: .\projects\forms.py:18 .\projects\templates\projects.html:25
+msgid "Description"
+msgstr ""
+
+#: .\api\models.py:32 .\api\models.py:43 .\api\templates\image.html:33
+msgid "User"
+msgstr ""
+
+#: .\api\models.py:35 .\api\models.py:61 .\api\models.py:76
+#: .\api\templates\classifiers.html:15
+#: .\api\templates\create_classifier.html:161
+#: .\api\templates\create_objects.html:31
+#: .\api\templates\create_objects.html:126 .\api\templates\image.html:34
+#: .\api\templates\list_classifier.html:32
+#: .\api\templates\list_classifier.html:81 .\api\templates\train.html:15
+msgid "Project"
+msgstr ""
+
+#: .\api\models.py:36 .\api\models.py:52 .\api\models.py:66 .\api\models.py:83
+#: .\api\models.py:114 .\api\models.py:140 .\api\models.py:169
+#: .\crowdsource\models.py:35
+msgid "created_at"
+msgstr ""
+
+#: .\api\models.py:37 .\api\models.py:53 .\api\models.py:67 .\api\models.py:84
+#: .\api\models.py:115 .\api\models.py:141 .\api\models.py:170
+#: .\crowdsource\models.py:36
+msgid "updated_at"
+msgstr ""
+
+#: .\api\models.py:45
+msgid "Tested"
+msgstr ""
+
+#: .\api\models.py:46 .\api\templates\create_classifier.html:15
+#: .\api\templates\train.html:39
+msgid "Result"
+msgstr ""
+
+#: .\api\models.py:47
+msgid "Score"
+msgstr ""
+
+#: .\api\models.py:48 .\api\models.py:77 .\api\models.py:166
+#: .\api\templates\add_image.html:41 .\api\templates\create_classifier.html:175
+#: .\api\templates\create_objects.html:4 .\api\templates\create_objects.html:5
+#: .\api\templates\create_objects.html:117
+#: .\api\templates\list_classifier.html:33
+#: .\api\templates\list_classifier.html:82
+#: .\api\templates\objects_detail.html:5 .\crowdsource\models.py:31
+#: .\crowdsource\templates\crowdsource_images.html:21
+msgid "Object Type"
+msgstr ""
+
+#: .\api\models.py:49
+msgid "Retrained"
+msgstr ""
+
+#: .\api\models.py:50 .\api\models.py:64
+msgid "Verified"
+msgstr ""
+
+#: .\api\models.py:51
+msgid "Pipeline Status"
+msgstr ""
+
+#: .\api\models.py:59 .\api\models.py:73 .\api\models.py:106
+#: .\api\models.py:137 .\api\templates\create_objects.html:30
+#: .\api\templates\file_upload.html:19 .\api\templates\list_classifier.html:31
+#: .\api\templates\list_classifier.html:80
+#: .\api\templates\offline_model\list.html:25
+#: .\main\templates\users\allusers.html:22
+#: .\projects\templates\projects.html:24
+#: .\projects\templates\public_projects.html:19
+msgid "Name"
+msgstr ""
+
+#: .\api\models.py:60 .\api\models.py:82 .\api\models.py:111
+#: .\api\models.py:139 .\api\models.py:168
+msgid "Created By"
+msgstr ""
+
+#: .\api\models.py:62 .\api\templates\image.html:35 .\main\models.py:84
+#: .\main\templates\master\base.html:197
+#: .\main\templates\users\allusers.html:26
+#: .\projects\templates\projects.html:26
+msgid "Image"
+msgstr ""
+
+#: .\api\models.py:63 .\api\templates\create_objects.html:137
+msgid "Instruction"
+msgstr ""
+
+#: .\api\models.py:65
+msgid "Wishlist"
+msgstr ""
+
+#: .\api\models.py:74
+msgid "Given Name"
+msgstr ""
+
+#: .\api\models.py:75
+msgid "Classes"
+msgstr ""
+
+#: .\api\models.py:78 .\api\templates\create_classifier.html:190
+#: .\api\templates\list_classifier.html:36
+#: .\api\templates\list_classifier.html:85
+msgid "Order"
+msgstr ""
+
+#: .\api\models.py:79 .\api\templates\create_classifier.html:34
+#: .\api\templates\create_classifier.html:120
+#: .\api\templates\offline_model\list.html:4
+#: .\api\templates\offline_model\list.html:5 .\map\templates\check.html:60
+msgid "Offline Model"
+msgstr ""
+
+#: .\api\models.py:80 .\api\templates\create_classifier.html:145
+msgid "Is Object Detection"
+msgstr ""
+
+#: .\api\models.py:81 .\api\templates\create_classifier.html:152
+#: .\projects\forms.py:22
+msgid "IBM API KEY"
+msgstr ""
+
+#: .\api\models.py:108
+msgid "Model Format"
+msgstr ""
+
+#: .\api\models.py:110 .\api\templates\offline_model\create.html:39
+msgid "Offline Model Labels"
+msgstr ""
+
+#: .\api\models.py:112
+msgid "Preprocess"
+msgstr ""
+
+#: .\api\models.py:113
+msgid "Postprocess"
+msgstr ""
+
+#: .\api\models.py:167
+msgid "Is Helpful"
+msgstr ""
+
+#: .\api\templates\add_image.html:5 .\api\templates\add_image.html:13
+#: .\api\templates\add_image.html:70
+msgid "Update Image"
+msgstr ""
+
+#: .\api\templates\add_image.html:7 .\api\templates\add_image.html:15
+#: .\api\templates\add_image.html:23 .\api\templates\add_image.html:72
+msgid "Add Image"
+msgstr ""
+
+#: .\api\templates\add_image.html:21
+msgid "Edit Image"
+msgstr ""
+
+#: .\api\templates\add_image.html:57
+msgid ""
+"You Can Choose an Object Type to Force and use that type (Or Else object "
+"detect model is used to detect automatically"
+msgstr ""
+
+#: .\api\templates\add_image.html:59
+msgid ""
+"If Object Type is Selected, it is given higher priority then selected Project"
+msgstr ""
+
+#: .\api\templates\add_image.html:64
+msgid "Added By User"
+msgstr ""
+
+#: .\api\templates\add_image.html:66
+msgid "Adding As"
+msgstr ""
+
+#: .\api\templates\add_image.html:77
+msgid "Old Images"
+msgstr ""
+
+#: .\api\templates\add_image.html:100
+msgid " Unable to Fetch Image"
+msgstr ""
+
+#: .\api\templates\add_image.html:111
+msgid "If Images are Supplied on Update it will be appended"
+msgstr ""
+
+#: .\api\templates\add_image.html:121
+msgid "Retrain AI model using these Images"
+msgstr ""
+
+#: .\api\templates\add_image.html:127
+msgid "View in Map"
+msgstr ""
+
+#: .\api\templates\classifiers.html:3
+msgid "Classifiers Details"
+msgstr ""
+
+#: .\api\templates\classifiers.html:4
+msgid "Image Classifier Detail"
+msgstr ""
+
+#: .\api\templates\classifiers.html:5 .\api\templates\list_classifier.html:5
+msgid "Classifiers"
+msgstr ""
+
+#: .\api\templates\classifiers.html:18 .\api\templates\train.html:18
+msgid "No Projects Found"
+msgstr ""
+
+#: .\api\templates\classifiers.html:23 .\api\templates\classifiers.html:41
+#: .\api\templates\train.html:23
+msgid "Object"
+msgstr ""
+
+#: .\api\templates\classifiers.html:26 .\api\templates\train.html:26
+msgid "No Objects Found"
+msgstr ""
+
+#: .\api\templates\classifiers.html:31 .\api\templates\classifiers.html:41
+#: .\api\templates\train.html:31
+msgid "Model"
+msgstr ""
+
+#: .\api\templates\classifiers.html:34
+msgid "No Models Found"
+msgstr ""
+
+#: .\api\templates\classifiers.html:46 .\api\templates\objects_detail.html:37
+msgid "Get Detail"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:3
+#: .\api\templates\list_classifier.html:18
+msgid "Create New Classifier"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:4
+#: .\api\templates\create_classifier.html:197
+msgid "Create Classifier"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:5
+msgid "New Classifier"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:17
+#: .\main\templates\users\admin_register.html:53
+msgid "Note"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:19
+msgid "Zip files were bad"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:21
+msgid ""
+"If the Classifier was not added, contact the Server Admin to add this "
+"Classifier in this web application"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:22
+msgid "Send a copy of this response"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:30
+msgid "Source of the Model"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:33
+msgid "IBM Watson"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:42
+msgid "Would you like to Train Model or Add Pre-Trained Model"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:47
+msgid "Train New Model"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:50
+msgid "Add Pre-Trained Model"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:55
+msgid "Zip Files"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:65
+msgid "Negative Zip Files"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:86 .\api\templates\train.html:53
+msgid "Also Process & Transform the Images"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:89 .\api\templates\train.html:56
+msgid "This will add transformed, flipped images within the zip file"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:95 .\api\templates\train.html:62
+msgid "And Rotate (30, 60, -60, 120) degree"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:98 .\api\templates\train.html:65
+msgid "This will add rotated images within the zip file"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:104 .\api\templates\train.html:71
+msgid "And Warp Perspective of Images (Left, Right, Bottom, Top)"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:107 .\api\templates\train.html:74
+msgid "This will add warp perspective images within the zip file"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:113 .\api\templates\train.html:80
+msgid "And Inverse and Canny Images"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:113
+msgid "Negative"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:116 .\api\templates\train.html:83
+msgid "This will add Inverted / Negative and Edge of image within the zip file"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:130
+msgid "If Offline Model is added it is used with 1st priority"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:134
+msgid "Classifier Name"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:139
+msgid "This is What is used to Call Watson AI"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:148
+msgid ""
+"Check this if you are using IBM Watson Object Detection Model to act as "
+"Classifier"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:157
+msgid ""
+"If Provided the Classifier/Model will be linked or created in given Watson "
+"Service"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:171
+msgid "Links Classifiers to specific Project"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:185
+msgid "Select the Object Type for which to create this classifier"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:186
+msgid "To Create new Object Type"
+msgstr ""
+
+#: .\api\templates\create_classifier.html:186
+msgid "Go Here"
+msgstr ""
+
+#: .\api\templates\create_objects.html:6
+msgid "View & Create Object Type"
+msgstr ""
+
+#: .\api\templates\create_objects.html:18
+msgid "Fetch Object Type Details from IBM Watson"
+msgstr ""
+
+#: .\api\templates\create_objects.html:22
+msgid "Show all"
+msgstr ""
+
+#: .\api\templates\create_objects.html:32 .\api\templates\file_upload.html:20
+#: .\api\templates\offline_model\list.html:28
+msgid "Added By"
+msgstr ""
+
+#: .\api\templates\create_objects.html:33 .\api\templates\file_upload.html:21
+#: .\api\templates\image.html:36 .\api\templates\list_classifier.html:37
+#: .\api\templates\list_classifier.html:86
+#: .\api\templates\offline_model\list.html:31
+#: .\crowdsource\templates\crowdsource_images.html:24
+#: .\main\templates\users\allusers.html:27
+#: .\projects\templates\projects.html:27
+msgid "Actions"
+msgstr ""
+
+#: .\api\templates\create_objects.html:44
+#: .\crowdsource\templates\crowdsource_images.html:35
+msgid "View Image"
+msgstr ""
+
+#: .\api\templates\create_objects.html:48
+msgid "Quick Test Images"
+msgstr ""
+
+#: .\api\templates\create_objects.html:52 .\api\templates\file_upload.html:37
+#: .\api\templates\image.html:57 .\api\templates\list_classifier.html:58
+#: .\api\templates\offline_model\list.html:54
+#: .\crowdsource\templates\crowdsource_images.html:42
+#: .\main\templates\users\allusers.html:46
+#: .\projects\templates\projects.html:43
+msgid "Delete"
+msgstr ""
+
+#: .\api\templates\create_objects.html:55 .\api\templates\file_upload.html:40
+#: .\api\templates\image.html:54 .\api\templates\list_classifier.html:64
+#: .\api\templates\offline_model\list.html:57
+#: .\crowdsource\templates\crowdsource_images.html:38
+#: .\main\templates\users\allusers.html:42
+#: .\projects\templates\projects.html:40
+msgid "Edit"
+msgstr ""
+
+#: .\api\templates\create_objects.html:58
+msgid "Quick Order Classifiers"
+msgstr ""
+
+#: .\api\templates\create_objects.html:64
+msgid "Mark Un-Verified"
+msgstr ""
+
+#: .\api\templates\create_objects.html:68
+msgid "Mark Verified"
+msgstr ""
+
+#: .\api\templates\create_objects.html:80
+msgid "Add to Wishlist"
+msgstr ""
+
+#: .\api\templates\create_objects.html:109
+msgid "Create Object Type"
+msgstr ""
+
+#: .\api\templates\create_objects.html:122
+msgid "Must be unique and lowercase for each project"
+msgstr ""
+
+#: .\api\templates\create_objects.html:143
+msgid "Instruction Image"
+msgstr ""
+
+#: .\api\templates\create_objects.html:151
+msgid "Add"
+msgstr ""
+
+#: .\api\templates\create_objects.html:152 .\api\templates\file_upload.html:71
+#: .\api\templates\terminal.html:26
+#: .\crowdsource\templates\crowdsource_images.html:103
+msgid "Clear"
+msgstr ""
+
+#: .\api\templates\file_upload.html:3 .\api\templates\file_upload.html:4
+#: .\main\templates\master\base.html:412
+msgid "File Upload"
+msgstr ""
+
+#: .\api\templates\file_upload.html:5
+msgid "Files"
+msgstr ""
+
+#: .\api\templates\file_upload.html:31
+msgid "Download File"
+msgstr ""
+
+#: .\api\templates\file_upload.html:34
+msgid "Copy Path"
+msgstr ""
+
+#: .\api\templates\file_upload.html:58
+msgid "Upload File"
+msgstr ""
+
+#: .\api\templates\file_upload.html:70
+#: .\crowdsource\templates\crowdsource_images.html:102
+msgid "Upload"
+msgstr ""
+
+#: .\api\templates\image.html:3 .\api\templates\image.html:4
+#: .\api\templates\image.html:5 .\api\templates\train.html:45
+msgid "Images"
+msgstr ""
+
+#: .\api\templates\image.html:18
+msgid "Upload/Add Image"
+msgstr ""
+
+#: .\api\templates\image.html:30 .\projects\templates\projects.html:23
+msgid "Id"
+msgstr ""
+
+#: .\api\templates\image.html:64
+msgid "Map"
+msgstr ""
+
+#: .\api\templates\image.html:67
+msgid "Copy Latitude,Longitude to Clipboard"
+msgstr ""
+
+#: .\api\templates\list_classifier.html:4
+msgid "Classifiers List"
+msgstr ""
+
+#: .\api\templates\list_classifier.html:6
+msgid "All Classifiers"
+msgstr ""
+
+#: .\api\templates\list_classifier.html:21
+#: .\main\templates\master\base.html:362
+msgid "Fetch Classifier Details"
+msgstr ""
+
+#: .\api\templates\list_classifier.html:24
+msgid "Re-Train Classifiers"
+msgstr ""
+
+#: .\api\templates\list_classifier.html:45
+msgid "Pre-Process"
+msgstr ""
+
+#: .\api\templates\list_classifier.html:48
+msgid "Post-Process"
+msgstr ""
+
+#: .\api\templates\list_classifier.html:61
+#: .\projects\templates\public_projects.html:29
+msgid "Info"
+msgstr ""
+
+#: .\api\templates\list_classifier.html:67
+#: .\api\templates\offline_model\list.html:69
+msgid "Test Image"
+msgstr ""
+
+#: .\api\templates\objects_detail.html:3 .\main\templates\master\base.html:378
+msgid "Fetch Object Type Details"
+msgstr ""
+
+#: .\api\templates\objects_detail.html:4
+msgid "Object Type Detail"
+msgstr ""
+
+#: .\api\templates\objects_detail.html:15
+msgid "Object Model"
+msgstr ""
+
+#: .\api\templates\offline_model\create.html:5
+#: .\api\templates\offline_model\create.html:13
+msgid "Update Offline Model"
+msgstr ""
+
+#: .\api\templates\offline_model\create.html:7
+#: .\api\templates\offline_model\create.html:15
+#: .\api\templates\offline_model\create.html:23
+#: .\api\templates\offline_model\list.html:17
+msgid "Add Offline Model"
+msgstr ""
+
+#: .\api\templates\offline_model\create.html:21
+msgid "Edit Offline Model"
+msgstr ""
+
+#: .\api\templates\offline_model\create.html:51
+msgid ""
+"Add Multiple Indexes starting from zero (So, that the classifier will know "
+"the scores respective class/result)"
+msgstr ""
+
+#: .\api\templates\offline_model\create.html:56
+msgid "Update Model"
+msgstr ""
+
+#: .\api\templates\offline_model\create.html:58
+msgid "Add Model"
+msgstr ""
+
+#: .\api\templates\offline_model\create.html:66
+msgid "Linked Projects"
+msgstr ""
+
+#: .\api\templates\offline_model\create.html:74
+#: .\api\templates\offline_model\create.html:87
+msgid "No project linked yet"
+msgstr ""
+
+#: .\api\templates\offline_model\create.html:79
+msgid "Linked Classifiers"
+msgstr ""
+
+#: .\api\templates\offline_model\list.html:3
+msgid "Offline Models"
+msgstr ""
+
+#: .\api\templates\offline_model\list.html:19
+msgid "Readme for guide and example"
+msgstr ""
+
+#: .\api\templates\offline_model\list.html:26
+#: .\main\templates\users\allusers.html:24
+msgid "Type"
+msgstr ""
+
+#: .\api\templates\offline_model\list.html:27
+msgid "Format"
+msgstr ""
+
+#: .\api\templates\offline_model\list.html:42
+msgid "Pre-Processing Model"
+msgstr ""
+
+#: .\api\templates\offline_model\list.html:45
+msgid "Post-Processing Model"
+msgstr ""
+
+#: .\api\templates\offline_model\list.html:61
+msgid "Download"
+msgstr ""
+
+#: .\api\templates\offline_model\list.html:65
+msgid "Check Dependencies"
+msgstr ""
+
+#: .\api\templates\terminal.html:3 .\api\templates\terminal.html:4
+#: .\api\templates\terminal.html:5 .\main\templates\master\base.html:421
+msgid "Terminal"
+msgstr ""
+
+#: .\api\templates\terminal.html:16
+msgid "Command"
+msgstr ""
+
+#: .\api\templates\terminal.html:23
+msgid "Run"
+msgstr ""
+
+#: .\api\templates\terminal.html:31
+msgid "Allowed Commands"
+msgstr ""
+
+#: .\api\templates\train.html:3 .\api\templates\train.html:4
+msgid "Train Images"
+msgstr ""
+
+#: .\api\templates\train.html:5
+msgid "IBM Watson Image Classifier"
+msgstr ""
+
+#: .\api\templates\train.html:34 .\main\templates\translator\form.html:40
+msgid "All"
+msgstr ""
+
+#: .\api\templates\train.html:86
+msgid ""
+"Retraining might take some time, so make sure no test will be running during "
+"that time"
+msgstr ""
+
+#: .\api\templates\train.html:89
+msgid "Re-Train"
+msgstr ""
+
+#: .\crowdsource\forms.py:28
+msgid "Only Upload Files of Chosen Object Type and Image Type."
+msgstr ""
+
+#: .\crowdsource\forms.py:29
+msgid "Multiple Files"
+msgstr ""
+
+#: .\crowdsource\models.py:32
+#: .\crowdsource\templates\crowdsource_images.html:22
+msgid "Image Type"
+msgstr ""
+
+#: .\crowdsource\models.py:33
+msgid "Username"
+msgstr ""
+
+#: .\crowdsource\models.py:34
+msgid "Crowdsources"
+msgstr ""
+
+#: .\crowdsource\templates\crowdsource_images.html:3
+#: .\crowdsource\templates\crowdsource_images.html:4
+msgid "Crowdsource Image Contributions"
+msgstr ""
+
+#: .\crowdsource\templates\crowdsource_images.html:5
+msgid "Crowdsource Image"
+msgstr ""
+
+#: .\crowdsource\templates\crowdsource_images.html:12
+msgid "Total Crowdsource Images"
+msgstr ""
+
+#: .\crowdsource\templates\crowdsource_images.html:23
+msgid "Attribution"
+msgstr ""
+
+#: .\crowdsource\templates\crowdsource_images.html:90
+msgid "Contribute to Crowdsource"
+msgstr ""
+
+#: .\crowdsource\templates\crowdsource_images.html:107
+msgid "All Images Copyright will be transferred to ISAC-SIMO"
 msgstr ""
 
 #: .\isac_simo\settings.py:254
-msgid "Spanish"
+msgid "English"
 msgstr ""
 
 #: .\isac_simo\settings.py:255
+msgid "Spanish"
+msgstr ""
+
+#: .\isac_simo\settings.py:256
 msgid "French "
+msgstr ""
+
+#: .\main\forms.py:17 .\main\forms.py:32 .\main\forms.py:55 .\main\forms.py:86
+#: .\main\forms.py:123 .\main\models.py:78
+#: .\main\templates\users\allusers.html:23
+msgid "Email"
+msgstr ""
+
+#: .\main\forms.py:18 .\main\forms.py:58 .\main\forms.py:89 .\main\forms.py:125
+msgid "Password"
+msgstr ""
+
+#: .\main\forms.py:33 .\main\forms.py:56 .\main\forms.py:87 .\main\forms.py:124
+#: .\main\models.py:79
+msgid "Full Name"
+msgstr ""
+
+#: .\main\forms.py:34 .\main\forms.py:57 .\main\forms.py:88
+msgid "Profile Picture"
+msgstr ""
+
+#: .\main\forms.py:35 .\main\forms.py:60 .\main\forms.py:91 .\main\models.py:81
+#: .\main\templates\auth\profile.html:22
+msgid "User Type"
+msgstr ""
+
+#: .\main\forms.py:42
+msgid "Use strong password with at least 8 characters."
+msgstr ""
+
+#: .\main\forms.py:43
+msgid "Enter the same password."
+msgstr ""
+
+#: .\main\forms.py:59 .\main\forms.py:90 .\main\forms.py:126
+msgid "Confirm Password"
+msgstr ""
+
+#: .\main\forms.py:103
+msgid "Choose User Type Wisely)"
+msgstr ""
+
+#: .\main\forms.py:104
+msgid ""
+"Assign to Multiple Projects (User can view or take action depending on the "
+"projects they are assigned on)"
+msgstr ""
+
+#: .\main\forms.py:106
+msgid "Choose User Type Wisely (This user is currently admin)"
+msgstr ""
+
+#: .\main\forms.py:107
+msgid ""
+"Admin user can manipulate any projects (but selecting these is useful for "
+"api)"
+msgstr ""
+
+#: .\main\forms.py:116
+msgid "Profile Image"
+msgstr ""
+
+#: .\main\forms.py:139
+msgid "Keep Password blank to not change it."
+msgstr ""
+
+#: .\main\models.py:48
+msgid "Users must have email address"
+msgstr ""
+
+#: .\main\models.py:50
+msgid "Users must have password"
+msgstr ""
+
+#: .\main\models.py:80
+msgid "Active"
+msgstr ""
+
+#: .\main\models.py:82
+msgid "Is Staff"
+msgstr ""
+
+#: .\main\models.py:83
+msgid "Timestamp"
+msgstr ""
+
+#: .\main\models.py:85 .\main\templates\dashboard.html:76
+#: .\main\templates\master\base.html:260
+#: .\main\templates\users\allusers.html:25 .\projects\templates\projects.html:3
+#: .\projects\templates\projects.html:5 .\projects\templates\projects.html:7
+msgid "Projects"
+msgstr ""
+
+#: .\main\templates\auth\profile.html:3 .\main\templates\auth\profile.html:5
+msgid "Profile"
+msgstr ""
+
+#: .\main\templates\auth\profile.html:4
+msgid "User Profile"
+msgstr ""
+
+#: .\main\templates\auth\profile.html:23
+msgid "Update User Info"
+msgstr ""
+
+#: .\main\templates\auth\profile.html:34
+msgid "Want to Generate Access Token to use with APIs"
+msgstr ""
+
+#: .\main\templates\auth\profile.html:35
+msgid "Generate Token"
+msgstr ""
+
+#: .\main\templates\dashboard.html:4 .\main\templates\dashboard.html:6
+#: .\main\templates\dashboard.html:8 .\main\templates\master\base.html:183
+msgid "Dashboard"
+msgstr ""
+
+#: .\main\templates\dashboard.html:30
+msgid "Image(s)"
+msgstr ""
+
+#: .\main\templates\dashboard.html:35 .\main\templates\dashboard.html:50
+#: .\main\templates\dashboard.html:66 .\main\templates\dashboard.html:81
+msgid "More info"
+msgstr ""
+
+#: .\main\templates\dashboard.html:45
+msgid "Total Tested Images"
+msgstr ""
+
+#: .\main\templates\dashboard.html:61
+msgid "User Registrations"
+msgstr ""
+
+#: .\main\templates\dashboard.html:61
+msgid "Your Projects Only"
+msgstr ""
+
+#: .\main\templates\dashboard.html:89
+msgid "Logged In User Type"
+msgstr ""
+
+#: .\main\templates\master\base.html:206
+msgid "View Images"
+msgstr ""
+
+#: .\main\templates\master\base.html:216
+msgid "Add / Test Images"
+msgstr ""
+
+#: .\main\templates\master\base.html:233 .\main\templates\users\allusers.html:3
+#: .\main\templates\users\allusers.html:5
+msgid "Users"
+msgstr ""
+
+#: .\main\templates\master\base.html:242
+msgid "View Users"
+msgstr ""
+
+#: .\main\templates\master\base.html:249
+msgid "Create Users"
+msgstr ""
+
+#: .\main\templates\master\base.html:269
+msgid "View Projects"
+msgstr ""
+
+#: .\main\templates\master\base.html:276
+#: .\projects\templates\add_project.html:7
+#: .\projects\templates\add_project.html:15
+msgid "Create Project"
+msgstr ""
+
+#: .\main\templates\master\base.html:286
+msgid "Object Types"
+msgstr ""
+
+#: .\main\templates\master\base.html:297
+msgid "Models"
+msgstr ""
+
+#: .\main\templates\master\base.html:306
+msgid "Current Models"
+msgstr ""
+
+#: .\main\templates\master\base.html:313
+msgid "Create New Models"
+msgstr ""
+
+#: .\main\templates\master\base.html:324
+msgid "Offline Model / Scripts"
+msgstr ""
+
+#: .\main\templates\master\base.html:333
+msgid "View All Offline Model"
+msgstr ""
+
+#: .\main\templates\master\base.html:342
+msgid "Create Offline Model"
+msgstr ""
+
+#: .\main\templates\master\base.html:353
+msgid "IBM Watson & More"
+msgstr ""
+
+#: .\main\templates\master\base.html:370
+msgid "Re-Train Classifier"
+msgstr ""
+
+#: .\main\templates\master\base.html:393
+msgid "Google Maps"
+msgstr ""
+
+#: .\main\templates\master\base.html:402
+msgid "Check Street View"
+msgstr ""
+
+#: .\main\templates\master\base.html:435
+#: .\projects\templates\public_projects.html:3
+#: .\projects\templates\public_projects.html:5
+#: .\projects\templates\public_projects.html:7
+msgid "Public Projects"
+msgstr ""
+
+#: .\main\templates\master\base.html:444
+msgid "Crowdsource"
+msgstr ""
+
+#: .\main\templates\master\base.html:454
+#: .\main\templates\translator\file-list.html:4
+#: .\main\templates\translator\file-list.html:6
+#: .\main\templates\translator\file-list.html:8
+#: .\main\templates\translator\form.html:4
+#: .\main\templates\translator\form.html:6
+#: .\main\templates\translator\form.html:8
+msgid "Translator"
+msgstr ""
+
+#: .\main\templates\master\base.html:476
+msgid "Home"
+msgstr ""
+
+#: .\main\templates\translator\file-list.html:39
+msgid "Language"
+msgstr ""
+
+#: .\main\templates\translator\file-list.html:40
+msgid "Progress"
+msgstr ""
+
+#: .\main\templates\translator\file-list.html:41
+msgid "Messages"
+msgstr ""
+
+#: .\main\templates\translator\file-list.html:42
+msgid "Translated"
+msgstr ""
+
+#: .\main\templates\translator\file-list.html:43
+#: .\main\templates\translator\form.html:74
+msgid "Fuzzy entries call for revision by the translator."
+msgstr ""
+
+#: .\main\templates\translator\file-list.html:43
+#: .\main\templates\translator\form.html:74
+msgid "Fuzzy"
+msgstr ""
+
+#: .\main\templates\translator\file-list.html:44
+msgid "Obsolete"
+msgstr ""
+
+#: .\main\templates\translator\file-list.html:74
+msgid "Nothing to translate!"
+msgstr ""
+
+#: .\main\templates\translator\file-list.html:75
+msgid ""
+"You haven't specified any languages in your settings file, or haven't yet "
+"generated a batch of translation catalogs."
+msgstr ""
+
+#: .\main\templates\translator\file-list.html:76
+#, python-format
+msgid ""
+"Please refer to <a href=\"%(i18n_doc_link)s\">Django's I18N documentation</"
+"a> for a guide on how to set up internationalization for your project."
+msgstr ""
+
+#: .\main\templates\translator\form.html:33
+msgid " "
+msgstr ""
+
+#: .\main\templates\translator\form.html:36
+msgid "Display:"
+msgstr ""
+
+#: .\main\templates\translator\form.html:37
+msgid "Untranslated only"
+msgstr ""
+
+#: .\main\templates\translator\form.html:38
+msgid "Translated only"
+msgstr ""
+
+#: .\main\templates\translator\form.html:39
+msgid "Fuzzy only"
+msgstr ""
+
+#: .\main\templates\translator\form.html:48
+msgid "Search"
+msgstr ""
+
+#: .\main\templates\translator\form.html:50
+msgid "Go"
+msgstr ""
+
+#: .\main\templates\translator\form.html:57
+msgid "Reference language"
+msgstr ""
+
+#: .\main\templates\translator\form.html:71
+msgid "Original"
+msgstr ""
+
+#: .\main\templates\translator\form.html:75
+msgid "Occurrences(s)"
+msgstr ""
+
+#: .\main\templates\translator\form.html:89
+#: .\main\templates\translator\form.html:92
+#: .\main\templates\translator\form.html:111
+#: .\main\templates\translator\form.html:114
+msgid "Context hint"
+msgstr ""
+
+#: .\main\templates\translator\form.html:121
+msgid "suggest"
+msgstr ""
+
+#: .\main\templates\translator\form.html:132
+#, python-format
+msgid "%(more_count)s more"
+msgid_plural "%(more_count)s more"
+msgstr[0] ""
+msgstr[1] ""
+
+#: .\main\templates\translator\form.html:144
+msgid "Save and translate next block"
+msgstr ""
+
+#: .\main\templates\translator\form.html:148
+msgid "Skip to page:"
+msgstr ""
+
+#: .\main\templates\translator\form.html:161
+msgid "Displaying:"
+msgstr ""
+
+#: .\main\templates\translator\form.html:165
+#, python-format
+msgid "%(hits)s/%(message_number)s message"
+msgid_plural "%(hits)s/%(message_number)s messages"
+msgstr[0] ""
+msgstr[1] ""
+
+#: .\main\templates\users\admin_register.html:5
+#: .\main\templates\users\admin_register.html:13
+#: .\main\templates\users\admin_register.html:21
+msgid "Edit User"
+msgstr ""
+
+#: .\main\templates\users\admin_register.html:7
+#: .\main\templates\users\admin_register.html:15
+#: .\main\templates\users\admin_register.html:41
+msgid "Register User"
+msgstr ""
+
+#: .\main\templates\users\admin_register.html:23
+msgid "Add User"
+msgstr ""
+
+#: .\main\templates\users\admin_register.html:39
+msgid "Update User"
+msgstr ""
+
+#: .\main\templates\users\admin_register.html:53
+msgid "You Are Editing Yourself"
+msgstr ""
+
+#: .\main\templates\users\allusers.html:4
+msgid "All Users"
+msgstr ""
+
+#: .\main\templates\users\allusers.html:14
+msgid "Add New User"
+msgstr ""
+
+#: .\main\translator\views.py:357
+msgid ""
+"Some items in your last translation block couldn't be saved: this usually "
+"happens when the catalog file changes on disk after you last loaded it."
+msgstr ""
+
+#: .\map\templates\check.html:3
+msgid "Google Map Check with Streetview"
+msgstr ""
+
+#: .\map\templates\check.html:4
+msgid "Google Map Street View Check"
+msgstr ""
+
+#: .\map\templates\check.html:5
+msgid "Google Map"
+msgstr ""
+
+#: .\map\templates\check.html:20
+msgid "Latitude/Longitude"
+msgstr ""
+
+#: .\map\templates\check.html:27
+msgid "Coordinates"
+msgstr ""
+
+#: .\map\templates\check.html:29
+msgid "OR- Add Polygon in the map to use Coordinates for getting images"
+msgstr ""
+
+#: .\map\templates\check.html:34
+msgid "Check"
+msgstr ""
+
+#: .\map\templates\check.html:42
+msgid "Image Result"
+msgstr ""
+
+#: .\map\templates\check.html:43
+msgid "No Result"
+msgstr ""
+
+#: .\map\templates\check.html:48
+msgid "Select the Object Model to test on"
+msgstr ""
+
+#: .\map\templates\check.html:67
+msgid "Test Images"
+msgstr ""
+
+#: .\map\templates\check.html:68
+msgid "Might take some time depending on the total images"
+msgstr ""
+
+#: .\map\templates\check.html:72
+msgid "Clean Saved Street View Images"
+msgstr ""
+
+#: .\projects\forms.py:17
+msgid "Project Name"
+msgstr ""
+
+#: .\projects\forms.py:19
+msgid "Project Image"
+msgstr ""
+
+#: .\projects\forms.py:20
+msgid "Online Object Detect Model"
+msgstr ""
+
+#: .\projects\forms.py:21
+msgid "Offline Object Detect Model"
+msgstr ""
+
+#: .\projects\forms.py:23
+msgid "Is Publicly Visible"
+msgstr ""
+
+#: .\projects\templates\add_project.html:5
+#: .\projects\templates\add_project.html:13
+#: .\projects\templates\add_project.html:64
+msgid "Update Project"
+msgstr ""
+
+#: .\projects\templates\add_project.html:21
+msgid "Edit Project"
+msgstr ""
+
+#: .\projects\templates\add_project.html:23
+#: .\projects\templates\add_project.html:66
+msgid "Add Project"
+msgstr ""
+
+#: .\projects\templates\add_project.html:42
+msgid "Remove All Linked Users from this Project"
+msgstr ""
+
+#: .\projects\templates\add_project.html:45
+msgid "Also Note that User Contributions will no longer be visible"
+msgstr ""
+
+#: .\projects\templates\add_project.html:55
+msgid "Mark as GLOBAL Project"
+msgstr ""
+
+#: .\projects\templates\add_project.html:58
+msgid ""
+"Will be used for Guest/Offline Users in Mobile App. Logged in user will be "
+"shown via linked projects. <br/>  Note: Only One Project should be marked as "
+"Global (Best Practice)"
+msgstr ""
+
+#: .\projects\templates\add_project.html:72
+msgid "Users Linked to this Project"
+msgstr ""
+
+#: .\projects\templates\add_project.html:80
+msgid "No Users for this project yet"
+msgstr ""
+
+#: .\projects\templates\projects.html:16
+#: .\projects\templates\public_projects.html:127
+msgid "Add New Project"
+msgstr ""
+
+#: .\projects\templates\projects.html:46
+msgid "Test Image with Detect Model"
+msgstr ""
+
+#: .\projects\templates\public_projects.html:27
+msgid "Global Project"
+msgstr ""
+
+#: .\projects\templates\public_projects.html:32
+msgid "View More"
+msgstr ""
+
+#: .\projects\templates\public_projects.html:34
+msgid "Leave"
+msgstr ""
+
+#: .\projects\templates\public_projects.html:107
+msgid "Show All Public Projects"
+msgstr ""
+
+#: .\projects\templates\public_projects.html:116
+msgid "Show Joined Projects"
 msgstr ""

@@ -7,9 +7,9 @@
 
 {% block dashboard_title2 %} {% trans "Translator" %} {% endblock dashboard_title2 %}
 {% block style %}
-    <link rel="stylesheet" href="{% static "admin/css/base.css" %}" type="text/css"/>
-    <link rel="stylesheet" href="{% static "admin/css/forms.css" %}" type="text/css"/>
-    <link rel="stylesheet" href="{% static "admin/css/changelists.css" %}" type="text/css"/>
+    <link rel="stylesheet" href="{% static "css/translator-list.css" %}" type="text/css"/>
+    <link rel="stylesheet" href="{% static "/css/translator-forms.css" %}" type="text/css"/>
+    <link rel="stylesheet" href="{% static "css/changelists.css" %}" type="text/css"/>
     <style type="text/css" media="screen">
         {% include 'rosetta/css/rosetta.css' %}
     </style>
@@ -141,7 +141,7 @@
                     {% if query %}
                         <input type="hidden" name="query" value="{{query}}"  />
                     {% endif %}
-                    <input type="submit" class="default" name="_next" value="{% trans "Save and translate next block" %}" tabindex="{% increment tab_idx %}"/>
+                    <input type="submit" class="btn btn-success" name="_next" value="{% trans "Save and translate next block" %}" tabindex="{% increment tab_idx %}"/>
 
 
                     {% if needs_pagination %}
