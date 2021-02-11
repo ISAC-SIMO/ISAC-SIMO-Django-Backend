@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://www.isac-simo.net/getting-started/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Getting Started - ISAC-SIMO</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">ISAC-SIMO</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Getting Started</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../web-application/" class="nav-link">Web Application</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../mobile-application/" class="nav-link">Mobile Application</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../developer-guide/" class="nav-link">Developer Guide</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href=".." class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../web-application/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend" class="nav-link"><i class="fa fa-github"></i> GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#getting-started-introduction" class="nav-link">Getting Started Introduction</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#step-1-register-as-project-admin" class="nav-link">STEP 1 - Register as project Admin</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#step-2-create-a-new-project" class="nav-link">STEP 2 - Create a New Project</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#step-3-add-object-type" class="nav-link">STEP 3 - Add Object Type</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#step-4-add-classifiers-pipeline" class="nav-link">STEP 4 - Add Classifiers &amp; Pipeline</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#step-5-test-with-mobile-application" class="nav-link">STEP 5 - Test with Mobile Application</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="getting-started-introduction"><a class="toclink" href="#getting-started-introduction">Getting Started Introduction</a></h1>
+<p>This section will guide you through the steps to create a simple Project with Rebar Shape Quality
+Checker. It will cover creating a project, adding and linking a classifier, adding and linking a offline model,
+ordering the pipeline and testing an image via mobile application.</p>
+<h2 id="step-1-register-as-project-admin"><a class="toclink" href="#step-1-register-as-project-admin">STEP 1 - Register as project Admin</a></h2>
+<p>🛈 <a href="../web-application/#login-register">More info on Login &amp; Register</a></p>
+<p>In the Registration page fill up your Details, Email and Password. Then, choose Type as <strong>“Project Admin”</strong> so that you can create and manage projects and models.
+A Project Admin will have access to other user details, so the user must be first verified by an Admin. Wait for Admin to verify your account, so that you can login. After the account is verified you can login and access the Dashboard.
+You can also register as Type <strong>“User”</strong> if you want. But, you can only test images after you are linked to a Project by Admin or Project Admin.
+<strong>Note</strong>: Password needs to be strong with Upper Case, Numbers and Special Characters.
+<img alt="description" src="../assets/image50.png" /></p>
+<h2 id="step-2-create-a-new-project"><a class="toclink" href="#step-2-create-a-new-project">STEP 2 - Create a New Project</a></h2>
+<p>🛈 <a href="../web-application/#projects">More info on Projects</a></p>
+<p>As you registered as a Project Admin, you can create and manage multiple projects. From the Sidebar, you can access View Projects and Create Project Page. Lets create a New Project as shown in this Image.
+Fill in the Project Name, Description and Image. Now, you can either link a Watson Object Detect Model with IBM API Access Key. Or, add and link Offline Model of type Object Detect.
+Then, when testing an image using the API you can choose to force an object type by providing object_type_id or choose to use this Project Object Detection Model providing the project_id.
+Now, if you visit the View Projects page you can see this newly created Project with a hint that you need to add Object Types and Classifiers which we will do next. (You can also test linked Object Detect Model)</p>
+<p><img alt="description" src="../assets/image51.png" /></p>
+<h2 id="step-3-add-object-type"><a class="toclink" href="#step-3-add-object-type">STEP 3 - Add Object Type</a></h2>
+<p>🛈 <a href="../web-application/#object-types">More info on Object Types</a></p>
+<p>You have created a Project, but you need to add Object Types that this project will test.
+For Example, in our “My Wall Test Project”, users will be able to test Wall Facade, Wall Bond Pattern etc.
+These are the Object Types that can be tested. You can view and manage the Object Types as shown in Image below.</p>
+<p><img alt="description" src="../assets/image51.png" />
+Here, we add Object Types, choose the Project and provide suitable Instruction and Image on how to perform the test.
+ Now, the Classifiers/Models Pipeline for these specific Object Types can be added so that users can test.</p>
+<h2 id="step-4-add-classifiers-pipeline"><a class="toclink" href="#step-4-add-classifiers-pipeline">STEP 4 - Add Classifiers &amp; Pipeline</a></h2>
+<p>🛈 <a href="../web-application/#models-classifier">More info on Models / Classifiers</a></p>
+<p>As we have added the Object Types, when we login from the Mobile Application or use API we can see the option to choose these object types for testing images. Currently, no Classifier/Model has been linked to this Object Types pipeline so the tested result will be empty. So for that, let’s start adding classifiers/models. We can add multiple models, watson models, offline models, pre/post processors and order the pipeline appropriately.
+For this example, we will add models for “Wall Bond Pattern Test”. We have created two python 3 scripts, one to Pre-Process the Image of Brick Wall and the other to Post-Process and Classify the image and return GO/NOGO Result. As these are Offline Model (Not Watson), we first need to add these in Create Offline Model Page.</p>
+<p>🛈 <a href="../web-application/#offline-models">More info on Offline Models</a></p>
+<p>After we have added the Pre/Post Processor appropriately we can quickly test an image and view python dependencies. Make sure that when creating Offline Models, study the Readme guide and view examples.
+Here, we see that we created one Pre-Processor and one Post-Processor.
+<img alt="description" src="../assets/image52.png" /></p>
+<p>Now, finally we can create a Model/Classifier and link these offline models. You could ofcourse use Watson Model or Train yourself with Images. In the create form choose the Source of Model, fill the form as required and set the order in which to run.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Pre-Processor</th>
+<th align="center">Post-Processor</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="" src="../assets/image53.png" /></td>
+<td align="center"><img alt="" src="../assets/image54.png" /></td>
+</tr>
+</tbody>
+</table>
+<p>If you want to easily change the order of the pipeline (Very useful for multiple pipelines), you can do so in the Object Type List View by clicking the <strong>“Quick Order Classifier Icon”</strong>.</p>
+<p><img alt="" src="../assets/image55.png" /></p>
+<p>There you can drag and arrange the Model and Classifiers easily.</p>
+<h2 id="step-5-test-with-mobile-application"><a class="toclink" href="#step-5-test-with-mobile-application">STEP 5 - Test with Mobile Application</a></h2>
+<p>Now, login from the Mobile Application, inside Quality Check you should be able to see “Wall Bond Pattern” in the list. Click the item, upload or capture an image of a brick wall and send to test.
+If all the Classifiers ran successfully, then it should return the GO/NOGO response.</p>
+<p>🛈 <a href="../mobile-application/#mobile-application-introduction">More info on Mobile Applications</a></p>
+<table>
+<thead>
+<tr>
+<th align="center">Quality Check</th>
+<th align="center">Result</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="" src="../assets/image56.png" /></td>
+<td align="center"><img alt="" src="../assets/image57.jpg" /></td>
+</tr>
+</tbody>
+</table>
+<p>After the test, you can also view the result and pipeline specific output in the View Images/Edit/Info page from the web application.
+You should now be able to add other users, link to your project, create multiple object types, classifiers, models and perform checks easily.</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.isac-simo.net/"> ISAC-SIMO </a>| <a href="https://buildchange.org/"> Build Change </a>| <a href="https://www.ibm.com/"> IBM</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://www.isac-simo.net/mobile-application/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Mobile Application - ISAC-SIMO</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">ISAC-SIMO</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../getting-started/" class="nav-link">Getting Started</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../web-application/" class="nav-link">Web Application</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Mobile Application</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../developer-guide/" class="nav-link">Developer Guide</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../web-application/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../developer-guide/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend" class="nav-link"><i class="fa fa-github"></i> GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#mobile-application-introduction" class="nav-link">Mobile Application Introduction</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#login-register" class="nav-link">Login &amp; Register</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#profile" class="nav-link">Profile</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#home" class="nav-link">Home</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#quality-check" class="nav-link">Quality Check</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="mobile-application-introduction"><a class="toclink" href="#mobile-application-introduction">Mobile Application Introduction</a></h1>
+<p>The Mobile application allows users to login, register and take or upload Images of different Objects (Wall,
+Rebar etc.) to classify it as <strong>GO</strong> or <strong>NOGO</strong>. Guest Users who choose not to login will only have access to
+Global Guest Project and its Object Types (If they exist). Otherwise, logged in users will only have access
+to Projects and the Object Types they are linked to.</p>
+<h2 id="login-register"><a class="toclink" href="#login-register">Login &amp; Register</a></h2>
+<p><img alt="" src="../assets/image40.png" />
+<br>
+<em>Login</em>.</p>
+<p><img alt="" src="../assets/image39.png" />
+<br>
+<em>Register</em>.</p>
+<h2 id="profile"><a class="toclink" href="#profile">Profile</a></h2>
+<p>The Profile tab shows the logged in users Name, Email, Profile Image and option to Logout. Guest users will be considered a temporary Anonymous User.
+<br>
+<img alt="" src="../assets/image41.png" /></p>
+<h2 id="home"><a class="toclink" href="#home">Home</a></h2>
+<p>The Home Tab is the Mobile Dashboard. There are Information, Report and Quality Check Options that can be clicked. <strong>Quality Check</strong> is the main option where users can test images of different objects and view the result.
+<br>
+<img alt="" src="../assets/image42.png" /></p>
+<h2 id="quality-check"><a class="toclink" href="#quality-check">Quality Check</a></h2>
+<p>As mentioned multiple times above, Guest Users who choose not to login will only have access to Global Guest Project and its Object Types (If they exist). While, logged in users will only have access to Projects and the Object Types they are linked to. This Quality Checks page lists all the Object Type users can test by taking photographs.
+First, Choose the Object Type for which to perform a quality test. In the image below, users may choose Facade Wall, Rebar Shapes etc.
+<br>
+<img alt="" src="../assets/image43.png" />
+<br>
+For this guide, let's choose Rebar Shape. Clicking on Rebar Shape in the list will open another page that shows Instruction and a Sample Image on how to properly capture the Image. Following the instruction will make sure that the result will be better and accurate.
+Next, you can click on the <strong>“Let’s Go”</strong> button to capture or upload images for testing. The Uploaded image will be passed through all Classifiers/Models Pipeline that is linked to the chosen Object Type. Before uploading users can crop &amp; edit the images.
+<br></p>
+<table>
+<thead>
+<tr>
+<th align="center">Instruction</th>
+<th align="center">Upload</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="" src="../assets/image44.png" /></td>
+<td align="center"><img alt="" src="../assets/image45.png" /></td>
+</tr>
+</tbody>
+</table>
+<p><br>
+Make sure to Crop the Image so that the Object is centred and no other obstruction is visible. The image brightness, contrast, hue etc. can be easily adjusted in the next screen.</p>
+<table>
+<thead>
+<tr>
+<th align="center">Edit Image</th>
+<th align="center">Submit Image</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="" src="../assets/image46.png" /></td>
+<td align="center"><img alt="" src="../assets/image47.png" /></td>
+</tr>
+</tbody>
+</table>
+<p>After clicking the <strong>“Submit”</strong> button the Image is sent and processed by the server. And the result and score is shown. Results can generally be Go, Nogo or No Result and score are generally 0 to 100 percent.
+Score is the confidence level on the result. For Example, if the result is <strong>“GO”</strong> and the score is 90% like below, then it suggests that the Image passed with 90% confidence. (i.e. the Image is Okay and in this case Rebar Shape is good)</p>
+<p><img alt="" src="../assets/image48.png" />
+<br>
+The Score and Result of all Pipeline is accessible in the Web Dashboard. Here, all Pipeline Classifiers and the score they returned are shown.</p>
+<p><img alt="" src="../assets/image49.png" /></p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.isac-simo.net/"> ISAC-SIMO </a>| <a href="https://buildchange.org/"> Build Change </a>| <a href="https://www.ibm.com/"> IBM</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

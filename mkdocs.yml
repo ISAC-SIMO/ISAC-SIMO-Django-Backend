@@ -1,0 +1,26 @@
+site_name: ISAC-SIMO
+site_url: https://www.isac-simo.net
+site_description: Your Intelligent Supervision Assistant for Construction
+
+repo_name: GitHub
+repo_url: https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend
+edit_uri: ""
+
+theme:
+    # name-options[ mkdocs, readthedocs]
+    name: mkdocs
+    # custom_dir: docs_theme
+
+markdown_extensions:
+ - toc:
+    anchorlink: True
+
+nav:
+    - Home: index.md
+    - Getting Started: getting-started.md
+    - Web Application: web-application.md
+    - Mobile Application: mobile-application.md
+    - Developer Guide: developer-guide.md
+
+extra:
+  generator: false

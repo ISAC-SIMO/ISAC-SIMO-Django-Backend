@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://www.isac-simo.net/web-application/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Web Application - ISAC-SIMO</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">ISAC-SIMO</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../getting-started/" class="nav-link">Getting Started</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Web Application</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../mobile-application/" class="nav-link">Mobile Application</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../developer-guide/" class="nav-link">Developer Guide</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../getting-started/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" href="../mobile-application/" class="nav-link">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend" class="nav-link"><i class="fa fa-github"></i> GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="1"><a href="#web-application-introduction" class="nav-link">Web Application Introduction</a>
+              <ul class="nav flex-column">
+            <li class="nav-item" data-level="2"><a href="#login-register" class="nav-link">Login &amp; Register</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#dashboard" class="nav-link">Dashboard</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#projects" class="nav-link">Projects</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#object-types" class="nav-link">Object Types</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#models-classifier" class="nav-link">Models / Classifier</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#offline-models" class="nav-link">Offline Models</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#file-upload" class="nav-link">File Upload</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#users" class="nav-link">Users</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#images" class="nav-link">Images</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#terminal" class="nav-link">Terminal</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            <li class="nav-item" data-level="2"><a href="#miscellaneous" class="nav-link">Miscellaneous</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h1 id="web-application-introduction"><a class="toclink" href="#web-application-introduction">Web Application Introduction</a></h1>
+<p>This section provides a brief Guide on using the ISAC-SIMO Web Application. It guides you through user
+registration, project management, classifier/model creation, object types and more.</p>
+<h2 id="login-register"><a class="toclink" href="#login-register">Login &amp; Register</a></h2>
+<table>
+<thead>
+<tr>
+<th align="center">Login</th>
+<th align="center">Register</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="" src="../assets/image2.png" /></td>
+<td align="center"><img alt="" src="../assets/image3.png" /></td>
+</tr>
+</tbody>
+</table>
+<p>Users can easily register themselves, and choose to be either a normal <strong>User</strong> or a <strong>Project Admin</strong>. As the name suggests, Project Admin can create or moderate Projects, Users, Models and Pipelines. While, normal users can test images and manage their own tested images.
+After logging into the web application, the user is presented with a dashboard. Users can click on their name in the sidebar and open the profile page, where they can update profile information and generate API Access Tokens.</p>
+<p><img alt="description" src="../assets/image4.png" /></p>
+<h2 id="dashboard"><a class="toclink" href="#dashboard">Dashboard</a></h2>
+<p><img alt="main-dashboard" src="../assets/image5.png" />
+<br>
+<br>
+<img alt="dashboard-sidebar" src="../assets/image6.png" /></p>
+<h2 id="projects"><a class="toclink" href="#projects">Projects</a></h2>
+<p><strong>Permissions</strong>: Admin (All), Project Admin (Own)
+<br>
+<strong>Example</strong>: Colombia Project, Bisaya Region Rebar Quality Verify Project etc.
+<br></p>
+<h3 id="create-project"><a class="toclink" href="#create-project"><span style="color:green">Create Project</span></a></h3>
+<p><img alt="dashboard-sidebar" src="../assets/image7.png" />
+<br>
+Users can choose to add Watson Object Detect Models Name and the IBM Watson API Key while creating
+the Project. Or, they can also link a Local/Offline Detect Model. Then, while testing images, users can
+choose the Project to test on. First the Image will be passed via provided Object Detect Model to find out
+the possible object in the Image (instead of manually defining the Object Type while testing).
+If Marked as <strong>“Global”</strong> it will be shown to Guest/Offline Users in Mobile App. Logged in users will be
+shown via linked projects.
+<br></p>
+<h3 id="view-projects"><a class="toclink" href="#view-projects"><span style="color:green">View Projects</span></a></h3>
+<p><img alt="dashboard-sidebar" src="../assets/image8.png" />
+<br>
+<br></p>
+<h3 id="test-projects-object-detection-model"><a class="toclink" href="#test-projects-object-detection-model"><span style="color:green">Test Projects, Object Detection Model</span></a></h3>
+<p><img alt="dashboard-sidebar" src="../assets/image9.png" /></p>
+<h2 id="object-types"><a class="toclink" href="#object-types">Object Types</a></h2>
+<p><strong>Permissions</strong>: Admin (All), Project Admin (Own &amp; Linked)
+<br>
+<strong>Example</strong>: wall, rebar, rebar shapes etc.
+<br></p>
+<h3 id="createadd-object-types"><a class="toclink" href="#createadd-object-types"><span style="color:green">Create/Add Object Types</span></a></h3>
+<p>The Name of Object Type must be unique for that specific Project. ⚠ <strong>If an Object Type is linked to a
+Project (by Admin), then the Project Admin will have full Access to it</strong>.
+<br></p>
+<h3 id="view-object-types"><a class="toclink" href="#view-object-types"><span style="color:green">View Object Types</span></a></h3>
+<p>Admin and Project Admin can manage Object Types, Change Order of Classifier Pipelines, Test Images
+against this Object Type and more.
+<img alt="" src="../assets/image10.png" />
+<br>
+<img alt="" src="../assets/image11.png" /></p>
+<h2 id="models-classifier"><a class="toclink" href="#models-classifier">Models / Classifier</a></h2>
+<p><strong>Permissions</strong>: Admin (All), Project Admin (Own &amp; Linked)</p>
+<p><strong>Type</strong>:</p>
+<ul>
+<li>IBM Watson Train New Model</li>
+<li>IBM Watson add Pre-Trained Model</li>
+<li>Offline Model (Classifier, Pre/Post Processor)</li>
+</ul>
+
+<h3 id="create-models"><a class="toclink" href="#create-models"><span style="color:green">Create Models</span></a></h3>
+<p>Admin or Project Admin can add a new Model. A new model can be trained by uploading zipped images and choosing to process it or not. Users can also add Pre-Trained Model by specifying the Classifier Name and IBM Watson API Key. Also, users can add and link Offline Model / Script that can be used either as a Classifier or Pre/Post Processor.
+<img alt="" src="../assets/image12.png" />
+<br></p>
+<h3 id="view-models"><a class="toclink" href="#view-models"><span style="color:green">View Models</span></a></h3>
+<p><img alt="" src="../assets/image13.png" />
+Users can easily view all the Models/Classifiers for each Project and Object Types. The Offline Model,
+Labels, Pre/Post Processor Status is easily viewable. Users can also test this Specific Model for debug
+purposes. As shown above in the Object Types section, Users can also easily change the Order of
+Classifier in the pipeline by simple drag and drop
+<br></p>
+<h3 id="test-model"><a class="toclink" href="#test-model"><span style="color:green">Test Model</span></a></h3>
+<p><img alt="" src="../assets/image14.png" />
+<br></p>
+<h2 id="offline-models"><a class="toclink" href="#offline-models">Offline Models</a></h2>
+<p><strong>Permissions</strong>: Admin (All), Project Admin (Only Own)
+<br>
+<strong>Type</strong>:</p>
+<ul>
+<li><b>Pre-Processor</b> (Python 3 Format, Useful to Process Image e.g. Gaussian Blur/Resize image etc.)</li>
+<li><b>Post-Processor</b> (Python 3 Format, Alter/Calculate: Result & Score or do custom classification)</li>
+<li><b>Classifier</b> (h5, keras, py format which should classify an image and return scores appropriately)</li>
+<li><b>Object Detect</b> (h5, keras, py format which should return detected objects score and bound area)</li> 
+</ul>
+<p>As we saw in the Models/Classifiers section above, Users can link custom Offline Models to any Classifier.
+The Offline Model can be of type Processor (Pre/Post), Classifier and Object Detect. A Classifier can only
+link Processor or Classifier, while Object Detect can be linked to a Project.
+The Response and data receivable by Offline Model is predefined and should follow strict guidelines.</p>
+<p><strong>Technical Details on creating Offline Model can be found here</strong>.
+<br>
+<a href="https://www.isac-simo.net/app/offline_model/readme.md">https://www.isac-simo.net/app/offline_model/readme.md</a></p>
+<h3 id="add-offline-model"><a class="toclink" href="#add-offline-model"><span style="color:green">Add Offline Model</span></a></h3>
+<p><img alt="" src="../assets/image15.png" />
+<br></p>
+<h3 id="view-offline-models"><a class="toclink" href="#view-offline-models"><span style="color:green">View Offline Models</span></a></h3>
+<p>Users can manage Offline Models and update the model file. If the offline model is python 3 format, users
+can also check the dependencies used by it. Admin can if required install these dependencies via
+terminal. And, just like Model and Offline Model can also be tested.
+<img alt="" src="../assets/image16.png" />
+<br></p>
+<h3 id="test-offline-models"><a class="toclink" href="#test-offline-models"><span style="color:green">Test Offline Models</span></a></h3>
+<p>This example shows a quick test of a Preprocessor Offline Model. The Preprocessor returns a processed
+image. Similarly, Postprocessor, Classifier and Object Detection will return certain JSON responses.
+<img alt="" src="../assets/image17.png" />
+<br></p>
+<h2 id="file-upload"><a class="toclink" href="#file-upload">File Upload</a></h2>
+<p><strong>Permissions</strong>: Admin (All)
+<br>
+Admin Users can Upload other types of Files, Images, Helper Models etc using this file upload feature. After uploading the file, the user can copy the root path to that file, which can be used inside of the pre/post processor, classifiers etc. Also, users can share the file as normal web url. 
+⚠ Other users can use the <strong>root path</strong> inside offline models, but will not have file upload access.
+<br></p>
+<h3 id="upload-file"><a class="toclink" href="#upload-file"><span style="color:green">Upload File</span></a></h3>
+<p><img alt="" src="../assets/image18.png" />
+<br></p>
+<h3 id="view-files"><a class="toclink" href="#view-files"><span style="color:green">View Files</span></a></h3>
+<p><img alt="" src="../assets/image19.png" />
+<br></p>
+<h2 id="users"><a class="toclink" href="#users">Users</a></h2>
+<p><strong>Permissions</strong>: Admin (All), Project Admin (View/Edit Lower Level User Only)</p>
+<h3 id="add-user"><a class="toclink" href="#add-user"><span style="color:green">Add User</span></a></h3>
+<p>Admin or Project Admin can create/edit or register users themselves. Admin can assign the user to any
+Project, while Project Admin can assign users to their own Projects only. Project Admin will only have view
+and edit access to the users (But not Admin Users).
+⚠ Note that Newly registered Project Admin must be Verified by Admin before they login.
+<br>
+<img alt="" src="../assets/image20.png" /></p>
+<h3 id="view-users"><a class="toclink" href="#view-users"><span style="color:green">View Users</span></a></h3>
+<p>Here, Admin will have full control over all users. But, Project Admin can edit and assign users (Non admin)
+to their projects; but cannot delete the users.
+<br>
+<img alt="" src="../assets/image21.png" /></p>
+<h2 id="images"><a class="toclink" href="#images">Images</a></h2>
+<h3 id="add-images"><a class="toclink" href="#add-images"><span style="color:green">Add Images</span></a></h3>
+<p>Images can be tested with Mobile Applications or APIs. But, Admin also has Dashboard access to Add and
+Test Images. Any Image can be tested by choosing a <strong>Project</strong> or an <strong>Object Type</strong>. If the Project is chosen
+then the Object Detection Model linked in the Project will be used to detect the Object Type and is
+passed through the Classifier Pipeline. Similarly, if Object Type is chosen then this is passed through the
+Classifiers in this object type (without caring about the project).
+<br>
+<img alt="" src="../assets/image22.png" />
+⚠ You Can Choose an Object Type to Force and use that type (Or Else object detect model from chosen
+Project is used to detect the object in the given image)</p>
+<h3 id="view-images"><a class="toclink" href="#view-images"><span style="color:green">View Images</span></a></h3>
+<p>Admin can View and Manage all Images. Project Admin can manage images linked to their Projects only.
+Government &amp; Engineer can view linked Project Images. Normal Users can only Manage their own
+Images. <strong>Here, in the Image View page a quick preview of Image, and its result and score can be
+viewed by clicking over the number list</strong>.
+<br>
+The Border of Number list suggests; Green is <strong>Go</strong>, Red is <strong>No Go</strong> and Orange is <strong>No Result</strong>.
+<br>
+<img alt="" src="../assets/image23.png" /></p>
+<h3 id="view-image-test-result"><a class="toclink" href="#view-image-test-result"><span style="color:green">View Image Test Result</span></a></h3>
+<p>Inside the Update Image page, you can see Test Results at the bottom. Clicking on Images will Popup the Image and show brief Result, Score and Object Detected. By clicking the Info/Review icon, we can see detailed score and result for each Pipeline along with the ability to verify the result.
+<br></p>
+<table>
+<thead>
+<tr>
+<th align="center">Test Result</th>
+<th align="center">Test Form</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td align="center"><img alt="" src="../assets/image24.png" /></td>
+<td align="center"><img alt="" src="../assets/image25.png" /></td>
+</tr>
+</tbody>
+</table>
+<h2 id="terminal"><a class="toclink" href="#terminal">Terminal</a></h2>
+<p><strong>Permissions</strong>: Admin (All)
+<br>
+Admin has the ability to run some commands like; install python packages, list packages installed etc. If an
+offline classifier or processor needs a specific package or library, then Admin can install it here. The
+Terminal Output is visible and all commands are sanitized properly.
+<br>
+<img alt="" src="../assets/image26.png" /></p>
+<h2 id="miscellaneous"><a class="toclink" href="#miscellaneous">Miscellaneous</a></h2>
+<h3 id="right-sidebar"><a class="toclink" href="#right-sidebar"><span style="color:green">Right Sidebar</span></a></h3>
+<p><strong>Permissions</strong>: Admin (All), Project Admin (Dump JSON Image Data)
+<br>
+<img alt="" src="../assets/image27.png" /></p>
+<h3 id="ibm-watson-more"><a class="toclink" href="#ibm-watson-more"><span style="color:green">IBM Watson &amp; More</span></a></h3>
+<p><strong>Permissions</strong>: Admin (All), Project Admin (Linked)
+<br>
+Feature Includes; Retraining Classifiers, Fetch Classifier Details &amp; Training Status, Fetch Object Type
+Details &amp; Status and View Offline Model Details.
+<br>
+<img alt="" src="../assets/image28.png" />
+Example Response for Fetch Classifier Details:
+<img alt="" src="../assets/image29.png" /></p>
+<h3 id="crowdsource-image"><a class="toclink" href="#crowdsource-image"><span style="color:green">Crowdsource Image</span></a></h3>
+<p><strong>Permissions</strong>: Admin (All), Project Admin (All), User (Own)
+<br>
+The Crowdsource Feature allows anyone to upload multiple images of different Object Types. These uploaded Images can be used while Training different Models by the Admin or Project Admin. The User who uploaded the images, must confirm that they are willing to transfer the Copyright to ISAC-SIMO &amp; agree that it can be used and shared freely.
+<br>
+<img alt="" src="../assets/image30.png" />
+<br>
+<em>Uploading new Contribution from Backend</em>.
+<br>
+<img alt="" src="../assets/image31.png" />
+<br>
+<em>View / Manage Contribution Images</em>.
+<br>
+Images can be uploaded from the ISAC-SIMO Mobile Application. Similarly, any application can implement the API to integrate crowdsource functionality.</p>
+<h3 id="public-projects"><a class="toclink" href="#public-projects"><span style="color:green">Public Projects</span></a></h3>
+<p><strong>Permissions</strong>: Admin (All), Project Admin (Own), User (View/Join/Contribute)
+<br>
+This feature allows Admin &amp; Project Admin to easily upgrade and share Projects publicly. To share the Project, and make it available to see and contribute by other users, it must be marked as Public (via the Project Create/Edit form)
+<br>
+<img alt="" src="../assets/image32.png" />
+<br>
+After the Project has been marked as Public, it will immediately be visible in the Public Projects Page and users can view the Project Details and Join the Project themself.
+<br>
+<img alt="" src="../assets/image33.png" />
+<br>
+The Public Projects can be searched by Name, Description &amp; Linked Object Types. Users can filter to show only the Joined Projects as well. It also conveniently shows the option to Join/Leave any Project. After the user Joins the Project, they will see the object types from this project in the list on the mobile application.
+By clicking on the “View More” button, users can view the Object Types linked to this project as well as the Classifier Pipeline used to test the objects. They can view the Classifier Information and even download the Offline Model if it exists.
+<br>
+<img alt="" src="../assets/image34.png" />
+It also shows if the Classifier is Watson Model or not, as well as if it is Post-Processor, Pre-Processor, Detect Model, Watson Classifier or Local Classifier. The Search option allows you to filter by query.</p>
+<p>Here, if Admin or Project Admin has marked any Object Type as “Wishlist” then the Contribute button will be visible. To Mark Object Type as Wishlist it can be done from Object Types Page and clicking on the little “Add to Wishlist” (Bookmark Icon) button. 
+⚠ Note that, this can only be done if the Project it is linked to is marked as Public
+<br>
+<img alt="" src="../assets/image35.png" />
+<br>
+To Contribute, as mentioned above, users can click the Contribute button (Also available inside View Contribution Page). To Contribute, the form should be filled with Title, Description explaining the contribution itself. And, can also include one file (zipped multiple files) with required documents and models. After the Contribution has been submitted, the Admin or Project Admin of that particular Project can review the contribution and can mark it as “Helpful”. Other users can then view all Helpful Contributions along with their own. (And Edit or Delete their Own Contribution if required)</p>
+<p>Admin or Project Admin can also temporarily unmark Project as Public to stop receiving contributions. But, they will still be able to manage old contributions. (Unless removed from the Project)</p>
+<p><img alt="" src="../assets/image36.png" />
+<br>
+<em>The Contribution Form</em>.
+<br>
+<img alt="" src="../assets/image37.png" />
+<br>
+<em>View Contributions</em>.
+<br>
+<img alt="" src="../assets/image38.png" />
+<br>
+<em>Mark Contribution as helpful (By Admin or Project Admin)</em>.
+<br></p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.isac-simo.net/"> ISAC-SIMO </a>| <a href="https://buildchange.org/"> Build Change </a>| <a href="https://www.ibm.com/"> IBM</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>

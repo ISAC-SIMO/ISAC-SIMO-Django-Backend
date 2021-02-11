@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        
+        
+        <link rel="canonical" href="https://www.isac-simo.net/developer-guide/">
+        <link rel="shortcut icon" href="../img/favicon.ico">
+        <title>Developer Guide - ISAC-SIMO</title>
+        <link href="../css/bootstrap.min.css" rel="stylesheet">
+        <link href="../css/font-awesome.min.css" rel="stylesheet">
+        <link href="../css/base.css" rel="stylesheet">
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/styles/github.min.css">
+
+        <script src="../js/jquery-1.10.2.min.js" defer></script>
+        <script src="../js/bootstrap.min.js" defer></script>
+        <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/9.12.0/highlight.min.js"></script>
+        <script>hljs.initHighlightingOnLoad();</script> 
+    </head>
+
+    <body>
+        <div class="navbar fixed-top navbar-expand-lg navbar-dark bg-primary">
+            <div class="container">
+                <a class="navbar-brand" href="..">ISAC-SIMO</a>
+                <!-- Expander button -->
+                <button type="button" class="navbar-toggler" data-toggle="collapse" data-target="#navbar-collapse">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+
+                <!-- Expanded navigation -->
+                <div id="navbar-collapse" class="navbar-collapse collapse">
+                        <!-- Main navigation -->
+                        <ul class="nav navbar-nav">
+                            <li class="navitem">
+                                <a href=".." class="nav-link">Home</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../getting-started/" class="nav-link">Getting Started</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../web-application/" class="nav-link">Web Application</a>
+                            </li>
+                            <li class="navitem">
+                                <a href="../mobile-application/" class="nav-link">Mobile Application</a>
+                            </li>
+                            <li class="navitem active">
+                                <a href="./" class="nav-link">Developer Guide</a>
+                            </li>
+                        </ul>
+
+                    <ul class="nav navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <a href="#" class="nav-link" data-toggle="modal" data-target="#mkdocs_search_modal">
+                                <i class="fa fa-search"></i> Search
+                            </a>
+                        </li>
+                            <li class="nav-item">
+                                <a rel="prev" href="../mobile-application/" class="nav-link">
+                                    <i class="fa fa-arrow-left"></i> Previous
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a rel="next" class="nav-link disabled">
+                                    Next <i class="fa fa-arrow-right"></i>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend" class="nav-link"><i class="fa fa-github"></i> GitHub</a>
+                            </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="container">
+            <div class="row">
+                    <div class="col-md-3"><div class="navbar-light navbar-expand-md bs-sidebar hidden-print affix" role="complementary">
+    <div class="navbar-header">
+        <button type="button" class="navbar-toggler collapsed" data-toggle="collapse" data-target="#toc-collapse" title="Table of Contents">
+            <span class="fa fa-angle-down"></span>
+        </button>
+    </div>
+
+    
+    <div id="toc-collapse" class="navbar-collapse collapse card bg-secondary">
+        <ul class="nav flex-column">
+            
+            <li class="nav-item" data-level="2"><a href="#introduction" class="nav-link">Introduction</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#installation" class="nav-link">Installation</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#configuration" class="nav-link">Configuration</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#migrating-running" class="nav-link">Migrating &amp; Running</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#database" class="nav-link">Database</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#django-apps" class="nav-link">Django Apps</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#getting-started-with-ibm-watson" class="nav-link">Getting started with IBM Watson</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#how-isac-simo-calls-watson-model" class="nav-link">How ISAC-SIMO Calls Watson Model</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#how-isac-simo-runs-the-model-pipeline" class="nav-link">How ISAC-SIMO Runs the Model Pipeline</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+            
+            <li class="nav-item" data-level="2"><a href="#how-to-deploy-manage-isac-simo-in-a-vpc-basics" class="nav-link">How tO Deploy &amp; Manage ISAC-SIMO in a VPC (Basics)</a>
+              <ul class="nav flex-column">
+              </ul>
+            </li>
+        </ul>
+    </div>
+</div></div>
+                    <div class="col-md-9" role="main">
+
+<h2 id="introduction"><a class="toclink" href="#introduction">Introduction</a></h2>
+<p>Intelligent Supervision Assistant for Construction - Sistema Inteligente de Monitoreo de Obra
+ISAC-SIMO is a system to validate that the intervention work done for homeowners has been done correctly and safely. It is a Build Change project supported by a grant from IBM.</p>
+<h3 id="before-you-start"><a class="toclink" href="#before-you-start">BEFORE YOU START</a></h3>
+<p>Before starting the project, you need to set these requirements.</p>
+<ul>
+<li>Python &gt; 3.7.x</li>
+<li>PostgreSQL &gt; 13.x</li>
+</ul>
+<h2 id="installation"><a class="toclink" href="#installation">Installation</a></h2>
+<p>View the Open-Source GitHub repository for <strong>ISAC-SIMO Django Backend</strong>.
+First Clone this Project in a suitable directory &amp; Change to project directory.</p>
+<pre><code class="language-bash">git clone https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend.git
+</code></pre>
+<pre><code class="language-bash">cd ISAC-SIMO-Django-Backend
+</code></pre>
+<p>Although <strong>not required</strong>, for the Development Environment in Linux / MacOS, it is recommended to set up a virtual environment. <strong>For Windows users, we suggest working without virtual env</strong>.</p>
+<pre><code class="language-bash">virtualenv -p python env
+</code></pre>
+<pre><code class="language-bash">source env/bin/activate
+</code></pre>
+<p>Now, inside the Project Root (either virtualenv or not) install all required packages using:</p>
+<pre><code class="language-bash">pip install -r requirements.txt
+</code></pre>
+<p>It will install all required packages and libraries. It might take some time.
+(You might have noticed Pipfile used by pipenv, ignore that for the time being.)</p>
+<p>There are furthermore packages that are required to be installed. The versions of these packages must be compatible with your systems Python version. So, you might need to verify and install them manually.
+<strong>Example</strong>: tensorflow might not have released their package for the Python version or the OS you are using, so you might need to verify this and install appropriate versions or update the Python itself.</p>
+<p>These are the Packages, that you need to verify: <a href="https://pypi.org/project/psycopg2/">psycopg2</a>, <a href="https://www.tensorflow.org/">tensorflow</a></p>
+<p>You can use <code>python manage.py</code> check to verify if they run successfully or not.</p>
+<h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>
+<p>You will need to set up a <code>.env</code> file with required configurations before starting the application. First, make a copy of <code>.env.example</code></p>
+<pre><code class="language-bash">cp .env.example .env
+</code></pre>
+<p><em>Change cp to copy for windows</em></p>
+<p>Modify the <code>.env</code> file as required</p>
+<ul>
+<li>ENV = “local” or “production” (Debug is only enabled in local environment by default)</li>
+<li>SECRET_KEY = Generate a key with https://djecrety.ir/</li>
+<li>DATABASE_URL = You can either modify isac_simo/database_settings.py file or override it by providing database url here. Make sure you have created the database successfully.</li>
+<li>IBM_API_KEY = Watson API Key to use by default (i.e. if not provided in any project / classifiers)</li>
+<li>IBM_BUCKET_ENDPOINT = IBM COS Endpoint</li>
+<li>IBM_BUCKET = COS Bucket Name</li>
+<li>IBM_BUCKET_TOKEN = COS Key/Token</li>
+<li>IBM_BUCKET_CRN = COS Bucket CRN</li>
+<li>PROJECT_FOLDER = Specify the Relative Path to Project Folder (e.g. /home/username/isac). Do not end the path with closing front or back slash ('/' or '\')</li>
+<li>MAINTENANCE = Enable or Disable Maintenance Mode</li>
+<li>PASSWORD = A Secret Password used for Webhook Requests</li>
+<li>GOOGLE_MAP_STREET_API = API Key for Google Map Street Views</li>
+<li>GOOGLE_MAP_API = API Key for Google Map Web</li>
+<li>CACHE_LOCATION = Relative Path to Store Cache, And also used to Sync Data between Threads (e.g. /var/tmp/django_cache Make sure the Path exists)</li>
+</ul>
+<h2 id="migrating-running"><a class="toclink" href="#migrating-running">Migrating &amp; Running</a></h2>
+<p>Now, if the environment is set up properly, you can migrate the tables to your database.</p>
+<pre><code class="language-bash">python manage.py migrate
+</code></pre>
+<p>And, Create a Super-User to get started.</p>
+<pre><code class="language-bash">python manage.py createsuperuser
+</code></pre>
+<p>Now, start the Application with:</p>
+<pre><code class="language-bash">python manage.py runserver
+</code></pre>
+<p>And visit <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a> in any modern browsers to open the application.</p>
+<p><strong>Note</strong>: <strong>/static/</strong> and <strong>/media/</strong> are the static files and media files location respectively.</p>
+<h2 id="database"><a class="toclink" href="#database">Database</a></h2>
+<p><img alt="" src="../assets/image58.png" /></p>
+<p><em>Above is a rough Database Table Relationship Diagram.</em></p>
+<p>The Tables and their purpose are described below. Here, Django Model is representing respective tables and all available Columns and Getters can be viewed in Django Model Files.</p>
+<ul>
+<li><strong>User</strong>: Stores the users themselves, their information and user type. It is used to Login users. User Types can be any of "user", "engineer", “government", “project_admin", “admin".</li>
+<li><strong>Projects</strong>: Stores Project Information along with guest &amp; public boolean fields in it.</li>
+<li><strong>Image</strong>: The tested images information like title, latitude, longitude, description, added by etc.</li>
+<li><strong>ImageFile</strong>: Many-To-One Relation with Image Model, which stores the individual image data. The file location, result, score, pipeline, verified status etc. are some fields.</li>
+<li><strong>OfflineModel</strong>: Stores the Offline/Local Models information and file location along with the model types, format, label etc.</li>
+<li><strong>ObjectType</strong>: Stores Object information like name, instruction, image, wishlist &amp; verified status along with link to chosen Project.</li>
+<li><strong>Classifier</strong>: Stores all Classifier/Model information which includes linking of Offline Model, Watson Classifier, Watson Object Detection with specific Object Type. The Order column determines in which order the Classifier will run in the Pipeline (i.e. Pipeline of Same Object Type)</li>
+<li><strong>FileUpload</strong>: Stores any other files (useful for Helper Models &amp; Scripts) that can be uploaded.</li>
+<li><strong>Crowdsource</strong>: Stores Images uploaded in Crowdsource by users with different information.</li>
+<li><strong>Contribution</strong>: Stores Contribution files and information for specific Object Type of a Project</li>
+</ul>
+<h2 id="django-apps"><a class="toclink" href="#django-apps">Django Apps</a></h2>
+<p>The Installed Apps used in this project can be found inside <strong>“main”</strong>, <strong>”projects”</strong>, <strong>“api”</strong>, <strong>“map”</strong>, <strong>“crowdsource”</strong> directories. These apps have their own purposes. These directories contain their own templates, models, forms, serializers, urls, views etc.
+The <strong>“main”</strong> app mostly handles User Model, Registration, Login and User Management by Admin.
+The <strong>“projects”</strong> app handles Project Model and its CRUD, Public Projects &amp; Contributions.
+The <strong>“map”</strong> app handles Google Map Street View based image testing using a selected pipeline.
+The <strong>“crowdsource”</strong> app handles Crowdsource Model, API and all of its controllers.
+The <strong>“api”</strong> app is the largest among all, which handles all remaining models (Image, Image File, Object Type, Classifier, Offline Model, File Upload and Contribution). It contains all controllers, API serializers and views to handle all requests. It also contains a helpers.py file that handles all of Image Tests, Watson API Requests, Pipeline Recursion, running Detect Model, running Classifier, Offline Model tests, Image Processing, Testing Models (Quick Tests), Re-Training &amp; Creating Watson Model and more.</p>
+<h3 id="files-and-their-uses"><a class="toclink" href="#files-and-their-uses"><span style="color:green">Files and their Uses:</span></a></h3>
+<ul>
+<li><code>urls.py</code> - Handle routes for both web and api</li>
+<li><code>views.py</code> - Controller for both web and api</li>
+<li><code>forms.py</code> - Manages Django Web Forms</li>
+<li><code>models.py</code> - Manages Models (Database Table Object)</li>
+<li><code>serializers.py</code> - Manages api serializer for different models along with create, edit functions.</li>
+<li><code>middleware.py</code> - Contains middleware handlers (like Maintenance Mode Detection etc.)</li>
+<li><code>helpers.py</code> - Many helper functions like watson api call, offline model run, tests etc.</li>
+<li><code>migrations/*</code> - Contains all Database Migrations.</li>
+<li><code>templates/*.html</code> - Contains Django Web Templates &amp; Master wrapper.</li>
+</ul>
+<h2 id="getting-started-with-ibm-watson"><a class="toclink" href="#getting-started-with-ibm-watson">Getting started with IBM Watson</a></h2>
+<p>You know that, with <strong>ISAC-SIMO</strong> you can create a model pipeline to test provided images. These models/classifiers can be local offline models like h5, python script etc. Or, you can also use IBM Watson Classifier and Object Detection Model, as in a lot of cases this can be convenient and even better. 
+To create your own IBM Watson Classifiers and Object Detection Model, you should first register and create your account. Visit here to learn more about Watson <a href="https://www.ibm.com/watson">https://www.ibm.com/watson</a>
+After registering, you can create a new Watson Studio here, <a href="https://cloud.ibm.com/catalog/services/watson-studio">https://cloud.ibm.com/catalog/services/watson-studio</a></p>
+<p>On Successful Watson Studio creation, you are able to access this page via Resource List.</p>
+<p><img alt="" src="../assets/image59.png" /></p>
+<p>The API Key can be copied and used in either <code>IBM_API_KEY</code> environment variable, Or users can also use this while Creating/Editing Project and Classifier Model</p>
+<p><img alt="" src="../assets/image60.png" /></p>
+<p>Clicking the <strong>“Launch Watson Studio”</strong> button you can open the Watson dashboard, where classifiers and object detection models can be created and trained. You can learn more about Watson from their documentation. After you have trained a new Model, you can use it in the ISAC-SIMO application. Just copy the “collection ID” or “classifier ID” and use it while creating the Pre-Trained Model. Then put the API Key as shown before. (You can also test Pre-Built Models)</p>
+<p>ISAC-SIMO also allows you to create a Classifier from the app itself, which might be easier. Now, you should be able to create and use Watson models with <strong>ISAC-SIMO</strong> easily.</p>
+<h2 id="how-isac-simo-calls-watson-model"><a class="toclink" href="#how-isac-simo-calls-watson-model">How ISAC-SIMO Calls Watson Model</a></h2>
+<p>There are multiple ways to work with Watson via Python Script. ISAC-SIMO uses simple API requests attaching files and content to the request body.
+ <a href="https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3#introduction">Documentation Here</a>
+Most of all API calls are handled by <code>api/helpers.py</code> file. It uses requests library to send header, data, files as required for the watson api.
+As per the Model/Classifier added by <strong>ISAC-SIMO</strong> users, it can determine whether to call Watson API or run Pre/Post Processor or Python Scripts from the pipeline.</p>
+<h2 id="how-isac-simo-runs-the-model-pipeline"><a class="toclink" href="#how-isac-simo-runs-the-model-pipeline">How ISAC-SIMO Runs the Model Pipeline</a></h2>
+<p>As we know, different Object Types can have different pipelines of classifiers that are run when testing user uploaded images. When creating these classifiers/models for any object type, admin or project-admin can provide the order in which the model runs.</p>
+<p><img alt="" src="../assets/image61.png" /></p>
+<p>Programmatically, we use recursion techniques to run pipelines in order. The <code>api/helpers.py</code> file has a function named test_image which runs the test on uploaded images and recursively passes the model response to the next model in the pipeline.
+If it is a preprocessor model, it sends the image and expects an image to be returned in opencv format. Similarly, postprocessors should return their own standard response. If the model is watson classifier or object detection then it is sent via api and parses the response as required. For More information refer to even more detailed <a href="https://www.docs.isac-simo.net/">Documentation Here</a> which also shows examples of offline/local models.</p>
+<h2 id="how-to-deploy-manage-isac-simo-in-a-vpc-basics"><a class="toclink" href="#how-to-deploy-manage-isac-simo-in-a-vpc-basics">How tO Deploy &amp; Manage ISAC-SIMO in a VPC (Basics)</a></h2>
+<p>This section only explains the basics, on how to deploy ISAC-SIMO Django Application to a fresh VPC.</p>
+<h3 id="create-virtual-private-cloud-with-ibm-cloud"><a class="toclink" href="#create-virtual-private-cloud-with-ibm-cloud"><span style="color:green">Create Virtual Private Cloud with IBM Cloud:</span></a></h3>
+<p>You can get started with <a href="https://cloud.ibm.com/vpc-ext/overview">IBM VPC Here</a></p>
+<p><img alt="" src="../assets/image62.png" /></p>
+<p>From the VPCs tab, you can view and create new VPC for your server.
+While creating a new VPC, you need to choose to enable SSH, Ping, choose an appropriate server, IP range and enable Public Gateway. Click on the recently clicked VPC and create Subnets for your server.</p>
+<p><img alt="" src="../assets/image63.png" /></p>
+<p>Now, you need to add your SSH Key so that you can shh to any VPC instance you will create. Using the SSH Keys tab you can manage ssh access.
+<img alt="" src="../assets/image64.png" /></p>
+<p>Now, you can create a New Virtual Server Instance using the sidebar tab</p>
+<p><img alt="" src="../assets/image65.png" /></p>
+<p>When creating a new instance, choose an appropriate Operating System (Linux is preferable). Select the SSH key you added, choose desired Profile/Server Type and choose the VPC you created earlier. This should set up a new VPC Instance.
+To ssh and access this instance from the web you need to create a floating IP and assign the VPC to it. From the Floating IPs sidebar tab you can create and manage <a href="https://cloud.ibm.com/vpc-ext/network/floatingIPs">Floating ips</a>.
+Now, in the Virtual Server Instances page you should see Floating IP in the table.</p>
+<p>You can then SSH to the server, using the Floating IP, ssh <code>xx.xx.xx.xx</code>
+As most of the VPC will be a fresh installation, you might need to install <code>git</code>, <code>python3</code>, <code>nano</code> and other basic commands and tools before you get started.</p>
+<p><img alt="" src="../assets/image66.png" /></p>
+<p><a href="#installation">Just like installing</a> in the local machine on linux, you first need to Clone the project in the desired directory. Make sure there is proper access right to the directory. Then firstly, make sure you have postgres server installed and running. Create a database and put DATABASE_URL in the .env file. Then, create a virtual environment, install the requirements, configure .env file, migrate and create a super user.</p>
+<p>In most VPC you should also enable port 80 using firewall-cmd or similar commands.</p>
+<p>These documentations will be handy while setting up a fresh VPC with Django.</p>
+<ul>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04">https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04</a></li>
+<li><a href="https://www.redhat.com/en/blog/setting-django-application-rhel-8-beta">https://www.redhat.com/en/blog/setting-django-application-rhel-8-beta</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-centos-7">https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-centos-7</a></li>
+</ul>
+<p>It will help you set up Gunicorn and Nginx with Supervisord to run the django application at port 80. And, the 3rd link will help you set up and install a let's encrypt certificate in your server with auto update. Log Rotate, Error Pages, Managing unnecessary open ports are some other things you might want to do.</p></div>
+            </div>
+        </div>
+
+        <footer class="col-md-12">
+            <hr>
+            <p>&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.isac-simo.net/"> ISAC-SIMO </a>| <a href="https://buildchange.org/"> Build Change </a>| <a href="https://www.ibm.com/"> IBM</a>.</p>
+        </footer>
+        <script>
+            var base_url = "..",
+                shortcuts = {"help": 191, "next": 78, "previous": 80, "search": 83};
+        </script>
+        <script src="../js/base.js" defer></script>
+        <script src="../search/main.js" defer></script>
+
+        <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="dialog" aria-labelledby="searchModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="searchModalLabel">Search</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+                <p>
+                    From here you can search these documents. Enter
+                    your search terms below.
+                </p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" placeholder="Search..." id="mkdocs-search-query" title="Type search term here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div><div class="modal" id="mkdocs_keyboard_modal" tabindex="-1" role="dialog" aria-labelledby="keyboardModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h4 class="modal-title" id="keyboardModalLabel">Keyboard Shortcuts</h4>
+                <button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+            </div>
+            <div class="modal-body">
+              <table class="table">
+                <thead>
+                  <tr>
+                    <th style="width: 20%;">Keys</th>
+                    <th>Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td class="help shortcut"><kbd>?</kbd></td>
+                    <td>Open this help</td>
+                  </tr>
+                  <tr>
+                    <td class="next shortcut"><kbd>n</kbd></td>
+                    <td>Next page</td>
+                  </tr>
+                  <tr>
+                    <td class="prev shortcut"><kbd>p</kbd></td>
+                    <td>Previous page</td>
+                  </tr>
+                  <tr>
+                    <td class="search shortcut"><kbd>s</kbd></td>
+                    <td>Search</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+
+    </body>
+</html>
