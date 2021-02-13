@@ -180,6 +180,20 @@ Terminal Output is visible and all commands are sanitized properly.
 <br>
 ![](./assets/image26.png)
 
+##Translator
+**Permissions**: Admin (All)
+<br>
+Only Admin has the ability to view and edit the translator. Translator can be access from the dashboard sidebar. Language can be toggle from the navbar.
+
+![](./assets/image67.png)
+*Languages list and toggler*
+
+<br>
+
+![](./assets/image68.JPG)
+*Trasnlator Form*
+
+
 ##Miscellaneous
 ### <span style="color:green">Right Sidebar</span>
 **Permissions**: Admin (All), Project Admin (Dump JSON Image Data)
