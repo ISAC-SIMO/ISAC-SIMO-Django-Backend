@@ -65,7 +65,7 @@
   <div class="wrapper">
 
     <!-- Navbar -->
-    <nav class="main-header navbar navbar-expand navbar-secondary navbar-light">
+    <nav class="main-header navbar navbar-expand navbar-light">
       <!-- Left navbar links -->
       <ul class="navbar-nav">
         <li class="nav-item">
@@ -93,6 +93,27 @@
       <ul class="navbar-nav ml-auto">
         <!-- Messages Dropdown Menu -->
         {% if user.is_authenticated %}
+        <li class="nav-item">
+        <a class="nav-link">V 1.2.1</a>
+        </li>
+            <li class="nav-item">
+          {% get_current_language as LANGUAGE_CODE %}
+          {% get_available_languages as LANGUAGES %}
+          {% get_language_info_list for LANGUAGES as languages %}
+          <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+              <input name="next" type="hidden" value="{{ redirect_to }}" />
+              <div class="form-group">
+                  <select name="language" class="custom-select form-control-border" style="border-radius: 10px;" onchange="this.form.submit()">
+                      {% for language in languages %}
+                          <img src="https://www.sic-info.org/wp-content/uploads/2014/01/np.png" alt="">
+                          <option style="background-image: url('https://www.sic-info.org/wp-content/uploads/2014/01/np.png')no-repeat 100% 100%;" {% if LANGUAGE_CODE == language.code %} selected {% endif %} value="{{ language.code }}">
+                              {{ language.name }}</option>
+
+                      {% endfor %}
+                  </select>
+              </div>
+          </form>
+      </li>
         <li class="nav-item nav-icon">
           <a title="Logout" data-toggle="tooltip" data-placement="left" class="nav-link" style="padding-left: 3px;padding-right: 3px;" onclick="$('.wrapper').animate({ opacity:'0'},{ queue: false, duration: 300 }).hide('slide', {percent:0}, 600);" href="{% url 'logout' %}">
             <i class="fas fa-power-off"></i>
@@ -121,22 +142,6 @@
             <i class="fas fa-th-large"></i>
           </a>
         </li>
-          {% get_current_language as LANGUAGE_CODE %}
-          {% get_available_languages as LANGUAGES %}
-          {% get_language_info_list for LANGUAGES as languages %}
-          <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
-              <input name="next" type="hidden" value="{{ redirect_to }}" />
-              <div class="form-group">
-                  <select name="language" class="custom-select form-control-border" style="border-radius: 10px;" onchange="this.form.submit()">
-                      {% for language in languages %}
-                          <img src="https://www.sic-info.org/wp-content/uploads/2014/01/np.png" alt="">
-                          <option style="background-image: url('https://www.sic-info.org/wp-content/uploads/2014/01/np.png')no-repeat 100% 100%;" {% if LANGUAGE_CODE == language.code %} selected {% endif %} value="{{ language.code }}">
-                              {{ language.name }}</option>
-
-                      {% endfor %}
-                  </select>
-              </div>
-          </form>
       </ul>
     </nav>
     <!-- /.navbar -->
@@ -147,11 +152,11 @@
       <a href="{% url 'dashboard' %}" class="brand-link" style="overflow: hidden;position: relative;">
         <div class="ribbon-wrapper">
           <style>.ribbon-wrapper .ribbon::after, .ribbon-wrapper .ribbon::before{content:none;}</style>
-          <div class="ribbon" style="right: 9px;top: 14px;width:100px;transform: rotate(46deg);background-color: #6384a9!important;letter-spacing: 2px;user-select:none;">BETA</div>
+          <div class="ribbon" style="right: 9px;top: 14px;width:100px;transform: rotate(46deg);background-color: #6384a9!important;color:#ffff;letter-spacing: 2px;user-select:none;">BETA</div>
         </div>
         <img src="{% static 'dist/img/logo.png' %}" alt="ISAC SIMO"
           class="brand-image img-circle elevation-3" style="opacity: .8">
-        <span class="brand-text font-weight-light">ISAC-SIMO</span>
+        <span class="brand-text font-weight-bold">ISAC-SIMO</span>
       </a>
 
       <!-- Sidebar -->
@@ -496,7 +501,7 @@
 
     <!-- /.content-wrapper -->
     <footer class="main-footer">
-      <strong>Copyright &copy; 2020 <a href="#!">Build Change</a>.</strong>
+      <strong>&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.isac-simo.net/"> ISAC-SIMO </a>| <a href="https://buildchange.org/"> Build Change </a>| <a href="https://www.ibm.com/"> IBM</a> |</strong>
       All rights reserved.
       <div class="float-right d-none d-sm-inline-block">
         <b>Version</b> 0.2.0

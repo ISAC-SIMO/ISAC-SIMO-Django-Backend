@@ -9,6 +9,7 @@ edit_uri: ""
 theme:
     # name-options[ mkdocs, readthedocs]
     name: mkdocs
+    highlightjs: true
     # custom_dir: docs_theme
 
 markdown_extensions:
@@ -24,3 +25,5 @@ nav:
 
 extra:
   generator: false
+
+extra_css: [extra.css]

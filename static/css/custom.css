@@ -41,3 +41,10 @@ blockquote{color:#eee !important;}
 .dt-button-background{display: none !important;}
 .toasts-bottom-right{bottom: 8px;right: 8px;}
 .card-footer .badge{font-size: 82%;border-radius:3px;padding: .35em 0.8em;}
+
+.navbar{
+    padding-top: .5rem;
+    padding-right: .5rem;
+    padding-left: .5rem;
+    padding-bottom: 0rem;
+}

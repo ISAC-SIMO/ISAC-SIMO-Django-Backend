@@ -1,0 +1,13 @@
+.bg-primary {
+    background-image: -webkit-gradient(linear, left top, left bottom, from(#9ec74e), color-stop(60%, #9ec74e), to(#9ec74e));
+    background-image: linear-gradient(#9ec74e, #9ec74e 60%, #9ec74e);
+}
+footer a{
+    color: #6383a8 !important;
+}
+.bs-sidebar a{
+    color: #6383a8 !important;
+}
+.container .row a{
+    color: #6383a8 !important;
+}
