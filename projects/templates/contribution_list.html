@@ -101,7 +101,7 @@
                 <hr style="margin:0.5rem;"/>
                 {% if not joined and not user.is_admin %}
                 <div class="card-body pt-0">
-                  <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Join {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-success">Join Project To Contribute</a>
+                  <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Join {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-primary">Join Project To Contribute</a>
                   <form action="{% url 'public_project_join' project.id %}?join=true" method="POST" id="form-{{ project.id }}" class="d-inline">
                     {% csrf_token %}
                   </form>

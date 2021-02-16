@@ -28,7 +28,7 @@
                   {% csrf_token %}
                 </form>
               {% else %}
-                <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Join {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-success">Join Project</a>
+                <a onclick="confirmWithForm(event, 'form-{{ project.id }}', 'Join {{project.project_name|title}}')" href="{% url 'public_project_join' project.id %}" class="btn btn-primary">Join Project</a>
                 <form action="{% url 'public_project_join' project.id %}?join=true" method="POST" id="form-{{ project.id }}" class="d-inline">
                   {% csrf_token %}
                 </form>

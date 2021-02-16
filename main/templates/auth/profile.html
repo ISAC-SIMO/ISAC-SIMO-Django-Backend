@@ -20,7 +20,7 @@
                             {% csrf_token %}
                             {{ form|crispy }}
                             <p><small>{% trans "User Type" %}: <b>{{ user.user_type|title }}</b></small></p>
-                            <button type="submit" class="btn btn-success">{% trans "Update User Info" %}</button>
+                            <button type="submit" class="btn btn-primary">{% trans "Update User Info" %}</button>
                         </form>
                     </div>
                 </div>
@@ -32,7 +32,7 @@
                 <div class="card-body">
                     <div class="col-sm-12">
                         <h4>{% trans "Want to Generate Access Token to use with APIs" %}?</h4>
-                        <button type="submit" id="generate-token" class="btn btn-success">{% trans "Generate Token" %}</button>
+                        <button type="submit" id="generate-token" class="btn btn-primary">{% trans "Generate Token" %}</button>
                     </div>
                 </div>
             </div>

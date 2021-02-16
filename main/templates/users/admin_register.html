@@ -36,9 +36,9 @@
                               {{ form|crispy }}
 
                               {% if request.resolver_match.url_name == 'update_user' %}
-                                <button type="submit" class="btn btn-success"> {% trans "Update User" %}</button>
+                                <button type="submit" class="btn btn-primary"> {% trans "Update User" %}</button>
                               {% else %}  
-                                <button type="submit" class="btn btn-success"> {% trans "Register User" %}</button>
+                                <button type="submit" class="btn btn-primary"> {% trans "Register User" %}</button>
                               {% endif %}  
                           </form>
                     </div>

@@ -11,3 +11,6 @@ footer a{
 .container .row a{
     color: #6383a8 !important;
 }
+footer a{
+    font-weight: bold;
+}
