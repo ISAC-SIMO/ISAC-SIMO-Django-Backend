@@ -8,9 +8,17 @@ edit_uri: ""
 
 theme:
     # name-options[ mkdocs, readthedocs]
-    name: mkdocs
+    name: material
     highlightjs: true
+    custom_dir: docs/overrides
+    favicon: favicon.png
+    logo: logo.png
+    features:
+      - navigation.instant
+      - navigation.tabs
     # custom_dir: docs_theme
+    palette:
+      primary: white
 
 markdown_extensions:
  - toc:

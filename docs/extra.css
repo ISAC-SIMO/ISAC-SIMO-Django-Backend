@@ -1,16 +1,31 @@
-.bg-primary {
-    background-image: -webkit-gradient(linear, left top, left bottom, from(#9ec74e), color-stop(60%, #9ec74e), to(#9ec74e));
-    background-image: linear-gradient(#9ec74e, #9ec74e 60%, #9ec74e);
-}
-footer a{
-    color: #6383a8 !important;
-}
-.bs-sidebar a{
-    color: #6383a8 !important;
-}
-.container .row a{
-    color: #6383a8 !important;
-}
-footer a{
-    font-weight: bold;
-}
+
+:root {
+
+    /* Primary color shades */
+    --md-primary-fg-color: #861f41;
+    --md-primary-fg-color--light: #861f4194;
+    --md-primary-fg-color--dark: #ac325a;
+    --md-primary-bg-color: hsla(0, 0%, 100%, 1);
+    --md-primary-bg-color--light: hsla(0, 0%, 100%, 0.7);
+    --md-text-link-color: hsla(231, 48%, 48%, 1);
+
+    /* Accent color shades */
+    --md-accent-fg-color: rgb(98, 18, 189);
+    --md-accent-fg-color--transparent: hsla(189, 100%, 37%, 0.1);
+    --md-accent-bg-color: hsla(0, 0%, 100%, 1);
+    --md-accent-bg-color--light: hsla(0, 0%, 100%, 0.7);
+  }
+
+  :root > * {
+
+    /* Code block color shades */
+    --md-code-bg-color: hsla(0, 0%, 96%, 1);
+    --md-code-fg-color: hsla(200, 18%, 26%, 1);
+
+    /* Footer */
+    --md-footer-bg-color: #ffffff;
+    --md-footer-bg-color--dark: hsla(0, 0%, 91%, 0.09);
+    --md-footer-fg-color: hsla(231, 48%, 48%, 1);
+    --md-footer-fg-color--light: #6383a8;
+    --md-footer-fg-color--lighter:#6383a8;
+  }
