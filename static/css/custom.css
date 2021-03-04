@@ -85,3 +85,22 @@ blockquote{color:#eee !important;}
 .main-footer a{
     color: #6384a9!important;
 }
+
+/* Image Test Page */
+.object-type-card {
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.object-type-card:hover {
+    background-color: #eee;
+}
+
+.object-type-card-icon {
+    font-size: 2rem;
+    position: absolute;
+    right: 10px;
+    top: 50%;
+    transform: translate(0, -50%);
+    transition: all 0.3s ease;
+}

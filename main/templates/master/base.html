@@ -444,8 +444,18 @@
                 </p>
               </a>
             </li>
-           <hr style="margin:0.5em 0;border-top:1px solid #9ec54d;"/>
-          <li class="nav-item">
+            <li class="nav-item">
+              <a href="{% url 'images.test' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'images.test' %} active {% endif %}">
+                <i class="nav-icon fas fa-check-circle"></i>
+                <p title="Use Our Mobile Application for better User Interface.">
+                  {% trans "Test Image" %}
+                </p>
+              </a>
+            </li>
+            {% if user.is_admin %}
+            <hr style="margin:0.5em 0;border-top:1px solid #9ec54d;"/>
+            <li class="nav-item">
               <a href="{% url 'rosetta-file-list' 'project' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'translator' %} active {% endif %}">
                 <i class="nav-icon fas fa-language"></i>
@@ -454,6 +464,7 @@
                 </p>
               </a>
             </li>
+            {% endif %}
           </ul>
         </nav>
         <!-- /.sidebar-menu -->

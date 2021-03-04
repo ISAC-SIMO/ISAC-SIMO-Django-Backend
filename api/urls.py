@@ -7,6 +7,7 @@ urlpatterns = [
     # Image & Image Files
     path('image', views.images, name="images"),
     path('image/add', views.addImage, name="images.add"),
+    path('image/test', views.testImage, name="images.test"),
     path('image/update/<int:id>', views.updateImage, name="images.update"),
     path('image/delete/<int:id>', views.deleteImage, name="images.delete"),
     path('image/send/to/retrain/<int:id>', views.retrainImage, name="images.retrain"),

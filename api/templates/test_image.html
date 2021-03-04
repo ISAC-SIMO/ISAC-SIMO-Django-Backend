@@ -1,0 +1,200 @@
+{% extends dash %}
+{% load i18n %}
+{% block title %}
+  {% trans "Test Image" %}
+{% endblock title %}
+
+{% block dashboard_title1 %}
+  {% trans "Test Image" %}
+{% endblock dashboard_title1 %}
+
+{% block dashboard_title2 %}
+  {% trans "ISAC-SIMO" %}
+{% endblock dashboard_title2 %}
+
+{% load static %}
+
+{% block content %}
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.js"></script>
+  <div id="result-container">
+  <form id="check-form" onsubmit="verify(event)" action="{% url 'images.test' %}" method="POST" class="form-group" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row">
+        <div class="col-sm-12 col-md-6">
+            <div class="card">
+                <div class="card-body">
+                  <script>
+                    const checks = {{data|safe}};
+                  </script>
+                  {% for check in checks %}
+                    <label for="check-{{check.id}}" style="display: block;">
+                      <div class="card">
+                        <div class="card-body object-type-card" style="padding: 1rem;">
+                          <input type="radio" value="{{check.id}}" onchange="updateCheck({{check.id}})" id="check-{{check.id}}" class="object-type-card-icon" name="object_type_id"/>
+                          <h4 class="mb-0">{{check.name}}</h4>
+                          <small>{{check.project}}</small>
+                        </div>
+                      </div>
+                    </label>
+                  {% endfor %}
+                </div>
+            </div>
+        </div>
+        <div class="col-sm-12 col-md-6">
+          <div class="card">
+            <div class="card-body right-card disabled">
+              <p>
+                <b>Name: </b><span id="check-name"></span><br/>
+                <span id="check-image"></span>
+                <b>Instruction: </b><span id="check-instruction"></span>
+              </p>
+              <input class="mb-2" type="file" onchange="addImage(event)" accept="image/x-png,image/jpeg" />
+              <div id="image-dropper"></div>
+              <layer id="disabled-layer" style="display:block;position:absolute;top:0;left:0;right:0;bottom:0;"></layer>
+              <br/>
+              <button type="submit" id="submit-btn" style="display: none;" class="btn btn-primary">{% trans "Test Image" %}</button>
+              <small id="msg-txt" style="display: none;font-size: 1.3em;">{% trans "Loading..." %}</small>
+            </div>
+          </div>
+        </div>
+    </div>
+  </form>
+  </div>
+{% endblock content %}
+
+{% block script %}
+  <style>
+    .card-body.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+  </style>
+  <script>
+    var check = null;
+    var cropme = null;
+    function updateCheck(id) {
+      check = checks.filter((c) => c.id == id)[0];
+      toggleDisable();
+    }
+
+    function toggleDisable() {
+      if(check) {
+        $('.right-card').removeClass("disabled");
+        $('#disabled-layer').css('display','none');
+        $('#check-name').text(check.name);
+        $('#check-instruction').text(check.instruction || 'N/A');
+        $('#check-image').html("<img src='"+check.image+"' style='height:100px;' alt='Instruction Image'/><br/>");
+      } else {
+        $('.right-card').addClass("disabled");
+        $('#disabled-layer').css('display','block');
+        $('#check-name').text("");
+        $('#check-instruction').text("");
+        $('#check-image').html("");
+        $('#submit-btn').css("display","none");
+      }
+    }
+
+    function addImage(event) {
+      var file = event.target.files[0];
+      getBase64(file, function(result) {
+        var element = document.getElementById('image-dropper');
+        if(cropme) {
+          cropme.destroy();
+        }
+        cropme = new Cropme(element, {
+          "container": {
+            "width": "100%",
+            "height": 300
+          },
+          "viewport": {
+            "width": 250,
+            "height": 250,
+            "type": "square",
+            "border": {
+              "width": "2",
+              "enable": true,
+              "color": "#fff"
+            }
+          },
+          "zoom": {
+            "enable": true,
+            "mouseWheel": true,
+            "slider": true
+          },
+          "rotation": {
+            "slider": true,
+            "enable": true,
+            "position": "left"
+          },
+          "transformOrigin": "viewport"
+        });
+        cropme.bind({
+          url: result
+        });
+        $('#submit-btn').css("display","inline-block");
+      })
+    }
+
+    function getBase64(file, callback) {
+      var reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = function () {
+        callback(reader.result);
+      };
+      reader.onerror = function (error) {
+        console.log('Error: ', error);
+      };
+    }
+
+    function dataURItoBlob(dataURI) {
+        var binary = atob(dataURI.split(',')[1]);
+        var array = [];
+        for(var i = 0; i < binary.length; i++) {
+            array.push(binary.charCodeAt(i));
+        }
+        return new Blob([new Uint8Array(array)], {type: 'image/png'});
+    }
+
+    function verify(event) {
+      event.preventDefault();
+      if(cropme) {
+        $('#submit-btn').css("display","none");
+        cropme.crop({
+          width: 250
+        }).then(function(res) {
+          let blob = dataURItoBlob(res)
+          $("#msg-txt").css("display","inline-block");
+
+          //var file = new File([res], ("web-upload-"+(new Date()).getTime()+".png") ,{ type: "image/png" });
+          var form = $('#check-form')[0];
+          var formData = new FormData(form);
+          formData.append('image', blob, ("web-upload-"+(new Date()).getTime()+".png"));
+          
+          $.ajax({
+              url: '{% url 'images.test' %}',
+              data: formData,
+              type: 'POST',
+              contentType: false,
+              processData: false,
+              success: function(res) {
+                $("#result-container").html(res);
+                $("#msg-txt").css("display","none");
+              },
+              error: function(err) {
+                resText = err.responseText;
+                try{
+                  resText = JSON.parse(resText)
+                  alert(resText.message)
+                } catch(e) {
+                  alert("Failed to Test Image")
+                }
+                $('#submit-btn').css("display","inline-block");
+                $("#msg-txt").css("display","none");
+              }
+          });
+        })
+      }
+    }
+  </script>
+{% endblock script %}

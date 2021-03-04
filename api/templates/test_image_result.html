@@ -1,0 +1,54 @@
+{% load i18n %}
+
+{% load static %}
+
+{% block content %}
+        <div class="row">
+            <div class="col-12">
+                <div class="card">
+                  <div class="card-body">
+                    <h4>Result:</h4>
+                    <small>Title: {{image.title}}</small><br/>
+                    <small>Description: {{image.description}}</small><br/>
+                    <hr/>
+                    {% for image_file in image_files.all %}
+                      <div class="card">
+                        <div class="card-body">
+                          <img src="{{image_file.file.url}}" style="height:200px;" alt="Tested Image"/>
+
+                          <p>{% if image_file.tested %}
+                            <b style="color:darkgreen;">Tested Successfully</b>
+                          {% else %}
+                            <b style="color:red;">Test Failed</b>
+                          {% endif %}</p>
+
+                          <p style="font-size:1.2em;">{% if image_file.result %}
+                            <b>Result:</b> {{image_file.result}}
+                          {% else %}
+                            <b>Result:</b> N/A
+                          {% endif %}</p>
+
+                          <p style="font-size:1.2em;">{% if image_file.score %}
+                            <b>Score:</b> {{image_file.score}}
+                          {% else %}
+                            <b>Score:</b> N/A
+                          {% endif %}</p>
+
+                          <textarea style="width: 80%;">{{image_file.pipeline_status}}</textarea>
+
+                          <br/>
+                          <a class="btn btn-sm btn-outline-secondary" href="">{% trans 'Back' %} <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></a>
+                        </div>
+                      </div>
+                    {% endfor %}
+                  </div>
+                </div>
+            </div>
+        </div>
+{% endblock content %}
+
+{% block script %}
+  <script>
+   
+  </script>
+{% endblock script %}

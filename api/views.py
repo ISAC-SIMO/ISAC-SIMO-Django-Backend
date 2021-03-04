@@ -138,6 +138,76 @@ def addImage(request, id = 0):
 
     return redirect("images")
 
+# Test Image for ANYONE Guest or Logged In
+def testImage(request, id = 0):
+    dash = request.user and not request.user.is_anonymous
+    if dash:
+        dash = "master/base.html"
+    else:
+        dash = "master/blank.html"
+    
+    if request.method == "GET":
+        checks = User().get_object_detect_json(request)
+        data = json.dumps(checks);
+        # print(checks);
+        return render(request,"test_image.html",{'checks':checks, 'dash':dash, 'data':data})
+    elif request.method == "POST":
+        # try:
+        files = request.FILES.getlist('image')
+        # print(files)
+        if(not files or len(files) <= 0):
+            return JsonResponse({'message':'No Image Provided'}, status=400)
+
+        project = None
+        object_type = None
+        force_object_type = None
+        # First check if object_type_id is provided
+        if request.POST.get('object_type_id', None):
+            if request.POST.get('object_type_id').isdigit():
+                object_type = ObjectType.objects.filter(id=request.POST.get('object_type_id')).get()
+                if object_type:
+                    project = object_type.project
+                    force_object_type = object_type.name.lower()
+            else:
+                return JsonResponse({'message':'Invalid Object Type Provided'}, status=400)
+        
+        if not project and not object_type:
+            return JsonResponse({'message':'Invalid Object Type / Project Provided'}, status=400)
+
+        instance = Image(project=project, description='Via Web Application')
+        if request.user and not request.user.is_anonymous:
+            instance.user_id = request.user.id
+        instance.save()
+
+        offline = False
+        detect_model = project.detect_model
+
+        try:
+            if project.offline_model and project.offline_model.file:
+                offline = True
+                detect_model = project.offline_model
+        except:
+            offline = False
+
+        i = 0
+        for f in files:
+            i = i + 1
+            photo = ImageFile(image=instance, file=f)
+            photo.save()
+            
+            ################
+            ### RUN TEST ###
+            ################
+            test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
+                
+            if(i>=8):
+                break
+
+        # messages.success(request, str(i)+" Image(s) Uploaded Successfully!")
+        return render(request,"test_image_result.html",{'image':instance, 'image_files':instance.image_files, 'auth': (request.user and not request.user.is_anonymous)})
+
+    return JsonResponse({'message':'Something Went Wrong'}, status=400)
+
 # Update Image + Append File + PATCH
 @user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def updateImage(request, id=0):
