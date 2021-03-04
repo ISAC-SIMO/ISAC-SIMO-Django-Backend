@@ -45,9 +45,8 @@
         <div id="toolbar">
             <form id="changelist-search" action="" method="get">
                 <div>
-                    <label for="searchbar"><img src="{% static "admin/img/icon_searchbox_rosetta.png" %}" alt="{% trans "Search" %}" /></label>
                     <input type="text" size="40" name="query" value="{% if query %}{{query}}{% endif %}" id="searchbar" tabindex="0" />
-                    <input type="submit" name="s" value="{% trans "Go" %}" />
+                    <input type="submit" name="s" value="{% trans "Search" %}" />
                 </div>
             </form>
         </div>
