@@ -643,7 +643,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
             continue
         
         # Else IF Not Test in Online Model
-        elif ( os.path.exists(save_to_path) and classifier.best_ibm_api_key()
+        elif ( os.path.exists(save_to_path) and classifier and classifier.best_ibm_api_key()
             and classifier_index < classifier_list.lenList(project,object_type)
             and check_and_get_classifier_ids ):
 

@@ -37,6 +37,8 @@
                         </div>
                       </div>
                     </label>
+                  {% empty %}
+                    <h3 style="color:maroon;">No checks available at the moment.</h3>
                   {% endfor %}
                 </div>
             </div>
@@ -84,7 +86,7 @@
         $('#disabled-layer').css('display','none');
         $('#check-name').text(check.name);
         $('#check-instruction').text(check.instruction || 'N/A');
-        $('#check-image').html("<img src='"+check.image+"' style='height:100px;' alt='Instruction Image'/><br/>");
+        $('#check-image').html("<img src='"+check.image+"' style='height:100px;max-width: 95%;' alt='Instruction Image'/><br/>");
       } else {
         $('.right-card').addClass("disabled");
         $('#disabled-layer').css('display','block');

@@ -3,7 +3,7 @@
 {% load static %}
 
 {% block content %}
-        <div class="row">
+        <div class="row" style="width:100%;">
             <div class="col-12">
                 <div class="card">
                   <div class="card-body">
@@ -14,16 +14,16 @@
                     {% for image_file in image_files.all %}
                       <div class="card">
                         <div class="card-body">
-                          <img src="{{image_file.file.url}}" style="height:200px;" alt="Tested Image"/>
+                          <img src="{{image_file.file.url}}" style="height:200px;max-width: 95%;border:1px solid #ddd;" alt="Tested Image"/>
 
                           <p>{% if image_file.tested %}
-                            <b style="color:darkgreen;">Tested Successfully</b>
+                            <b style="color:darkgreen;"><i class="fa fa-check-circle"></i> Tested Successfully</b>
                           {% else %}
-                            <b style="color:red;">Test Failed</b>
+                            <b style="color:red;"><i class="fa fa-times-circle"></i> Test Failed</b>
                           {% endif %}</p>
 
                           <p style="font-size:1.2em;">{% if image_file.result %}
-                            <b>Result:</b> {{image_file.result}}
+                            <b>Result:</b><br/><span class="result-val" style="display:inline-block;padding:7px;">{{image_file.result}}</span>
                           {% else %}
                             <b>Result:</b> N/A
                           {% endif %}</p>
@@ -34,13 +34,13 @@
                             <b>Score:</b> N/A
                           {% endif %}</p>
 
-                          <textarea style="width: 80%;">{{image_file.pipeline_status}}</textarea>
+                          <div style="width: 100%;" id="pipeline_status_{{image_file.id}}"></div>
 
-                          <br/>
-                          <a class="btn btn-sm btn-outline-secondary" href="">{% trans 'Back' %} <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></a>
                         </div>
                       </div>
                     {% endfor %}
+                    <br/>
+                    <a class="btn btn-sm btn-outline-secondary" href="">{% trans 'Back' %} <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></a>
                   </div>
                 </div>
             </div>
@@ -49,6 +49,55 @@
 
 {% block script %}
   <script>
-   
+   function parseStatusData(data, id) {
+      var pipeline_status_data = data;
+      var html = '<label class="swal2-label" style="font-size: 1.1em;margin-top: 20px;">Pipeline Status:</label>';
+      if(Object.keys(pipeline_status_data).length > 0){
+          Object.keys(pipeline_status_data).forEach(function(key){
+              if(pipeline_status_data[key]["result"]){
+                  html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+pipeline_status_data[key]["result"]+', <b>Score:</b> '+pipeline_status_data[key]["score"];
+                  if(pipeline_status_data[key]["message"]){
+                      let d = pipeline_status_data[key]["message"];
+                      if(Array.isArray(pipeline_status_data[key]["message"]) || typeof pipeline_status_data[key]["message"] === "object"){
+                          d = '<a href="#!" onclick="alert(JSON.stringify(JSON.parse(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\')),null,2))">View</a> | <a href="#!" onclick="prompt(\'Copy\',JSON.stringify(JSON.parse(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\')),null,2))">Copy</a>';
+                      }
+                      html = html + ', <b>Message:</b> '+d;
+                  }
+
+                  html = html + '</label>';
+              }else{
+                  let d = pipeline_status_data[key];
+                  if(Array.isArray(pipeline_status_data[key]) || typeof pipeline_status_data[key] === "object"){
+                      d = '<a href="#!" onclick="alert(JSON.stringify(JSON.parse(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\')),null,2))">View</a> | <a href="#!" onclick="prompt(\'Copy\',JSON.stringify(JSON.parse(decodeURIComponent(\''+encodeURIComponent(JSON.stringify(d))+'\')),null,2))">Copy</a>';
+                  }
+                  html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+d+'</label>';
+              }
+          })
+      }else{
+          html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;">No Status Data to Show</label>'
+      }
+      $("#pipeline_status_"+id).html(html);
+    }
+
+    {% for image_file in image_files.all %}
+      parseStatusData({{image_file.pipeline_status|safe}}, {{image_file.id}})
+    {% endfor %}
+
+    $('.result-val').each(function(i, obj) {
+      var val = obj.innerText;
+      val = val.split('|').map((x) => x.trim()).map((x) => x.split(":").map((i) => i.trim()).join(": ")).join('\n');
+      if(val.toLowerCase() == "go") {
+        obj.style.backgroundColor = "#eefbee";
+      } else if(val.toLowerCase() == "nogo" || val.toLowerCase() == "no go" ) {
+        obj.style.backgroundColor = "#ffe2e2";
+      } else {
+        obj.style.backgroundColor = "#ddd";
+      }
+      obj.innerText = val;
+    });
+
+    var old_data = JSON.parse(localStorage.getItem("old_data") || "[]");
+    old_data.push("{{image.id}}");
+    localStorage.setItem("old_data", JSON.stringify(old_data));
   </script>
 {% endblock script %}
