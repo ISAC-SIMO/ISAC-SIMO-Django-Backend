@@ -104,3 +104,27 @@ blockquote{color:#eee !important;}
     transform: translate(0, -50%);
     transition: all 0.3s ease;
 }
+
+ul.navbar-nav form > div > div > button {
+	height: 40px;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	padding: 0 5px !important;
+}
+
+.selectpicker-before {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-right: 5px;
+}
+
+.selectpicker-before .selectpicker {
+    visibility: hidden;
+    margin-right: 33px;
+}
+
+.bootstrap-select {
+    animation: 0.2s fader forwards;
+}

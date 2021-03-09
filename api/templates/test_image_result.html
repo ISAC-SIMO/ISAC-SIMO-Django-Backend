@@ -14,7 +14,7 @@
                     {% for image_file in image_files.all %}
                       <div class="card">
                         <div class="card-body">
-                          <img src="{{image_file.file.url}}" style="height:200px;max-width: 95%;border:1px solid #ddd;" alt="Tested Image"/>
+                          <img src="{{image_file.file.url}}" style="height:200px;max-width: 95%;border:1px solid #ddd;object-fit: contain;" alt="Tested Image"/>
 
                           <p>{% if image_file.tested %}
                             <b style="color:darkgreen;"><i class="fa fa-check-circle"></i> Tested Successfully</b>
@@ -40,7 +40,12 @@
                       </div>
                     {% endfor %}
                     <br/>
-                    <a class="btn btn-sm btn-outline-secondary" href="">{% trans 'Back' %} <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></a>
+                    <div style="display: flex;justify-content: space-between;align-items: center;">
+                      <a class="btn btn-sm btn-outline-secondary" href="">{% trans 'Back' %} <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></a>
+                      {% if request.user and not request.user.is_anonymous %}
+                      <a class="btn btn-sm btn-outline-secondary" href="{% url 'images' %}">{% trans 'View All Images' %} <i class="fa fa-image ml-1" style="font-size: 80%;"></i></a>
+                      {% endif %}
+                    </div>
                   </div>
                 </div>
             </div>

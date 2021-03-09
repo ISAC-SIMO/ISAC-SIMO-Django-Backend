@@ -96,16 +96,16 @@
         <!-- Messages Dropdown Menu -->
         {% if user.is_authenticated %}
         <li class="nav-item">
-        <a class="nav-link" style="margin-top: 0.2rem;">V 1.2.1</a>
+        <a class="nav-link d-none d-md-block">V 1.2.1</a>
         </li>
             {% get_current_language as LANGUAGE_CODE %}
             <li class="nav-item" style="display: flex">
-            <img src="{% static 'home/images/flags/'|add:LANGUAGE_CODE|add:'.png' %}" width="50px" height="40px" alt="Flag" style="margin-right:.5rem; ">
+            <img src="{% static 'home/images/flags/'|add:LANGUAGE_CODE|add:'.png' %}" class="d-none d-md-block" width="50px" height="40px" alt="Flag" style="margin-right:.5rem; ">
           {% get_available_languages as LANGUAGES %}
           {% get_language_info_list for LANGUAGES as languages %}
-          <form action="{% url 'set_language' %}" method="post">{% csrf_token %}
+          <form action="{% url 'set_language' %}" class="selectpicker-before" method="post">{% csrf_token %}
               <input name="next" type="hidden" value="{{ redirect_to }}" />
-              <div class="form-group">
+              <div class="form-group mb-0">
                   <select name="language" class="selectpicker"  onchange="this.form.submit()">
                       {% for language in languages %}
                           <option data-thumbnail="{% static 'home/images/flags/'|add:language.code|add:'.png' %}" {% if LANGUAGE_CODE == language.code %} selected {% endif %} value="{{ language.code }}">

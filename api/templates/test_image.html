@@ -20,7 +20,7 @@
   <div id="result-container">
   <form id="check-form" onsubmit="verify(event)" action="{% url 'images.test' %}" method="POST" class="form-group" enctype="multipart/form-data">
     {% csrf_token %}
-    <div class="row">
+    <div class="row m-0">
         <div class="col-sm-12 col-md-6">
             <div class="card">
                 <div class="card-body">
@@ -56,7 +56,7 @@
               <layer id="disabled-layer" style="display:block;position:absolute;top:0;left:0;right:0;bottom:0;"></layer>
               <br/>
               <button type="submit" id="submit-btn" style="display: none;" class="btn btn-primary">{% trans "Test Image" %}</button>
-              <small id="msg-txt" style="display: none;font-size: 1.3em;">{% trans "Loading..." %}</small>
+              <small id="msg-txt" style="display: none;font-size: 1.3em;">{% trans "Testing..." %}</small>
             </div>
           </div>
         </div>
