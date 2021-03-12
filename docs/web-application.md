@@ -101,8 +101,7 @@ The Response and data receivable by Offline Model is predefined and should follo
 
 **Technical Details on creating Offline Model can be found here**.
 <br>
-[https://www.isac-simo.net/app/offline_model/readme.md](https://www.isac-simo.net/app/offline_model/readme.md
-)
+[https://www.isac-simo.net/app/offline_model/readme.md](https://www.isac-simo.net/app/offline_model/readme.md){target="_blank"}
 ### <span style="color:green">Add Offline Model</span>
 ![](./assets/image15.png)
 <br>

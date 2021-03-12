@@ -15,4 +15,4 @@ image processing pipelines implemented.
 ![](./assets/image1.png "Detail" )
 *Overview of the ISAC-SIMO tool*
 
-[Download as PDF](ISAC_SIMO_Documentation_And_Guides.pdf)
+[Download as PDF](ISAC_SIMO_Documentation_And_Guides.pdf){target="_blank"}

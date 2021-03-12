@@ -37,7 +37,7 @@ It will install all required packages and libraries. It might take some time.
 There are furthermore packages that are required to be installed. The versions of these packages must be compatible with your systems Python version. So, you might need to verify and install them manually.
 **Example**: tensorflow might not have released their package for the Python version or the OS you are using, so you might need to verify this and install appropriate versions or update the Python itself.
 
-These are the Packages, that you need to verify: [psycopg2](https://pypi.org/project/psycopg2/), [tensorflow](https://www.tensorflow.org/)
+These are the Packages, that you need to verify: [psycopg2](https://pypi.org/project/psycopg2/){target="_blank"}, [tensorflow](https://www.tensorflow.org/){target="_blank"}
 
 You can use `python manage.py` check to verify if they run successfully or not.
 ##Configuration
@@ -77,7 +77,7 @@ Now, start the Application with:
 ```bash
 python manage.py runserver
 ```
-And visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/) in any modern browsers to open the application.
+And visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/){target="_blank"} in any modern browsers to open the application.
 
 **Note**: **/static/** and **/media/** are the static files and media files location respectively.
 ##Database
@@ -119,8 +119,8 @@ The **“api”** app is the largest among all, which handles all remaining mode
 
 ##Getting started with IBM Watson
 You know that, with **ISAC-SIMO** you can create a model pipeline to test provided images. These models/classifiers can be local offline models like h5, python script etc. Or, you can also use IBM Watson Classifier and Object Detection Model, as in a lot of cases this can be convenient and even better. 
-To create your own IBM Watson Classifiers and Object Detection Model, you should first register and create your account. Visit here to learn more about Watson [https://www.ibm.com/watson](https://www.ibm.com/watson)
-After registering, you can create a new Watson Studio here, [https://cloud.ibm.com/catalog/services/watson-studio](https://cloud.ibm.com/catalog/services/watson-studio)
+To create your own IBM Watson Classifiers and Object Detection Model, you should first register and create your account. Visit here to learn more about Watson [https://www.ibm.com/watson](https://www.ibm.com/watson){target="_blank"}
+After registering, you can create a new Watson Studio here, [https://cloud.ibm.com/catalog/services/watson-studio](https://cloud.ibm.com/catalog/services/watson-studio){target="_blank"}
 
 On Successful Watson Studio creation, you are able to access this page via Resource List.
 
@@ -136,7 +136,7 @@ ISAC-SIMO also allows you to create a Classifier from the app itself, which migh
 
 ## How ISAC-SIMO Calls Watson Model
 There are multiple ways to work with Watson via Python Script. ISAC-SIMO uses simple API requests attaching files and content to the request body.
- [Documentation Here](https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3#introduction)
+ [Documentation Here](https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3#introduction){target="_blank"}
 Most of all API calls are handled by `api/helpers.py` file. It uses requests library to send header, data, files as required for the watson api.
 As per the Model/Classifier added by **ISAC-SIMO** users, it can determine whether to call Watson API or run Pre/Post Processor or Python Scripts from the pipeline.
 
@@ -147,13 +147,13 @@ As we know, different Object Types can have different pipelines of classifiers t
 ![](./assets/image61.png )
 
 Programmatically, we use recursion techniques to run pipelines in order. The `api/helpers.py` file has a function named test_image which runs the test on uploaded images and recursively passes the model response to the next model in the pipeline.
-If it is a preprocessor model, it sends the image and expects an image to be returned in opencv format. Similarly, postprocessors should return their own standard response. If the model is watson classifier or object detection then it is sent via api and parses the response as required. For More information refer to even more detailed [Documentation Here](https://www.docs.isac-simo.net/) which also shows examples of offline/local models.
+If it is a preprocessor model, it sends the image and expects an image to be returned in opencv format. Similarly, postprocessors should return their own standard response. If the model is watson classifier or object detection then it is sent via api and parses the response as required. For More information refer to even more detailed [Documentation Here](./web-application.md){target="_blank"} which also shows examples of offline/local models.
 
 ##How tO Deploy & Manage ISAC-SIMO in a VPC (Basics)
 This section only explains the basics, on how to deploy ISAC-SIMO Django Application to a fresh VPC.
 
 ### <span style="color:green">Create Virtual Private Cloud with IBM Cloud:</span>
-You can get started with [IBM VPC Here](https://cloud.ibm.com/vpc-ext/overview)
+You can get started with [IBM VPC Here](https://cloud.ibm.com/vpc-ext/overview){target="_blank"}
 
 ![](./assets/image62.png)
 
@@ -170,7 +170,7 @@ Now, you can create a New Virtual Server Instance using the sidebar tab
 ![](./assets/image65.png)
 
 When creating a new instance, choose an appropriate Operating System (Linux is preferable). Select the SSH key you added, choose desired Profile/Server Type and choose the VPC you created earlier. This should set up a new VPC Instance.
-To ssh and access this instance from the web you need to create a floating IP and assign the VPC to it. From the Floating IPs sidebar tab you can create and manage [Floating ips](https://cloud.ibm.com/vpc-ext/network/floatingIPs).
+To ssh and access this instance from the web you need to create a floating IP and assign the VPC to it. From the Floating IPs sidebar tab you can create and manage [Floating ips](https://cloud.ibm.com/vpc-ext/network/floatingIPs){target="_blank"}.
 Now, in the Virtual Server Instances page you should see Floating IP in the table.
 
 You can then SSH to the server, using the Floating IP, ssh `xx.xx.xx.xx`
@@ -184,9 +184,9 @@ In most VPC you should also enable port 80 using firewall-cmd or similar command
 
 These documentations will be handy while setting up a fresh VPC with Django.
 
-- [https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04](https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04)
-- [https://www.redhat.com/en/blog/setting-django-application-rhel-8-beta](https://www.redhat.com/en/blog/setting-django-application-rhel-8-beta)
-- [https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-centos-7](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-centos-7)
+- [https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04](https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04){target="_blank"}
+- [https://www.redhat.com/en/blog/setting-django-application-rhel-8-beta](https://www.redhat.com/en/blog/setting-django-application-rhel-8-beta){target="_blank"}
+- [https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-centos-7](https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-centos-7){target="_blank"}
 
 It will help you set up Gunicorn and Nginx with Supervisord to run the django application at port 80. And, the 3rd link will help you set up and install a let's encrypt certificate in your server with auto update. Log Rotate, Error Pages, Managing unnecessary open ports are some other things you might want to do.
 

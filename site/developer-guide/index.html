@@ -224,6 +224,18 @@
   </li>
 
       
+        
+  
+  
+
+
+  <li class="md-tabs__item">
+    <a href="../mobile-api-guide/" class="md-tabs__link">
+      Mobile API Guide
+    </a>
+  </li>
+
+      
     </ul>
   </div>
 </nav>
@@ -397,7 +409,7 @@ First Clone this Project in a suitable directory &amp; Change to project directo
 (You might have noticed Pipfile used by pipenv, ignore that for the time being.)</p>
 <p>There are furthermore packages that are required to be installed. The versions of these packages must be compatible with your systems Python version. So, you might need to verify and install them manually.
 <strong>Example</strong>: tensorflow might not have released their package for the Python version or the OS you are using, so you might need to verify this and install appropriate versions or update the Python itself.</p>
-<p>These are the Packages, that you need to verify: <a href="https://pypi.org/project/psycopg2/">psycopg2</a>, <a href="https://www.tensorflow.org/">tensorflow</a></p>
+<p>These are the Packages, that you need to verify: <a href="https://pypi.org/project/psycopg2/" target="_blank">psycopg2</a>, <a href="https://www.tensorflow.org/" target="_blank">tensorflow</a></p>
 <p>You can use <code>python manage.py</code> check to verify if they run successfully or not.</p>
 <h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>
 <p>You will need to set up a <code>.env</code> file with required configurations before starting the application. First, make a copy of <code>.env.example</code></p>
@@ -431,7 +443,7 @@ First Clone this Project in a suitable directory &amp; Change to project directo
 <p>Now, start the Application with:</p>
 <pre><code class="language-bash">python manage.py runserver
 </code></pre>
-<p>And visit <a href="http://127.0.0.1:8000/">http://127.0.0.1:8000/</a> in any modern browsers to open the application.</p>
+<p>And visit <a href="http://127.0.0.1:8000/" target="_blank">http://127.0.0.1:8000/</a> in any modern browsers to open the application.</p>
 <p><strong>Note</strong>: <strong>/static/</strong> and <strong>/media/</strong> are the static files and media files location respectively.</p>
 <h2 id="database"><a class="toclink" href="#database">Database</a></h2>
 <p><img alt="" src="../assets/image58.png" /></p>
@@ -470,8 +482,8 @@ The <strong>“api”</strong> app is the largest among all, which handles all r
 </ul>
 <h2 id="getting-started-with-ibm-watson"><a class="toclink" href="#getting-started-with-ibm-watson">Getting started with IBM Watson</a></h2>
 <p>You know that, with <strong>ISAC-SIMO</strong> you can create a model pipeline to test provided images. These models/classifiers can be local offline models like h5, python script etc. Or, you can also use IBM Watson Classifier and Object Detection Model, as in a lot of cases this can be convenient and even better. 
-To create your own IBM Watson Classifiers and Object Detection Model, you should first register and create your account. Visit here to learn more about Watson <a href="https://www.ibm.com/watson">https://www.ibm.com/watson</a>
-After registering, you can create a new Watson Studio here, <a href="https://cloud.ibm.com/catalog/services/watson-studio">https://cloud.ibm.com/catalog/services/watson-studio</a></p>
+To create your own IBM Watson Classifiers and Object Detection Model, you should first register and create your account. Visit here to learn more about Watson <a href="https://www.ibm.com/watson" target="_blank">https://www.ibm.com/watson</a>
+After registering, you can create a new Watson Studio here, <a href="https://cloud.ibm.com/catalog/services/watson-studio" target="_blank">https://cloud.ibm.com/catalog/services/watson-studio</a></p>
 <p>On Successful Watson Studio creation, you are able to access this page via Resource List.</p>
 <p><img alt="" src="../assets/image59.png" /></p>
 <p>The API Key can be copied and used in either <code>IBM_API_KEY</code> environment variable, Or users can also use this while Creating/Editing Project and Classifier Model</p>
@@ -480,18 +492,18 @@ After registering, you can create a new Watson Studio here, <a href="https://clo
 <p>ISAC-SIMO also allows you to create a Classifier from the app itself, which might be easier. Now, you should be able to create and use Watson models with <strong>ISAC-SIMO</strong> easily.</p>
 <h2 id="how-isac-simo-calls-watson-model"><a class="toclink" href="#how-isac-simo-calls-watson-model">How ISAC-SIMO Calls Watson Model</a></h2>
 <p>There are multiple ways to work with Watson via Python Script. ISAC-SIMO uses simple API requests attaching files and content to the request body.
- <a href="https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3#introduction">Documentation Here</a>
+ <a href="https://cloud.ibm.com/apidocs/visual-recognition/visual-recognition-v3#introduction" target="_blank">Documentation Here</a>
 Most of all API calls are handled by <code>api/helpers.py</code> file. It uses requests library to send header, data, files as required for the watson api.
 As per the Model/Classifier added by <strong>ISAC-SIMO</strong> users, it can determine whether to call Watson API or run Pre/Post Processor or Python Scripts from the pipeline.</p>
 <h2 id="how-isac-simo-runs-the-model-pipeline"><a class="toclink" href="#how-isac-simo-runs-the-model-pipeline">How ISAC-SIMO Runs the Model Pipeline</a></h2>
 <p>As we know, different Object Types can have different pipelines of classifiers that are run when testing user uploaded images. When creating these classifiers/models for any object type, admin or project-admin can provide the order in which the model runs.</p>
 <p><img alt="" src="../assets/image61.png" /></p>
 <p>Programmatically, we use recursion techniques to run pipelines in order. The <code>api/helpers.py</code> file has a function named test_image which runs the test on uploaded images and recursively passes the model response to the next model in the pipeline.
-If it is a preprocessor model, it sends the image and expects an image to be returned in opencv format. Similarly, postprocessors should return their own standard response. If the model is watson classifier or object detection then it is sent via api and parses the response as required. For More information refer to even more detailed <a href="https://www.docs.isac-simo.net/">Documentation Here</a> which also shows examples of offline/local models.</p>
+If it is a preprocessor model, it sends the image and expects an image to be returned in opencv format. Similarly, postprocessors should return their own standard response. If the model is watson classifier or object detection then it is sent via api and parses the response as required. For More information refer to even more detailed <a href="../web-application/" target="_blank">Documentation Here</a> which also shows examples of offline/local models.</p>
 <h2 id="how-to-deploy-manage-isac-simo-in-a-vpc-basics"><a class="toclink" href="#how-to-deploy-manage-isac-simo-in-a-vpc-basics">How tO Deploy &amp; Manage ISAC-SIMO in a VPC (Basics)</a></h2>
 <p>This section only explains the basics, on how to deploy ISAC-SIMO Django Application to a fresh VPC.</p>
 <h3 id="create-virtual-private-cloud-with-ibm-cloud"><a class="toclink" href="#create-virtual-private-cloud-with-ibm-cloud"><span style="color:green">Create Virtual Private Cloud with IBM Cloud:</span></a></h3>
-<p>You can get started with <a href="https://cloud.ibm.com/vpc-ext/overview">IBM VPC Here</a></p>
+<p>You can get started with <a href="https://cloud.ibm.com/vpc-ext/overview" target="_blank">IBM VPC Here</a></p>
 <p><img alt="" src="../assets/image62.png" /></p>
 <p>From the VPCs tab, you can view and create new VPC for your server.
 While creating a new VPC, you need to choose to enable SSH, Ping, choose an appropriate server, IP range and enable Public Gateway. Click on the recently clicked VPC and create Subnets for your server.</p>
@@ -501,7 +513,7 @@ While creating a new VPC, you need to choose to enable SSH, Ping, choose an appr
 <p>Now, you can create a New Virtual Server Instance using the sidebar tab</p>
 <p><img alt="" src="../assets/image65.png" /></p>
 <p>When creating a new instance, choose an appropriate Operating System (Linux is preferable). Select the SSH key you added, choose desired Profile/Server Type and choose the VPC you created earlier. This should set up a new VPC Instance.
-To ssh and access this instance from the web you need to create a floating IP and assign the VPC to it. From the Floating IPs sidebar tab you can create and manage <a href="https://cloud.ibm.com/vpc-ext/network/floatingIPs">Floating ips</a>.
+To ssh and access this instance from the web you need to create a floating IP and assign the VPC to it. From the Floating IPs sidebar tab you can create and manage <a href="https://cloud.ibm.com/vpc-ext/network/floatingIPs" target="_blank">Floating ips</a>.
 Now, in the Virtual Server Instances page you should see Floating IP in the table.</p>
 <p>You can then SSH to the server, using the Floating IP, ssh <code>xx.xx.xx.xx</code>
 As most of the VPC will be a fresh installation, you might need to install <code>git</code>, <code>python3</code>, <code>nano</code> and other basic commands and tools before you get started.</p>
@@ -510,9 +522,9 @@ As most of the VPC will be a fresh installation, you might need to install <code
 <p>In most VPC you should also enable port 80 using firewall-cmd or similar commands.</p>
 <p>These documentations will be handy while setting up a fresh VPC with Django.</p>
 <ul>
-<li><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04">https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04</a></li>
-<li><a href="https://www.redhat.com/en/blog/setting-django-application-rhel-8-beta">https://www.redhat.com/en/blog/setting-django-application-rhel-8-beta</a></li>
-<li><a href="https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-centos-7">https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-centos-7</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04" target="_blank">https://www.digitalocean.com/community/tutorials/how-to-set-up-django-with-postgres-nginx-and-gunicorn-on-ubuntu-16-04</a></li>
+<li><a href="https://www.redhat.com/en/blog/setting-django-application-rhel-8-beta" target="_blank">https://www.redhat.com/en/blog/setting-django-application-rhel-8-beta</a></li>
+<li><a href="https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-centos-7" target="_blank">https://www.digitalocean.com/community/tutorials/how-to-secure-nginx-with-let-s-encrypt-on-centos-7</a></li>
 </ul>
 <p>It will help you set up Gunicorn and Nginx with Supervisord to run the django application at port 80. And, the 3rd link will help you set up and install a let's encrypt certificate in your server with auto update. Log Rotate, Error Pages, Managing unnecessary open ports are some other things you might want to do.</p>
                 
@@ -548,6 +560,20 @@ As most of the VPC will be a fresh installation, you might need to install <code
             </div>
           </a>
         
+        
+          <a href="../mobile-api-guide/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
+            <div class="md-footer-nav__title">
+              <div class="md-ellipsis">
+                <span class="md-footer-nav__direction">
+                  Next
+                </span>
+                Mobile API Guide
+              </div>
+            </div>
+            <div class="md-footer-nav__button md-icon">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
+            </div>
+          </a>
         
       </nav>
     </div>

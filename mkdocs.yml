@@ -23,6 +23,7 @@ theme:
 markdown_extensions:
  - toc:
     anchorlink: True
+ - attr_list
 
 nav:
     - Home: index.md
@@ -30,6 +31,7 @@ nav:
     - Web Application: web-application.md
     - Mobile Application: mobile-application.md
     - Developer Guide: developer-guide.md
+    - Mobile API Guide: mobile-api-guide.md
 
 extra:
   generator: false
