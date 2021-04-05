@@ -11,14 +11,14 @@
       
       
       
-        <link rel="canonical" href="https://www.isac-simo.net/mobile-application/">
+        <link rel="canonical" href="https://www.isac-simo.net/lite-dashboard/">
       
       <link rel="shortcut icon" href="../favicon.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
     
     
       
-        <title>Mobile Application - ISAC-SIMO</title>
+        <title>Lite Dashboard - ISAC-SIMO</title>
       
     
     
@@ -68,7 +68,7 @@
     <div data-md-component="skip">
       
         
-        <a href="#mobile-application-introduction" class="md-skip">
+        <a href="#isac-simo-lite" class="md-skip">
           Skip to content
         </a>
       
@@ -99,7 +99,7 @@
         <div class="md-header-nav__topic">
           <span class="md-ellipsis">
             
-              Mobile Application
+              Lite Dashboard
             
           </span>
         </div>
@@ -201,12 +201,10 @@
         
   
   
-    
-  
 
 
   <li class="md-tabs__item">
-    <a href="./" class="md-tabs__link md-tabs__link--active">
+    <a href="../mobile-application/" class="md-tabs__link">
       Mobile Application
     </a>
   </li>
@@ -239,10 +237,12 @@
         
   
   
+    
+  
 
 
   <li class="md-tabs__item">
-    <a href="../lite-dashboard/" class="md-tabs__link">
+    <a href="./" class="md-tabs__link md-tabs__link--active">
       Lite Dashboard
     </a>
   </li>
@@ -273,29 +273,63 @@
     <ul class="md-nav__list" data-md-scrollfix>
       
         <li class="md-nav__item">
-  <a href="#login-register" class="md-nav__link">
-    Login &amp; Register
+  <a href="#introduction" class="md-nav__link">
+    INTRODUCTION
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#profile" class="md-nav__link">
-    Profile
+  <a href="#before-you-start" class="md-nav__link">
+    BEFORE YOU START
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#home" class="md-nav__link">
-    Home
+  <a href="#installation" class="md-nav__link">
+    INSTALLATION
   </a>
   
 </li>
       
         <li class="md-nav__item">
-  <a href="#quality-check" class="md-nav__link">
-    Quality Check
+  <a href="#getting-started" class="md-nav__link">
+    GETTING STARTED
+  </a>
+  
+    <nav class="md-nav" aria-label="GETTING STARTED">
+      <ul class="md-nav__list">
+        
+          <li class="md-nav__item">
+  <a href="#adding-model-pipeline" class="md-nav__link">
+    ADDING MODEL PIPELINE
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#providing-the-test-image" class="md-nav__link">
+    PROVIDING THE TEST IMAGE
+  </a>
+  
+</li>
+        
+          <li class="md-nav__item">
+  <a href="#testing-the-image" class="md-nav__link">
+    TESTING THE IMAGE
+  </a>
+  
+</li>
+        
+      </ul>
+    </nav>
+  
+</li>
+      
+        <li class="md-nav__item">
+  <a href="#links" class="md-nav__link">
+    LINKS
   </a>
   
 </li>
@@ -312,71 +346,77 @@
               
                 
                 
-                <h1 id="mobile-application-introduction"><a class="toclink" href="#mobile-application-introduction">Mobile Application Introduction</a></h1>
-<p>The Mobile application allows users to login, register and take or upload Images of different Objects (Wall,
-Rebar etc.) to classify it as <strong>GO</strong> or <strong>NOGO</strong>. Guest Users who choose not to login will only have access to
-Global Guest Project and its Object Types (If they exist). Otherwise, logged in users will only have access
-to Projects and the Object Types they are linked to.</p>
-<h2 id="login-register"><a class="toclink" href="#login-register">Login &amp; Register</a></h2>
-<p><img alt="" src="../assets/image40.png" />
-<br>
-<em>Login</em>.</p>
-<p><img alt="" src="../assets/image39.png" />
-<br>
-<em>Register</em>.</p>
-<h2 id="profile"><a class="toclink" href="#profile">Profile</a></h2>
-<p>The Profile tab shows the logged in users Name, Email, Profile Image and option to Logout. Guest users will be considered a temporary Anonymous User.
-<br>
-<img alt="" src="../assets/image41.png" /></p>
-<h2 id="home"><a class="toclink" href="#home">Home</a></h2>
-<p>The Home Tab is the Mobile Dashboard. There are Information, Report and Quality Check Options that can be clicked. <strong>Quality Check</strong> is the main option where users can test images of different objects and view the result.
-<br>
-<img alt="" src="../assets/image42.png" /></p>
-<h2 id="quality-check"><a class="toclink" href="#quality-check">Quality Check</a></h2>
-<p>As mentioned multiple times above, Guest Users who choose not to login will only have access to Global Guest Project and its Object Types (If they exist). While, logged in users will only have access to Projects and the Object Types they are linked to. This Quality Checks page lists all the Object Type users can test by taking photographs.
-First, Choose the Object Type for which to perform a quality test. In the image below, users may choose Facade Wall, Rebar Shapes etc.
-<br>
-<img alt="" src="../assets/image43.png" />
-<br>
-For this guide, let's choose Rebar Shape. Clicking on Rebar Shape in the list will open another page that shows Instruction and a Sample Image on how to properly capture the Image. Following the instruction will make sure that the result will be better and accurate.
-Next, you can click on the <strong>“Let’s Go”</strong> button to capture or upload images for testing. The Uploaded image will be passed through all Classifiers/Models Pipeline that is linked to the chosen Object Type. Before uploading users can crop &amp; edit the images.
-<br></p>
-<table>
-<thead>
-<tr>
-<th align="center">Instruction</th>
-<th align="center">Upload</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center"><img alt="" src="../assets/image44.png" /></td>
-<td align="center"><img alt="" src="../assets/image45.png" /></td>
-</tr>
-</tbody>
-</table>
-<p><br>
-Make sure to Crop the Image so that the Object is centred and no other obstruction is visible. The image brightness, contrast, hue etc. can be easily adjusted in the next screen.</p>
-<table>
-<thead>
-<tr>
-<th align="center">Edit Image</th>
-<th align="center">Submit Image</th>
-</tr>
-</thead>
-<tbody>
-<tr>
-<td align="center"><img alt="" src="../assets/image46.png" /></td>
-<td align="center"><img alt="" src="../assets/image47.png" /></td>
-</tr>
-</tbody>
-</table>
-<p>After clicking the <strong>“Submit”</strong> button the Image is sent and processed by the server. And the result and score is shown. Results can generally be Go, Nogo or No Result and score are generally 0 to 100 percent.
-Score is the confidence level on the result. For Example, if the result is <strong>“GO”</strong> and the score is 90% like below, then it suggests that the Image passed with 90% confidence. (i.e. the Image is Okay and in this case Rebar Shape is good)</p>
-<p><img alt="" src="../assets/image48.png" />
-<br>
-The Score and Result of all Pipeline is accessible in the Web Dashboard. Here, all Pipeline Classifiers and the score they returned are shown.</p>
-<p><img alt="" src="../assets/image49.png" /></p>
+                <h1 id="isac-simo-lite"><a class="toclink" href="#isac-simo-lite">ISAC-SIMO-LITE</a></h1>
+<h2 id="introduction"><a class="toclink" href="#introduction">INTRODUCTION</a></h2>
+<p>Intelligent Supervision Assistant for Construction - Sistema Inteligente de Monitoreo de Obra</p>
+<p>ISAC-SIMO is a system to validate that the intervention work done for homeowners has been done correctly and safely. It is a Build Change project supported by a grant from IBM.</p>
+<p><strong>ISAC-SIMO-Lite</strong> is a Developer Test Tool that provides a convenient developer test environment to work with pipeline models. Using this Web Application, users can add different models, watson classifiers, processors in a single page dashboard and quickly test images. It shows all the results of each model of the pipeline after the test is successful and any possible errors.</p>
+<h2 id="before-you-start"><a class="toclink" href="#before-you-start">BEFORE YOU START</a></h2>
+<p>Before starting the project, you need to set these requirements.</p>
+<ul>
+<li>Python &gt; 3.7.x</li>
+</ul>
+<h2 id="installation"><a class="toclink" href="#installation">INSTALLATION</a></h2>
+<p>View the Open-Source GitHub repository for <a href="https://github.com/Call-for-Code/ISAC-SIMO-Dashboard-Lite" target="_blank">ISAC-SIMO Dashboard Lite</a>.</p>
+<p>First Clone this Project in a suitable directory &amp; Change to project directory.</p>
+<pre><code class="language-bash">git clone https://github.com/Call-for-Code/ISAC-SIMO-Dashboard-Lite.git
+cd ISAC-SIMO-Dashboard-Lite
+</code></pre>
+<p>Then, you will need to set up a virtual environment. The easiest way to setup is using pipenv. First, install <strong>pipenv</strong> using the following command.</p>
+<pre><code class="language-bash">pip3 install --upgrade setuptools
+pip3 install pipenv
+</code></pre>
+<p>To activate the virtual environment shell you need to run these commands, followed by installing required packages. (Note that every time you run the application server, you need to be inside virtual env shell)</p>
+<pre><code class="language-bash">pipenv shell
+pipenv install --skip-lock
+</code></pre>
+<p>Now, start the Application with:</p>
+<pre><code class="language-bash">python manage.py runserver --noreload
+</code></pre>
+<p>And visit <a href="http://127.0.0.1:8000/" target="_blank">http://127.0.0.1:8000/</a> in any modern browsers to open the application.</p>
+<ul>
+<li><code>/static/</code> folder should have proper read and write access to current users or groups.</li>
+<li>During setup if package installation caused any error, please install them outside of pipenv and try
+running the server again.</li>
+<li>And, also note that most of the app controller are kept in <code>/main/views.py</code></li>
+</ul>
+<h2 id="getting-started"><a class="toclink" href="#getting-started">GETTING STARTED</a></h2>
+<p>The application when loaded should look like this.</p>
+<p><img alt="" src="../assets/lite-dashboard/image--000.png" title="Dashboard Page" /></p>
+<h3 id="adding-model-pipeline"><a class="toclink" href="#adding-model-pipeline">ADDING MODEL PIPELINE</a></h3>
+<p>You can add new models to the pipeline by clicking on the “+ Add Model Pipeline” button. After clicking on the button, it will add a new card where you can choose the type of model, provide it a name, and fill other fields as required.</p>
+<p><img alt="" src="../assets/lite-dashboard/image--002.png" title="Adding Model" /></p>
+<p>Provide an appropriate name to the model and choose the type of model as shown below.</p>
+<p><img alt="" src="../assets/lite-dashboard/image--003.png" title="Choose Model Type" /></p>
+<p>When you choose the model type, it will add new fields as required by that specific model. For example, a pre-processor needs a python script file, Watson classifier needs IBM API Keys, Collection ID etc. Fill the form as required.</p>
+<p><img alt="" src="../assets/lite-dashboard/image--004.png" title="Fill the Model Detail Form" /></p>
+<p>You can remove any model from the pipeline by clicking on the “<strong>Delete</strong>” button. The “<strong>Freeze</strong>” button is useful to disable the card to prevent accidental clicks and changes.</p>
+<p>More models can be added to the pipeline by clicking “<strong>+ Add Model Pipeline</strong>” as before and filling the forms.</p>
+<h3 id="providing-the-test-image"><a class="toclink" href="#providing-the-test-image">PROVIDING THE TEST IMAGE</a></h3>
+<p>After you have added all the pipeline models properly, you can provide a test image which is used by the models and classifiers. You can choose the file using the field called “<strong>Provide the Test Image</strong>”.</p>
+<p><img alt="" src="../assets/lite-dashboard/image--005.png" title="Choose the Test Image" /></p>
+<p>Choose an appropriate image file for testing.</p>
+<h3 id="testing-the-image"><a class="toclink" href="#testing-the-image">TESTING THE IMAGE</a></h3>
+<p>Now, the “<strong>➜ Test Image</strong>” button can be clicked to test the image using the provided pipeline of models. Any validation errors will be displayed properly with error messages and which model caused it.</p>
+<p><img alt="" src="../assets/lite-dashboard/image--006.png" title="Error Message Example" /></p>
+<p><strong>Note</strong>: When you have already chosen a file or image in the web application and later modify it (locally) and try to run the test, it might not pass in chromium browsers (due to permissions issue). The application in that case will show “File has been modified” error and you need to choose the file again using the picker.</p>
+<p>If all validation passes, it will start the testing process and on success show the results for each model.</p>
+<p>Click on the “<strong>View Test Result ▽</strong>” button to toggle its result. It might contain an error message in red font color if the model did not run successfully. Else, it will show the result properly as required.</p>
+<p>The pre-processor will show the processed image. The post-processor and classifier will show its JSON response. Similarly, Watson classifier and object detection will show its own response along with best
+result and score.</p>
+<p><img alt="" src="../assets/lite-dashboard/image--007.png" title="This image shows the test result of the Pre-Processor" />
+<em>This image shows the test result of the Pre-Processor</em></p>
+<p><img alt="" src="../assets/lite-dashboard/image--008.png" title="This image shows the test result of the Watson Classifier" />
+<em>This image shows the test result of the Watson Classifier</em></p>
+<p>Results of the whole pipeline can be seen on the bottom of the page under the title of “<strong>Pipeline Result</strong>”. You can always modify the model, change the file or image and run the test again without reloading the page. Any unhandled errors might be found in Django Logs.</p>
+<h2 id="links"><a class="toclink" href="#links">LINKS</a></h2>
+<ul>
+<li><a href="https://www.isac-simo.net/docs/" target="_blank">ISAC-SIMO Documentation (Latest)</a></li>
+<li><a href="https://www.isac-simo.net/docs/developer-guide/" target="_blank">ISAC-SIMO Backend Developer Guide</a></li>
+<li><a href="https://github.com/Call-for-Code/ISAC-SIMO-Dashboard-Lite" target="_blank">ISAC-SIMO Lite Dashbord GitHub Repository</a></li>
+<li><a href="https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend" target="_blank">ISAC-SIMO Main GitHub Repository</a></li>
+<li><a href="../ISAC-SIMO-Lite-Documentation.pdf" target="_blank">Download PDF</a></li>
+</ul>
                 
               
               
@@ -396,7 +436,7 @@ The Score and Result of all Pipeline is accessible in the Web Dashboard. Here, a
     <div class="md-footer-nav">
       <nav class="md-footer-nav__inner md-grid" aria-label="Footer">
         
-          <a href="../web-application/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
+          <a href="../mobile-api-guide/" class="md-footer-nav__link md-footer-nav__link--prev" rel="prev">
             <div class="md-footer-nav__button md-icon">
               <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
             </div>
@@ -405,25 +445,11 @@ The Score and Result of all Pipeline is accessible in the Web Dashboard. Here, a
                 <span class="md-footer-nav__direction">
                   Previous
                 </span>
-                Web Application
+                Mobile API Guide
               </div>
             </div>
           </a>
         
-        
-          <a href="../developer-guide/" class="md-footer-nav__link md-footer-nav__link--next" rel="next">
-            <div class="md-footer-nav__title">
-              <div class="md-ellipsis">
-                <span class="md-footer-nav__direction">
-                  Next
-                </span>
-                Developer Guide
-              </div>
-            </div>
-            <div class="md-footer-nav__button md-icon">
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M4 11v2h12l-5.5 5.5 1.42 1.42L19.84 12l-7.92-7.92L10.5 5.5 16 11H4z"/></svg>
-            </div>
-          </a>
         
       </nav>
     </div>
