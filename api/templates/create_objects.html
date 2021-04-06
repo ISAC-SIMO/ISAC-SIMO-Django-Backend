@@ -36,7 +36,7 @@
                         <tbody>
                             {% for object_type in object_types %}
                                 <tr>
-                                    <td data-toggle="tooltip" data-placement="top" title="{{object_type.instruction|default:''}}">{{object_type.name|title}}</td>
+                                    <td data-toggle="tooltip" data-placement="top" data-html="true" title="{{object_type.instruction|default:''}}{% if object_type.instruction %}<br/>{% endif %}{% if object_type.countries %}<b>Countries:</b> {% for country in object_type.countries %}{{country.name}}{% if not forloop.last %}, {% endif %}{% endfor %}{% else %}<b>Countries:</b> All{% endif %}">{{object_type.name|title}}</td>
                                     <td>{{object_type.project.project_name|title|default:'N/A'}} {% if object_type.project.guest %} <i class="fa fa-globe text-success ml-1" title="Global Project" data-toggle="tooltip" data-placement="right"></i> {% endif %} {% if object_type.project.public %} <i class="fa fa-bullhorn text-primary ml-1" title="Public Project" data-toggle="tooltip" data-placement="right"></i> {% endif %}</td>
                                     <td>{{object_type.created_by.full_name|default:'User'}}</td>
                                     {% if user.is_admin or user.is_project_admin %}
@@ -52,7 +52,7 @@
                                         <a onclick="deleteDataWriteConfirm(event, 'form-{{ object_type.id }}', 'Object Type')" title="{% trans 'Delete' %}" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.delete' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <a onclick="editForm('{{object_type.id}}','{{object_type.name}}','{{object_type.image.url}}','{{object_type.project_id}}','{{object_type.instruction|default:''}}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="editForm('{{object_type.id}}','{{object_type.name}}','{{object_type.image.url}}','{{object_type.project_id}}','{{object_type.instruction|default:''}}','{% for country in object_type.countries %}{{country.code}}{% if not forloop.last %},{% endif %}{% endfor %}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                         <a data-html="true" title="{% trans 'Quick Order Classifiers' %}" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.order' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
@@ -132,6 +132,21 @@
                             </div>
                         </div>
                         <div class="form-group">
+                            <label for="countries" class="col-12 col-form-label">{% trans "Countries" %}</label>
+                            <div class="col-sm-12">
+                                {% load countries %}
+                                {% get_countries as countries %}
+                                <select placeholder="Select Countries" class="form-control" id="countries" name="countries" multiple="multiple">
+                                    {% for country in countries %}
+                                        <option value="{{country.code}}">{{country.name}}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                            <small id="negativeHelp" class="col-sm-12 form-text text-muted">
+                                {% trans "Leave Blank to allow for all countries." %}
+                            </small>
+                        </div>
+                        <div class="form-group">
                             <label for="instruction" class="col-12 col-form-label">{% trans "Instruction" %}</label>
                             <div class="col-sm-12">
                                 <textarea placeholder="Instruction for Mobile User.&#10;How to take Picture/Video" class="form-control" id="instruction" name="instruction" max="500"></textarea>
@@ -172,14 +187,16 @@
 			    "emptyTable": "No Object Type Available {% if project_filter %}for {{project_filter|title}}{% endif %}"
 			}
           });
-          $('#project').select2()
+          $('#project').select2({placeholder: "Select Project to Link To"})
+          $('#countries').select2({tokenSeparators: ",", multiple: true, placeholder: "Select Countries"})
         });
 
-        function editForm(id, name, url, project_id, instruction){
+        function editForm(id, name, url, project_id, instruction, countries){
           $('#id_field').val(id);
           $('#object_type').val(name);
           $('#instruction').val(instruction);
           $('#project').val(project_id).trigger('change');
+          $('#countries').val(countries.split(',')).trigger('change');
           $('#file_path').css("display","block");
           $('#file_path').html('Previous: <a href="'+url+'" target="_blank">'+url+'</a>');
           $('#submit_button').text("Update");
@@ -192,6 +209,7 @@
           $('#instruction').val("");
           $('#image').val("");
           $('#project').val(null).trigger('change');
+          $('#countries').val(null).trigger('change');
           $('#file_path').css("display","none");
           $('#file_path').html('');
           $('#submit_button').text("Add");

@@ -974,6 +974,12 @@ def watsonObjectList(request):
 @user_passes_test(is_admin_or_project_admin, login_url=login_url)
 def watsonObjectCreate(request):
     if(request.method == "POST" and request.POST.get('object_type', False)):
+        countries = request.POST.getlist("countries") or []
+        if countries and len(countries) > 0:
+            countries = ",".join(countries)
+        else:
+            countries = ""
+
         check_unique = None
         try:
             if request.user.is_project_admin:
@@ -997,6 +1003,7 @@ def watsonObjectCreate(request):
                     if(object_type.image != 'object_types/default.jpg'):
                         object_type.image.delete()
                     object_type.image = request.FILES.get('image')
+                object_type.countries = countries
                 object_type.save()
                 messages.success(request, 'Object Type Updated')
                 reload_classifier_list()
@@ -1017,6 +1024,7 @@ def watsonObjectCreate(request):
                 object_type.instruction = request.POST.get('instruction')
                 if request.FILES.get('image'):
                     object_type.image = request.FILES.get('image')
+                object_type.countries = countries
                 object_type.save()
                 messages.success(request, 'Object Type Added')
                 reload_classifier_list()

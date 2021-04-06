@@ -5,6 +5,7 @@ from django.conf import settings
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils.deconstruct import deconstructible
+from django_countries.fields import CountryField
 
 # from main.models import User
 from projects.models import Projects
@@ -63,6 +64,7 @@ class ObjectType(models.Model):
     instruction = models.TextField(_("Instruction"), max_length=500, blank=True, null=True)
     verified = models.BooleanField(_("Verified"), default=False)
     wishlist = models.BooleanField(_("Wishlist"), default=False) # Accept Contribution if project is marked public
+    countries = CountryField(multiple=True, default="")
     created_at = models.DateTimeField(_("created_at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated_at"), auto_now=True)
 

@@ -144,12 +144,19 @@ class User(AbstractBaseUser):
             object_types = ObjectType.objects.filter(Q(project__in=projects)).order_by('name').all()
 
         for o in object_types:
+            image = None
+            default_image = True
+            if o.image:
+                image = url + str(o.image.url)
+                default_image =True if "default.jpg" in image else False
+
             objects = objects + [{
                 'id': o.id,
                 'name': o.name.title(),
                 'instruction': o.instruction if o.instruction else "",
-                'image': url + str(o.image.url),
-                'default_image': True if "default.jpg" in o.image.url else False,
+                'image': image,
+                'default_image': default_image,
+                'countries': map(lambda x: x.code, o.countries),
                 'verified': o.verified,
                 'aspect': [2, 2],
                 'project': o.project.project_name,

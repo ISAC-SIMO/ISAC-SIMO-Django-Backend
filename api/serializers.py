@@ -15,6 +15,7 @@ from main.models import User
 
 from .models import Classifier, Contribution, FileUpload, Image, ImageFile, ObjectType, OfflineModel
 from projects.models import Projects
+from django_countries.serializers import CountryFieldMixin
 
 class ProjectMinimalSerializer(serializers.ModelSerializer):
     unique_name = serializers.SerializerMethodField()
@@ -455,7 +456,7 @@ class ProjectSerializer(serializers.ModelSerializer):
             instance.image.delete()
         return super().update(instance, validated_data)
 
-class ObjectTypeSerializer(serializers.ModelSerializer):
+class ObjectTypeSerializer(CountryFieldMixin, serializers.ModelSerializer):
     project = ProjectSerializer(many=False, read_only=True)
     project_id = serializers.CharField(write_only=True)
     created_by = UserMinimalSerializer(many=False, read_only=True)
@@ -466,7 +467,7 @@ class ObjectTypeSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = ObjectType
-        fields = ('id','name','project_id','image','instruction','verified','wishlist','total_classifiers','created_by','project','created_at','updated_at')
+        fields = ('id','name','project_id','image','instruction','verified','wishlist','total_classifiers','countries','created_by','project','created_at','updated_at')
         read_only_fields = ('id','created_by','created_at', 'updated_at','project')
 
     def create(self, validated_data):
@@ -477,10 +478,15 @@ class ObjectTypeSerializer(serializers.ModelSerializer):
                 error = {'message': 'Object Name needs to be Unique for each Project.'}
                 raise serializers.ValidationError(error)
 
+        countries = ""
+        if request.POST.get('countries[]'):
+            countries=','.join(str(country) for country in json.loads(request.POST.get('countries[]'))) 
+
         object_type = ObjectType.objects.create(name=validated_data.get('name').lower(),
                                     created_by=request.user if request else None,
                                     project=Projects.objects.get(id=validated_data.get('project_id')),
-                                    image=validated_data.get('image'),
+                                    countries=countries,
+                                    image=validated_data.get('image', "object_types/default.jpg"),
                                     instruction=validated_data.get('instruction'),
                                     verified=True if validated_data.get('verified') else False,
                                     wishlist=True if validated_data.get('wishlist') else False,)
@@ -497,10 +503,12 @@ class ObjectTypeSerializer(serializers.ModelSerializer):
         if(validated_data.get('image')):
             if(instance.image != 'object_types/default.jpg'):
                 instance.image.delete()
-            instance.image=validated_data.get('image')
+            instance.image=validated_data.get('image', "object_types/default.jpg")
         instance.name=validated_data.get('name', instance.name).lower()
         instance.created_by=request.user if request else None
         instance.project=Projects.objects.get(id=validated_data.get('project_id', instance.project_id))
+        if request.POST.get('countries[]'):
+            instance.countries=','.join(str(country) for country in json.loads(request.POST.get('countries[]'))) 
         instance.instruction=validated_data.get('instruction', instance.instruction)
         instance.verified=True if validated_data.get('verified') else False
         instance.wishlist=True if validated_data.get('wishlist') else False

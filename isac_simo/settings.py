@@ -81,6 +81,7 @@ INSTALLED_APPS = [
     'crowdsource',
     'rest_framework',
     'rosetta',
+    'django_countries'
 ]
 
 AUTH_USER_MODEL = 'main.User'  # changes the built-in user model to ours
