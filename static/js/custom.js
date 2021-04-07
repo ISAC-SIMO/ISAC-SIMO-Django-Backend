@@ -35,6 +35,9 @@ function leftRightHandle(e){
 function showImagePop(event, img, alt, title, slide){
     event.preventDefault();
     Pace.restart();
+    if(title){
+        title = title.split("|").map(function(i){return i.trim().split(":").map(function(i){return i.trim()}).join(": ")}).join(" | ");
+    }
 
     if(event.target.tagName.toLowerCase() == 'a' || slide){
         Swal.fire({
@@ -229,7 +232,13 @@ function verifyImage(event, id, result, score, object_type, verified, url, retra
     if(Object.keys(pipeline_status_data).length > 0){
         Object.keys(pipeline_status_data).forEach(function(key){
             if(pipeline_status_data[key]["result"]){
-                html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+pipeline_status_data[key]["result"]+', <b>Score:</b> '+pipeline_status_data[key]["score"];
+                var result = pipeline_status_data[key]["result"].split("|").map(function(i){return i.trim().split(":").map(function(i){return i.trim()}).join(": ")}).join(" | ");
+                if(pipeline_status_data[key]["image"]) {
+                    html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+result+', <b>Image: <a href="#!" onclick="Swal.fire({imageUrl:\''+ pipeline_status_data[key]["image"] +'\', title: \'Pre-Processed Image\'})">View</a></b>, <b>Score:</b> '+pipeline_status_data[key]["score"];
+                } else {
+                    html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+result+', <b>Score:</b> '+pipeline_status_data[key]["score"];
+                }
+
                 if(pipeline_status_data[key]["message"]){
                     let d = pipeline_status_data[key]["message"];
                     if(Array.isArray(pipeline_status_data[key]["message"]) || typeof pipeline_status_data[key]["message"] === "object"){
@@ -339,7 +348,12 @@ function showPipelineStatus(event, pipeline_status, latlng, decodeURI){
     if(Object.keys(pipeline_status_data).length > 0){
         Object.keys(pipeline_status_data).forEach(function(key){
             if(pipeline_status_data[key]["result"]){
-                html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+pipeline_status_data[key]["result"]+', <b>Score:</b> '+pipeline_status_data[key]["score"]+'</label>';
+                var result = pipeline_status_data[key]["result"].split("|").map(function(i){return i.trim().split(":").map(function(i){return i.trim()}).join(": ")}).join(" | ");
+                if(pipeline_status_data[key]["image"]) {
+                    html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+result+', <b>Image: <a href="#!" onclick="Swal.fire({imageUrl:\''+ pipeline_status_data[key]["image"] +'\', title: \'Pre-Processed Image\'})">View</a></b>, <b>Score:</b> '+pipeline_status_data[key]["score"]+'</label>';
+                } else {
+                    html = html + '<hr style="margin: 0.5rem 0;border-top: 1px solid rgba(0, 0, 0, 0.24);"/><label class="swal2-label" style="font-weight: 400;"><b>Model:</b> '+key+', <b>Result:</b> '+result+', <b>Score:</b> '+pipeline_status_data[key]["score"]+'</label>';
+                }
             }else{
                 let d = pipeline_status_data[key];
                 if(Array.isArray(pipeline_status_data[key])){

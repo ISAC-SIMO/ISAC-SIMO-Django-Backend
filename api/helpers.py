@@ -543,7 +543,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     img = cv2.imread(save_to_path)
                     result = handle.run(img) # Saved Model .py must have run function (see readme.md in /api)
                     cv2.imwrite(save_to_path, result) # Replace the save to path aka /temp image with preprocessed image
-
+                    baseuri = base64.b64encode(cv2.imencode('.jpg', result)[1]).decode()
                     pipeline_status = {}
                     try:
                         pipeline_status = json.loads(image_file.pipeline_status)
@@ -552,7 +552,8 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     
                     pipeline_status[classifier.offline_model.name] = {
                         'score': '1',
-                        'result': 'Pre-Processed Success'
+                        'result': 'Pre-Processed Success',
+                        'image': 'data:image/jpg;base64,'+baseuri
                     }
                     image_file.pipeline_status = json.dumps(pipeline_status)
                     image_file.save()

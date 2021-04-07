@@ -52,7 +52,7 @@
                                         <a onclick="deleteDataWriteConfirm(event, 'form-{{ object_type.id }}', 'Object Type')" title="{% trans 'Delete' %}" data-toggle="tooltip" data-placement="left" href="{% url 'watson.object.delete' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-trash text-danger"></i>
                                         </a>
-                                        <a onclick="editForm('{{object_type.id}}','{{object_type.name}}','{{object_type.image.url}}','{{object_type.project_id}}','{{object_type.instruction|default:''}}','{% for country in object_type.countries %}{{country.code}}{% if not forloop.last %},{% endif %}{% endfor %}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                        <a onclick="editForm('{{object_type.id}}','{{object_type.name}}','{{object_type.image.url}}','{{object_type.project_id}}','{{object_type.instruction|linebreaksbr|default:''}}','{% for country in object_type.countries %}{{country.code}}{% if not forloop.last %},{% endif %}{% endfor %}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                         <a data-html="true" title="{% trans 'Quick Order Classifiers' %}" data-toggle="tooltip" data-placement="right" href="{% url 'watson.classifier.order' object_type.id %}" class="btn text-secondary px-0" style="margin: 0 3px !important;">
@@ -194,7 +194,7 @@
         function editForm(id, name, url, project_id, instruction, countries){
           $('#id_field').val(id);
           $('#object_type').val(name);
-          $('#instruction').val(instruction);
+          $('#instruction').val(instruction.replace(/(<br ?\/>)/g,'\n'));
           $('#project').val(project_id).trigger('change');
           $('#countries').val(countries.split(',')).trigger('change');
           $('#file_path').css("display","block");

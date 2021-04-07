@@ -156,7 +156,7 @@ class User(AbstractBaseUser):
                 'instruction': o.instruction if o.instruction else "",
                 'image': image,
                 'default_image': default_image,
-                'countries': map(lambda x: x.code, o.countries),
+                'countries': list(map(lambda x: x.code, o.countries)),
                 'verified': o.verified,
                 'aspect': [2, 2],
                 'project': o.project.project_name,
