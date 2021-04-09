@@ -1,15 +1,19 @@
 import json
 import os
 from django.http.response import JsonResponse
+from django.utils.datastructures import MultiValueDict
 import filetype
 import cv2
 import uuid
 from django.conf import settings
 from django.http import HttpResponse
 from PIL import Image as PILImage
+import requests
 from rest_framework import serializers
 from rest_framework.response import Response
 from api.helpers import create_classifier, test_image
+from django.core.files.uploadedfile import InMemoryUploadedFile
+from io import BytesIO
 
 from main.models import User
 
@@ -115,8 +119,20 @@ class ImageSerializer(serializers.ModelSerializer):
         if request and hasattr(request, "user"):
             user = request.user
         image_files = self.context.get('view').request.FILES
+        image_url = request.POST.get('image_url', None)
 
-        if len(image_files) > 0 and len(image_files) < 8: # Images count 1 to 7
+        try:
+            if image_url:
+                response = requests.get(image_url, stream=True, timeout=(3.05, 10))
+                image_byte = BytesIO(response.content)
+                image_url = InMemoryUploadedFile(image_byte, None, 'monda.jpg', 'image/jpeg', len(image_byte.getvalue()), None)
+                image_files = MultiValueDict({'image_1': [image_url]})
+                # print(image_files)
+        except Exception as e:
+            # print(e)
+            raise serializers.ValidationError({"message":"Unable to read Image from provided URL"})
+
+        if (len(image_files) > 0 and len(image_files) < 8) or image_url: # Images count 1 to 7
             image = Image.objects.create(title=validated_data.get('title'),
                                         description=validated_data.get('description'),
                                         lat=validated_data.get('lat'),
