@@ -11,7 +11,7 @@
       
       
       
-        <link rel="canonical" href="https://www.isac-simo.net/lite-dashboard/">
+        <link rel="canonical" href="https://www.isac-simo.net/docs/lite-dashboard/">
       
       <link rel="shortcut icon" href="../favicon.png">
       <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
@@ -81,7 +81,7 @@
 
 <header class="md-header" data-md-component="header">
   <nav class="md-header-nav md-grid" aria-label="Header">
-    <a href="https://www.isac-simo.net" title="ISAC-SIMO" class="md-header-nav__button md-logo" aria-label="ISAC-SIMO">
+    <a href="https://www.isac-simo.net/docs/" title="ISAC-SIMO" class="md-header-nav__button md-logo" aria-label="ISAC-SIMO">
       
   <img src="../logo.png" alt="logo">
 
@@ -328,6 +328,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#testing-with-mobile-app" class="md-nav__link">
+    TESTING WITH MOBILE APP
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#links" class="md-nav__link">
     LINKS
   </a>
@@ -409,12 +416,21 @@ result and score.</p>
 <p><img alt="" src="../assets/lite-dashboard/image--008.png" title="This image shows the test result of the Watson Classifier" />
 <em>This image shows the test result of the Watson Classifier</em></p>
 <p>Results of the whole pipeline can be seen on the bottom of the page under the title of “<strong>Pipeline Result</strong>”. You can always modify the model, change the file or image and run the test again without reloading the page. Any unhandled errors might be found in Django Logs.</p>
+<h2 id="testing-with-mobile-app"><a class="toclink" href="#testing-with-mobile-app">TESTING WITH MOBILE APP</a></h2>
+<p>Images can be tested either via web application or can also be tested with ISAC-SIMO Lite Mobile App. With the app, you need to provide the Local IP address of your running Django Project. To make the project accessible from local devices, you need to run the server using following command instead:</p>
+<pre><code class="language-bash">python manage.py runserver 0.0.0.0:8000 --noreload
+</code></pre>
+<p>Find your IP address with <code>ipconfig</code> or <code>ifconfig</code> or similar commands and enter that IP address in the mobile app. Then, continue with the Mobile Application by uploading or capturing images of different object types as required. The images will be sent to the running server in that IP address and will pass through all the pipeline models.</p>
+<p><strong>Make sure that, when you make changes in your model files, web app UI etc. you first need to test the image from the web app, so that the changes get stored in the application for the mobile app to use. Unless you reload the page, you can access the latest mobile api response (i.e. pipeline results) from the web app itself.</strong></p>
+<p>After you have tested the image from the mobile app, you can click on the "<strong>View Mobile Test Result</strong>" button. This will load the pipeline result of the latest test image and overrides the test results content.</p>
+<p><img alt="" src="../assets/lite-dashboard/image--009.png" title="View Mobile Test Result" /></p>
+<p>If you need, the pipeline configuration is stored in the <code>/static/temp/config.json</code> file. The mobile test result (i.e. pipeline result) is stored in <code>/static/temp/external_response.json</code> file. All the processors, classifiers, test images are stored in the <code>/static/temp</code> folder.</p>
 <h2 id="links"><a class="toclink" href="#links">LINKS</a></h2>
 <ul>
 <li><a href="https://www.isac-simo.net/docs/" target="_blank">ISAC-SIMO Documentation (Latest)</a></li>
 <li><a href="https://www.isac-simo.net/docs/developer-guide/" target="_blank">ISAC-SIMO Backend Developer Guide</a></li>
-<li><a href="https://github.com/Call-for-Code/ISAC-SIMO-Dashboard-Lite" target="_blank">ISAC-SIMO Lite Dashbord GitHub Repository</a></li>
-<li><a href="https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend" target="_blank">ISAC-SIMO Main GitHub Repository</a></li>
+<li><a href="https://github.com/ISAC-SIMO/ISAC-SIMO-Dashboard-Lite" target="_blank">ISAC-SIMO Lite Dashboard GitHub Repository</a></li>
+<li><a href="https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend" target="_blank">ISAC-SIMO Main GitHub Repository</a></li>
 <li><a href="../ISAC-SIMO-Lite-Documentation.pdf" target="_blank">Download PDF</a></li>
 </ul>
                 

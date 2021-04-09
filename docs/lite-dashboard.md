@@ -96,9 +96,25 @@ result and score.
 
 Results of the whole pipeline can be seen on the bottom of the page under the title of “**Pipeline Result**”. You can always modify the model, change the file or image and run the test again without reloading the page. Any unhandled errors might be found in Django Logs.
 
+## TESTING WITH MOBILE APP
+Images can be tested either via web application or can also be tested with ISAC-SIMO Lite Mobile App. With the app, you need to provide the Local IP address of your running Django Project. To make the project accessible from local devices, you need to run the server using following command instead:
+
+```bash
+python manage.py runserver 0.0.0.0:8000 --noreload
+```
+Find your IP address with ``ipconfig`` or ``ifconfig`` or similar commands and enter that IP address in the mobile app. Then, continue with the Mobile Application by uploading or capturing images of different object types as required. The images will be sent to the running server in that IP address and will pass through all the pipeline models.
+
+**Make sure that, when you make changes in your model files, web app UI etc. you first need to test the image from the web app, so that the changes get stored in the application for the mobile app to use. Unless you reload the page, you can access the latest mobile api response (i.e. pipeline results) from the web app itself.**
+
+After you have tested the image from the mobile app, you can click on the "**View Mobile Test Result**" button. This will load the pipeline result of the latest test image and overrides the test results content.
+
+![](./assets/lite-dashboard/image--009.png "View Mobile Test Result" )
+
+If you need, the pipeline configuration is stored in the ``/static/temp/config.json`` file. The mobile test result (i.e. pipeline result) is stored in ``/static/temp/external_response.json`` file. All the processors, classifiers, test images are stored in the ``/static/temp`` folder.
+
 ## LINKS
 - [ISAC-SIMO Documentation (Latest)](https://www.isac-simo.net/docs/){target="_blank"}
 - [ISAC-SIMO Backend Developer Guide](https://www.isac-simo.net/docs/developer-guide/){target="_blank"}
-- [ISAC-SIMO Lite Dashbord GitHub Repository](https://github.com/Call-for-Code/ISAC-SIMO-Dashboard-Lite){target="_blank"}
-- [ISAC-SIMO Main GitHub Repository](https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend){target="_blank"}
+- [ISAC-SIMO Lite Dashboard GitHub Repository](https://github.com/ISAC-SIMO/ISAC-SIMO-Dashboard-Lite){target="_blank"}
+- [ISAC-SIMO Main GitHub Repository](https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend){target="_blank"}
 - [Download PDF](ISAC-SIMO-Lite-Documentation.pdf){target="_blank"}
