@@ -5,7 +5,7 @@
 {% block dashboard_title2 %} {% trans "Object Type" %} {% endblock dashboard_title2 %}
 {% load static %}
 
-{% block content %}django-rosetta==0.9.5
+{% block content %}
     <div class="row">
         <form action="{% url 'watson.object' %}" id="object_form" method="POST" class="col-12">
             {% csrf_token %}

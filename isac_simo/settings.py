@@ -57,6 +57,9 @@ GOOGLE_MAP_API = os.getenv('GOOGLE_MAP_API')
 ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'buildchange.pythonanywhere.com', 'isac-simo.net',
                  'www.isac-simo.net', '149.81.165.216']
 
+CORS_ALLOWED_ORIGINS = ['https://127.0.0.1', 'https://www.isac-simo.net',
+                        'https://web.mondasolvo.net', 'https://www.mondasolvo.net']
+
 INTERNAL_IPS = (
     '127.0.0.1',
     'localhost'
@@ -66,6 +69,8 @@ APPEND_SLASH = True
 
 # Application definition
 
+DEFAULT_AUTO_FIELD='django.db.models.AutoField'
+
 INSTALLED_APPS = [
     'django.contrib.admin',
     'django.contrib.auth',
@@ -74,6 +79,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'crispy_forms',
+    'corsheaders',
     'main',
     'projects',
     'api',
@@ -94,6 +100,7 @@ MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.locale.LocaleMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
