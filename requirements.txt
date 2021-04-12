@@ -1,5 +1,5 @@
 appdirs==1.4.3
-asgiref==3.2.3
+asgiref==3.3.4
 astroid==2.3.3
 Babel==2.5.3
 beautifulsoup4==4.8.2
