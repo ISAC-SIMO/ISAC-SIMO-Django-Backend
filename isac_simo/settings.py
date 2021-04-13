@@ -58,7 +58,7 @@ ALLOWED_HOSTS = ['0.0.0.0', 'localhost', '127.0.0.1', 'buildchange.pythonanywher
                  'www.isac-simo.net', '149.81.165.216']
 
 CORS_ALLOWED_ORIGINS = ['https://127.0.0.1', 'https://www.isac-simo.net',
-                        'https://web.mondasolvo.net', 'https://www.mondasolvo.net', 'https://web.fulcrumapp.com']
+                        'https://web.mondasolvo.net', 'https://www.mondasolvo.net', 'https://web.fulcrumapp.com', 'https://fulcrumapp.s3.amazonaws.com']
 
 INTERNAL_IPS = (
     '127.0.0.1',
