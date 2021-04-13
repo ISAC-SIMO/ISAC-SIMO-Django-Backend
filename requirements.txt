@@ -54,7 +54,7 @@ phonenumbers==8.9.5
 phonenumberslite==8.11.4
 Pillow==8.2.0
 pipenv==2018.11.26
-#psycopg2==2.8.4
+# psycopg2==2.8.4
 pyfcm==1.4.5
 PyJWT==1.7.1
 pylint==2.4.4
@@ -81,10 +81,10 @@ wrapt==1.11.2
 xlwt==1.3.0
 django-rosetta==0.9.5
 mkdocs==1.1.2
-#mysqlclient==1.4.6
+# mysqlclient==1.4.6
 git+https://github.com/robolyst/streetview#egg=streetview
 # Tensorfow Required in local dev (64-bit os and 64-bit python runtime required)
-# Validate version that works best (python 3.7.5 + tensorflow 2.1.0 + keras 2.3.1)
+# Validate version that works best (python 3.8.x + tensorflow 2.2.0rc3 + keras 2.3.1)
 # tensorflow==2.2.0rc3
 Theano==1.0.4
 Keras==2.3.1

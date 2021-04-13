@@ -6,7 +6,7 @@ ISAC-SIMO is a system to validate that the intervention work done for homeowners
 ###BEFORE YOU START
 Before starting the project, you need to set these requirements.
 
- - Python > 3.7.x
+ - Python > 3.8.x
  - PostgreSQL > 13.x
  
 ##Installation

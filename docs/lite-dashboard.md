@@ -10,7 +10,7 @@ ISAC-SIMO is a system to validate that the intervention work done for homeowners
 ## BEFORE YOU START
 Before starting the project, you need to set these requirements.
 
- - Python > 3.7.x
+ - Python > 3.8.x
 
 ## INSTALLATION
 View the Open-Source GitHub repository for [ISAC-SIMO Dashboard Lite](https://github.com/Call-for-Code/ISAC-SIMO-Dashboard-Lite){target="_blank"}.

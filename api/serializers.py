@@ -124,10 +124,13 @@ class ImageSerializer(serializers.ModelSerializer):
         try:
             if image_url:
                 response = requests.get(image_url, stream=True, timeout=(3.05, 10))
-                image_byte = BytesIO(response.content)
-                image_url = InMemoryUploadedFile(image_byte, None, 'monda.jpg', 'image/jpeg', len(image_byte.getvalue()), None)
-                image_files = MultiValueDict({'image_1': [image_url]})
-                # print(image_files)
+                if response and (response.status_code == 200 or response.status_code == "200"):
+                    image_byte = BytesIO(response.content)
+                    image_url = InMemoryUploadedFile(image_byte, None, 'monda.jpg', 'image/jpeg', len(image_byte.getvalue()), None)
+                    image_files = MultiValueDict({'image_1': [image_url]})
+                    # print(image_files)
+                else:
+                    raise Exception("Request Failed with Invalid Status")
         except Exception as e:
             # print(e)
             raise serializers.ValidationError({"message":"Unable to read Image from provided URL"})

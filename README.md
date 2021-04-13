@@ -1,6 +1,7 @@
 # ISAC-SIMO
 
 [**View Documentation**](https://www.isac-simo.net/docs/)
+>**New Upgrade requires minimum of Python 3.8.x**
 
 #### Django Backend Repository
 ---
