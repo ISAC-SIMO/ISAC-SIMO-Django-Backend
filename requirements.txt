@@ -36,6 +36,7 @@ epc==0.0.5
 fcm-django==0.2.21
 filelock==3.0.12
 filetype==1.0.5
+geopy==2.1.0
 gunicorn==20.0.4
 html5lib==1.0.1
 idna==2.8

@@ -10,6 +10,7 @@ from django.db.models import Q
 from projects.models import Projects
 from api.models import ObjectType
 from django.utils.translation import gettext_lazy as _
+from geopy.geocoders import Nominatim
 
 USER_TYPE = [
     ('user', "User"),
@@ -142,6 +143,17 @@ class User(AbstractBaseUser):
         else:
             projects = Projects.objects.filter(guest=True)
             object_types = ObjectType.objects.filter(Q(project__in=projects)).order_by('name').all()
+
+        if request.GET.get("lat", None) and request.GET.get("lng", None):
+            try:
+                geolocator = Nominatim(user_agent="ISAC-SIMO-Smart-Location")
+                location = geolocator.reverse([request.GET.get("lat"), request.GET.get("lng")])
+                if location:
+                    country_code = location.raw['address']['country_code'].upper()
+                    object_types = list(filter(lambda obj: country_code in (list(map(lambda obj: obj.code, obj.countries))), object_types))
+            except Exception as e:
+                print(e)
+                print("Failed to Get Location for: " + request.GET.get("lat") + "," + request.GET.get("lng"))
 
         for o in object_types:
             image = None
