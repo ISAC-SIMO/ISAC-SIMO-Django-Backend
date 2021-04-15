@@ -194,7 +194,7 @@
         function editForm(id, name, url, project_id, instruction, countries){
           $('#id_field').val(id);
           $('#object_type').val(name);
-          $('#instruction').val(instruction.replace(/(<br ?\/>)/g,'\n'));
+          $('#instruction').val(instruction.replace(/(<br><br>)/g,'\n').replace(/(<br ?\/?>)/g,'\n'));
           $('#project').val(project_id).trigger('change');
           $('#countries').val(countries.split(',')).trigger('change');
           $('#file_path').css("display","block");
