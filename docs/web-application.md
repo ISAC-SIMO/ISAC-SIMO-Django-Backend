@@ -47,12 +47,13 @@ shown via linked projects.
 **Example**: wall, rebar, rebar shapes etc.
 <br>
 ### <span style="color:green">Create/Add Object Types</span>
-The Name of Object Type must be unique for that specific Project. ⚠ **If an Object Type is linked to a
-Project (by Admin), then the Project Admin will have full Access to it**.
+The Name of Object Type must be unique for that specific Project. 
+
+⚠ **If an Object Type is linked to a Project (by Admin), then the Project Admin will have full Access to it**.
 <br>
 ### <span style="color:green">View Object Types</span>
 Admin and Project Admin can manage Object Types, Change Order of Classifier Pipelines, Test Images
-against this Object Type and more.
+against this Object Type and more. Not shown in the picture below: Admin can also choose multiple countries in which certain checks should be available. Depending on mobile app users GPS location, it will show or hide certain object type from check list.
 ![](./assets/image10.png)
 <br>
 ![](./assets/image11.png)

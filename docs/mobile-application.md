@@ -26,7 +26,7 @@ The Home Tab is the Mobile Dashboard. There are Information, Report and Quality 
 
 ## Quality Check 
 As mentioned multiple times above, Guest Users who choose not to login will only have access to Global Guest Project and its Object Types (If they exist). While, logged in users will only have access to Projects and the Object Types they are linked to. This Quality Checks page lists all the Object Type users can test by taking photographs.
-First, Choose the Object Type for which to perform a quality test. In the image below, users may choose Facade Wall, Rebar Shapes etc.
+First, Choose the Object Type for which to perform a quality test. In the image below, users may choose Facade Wall, Rebar Shapes etc. The checks list might vary depending on users GPS location.
 <br>
 ![](./assets/image43.png)
 <br>

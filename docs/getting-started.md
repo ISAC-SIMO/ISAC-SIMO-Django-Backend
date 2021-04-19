@@ -30,9 +30,9 @@ You have created a Project, but you need to add Object Types that this project w
 For Example, in our “My Wall Test Project”, users will be able to test Wall Facade, Wall Bond Pattern etc.
 These are the Object Types that can be tested. You can view and manage the Object Types as shown in Image below.
 
-![description](./assets/image51.png )
-Here, we add Object Types, choose the Project and provide suitable Instruction and Image on how to perform the test.
- Now, the Classifiers/Models Pipeline for these specific Object Types can be added so that users can test.
+![description](./assets/object-type.png )
+
+Here, we add Object Types, choose the Project and provide suitable Instruction and Image on how to perform the test. You can choose multiple countries in which this check should be available. Depending on users GPS location, it will show or hide certain object type from check list. Now, the Classifiers/Models Pipeline for these specific Object Types can be added so that users can test.
  
 ## STEP 4 - Add Classifiers & Pipeline
 🛈 [More info on Models / Classifiers](./web-application.md#models-classifier)
@@ -44,6 +44,7 @@ For this example, we will add models for “Wall Bond Pattern Test”. We have c
 
 After we have added the Pre/Post Processor appropriately we can quickly test an image and view python dependencies. Make sure that when creating Offline Models, study the Readme guide and view examples.
 Here, we see that we created one Pre-Processor and one Post-Processor.
+
 ![description](./assets/image52.png )
 
 Now, finally we can create a Model/Classifier and link these offline models. You could ofcourse use Watson Model or Train yourself with Images. In the create form choose the Source of Model, fill the form as required and set the order in which to run.
