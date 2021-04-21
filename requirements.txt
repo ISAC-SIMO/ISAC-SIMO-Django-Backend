@@ -25,69 +25,76 @@ django-map-widgets==0.1.9
 django-modeltranslation==0.13b1
 django-phonenumber-field==2.0.0
 django-rest-swagger==2.1.2
+django-rosetta==0.9.5
 django-storages==1.9.1
 django-uuidfield==0.5.0
 django-webpack-loader==0.6.0
 djangorestframework==3.12.4
 djangorestframework-simplejwt==4.6.0
-python-dotenv==0.12.0
 dropbox==9.4.0
 epc==0.0.5
 fcm-django==0.2.21
 filelock==3.0.12
 filetype==1.0.5
 geopy==2.1.0
+git+https://github.com/robolyst/streetview#egg=streetview
 gunicorn==20.0.4
+# h5py==2.10.0
 html5lib==1.0.1
+ibm-cos-sdk==2.10.0
 idna==2.8
 img2pdf==0.3.3
 importmagic==0.1.7
 isort==4.3.21
 itypes==1.1.0
 Jinja2==2.11.3
+Keras==2.3.1
 lazy-object-proxy==1.4.3
 MarkupSafe==1.1.1
+# matplotlib==3.4.1
 mccabe==0.6.1
-numpy==1.18.2
+mistune==2.0.0a4
+mkdocs==1.1.2
+# mysqlclient==1.4.6
+numpy==1.19.5
 openapi-codec==1.3.2
 opencv-python==4.2.0.32
+# pandas==1.2.4
 phonenumbers==8.9.5
 phonenumberslite==8.11.4
 Pillow==8.2.0
 pipenv==2018.11.26
+# CentOS and RedHat might require to install psycopg2-binary instead
 # psycopg2==2.8.4
 pyfcm==1.4.5
 PyJWT==1.7.1
 pylint==2.4.4
 python-dateutil==2.8.1
+python-dotenv==0.12.0
 pytz==2018.4
 reportlab==3.5.34
-requests==2.22.0
 requests-toolbelt==0.9.1
+requests==2.22.0
+# scikit-image==0.18.1
+# scipy==1.4.1
 sexpdata==0.0.3
 simplejson==3.17.0
 six==1.13.0
 soupsieve==2.0
 sqlparse==0.2.4
 tablib==1.1.0
+# Install Compatible Tensorflow version
+# Validate version that works best (e.g. python 3.8.x + tensorflow 2.2.0rc3 + keras 2.3.1)
+# tensorflow==2.2.0rc3
+# tensorflow==2.4.1
+Theano==1.0.4
 uritemplate==3.0.1
 urllib3==1.25.8
-virtualenv==20.0.4
 virtualenv-clone==0.5.3
+virtualenv==20.0.4
 watson-developer-cloud==2.10.1
 webencodings==0.5.1
 websocket-client==0.48.0
 whitenoise==5.0.1
 wrapt==1.11.2
 xlwt==1.3.0
-django-rosetta==0.9.5
-mkdocs==1.1.2
-# mysqlclient==1.4.6
-git+https://github.com/robolyst/streetview#egg=streetview
-# Tensorfow Required in local dev (64-bit os and 64-bit python runtime required)
-# Validate version that works best (python 3.8.x + tensorflow 2.2.0rc3 + keras 2.3.1)
-# tensorflow==2.2.0rc3
-Theano==1.0.4
-Keras==2.3.1
-mistune==2.0.0a4
-ibm-cos-sdk==2.10.0

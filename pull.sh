@@ -3,12 +3,9 @@
 cd /root/isac/ISAC-SIMO_Django/
 echo '==PULLING FROM MASTER=='
 git pull origin master
-pip3 install python-dotenv
-pip3 install django
 
 source env/bin/activate
 pip install -r requirements.txt
-# pip install tensorflow==2.1.0
 
 # python manage.py clearsessions
 python manage.py migrate
