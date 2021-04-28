@@ -58,6 +58,9 @@
         {% load crispy_forms_tags %}
         <form action="{% url 'login' %}" method="post">
           {% csrf_token %}
+          {% if next %}
+          <input type="hidden" value="{{next}}" name="next"/>
+          {% endif %}
 
           {% if messages %}
             {% for message in messages %}

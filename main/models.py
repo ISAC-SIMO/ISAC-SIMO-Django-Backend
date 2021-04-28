@@ -139,21 +139,21 @@ class User(AbstractBaseUser):
         if request and request.user and not request.user.is_anonymous and request.user.id:
             projects = Projects.objects.filter(users__id=request.user.id)
             object_types = ObjectType.objects.filter(Q(created_by=request.user) | Q(project__in=projects)).order_by('name').all()
+            # If Lat Lng available (e.g. from mobile app) filter by country
+            if request.GET.get("lat", None) and request.GET.get("lng", None):
+                try:
+                    geolocator = Nominatim(user_agent="ISAC-SIMO-Smart-Location")
+                    location = geolocator.reverse([request.GET.get("lat"), request.GET.get("lng")])
+                    if location:
+                        country_code = location.raw['address']['country_code'].upper()
+                        object_types = list(filter(lambda obj: not obj.countries or country_code in (list(map(lambda obj: obj.code, obj.countries))), object_types))
+                except Exception as e:
+                    print(e)
+                    print("Failed to Get Location for: " + request.GET.get("lat") + "," + request.GET.get("lng"))
         # Else if Guest user return object type for projects marked as Guest=True
         else:
             projects = Projects.objects.filter(guest=True)
             object_types = ObjectType.objects.filter(Q(project__in=projects)).order_by('name').all()
-
-        if request.GET.get("lat", None) and request.GET.get("lng", None):
-            try:
-                geolocator = Nominatim(user_agent="ISAC-SIMO-Smart-Location")
-                location = geolocator.reverse([request.GET.get("lat"), request.GET.get("lng")])
-                if location:
-                    country_code = location.raw['address']['country_code'].upper()
-                    object_types = list(filter(lambda obj: country_code in (list(map(lambda obj: obj.code, obj.countries))), object_types))
-            except Exception as e:
-                print(e)
-                print("Failed to Get Location for: " + request.GET.get("lat") + "," + request.GET.get("lng"))
 
         for o in object_types:
             image = None

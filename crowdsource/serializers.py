@@ -2,6 +2,7 @@ from crowdsource.helpers import move_object, upload_object
 from rest_framework import serializers
 from api.serializers import UserMinimalSerializer
 from .models import Crowdsource
+import uuid
 
 class CrowdsourceSerializer(serializers.ModelSerializer):
     created_by = UserMinimalSerializer(many=False, read_only=True)
@@ -20,6 +21,8 @@ class CrowdsourceSerializer(serializers.ModelSerializer):
         username = request.POST.get('username', None)
         if not username and user:
             username = user.full_name
+        if not username:
+            username = "Anonymous User - " + uuid.uuid4().hex[:6].upper()
         
         crowdsource = Crowdsource.objects.create(object_type=validated_data.get('object_type'),
                                     image_type=validated_data.get('image_type'),

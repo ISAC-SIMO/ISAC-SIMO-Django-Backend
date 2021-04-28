@@ -132,21 +132,31 @@ def login_user(request):
             # If user disabled i.e. active = False
             if not user.active:
                 messages.error(request, 'User Account has been Disabled. Please contact Admin.')
+                form = LoginForm(request.POST)
+                return render(request, 'auth/login.html', {'form':form})
 
             if request.POST.get('remember') is not None:    
                 request.session.set_expiry(1209600)
             login(request, user)
+            if request.POST.get('next'): # Go Back to Previous route (e.g. in case was logged out)
+                return HttpResponseRedirect(request.POST.get('next'))
             return redirect('dashboard')
         else:
             form = LoginForm(request.POST)
             messages.error(request, 'Invalid User Credentials')
-            return render(request, 'auth/login.html', {'form':form})
+            next = False
+            if request.POST.get('next'):
+                next = request.POST.get('next')
+            return render(request, 'auth/login.html', {'form':form, 'next':next})
     else:
         if not request.user.is_authenticated:
             if request.GET.get('error') == 'unauthorized':
                 messages.error(request, 'Unauthorized Access. Login to Continue.')
+            next = False
+            if request.GET.get('next'): # Store Next Route
+                next = request.GET.get('next')
             form = LoginForm()
-            return render(request, 'auth/login.html', {'form':form})
+            return render(request, 'auth/login.html', {'form':form, 'next':next})
         else:
             storage = messages.get_messages(request)
             storage.used = True

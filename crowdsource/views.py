@@ -17,29 +17,37 @@ from rest_framework.response import Response
 
 # View All Crowdsource Images + Update/Create
 
-@login_required(login_url=login_url)
 def crowdsource_images(request):
+    dash = request.user and not request.user.is_anonymous
+    if dash:
+        dash = "master/base.html"
+    else:
+        dash = "master/blank.html"
+
     if request.method == "GET":
         crowdsource_images = []
         query = request.GET.get('q','')
-        if(is_admin_or_project_admin(request.user)):
-            crowdsource_images = Crowdsource.objects.order_by(
-                '-created_at').filter(Q(object_type__icontains=query) |
-                                       Q(image_type__icontains=query) |
-                                       Q(username__icontains=query)).distinct().all()
-        else:
-            crowdsource_images = Crowdsource.objects.filter(
-                created_by=request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
-                                       Q(image_type__icontains=query) |
-                                       Q(username__icontains=query)).distinct().all()
+        if request.user and not request.user.is_anonymous:
+            if(is_admin_or_project_admin(request.user)):
+                crowdsource_images = Crowdsource.objects.order_by(
+                    '-created_at').filter(Q(object_type__icontains=query) |
+                                        Q(image_type__icontains=query) |
+                                        Q(username__icontains=query)).distinct().all()
+            else:
+                crowdsource_images = Crowdsource.objects.filter(
+                    created_by=request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
+                                        Q(image_type__icontains=query) |
+                                        Q(username__icontains=query)).distinct().all()
 
-        paginator = Paginator(crowdsource_images, 50)  # Show 50
-        page_number = request.GET.get('page', '1')
-        crowdsources = paginator.get_page(page_number)
+            paginator = Paginator(crowdsource_images, 50)  # Show 50
+            page_number = request.GET.get('page', '1')
+            crowdsources = paginator.get_page(page_number)
+        else:
+            crowdsources = False
 
         form = CrowdsourceForm()
 
-        return render(request, 'crowdsource_images.html', {'crowdsources': crowdsources, 'form': form, 'query': query})
+        return render(request, 'crowdsource_images.html', {'crowdsources': crowdsources, 'form': form, 'query': query, 'dash': dash})
     elif request.method == "POST":
         if request.POST.get('id', False) and request.POST.get('id') != "0":
             # EDIT
