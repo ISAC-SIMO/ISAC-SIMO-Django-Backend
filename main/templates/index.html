@@ -13,11 +13,11 @@
 		<link rel="stylesheet" href="{% static 'home/assets/css/main.css' %}" />
 		<noscript><link rel="stylesheet" href="{% static 'home/assets/css/noscript.css' %}" /></noscript>
 	</head>
-	<body class="is-preload">
+	<body>
 
 		<!-- Header -->
 			<section id="header">
-				<div class="inner">
+				<div class="inner fade">
 					<span class="icon solid major jumpy fa-cloud"></span>
 					<h1>Hi, I'm <strong>ISAC -SIMO</strong>, your<br />Intelligent Supervision Assistant for Construction </h1>
 					<p>I provide instant quality assurance feedback on<br />
@@ -90,24 +90,24 @@
 					</header>
 					<p>Check out these links for more information on ISAC-SIMO.</p>
 					<div class="row gtr-150">
-						<div class="col-4 col-12-medium">
-							<span class="image fit"><iframe style="width: 100%;height: 220px;display: block;" src="https://www.youtube.com/embed/145ytpzG3I8"></iframe></span>
+						<div class="col-4 col-12-medium card">
+							<span class="image fit"><iframe style="width: 100%;height: 240px;display: block;border: 1px solid #ddd;" src="https://www.youtube.com/embed/145ytpzG3I8"></iframe></span>
 							<h3>Our promotional video</h3>
 							<p> Learn about the story behind ISAC-SIMO and get a glimpse of the app in action.</p>
 							<ul class="actions special">
 								<li><a href="https://www.youtube.com/watch?v=145ytpzG3I8" class="button">More</a></li>
 							</ul>
 						</div>
-						<div class="col-4 col-12-medium">
-							<span class="image fit"><img src="{% static 'home/images/pic03.png' %}" alt="" /></span>
+						<div class="col-4 col-12-medium card">
+							<span class="image fit"><img style="border: 1px solid #ddd;height: 240px;object-fit: contain;" src="{% static 'home/images/pic03.jpg' %}" alt="" /></span>
 							<h3> About Build Change</h3>
 							<p>Check out website for more information on Build Change’s work in disaster resilience.</p>
 							<ul class="actions special">
 								<li><a href="https://buildchange.org/" class="button">More</a></li>
 							</ul>
 						</div>
-						<div class="col-4 col-12-medium">
-							<span class="image fit"><img src="{% static 'home/images/pic04.jpg' %}" alt="" /></span>
+						<div class="col-4 col-12-medium card">
+							<span class="image fit"><img style="border: 1px solid #ddd;height: 240px;object-fit: contain;" src="{% static 'home/images/pic04.jpg' %}" alt="" /></span>
 							<h3>How to get involved</h3>
 							<p>If you want to contribute/support us. Please checkout the link below.</p>
 							<ul class="actions special">
@@ -134,6 +134,8 @@
 						{% endif %}
 					</ul>
 					<a href="{% url 'images.test' %}" class="button wide try-now-btn">Try Now</a>
+					<br/>
+					<a href="{% url 'crowdsource' %}" class="button wide try-now-btn" style="margin-top: 10px !important;">Contribute to Crowdsource</a>
 				</div>
 			</section>
 
@@ -458,11 +460,11 @@ print 'It took ' + i + ' iterations to sort the deck.';</code></pre>
 		<!-- Footer -->
 			<section id="footer">
 				<ul class="icons">
-					<li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li>
-					<li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li>
-					<li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li>
-					<li><a href="#" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
-					<li><a href="#" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li>
+					{% comment %} <li><a href="#" class="icon brands alt fa-twitter"><span class="label">Twitter</span></a></li> {% endcomment %}
+					{% comment %} <li><a href="#" class="icon brands alt fa-facebook-f"><span class="label">Facebook</span></a></li> {% endcomment %}
+					{% comment %} <li><a href="#" class="icon brands alt fa-instagram"><span class="label">Instagram</span></a></li> {% endcomment %}
+					<li><a href="https://github.com/ISAC-SIMO/" target="_blank" rel="noopener noreferrer" class="icon brands alt fa-github"><span class="label">GitHub</span></a></li>
+					{% comment %} <li><a href="#" class="icon solid alt fa-envelope"><span class="label">Email</span></a></li> {% endcomment %}
 				</ul>
 				<ul class="copyright">
 					<li>&copy; Build Change</li><li>Project Support By: IBM</li><li><a href="/docs/" target="_blank">Documentation</a></li>

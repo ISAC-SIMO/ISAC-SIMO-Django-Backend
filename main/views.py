@@ -1,3 +1,4 @@
+from crowdsource.models import Crowdsource
 from datetime import timedelta
 import os
 import subprocess
@@ -138,6 +139,21 @@ def login_user(request):
             if request.POST.get('remember') is not None:    
                 request.session.set_expiry(1209600)
             login(request, user)
+            # CHECK AND LINK CROWDSOURCE CONTRIBUTION TO THIS ACCOUNT
+            crowdsource_images = request.session.get('crowdsource_images', [])
+            crowdsource_images_linked = 0
+            for img in crowdsource_images:
+                if img.get('id'):
+                    crowdsource_image = Crowdsource.objects.filter(id=img.get('id')).get()
+                    if crowdsource_image and not crowdsource_image.created_by_id:
+                        crowdsource_image.created_by_id = user.id
+                        crowdsource_image.username = user.full_name
+                        crowdsource_image.save()
+                        crowdsource_images_linked += 1
+            if crowdsource_images_linked and crowdsource_images_linked > 0:
+                messages.info(request, str(crowdsource_images_linked) + ' Crowdsource Image has been linked to your account.')
+            request.session.pop('crowdsource_images', None)
+
             if request.POST.get('next'): # Go Back to Previous route (e.g. in case was logged out)
                 return HttpResponseRedirect(request.POST.get('next'))
             return redirect('dashboard')

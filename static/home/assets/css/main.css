@@ -73,6 +73,9 @@ input, select, textarea {
 }
 
 /* Basic */
+	:root {
+		--selection-bg: #3297FD;
+	}
 
 	html {
 		box-sizing: border-box;
@@ -103,6 +106,17 @@ input, select, textarea {
 		font-size: 16pt;
 		font-weight: 300;
 		line-height: 1.65em;
+	}
+
+	.fade {
+		opacity: 0;
+		transform: translate(0 , 20px);
+		animation: fade 1.5s ease forwards;
+	}
+
+	@keyframes fade {
+		0%{opacity: 0; transform: translate(0 , 20px);}
+		100%{opacity: 1; transform: translate(0 , 0);}
 	}
 
 	a {
@@ -3550,4 +3564,17 @@ body::-webkit-scrollbar-thumb{background-color:#2c3b41;border:2px solid #dadada;
 	ul.actions:not(.fixed) {
 			margin-bottom: 1em !important;
 	}
+}
+
+.card {
+	display: flex;
+	flex-flow: column;
+	justify-content: flex-end;
+	align-items: center;
+	overflow: hidden;
+}
+
+::selection {
+	background: #3297FD;
+	background: var(--selection-bg);;
 }

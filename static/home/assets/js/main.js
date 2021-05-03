@@ -27,6 +27,23 @@
 		});
 
 	// Scrolly.
-		$('.scrolly').scrolly();
+	$('.scrolly').scrolly();
+
+	/****************************************************************/
+	// SELECTION BG COLOR
+	// SELECT SOME TEXT, THEN CLICK Backspace/Delete Button FOR FUN
+	/****************************************************************/
+	var i = 0;
+	var int = false;
+	window.addEventListener('keydown', function(event) {
+		var key = event.key;
+		if (key === "Backspace" || key === "Delete") {
+			if(int) {clearInterval(int)}
+			int = setInterval(function() {
+				var color = "#" + ((1<<24)*Math.random() | 0).toString(16);
+				document.querySelector(':root').style.setProperty('--selection-bg', 'hsl(' + ++i + ', 70%, 50%)');
+			}, 50);
+		}
+	});
 
 })(jQuery);

@@ -92,8 +92,17 @@
           <div class="col-sm-12 col-md-8">
             <div class="card">
                 <div class="card-body">
-                  {% if request.session.images %}
-
+                  {% if request.session.crowdsource_images %}
+                    <div style="display:flex;flex-wrap:wrap;">
+                      {% for img in request.session.crowdsource_images %}
+                        <div style="width: 200px;height:200px;margin-right:8px;position: relative;border:1px solid #ddd;display:flex;">
+                          <img src="{{img.file}}" alt="UID-{{img.id}}" style="width: 200px;object-fit: contain;">
+                          <i style="position:absolute;right:7px;top:7px;cursor:pointer;" title="Edit" class="fa fa-edit" onclick="editForm('{{img.id}}','{{img.id}}','{{img.file}}','{{img.object_type}}','{{img.image_type}}','{{img.username}}')"></i>
+                        </div>
+                      {% endfor %}
+                    </div>
+                    <br/>
+                    <h5><a href="{% url 'login' %}"><b>Login</b></a> to link these images to your account.</h5>
                   {% else %}
                     <h5>You have Zero Crowdsource Contributions.</h5>
                     <p>You can <a href="{% url 'login' %}"><b>Login</b></a> to view and manage your images.</p>
@@ -294,7 +303,6 @@
           $('#id_username').val(my_username);
         });
 
-        {% if user.is_authenticated %}
         function editForm(id, name, url, object_type, image_type, username){
           $('#id_field').val(id);
           $('#id_object_type').val(object_type).trigger('change');
@@ -327,6 +335,5 @@
           $('#id_file').val('');
           $('#id_username').val(my_username);
         }
-        {% endif %}
     </script>
 {% endblock script %}

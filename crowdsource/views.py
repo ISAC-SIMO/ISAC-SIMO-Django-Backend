@@ -14,6 +14,7 @@ from rest_framework import generics, mixins, viewsets
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from .serializers import CrowdsourceSerializer
 from rest_framework.response import Response
+import uuid
 
 # View All Crowdsource Images + Update/Create
 
@@ -55,17 +56,36 @@ def crowdsource_images(request):
                 if(is_admin_or_project_admin(request.user)):
                     crowdsource_image = Crowdsource.objects.filter(
                         id=request.POST.get('id')).get()
-                else:
+                elif request.user.is_authenticated:
                     crowdsource_image = Crowdsource.objects.filter(
                         created_by=request.user).filter(id=request.POST.get('id')).get()
+                else:
+                    crowdsource_images = request.session.get('crowdsource_images', [])
+                    crowdsource_image = False
+                    for img in crowdsource_images:
+                        if str(img.get('id')) == request.POST.get('id'):
+                            crowdsource_image = Crowdsource.objects.filter(id=request.POST.get('id')).get()
+                    if not crowdsource_image:
+                        messages.error(request, "Invalid Crowdsource Image attempted to edit.")
+                        return redirect("crowdsource")
 
                 form = CrowdsourceForm(
                     request.POST or None, instance=crowdsource_image)
                 old_object_key = crowdsource_image.bucket_key()
+                crowdsource_images = request.session.get('crowdsource_images', [])
                 if form.is_valid():
                     instance = form.save(commit=False)
+                    if not instance.username:
+                        if not request.user.is_authenticated:
+                            instance.username = "Anonymous User - " + uuid.uuid4().hex[:6].upper()
                     instance.save()
-                    if old_object_key != instance.bucket_key():
+
+                    for idx, val in enumerate(crowdsource_images):
+                        if str(val.get("id")) == str(instance.id):
+                            crowdsource_images[idx] = {'id': instance.id, 'file': instance.file.url, 'object_type': instance.object_type, 'image_type': instance.image_type, 'username': instance.username}
+                    request.session['crowdsource_images'] = crowdsource_images
+                    
+                    if request.user.is_authenticated and old_object_key != instance.bucket_key():
                         move_object(instance.bucket_key(), old_object_key)
                     messages.success(
                         request, "Crowdsource Image Updated Successfully")
@@ -74,21 +94,34 @@ def crowdsource_images(request):
                 pass
         else:
             # TODO: FOR NOW LIMIT 5 TOTAL UPLOADS BY SAME USER ( SAME BELOW )
-            if(Crowdsource.objects.filter(created_by=request.user).count() >= 5):
-                messages.error(request, "Currently you can only upload 5 images. More will be enabled later.")
-                return redirect("crowdsource")
+            if request.user.is_authenticated:
+                if(Crowdsource.objects.filter(created_by=request.user).count() >= 5):
+                    messages.error(request, "Currently you can only upload 5 images. More will be enabled later.")
+                    return redirect("crowdsource")
+            else:
+                if(len(request.session.get('crowdsource_images', [])) >= 5):
+                    messages.error(request, "Currently you can only upload 5 images. More will be enabled later.")
+                    return redirect("crowdsource")
 
             # Create
             total = 0
+            crowdsource_images = request.session.get('crowdsource_images', [])
             for _file in request.FILES.getlist('file'):
                 request.FILES['file'] = _file
                 form = CrowdsourceForm(
                     request.POST or None, request.FILES or None)
                 if form.is_valid():
                     instance = form.save(commit=False)
-                    instance.created_by = request.user
+                    if request.user.is_authenticated:
+                        instance.created_by = request.user
+                    else:
+                        instance.username = "Anonymous User - " + uuid.uuid4().hex[:6].upper()
                     instance.save()
-                    upload_object(instance.bucket_key(), instance.filepath())
+                    crowdsource_images.append({'id': instance.id, 'file': instance.file.url, 'object_type': instance.object_type, 'image_type': instance.image_type, 'username': instance.username})
+                    request.session['crowdsource_images'] = crowdsource_images
+
+                    if request.user.is_authenticated:
+                        upload_object(instance.bucket_key(), instance.filepath())
                     total += 1
                     if total >= 5:
                         break; # TODO: FOR NOW LIMIT 5 TOTAL UPLOADS BY SAME USER
