@@ -27,6 +27,7 @@
                     <table id="object_types" class="table table-bordered table-hover table-striped">
                         <thead>
                             <tr>
+                                <th title="ID number can be used in APIs to denote the Object Type or Check" style="color:teal;">{% trans "ID" %}</th>
                                 <th>{% trans "Name" %}</th>
                                 <th>{% trans "Project" %}</th>
                                 <th>{% trans "Added By" %}</th>
@@ -36,6 +37,7 @@
                         <tbody>
                             {% for object_type in object_types %}
                                 <tr>
+                                    <td>{{object_type.id}}</td>
                                     <td data-toggle="tooltip" data-placement="top" data-html="true" title="{{object_type.instruction|default:''}}{% if object_type.instruction %}<br/>{% endif %}{% if object_type.countries %}<b>Countries:</b> {% for country in object_type.countries %}{{country.name}}{% if not forloop.last %}, {% endif %}{% endfor %}{% else %}<b>Countries:</b> All{% endif %}">{{object_type.name|title}}</td>
                                     <td>{{object_type.project.project_name|title|default:'N/A'}} {% if object_type.project.guest %} <i class="fa fa-globe text-success ml-1" title="Global Project" data-toggle="tooltip" data-placement="right"></i> {% endif %} {% if object_type.project.public %} <i class="fa fa-bullhorn text-primary ml-1" title="Public Project" data-toggle="tooltip" data-placement="right"></i> {% endif %}</td>
                                     <td>{{object_type.created_by.full_name|default:'User'}}</td>
