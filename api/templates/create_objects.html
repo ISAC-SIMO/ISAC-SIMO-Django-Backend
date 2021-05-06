@@ -5,6 +5,7 @@
 {% block dashboard_title1 %} {% trans "Object Type" %} {% if project_filter %}for {{project_filter|title}}{% endif %} {% endblock dashboard_title1 %}
 {% block dashboard_title2 %} {% trans "View & Create Object Type" %} {% endblock dashboard_title2 %}
 {% load static %}
+{% load modif %}
 
 {% block content %}
     <style>
@@ -42,7 +43,10 @@
                                     <td>{{object_type.project.project_name|title|default:'N/A'}} {% if object_type.project.guest %} <i class="fa fa-globe text-success ml-1" title="Global Project" data-toggle="tooltip" data-placement="right"></i> {% endif %} {% if object_type.project.public %} <i class="fa fa-bullhorn text-primary ml-1" title="Public Project" data-toggle="tooltip" data-placement="right"></i> {% endif %}</td>
                                     <td>{{object_type.created_by.full_name|default:'User'}}</td>
                                     {% if user.is_admin or user.is_project_admin %}
-                                    <td class="table-options" style="min-width: 170px;">
+                                    <td class="table-options" id="pipeline-options-{{object_type.id}}" style="min-width: 170px;">
+                                        <a title="{% trans 'View Pipeline Flow' %}" data-toggle="tooltip" data-placement="left" href="#!" onclick="loadPipeline('{{object_type.id}}', '{{object_type|json}}', '{{object_type.classifiers.all|json}}')" class="btn text-secondary px-0" style="margin: 0 4px !important;">
+                                            <i class="fa fa-info" data-toggle="modal" data-target="#modal-xl"></i>
+                                        </a>
                                         <a title="{% trans 'View Image' %}" data-toggle="tooltip" data-placement="left" href="#!" onclick="showImagePop(event,'{% if object_type.image %}{{object_type.image.url}}{% else %}/media/object_types/default.jpg{% endif %}')" class="btn text-secondary px-0" style="margin: 0 4px !important;">
                                             <i class="fa fa-file-image"></i>
                                         </a>
@@ -172,9 +176,109 @@
             </div>
         </div>
     </div>
+    <style>
+        #pipeline-options a:first-child {
+            display: none;
+        }
+        .flow-diagram.simple {
+            display: flex;
+            justify-content: flex-start;
+            align-items: center;
+        }
+        .flow-diagram.simple .step {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            flex-flow: column;
+            width: 100px;
+            height: 100px;
+            background: #b48f57;
+            font-weight: 900;
+            color: white;
+            border: 5px solid #0d140d;
+            border-radius: 100%;
+            margin-right: 50px;
+            padding: 5px;
+            text-align: center;
+            box-sizing: content-box;
+            will-change: transform;
+            transition: all 0.3s ease;
+            cursor: pointer;
+            font-size: 0.8em;
+        }
+        .flow-diagram.simple .step:hover {
+            transform: scale(1.03);
+            opacity: 0.8;
+        }
+        .flow-diagram.simple .step:after {
+            content: "\f30b";
+            position: absolute;
+            right: -40px;
+            color: #4f4f4f;
+            font-family: "Font Awesome 5 Free";
+            font-weight: 900;
+            font-size: 2em;
+            transition: all 0.3s ease;
+        }
+        .flow-diagram.simple .step:hover:after {
+            animation: move 0.3s infinite alternate;
+        }
+        @keyframes move {
+            0%{transform: translate(0, 0);}
+            100%{transform: translate(5px, 0);}
+        }
+        .flow-diagram.simple .step:last-child:after {
+            content: unset;
+        }
+        .flow-diagram.simple .step i {
+            margin-bottom: 8px;
+        }
+        .flow-diagram.simple .step span {
+            width: 100%;
+            word-wrap: break-word;
+        }
+        .flow-diagram.simple .step.success {
+            width: 50px;
+            height: 50px;
+            font-size: 0.9em;
+            border: none;
+        }
+        .flow-diagram.simple .step.success i {
+            margin: 0;
+        }
+    </style>
 {% endblock content %}
 
 {% block script %}
+    <div class="modal fade" id="pipeline-modal">
+        <div class="modal-dialog modal-xl">
+          <div class="modal-content">
+            <div class="modal-header">
+              <h4 class="modal-title" id="pipeline-name"></h4>
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+              </button>
+            </div>
+            <div class="modal-body">
+              <div id="pipeline-flow">
+                <div class="flow-diagram simple" id="pipeline-body">
+                </div>
+              </div>
+              <br/>
+              <b>Options:</b>
+              <p id="pipeline-options"></p>
+            </div>
+            <div class="modal-footer justify-content-between">
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </div>
+          <!-- /.modal-content -->
+        </div>
+        <!-- /.modal-dialog -->
+      </div>
+      <!-- /.modal -->
+
     <script>
         $(function () {
           $('#object_types').DataTable({
@@ -202,6 +306,7 @@
           $('#file_path').css("display","block");
           $('#file_path').html('Previous: <a href="'+url+'" target="_blank">'+url+'</a>');
           $('#submit_button').text("Update");
+          $("#pipeline-modal").modal('hide');
         }
 
         function createForm(event){
@@ -215,6 +320,36 @@
           $('#file_path').css("display","none");
           $('#file_path').html('');
           $('#submit_button').text("Add");
+        }
+
+        function loadPipeline(id, object_type, classifiers){
+            object_type = JSON.parse(object_type.replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t"));
+            classifiers = JSON.parse(classifiers.replace(/\n/g, "\\n").replace(/\r/g, "\\r").replace(/\t/g, "\\t"));
+            //console.log(object_type)
+            //console.log(classifiers)
+            
+            $("#pipeline-name").text(object_type.fields.name.toUpperCase());
+            var opt = $("#pipeline-options-"+id).html();
+            $("#pipeline-options").html(opt);
+            $("#pipeline-options a").tooltip({trigger: 'hover'});
+
+            if(classifiers && classifiers.length > 0) {
+                $("#pipeline-body").html("");
+                var html = "";
+                for(var i = 0 ; i < classifiers.length ; i++) {
+                    if(classifiers[i].fields.offline_model) {
+                        html += '<div class="step"><i class="fa fa-microchip" aria-hidden="true"></i><span>'+ classifiers[i].fields.given_name.toUpperCase() +'</span></div>'
+                    } else {
+                        html += '<div class="step" style="background:#0f62fe;"><i class="fa fa-brain" aria-hidden="true"></i><span>'+ classifiers[i].fields.given_name +'</span></div>'
+                    }
+                }
+                html += '<div class="step success" style="background:#1d9c79;"><i class="fa fa-check" aria-hidden="true"></i><span>Success</span></div>'
+                $("#pipeline-body").html(html);
+            } else {
+                $("#pipeline-body").html("<h3 style='color:red;'><b>No Checks has been added for this Object Type. Pipeline is empty.</b></h3>");
+            }
+
+            $("#pipeline-modal").modal('show');
         }
     </script>
 {% endblock script %}

@@ -286,8 +286,8 @@ function verifyImage(event, id, result, score, object_type, verified, url, retra
 
 // Tooltip resets (kinda needed) & register serviceworker
 $(function () {
-    $(".table-options a").tooltip();
-    $("[data-toggle='tooltip']").tooltip();
+    $(".table-options a").tooltip({trigger: 'hover'});
+    $("[data-toggle='tooltip']").tooltip({trigger: 'hover'});
 
     $('.main-container').one('mouseover', function(){
         if($('.main-container').css('opacity') == '0'){
