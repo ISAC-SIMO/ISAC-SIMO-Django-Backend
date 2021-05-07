@@ -38,7 +38,7 @@
                               {{ form|crispy }}
 
                               <div class="form-group">
-                                  <label for="object_type_id" class="col-form-label">{% trans "Object Type" %}</label>
+                                  <label for="object_type_id" class="col-form-label">{% trans "Check / Object Type" %}</label>
                                   <div>
                                       <select name="object_type_id" id="object_type_id" class="form-control">
                                           <option></option>
@@ -54,9 +54,9 @@
                                       </select>
                                   </div>
                                   <small class="form-text text-muted" style="font-size:0.9em;">
-                                      <i class="fa fa-info-circle text-warning pr-1" style="font-size:1.2em;"></i> {% trans "You Can Choose an Object Type to Force and use that type (Or Else object detect model is used to detect automatically" %})
+                                      <i class="fa fa-info-circle text-warning pr-1" style="font-size:1.2em;"></i> {% trans "You Can Choose an Check / Object Type to Force and use that type (Or Else object detect model is used to detect automatically" %})
                                       <br/>
-                                      <i class="fa fa-info-circle text-warning pr-1" style="font-size:1.2em;"></i> {% trans "If Object Type is Selected, it is given higher priority then selected Project" %}.
+                                      <i class="fa fa-info-circle text-warning pr-1" style="font-size:1.2em;"></i> {% trans "If Check / Object Type is Selected, it is given higher priority then selected Project" %}.
                                   </small>
                               </div>
 
@@ -139,13 +139,13 @@
     function verify(e){
       if(!$('#object_type_id').val() && !$('#id_project').val() && $('#id_image').val() !== ""){
         e.preventDefault();
-        Swal.fire('Either Project or Object Type is required.','Both fields are Empty','warning')
+        Swal.fire('Either Project or Check is required.','Both fields are Empty','warning')
       }
     }
     
     $('#id_project').select2({'placeholder':'Select a Project', 'allowClear':true})
     $('#id_user').select2({'placeholder':'-- Keep Unselected for Setting to Yourself --'})
-    $('#object_type_id').select2({'placeholder':'Select to force an Object Type', 'allowClear':true, sorter: function(d){
+    $('#object_type_id').select2({'placeholder':'Select to force an Check / Object Type', 'allowClear':true, sorter: function(d){
       return d.sort((a, b) => a.text.localeCompare(b.text));
     }})
   </script>

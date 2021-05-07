@@ -1,8 +1,8 @@
 {% extends 'master/base.html' %}
 
-{% block title %} Fetch Object Type Details of {{object_id}} {% endblock title %}
-{% block dashboard_title1 %} Object Type Detail {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} Object Type {% endblock dashboard_title2 %}
+{% block title %} Fetch Check / Object Type Details of {{object_id}} {% endblock title %}
+{% block dashboard_title1 %} Check / Object Type Detail {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} Check {% endblock dashboard_title2 %}
 {% load static %}
 
 {% block content %}
@@ -10,7 +10,7 @@
         <div class="col-12">
             <div class="card">
                 <div class="card-body">
-                    <h5>Detect Object Type:</h5>
+                    <h5>Detect Check / Object Type:</h5>
                     <p>Fetch for Id: {{object_id}}</p>
                     <hr/>
                     {% if detail %}

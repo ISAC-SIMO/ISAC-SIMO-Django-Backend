@@ -67,7 +67,7 @@
                         </small>
                     </div>
                     <div class="form-group">
-                        <label for="object_type" class="col-sm-5 col-md-4 col-form-label">Object Type*</label>
+                        <label for="object_type" class="col-sm-5 col-md-4 col-form-label">Check*</label>
                         <div class="col-sm-12 col-md-4">
                             <select name="object_type" id="object_type" class="form-control" required>
                                 <option></option>
@@ -77,8 +77,8 @@
                             </select>
                         </div>
                         <small class="col-sm-12 form-text text-muted">
-                            Select the Object Type for which to create this classifier. <br/>
-                            To Create new Object Type <a href="{% url 'watson.object.list' %}">Go Here</a>
+                            Select the Check / Object Type for which to create this classifier. <br/>
+                            To Create new Check <a href="{% url 'watson.object.list' %}">Go Here</a>
                         </small>
                     </div>
                     <div class="form-group">
@@ -109,7 +109,7 @@
             'placeholder':'Select a Project'
         })
         $('#object_type').select2({
-            'placeholder':'Select a Object Type'
+            'placeholder':'Select a Check / Object Type'
         })
         $('#offlineModel').select2({
             placeholder: 'Select Offline Detect Model {% if not classifier.offline_model %}(Currently None){% endif %}',

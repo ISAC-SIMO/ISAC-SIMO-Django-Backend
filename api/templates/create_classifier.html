@@ -169,7 +169,7 @@
                             </small>
                         </div>
                         <div class="form-group">
-                            <label for="object_type" class="col-sm-5 col-md-4 col-form-label">{% trans "Object Type" %}*</label>
+                            <label for="object_type" class="col-sm-5 col-md-4 col-form-label">{% trans "Check" %}*</label>
                             <div class="col-sm-12 col-md-4">
                                 <select name="object_type" id="object_type" class="form-control" required>
                                     <option></option>
@@ -179,8 +179,8 @@
                                 </select>
                             </div>
                             <small class="col-sm-12 form-text text-muted">
-                                {% trans "Select the Object Type for which to create this classifier" %}. <br/>
-                                {% trans "To Create new Object Type" %} <a href="{% url 'watson.object.list' %}">{% trans "Go Here" %}</a>
+                                {% trans "Select the Check / Object Type for which to create this classifier" %}. <br/>
+                                {% trans "To Create new Check" %} <a href="{% url 'watson.object.list' %}">{% trans "Go Here" %}</a>
                             </small>
                         </div>
                         <div class="form-group">
@@ -312,7 +312,7 @@
             'placeholder':'Select a Project'
         })
         $('#object_type').select2({
-            'placeholder':'Select a Object Type'
+            'placeholder':'Select a Check / Object Type'
         })
         var offlineModel = $('#offlineModel').select2({
             placeholder: 'Select Offline Detect Model',

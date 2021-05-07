@@ -58,7 +58,7 @@ def addProject(request, id = 0):
             if request.user.user_type == 'project_admin':
                 user.projects.add(instance)
             reload_classifier_list()
-            messages.success(request, "New Project Added Successfully! (Make sure you add Object Types and Classifiers too)")
+            messages.success(request, "New Project Added Successfully! (Make sure you add Checks and Models too)")
         else:
             messages.error(request, "Invalid Request")
             return render(request,"add_project.html",{'form':form})

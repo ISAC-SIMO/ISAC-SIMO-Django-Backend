@@ -1005,11 +1005,11 @@ def watsonObjectCreate(request):
                     object_type.image = request.FILES.get('image')
                 object_type.countries = countries
                 object_type.save()
-                messages.success(request, 'Object Type Updated')
+                messages.success(request, 'Check / Object Type Updated')
                 reload_classifier_list()
                 return redirect('watson.object.list')
             else:
-                messages.error(request, 'Object Edit Failed - That Object Name already exists for this Project')
+                messages.error(request, 'Check Edit Failed - That Object Name already exists for this Project')
                 return redirect('watson.object.list')
         else:
             # Create
@@ -1026,14 +1026,14 @@ def watsonObjectCreate(request):
                     object_type.image = request.FILES.get('image')
                 object_type.countries = countries
                 object_type.save()
-                messages.success(request, 'Object Type Added')
+                messages.success(request, 'Check / Object Type Added')
                 reload_classifier_list()
                 return redirect('watson.object.list')
             else:
-                messages.error(request, 'Object Not Added - Object Name already exists for this Project')
+                messages.error(request, 'Check Not Added - Object Name already exists for this Project')
                 return redirect('watson.object.list')
     else:
-        messages.error(request, 'Object Not Added')
+        messages.error(request, 'Check Not Added')
         return redirect('watson.object.list')
 
 # Watson Object Type Delete
@@ -1049,14 +1049,14 @@ def watsonObjectDelete(request, id):
             if(object_type.image != 'object_types/default.jpg'):
                 object_type.image.delete()
             object_type.delete()
-            messages.success(request, 'Object Type Deleted (Related Classifier are now left without object types)')
+            messages.success(request, 'Check / Object Type Deleted (Related Models are now left without any checks)')
             reload_classifier_list()
             return redirect('watson.object.list')
         except(ObjectType.DoesNotExist):
-            messages.success(request, 'Object Not Found')
+            messages.success(request, 'Check Not Found')
             return redirect('watson.object.list')
     else:
-        messages.error(request, 'Object Not Deleted')
+        messages.error(request, 'Check Not Deleted')
         return redirect('watson.object.list')
 
 # Watson Object Type Verify or Un-Verify
@@ -1071,7 +1071,7 @@ def watsonObjectVerify(request, id):
                 object_type = ObjectType.objects.get(id=id)
             object_type.verified = not object_type.verified
             object_type.save()
-            messages.success(request, 'Object Type '+ ("Verified" if object_type.verified else "Un-Verified"))
+            messages.success(request, 'Check / Object Type '+ ("Verified" if object_type.verified else "Un-Verified"))
             return redirect('watson.object.list')
         except(ObjectType.DoesNotExist):
             messages.success(request, 'Object Not Found')
@@ -1092,7 +1092,7 @@ def watsonObjectWishlist(request, id):
                 object_type = ObjectType.objects.get(id=id)
             object_type.wishlist = not object_type.wishlist
             object_type.save()
-            messages.success(request, 'Object Type has been '+ ("Added to Wishlist (Contribution are now accepted if the Project is marked Public)" if object_type.wishlist else "Removed from Wishlist (Contribution has been paused.)"))
+            messages.success(request, 'Check / Object Type has been '+ ("Added to Wishlist (Contribution are now accepted if the Project is marked Public)" if object_type.wishlist else "Removed from Wishlist (Contribution has been paused.)"))
             return redirect('watson.object.list')
         except(ObjectType.DoesNotExist):
             messages.success(request, 'Object Not Found')

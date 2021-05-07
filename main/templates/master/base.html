@@ -280,11 +280,12 @@
 
               </ul>
             </li>
+            {% comment %} Checks = Object Types (You know *air quote* requirements) {% endcomment %}
             <li class="nav-item">
               <a href="{% url 'watson.object.list' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'watson.object.list' %} active {% endif %}">
                 <i class="nav-icon far fa-object-ungroup"></i>
-                <p>{% trans "Object Types" %}</p>
+                <p>{% trans "Checks" %}</p>
               </a>
             </li>
             {% comment %} Models = Classifiers (You know *air quote* requirements) {% endcomment %}

@@ -1,9 +1,9 @@
 {% extends 'master/base.html' %}
 {% load i18n %}
 
-{% block title %} {% trans "Object Type" %} {% if project_filter %}for {{project_filter|title}}{% endif %} {% endblock title %}
-{% block dashboard_title1 %} {% trans "Object Type" %} {% if project_filter %}for {{project_filter|title}}{% endif %} {% endblock dashboard_title1 %}
-{% block dashboard_title2 %} {% trans "View & Create Object Type" %} {% endblock dashboard_title2 %}
+{% block title %} {% trans "Check" %} {% if project_filter %}for {{project_filter|title}}{% endif %} {% endblock title %}
+{% block dashboard_title1 %} {% trans "Check" %} {% if project_filter %}for {{project_filter|title}}{% endif %} {% endblock dashboard_title1 %}
+{% block dashboard_title2 %} {% trans "View & Create Check / Object Type" %} {% endblock dashboard_title2 %}
 {% load static %}
 {% load modif %}
 
@@ -110,7 +110,7 @@
         <div class="col-sm-12 col-md-4">
             <div class="card">
                 <div class="card-title ml-3 mt-3">
-                    <h5>{% trans "Create Object Type" %}</h5>
+                    <h5>{% trans "Create Check / Object Type" %}</h5>
                 </div>
                 <hr style="margin:0.5rem;"/>
                 <div class="card-body pt-0">
@@ -290,7 +290,7 @@
             "autoWidth": true,
             "order": [],
             "language": {
-			    "emptyTable": "No Object Type Available {% if project_filter %}for {{project_filter|title}}{% endif %}"
+			    "emptyTable": "No Checks / Object Type Available {% if project_filter %}for {{project_filter|title}}{% endif %}"
 			}
           });
           $('#project').select2({placeholder: "Select Project to Link To"})
@@ -346,7 +346,7 @@
                 html += '<div class="step success" style="background:#1d9c79;"><i class="fa fa-check" aria-hidden="true"></i><span>Success</span></div>'
                 $("#pipeline-body").html(html);
             } else {
-                $("#pipeline-body").html("<h3 style='color:red;'><b>No Checks has been added for this Object Type. Pipeline is empty.</b></h3>");
+                $("#pipeline-body").html("<h3 style='color:red;'><b>No Models has been added for this Check / Object Type. Pipeline is empty.</b></h3>");
             }
 
             $("#pipeline-modal").modal('show');
