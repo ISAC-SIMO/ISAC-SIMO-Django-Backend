@@ -22,9 +22,11 @@ from django.db.models import Q
 from django.http import HttpResponse, HttpResponseRedirect
 from django.http.response import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
+import requests
+import urllib
 from requests_toolbelt import user_agent
 from rest_framework import generics, mixins, viewsets
-from rest_framework.decorators import action, api_view, permission_classes
+from rest_framework.decorators import action, api_view, authentication_classes, permission_classes
 from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
@@ -2209,6 +2211,80 @@ def retrain_classifier(request):
             return Response({'message':msg}, status=404)
         
     return Response({"message":"Unauthorized or Invalid Request"}, status=403)
+
+# Setup Kobo Toolbox Guide:
+# In your Kobo Rest Service use Endpoint URL:
+# https://www.isac-simo.net/api/kobo/?object_type_id=<check_id>&token=<kobo_token>
+# object_type_id = should be the ID of chosen check
+# token = should be the Kobo Toolbox token that can be found in Account Settings
+# ----------------
+# The Form can contain multiple ISAC-SIMO test able image upload fields with respective result holding field.
+# The Image Upload field that needs to be sent to ISAC-SIMO should have name is following format:
+# Data Column Name: isac_image_xxxx
+# Where xxxx should be unique identifier
+# ----------------
+# The Result holding input should have:
+# Data Column Name: isac_result_xxxx
+# NOTE: xxxx in both field must be same. isac_result field can be made read-only if possible.
+# ----------------
+# The test result can also be viewed in ISAC-SIMO Dashboard
+# The Description field by default will be "Form KoBo Toolbox"
+@api_view(http_method_names=["POST","OPTIONS"])
+@authentication_classes([])
+@permission_classes([])
+def kobo(request):
+    image_field_start_with = "isac_image"
+    result_field_start_with = "isac_result"
+    body = json.loads(request.body.decode('utf-8'))
+    # print(body)
+    object_type_id = request.GET.get("object_type_id", None)
+    token = request.GET.get("token", None)
+    total_sent_to_isac_simo = 0
+    isac_simo_api = "https://www.isac-simo.net/api/image/"
+    if token:
+        isac_simo_api = isac_simo_api + "?token=" + "Token " + token
+
+    # _attachments exists in POST body
+    if body.get("_attachments") and object_type_id:
+        # Loop through all key, value in POST content
+        for key, value in body.items():
+            # print(key, value)
+            # If POST field is isac_image_.... 
+            if key.startswith(image_field_start_with):
+                isac_image_id = key.replace(image_field_start_with, '') # END VALUE STRIP AND GET id (if exists)
+                for image in body.get("_attachments"): # Loop through all attachments
+                    if value in image.get("filename"): # If attachment filename contains value of key (i.e. file name)
+                        image_url = image.get("download_url")
+                        # image_url = urllib.parse.quote(image.get("download_url"), safe='~()*!.\'')
+                        geolocation = body.get("_geolocation", [None, None])
+                        lat = geolocation[0]
+                        lng = geolocation[1]
+                        description = "From KoBo Toolbox"
+                        # Call ISAC-SIMO API with image url
+                        res = requests.post(isac_simo_api, data = {
+                            "description": description,
+                            "lat": lat,
+                            "lng": lng,
+                            "image_url": image_url,
+                            "object_type_id": object_type_id
+                        }, headers = {"Accept": "application/json"})
+                        if res.status_code == 201 or res.status_code == 200 or res.status_code == "200":
+                            # SET Kobo result field if it exists
+                            if body.get(result_field_start_with+isac_image_id):
+                                data = res.json()
+                                if data.get("image_files") and len(data.get("image_files")) > 0:
+                                    result = data.get("image_files")[0].get("result", "")
+                                    score = data.get("image_files")[0].get("score", 0)
+                                    print(result, score)
+                                    # TODO: CALL KOBO API TO UPDATE _id submission
+                                    # Note: Does not seem to have this feature in Kobo new version as of now
+
+                            total_sent_to_isac_simo += 1;
+
+            if total_sent_to_isac_simo > 0:
+                return JsonResponse({"message":"OK"}, status=200)
+        
+    return JsonResponse({"message":"No ISAC-SIMO Image Uploaded OR Object Type Id Provided"}, status=200)
 
 # Contribution
 class ContributionView(viewsets.ModelViewSet):

@@ -121,9 +121,15 @@ class ImageSerializer(serializers.ModelSerializer):
         image_files = self.context.get('view').request.FILES
         image_url = request.POST.get('image_url', None)
 
+        # TOKEN for getting the IMAGE which is other wise protected
+        token = request.GET.get('token', None)
+        headers = {}
+        if token:
+            headers["Authorization"] = token
+
         try:
             if image_url:
-                response = requests.get(image_url, stream=True, timeout=(3.05, 10))
+                response = requests.get(image_url, stream=True, timeout=(3.05, 10), headers = headers)
                 if response and (response.status_code == 200 or response.status_code == "200"):
                     image_byte = BytesIO(response.content)
                     image_url = InMemoryUploadedFile(image_byte, None, 'monda.jpg', 'image/jpeg', len(image_byte.getvalue()), None)
