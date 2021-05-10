@@ -2228,7 +2228,7 @@ def retrain_classifier(request):
 # NOTE: xxxx in both field must be same. isac_result field can be made read-only if possible.
 # ----------------
 # The test result can also be viewed in ISAC-SIMO Dashboard
-# The Description field by default will be "Form KoBo Toolbox"
+# The Description field by default will be "KoboToolbox / ID"
 @api_view(http_method_names=["POST","OPTIONS"])
 @authentication_classes([])
 @permission_classes([])
@@ -2259,7 +2259,7 @@ def kobo(request):
                         geolocation = body.get("_geolocation", [None, None])
                         lat = geolocation[0]
                         lng = geolocation[1]
-                        description = "From KoBo Toolbox"
+                        description = "KoboToolbox / " + str(body.get("_id", "N/A"))
                         # Call ISAC-SIMO API with image url
                         res = requests.post(isac_simo_api, data = {
                             "description": description,
