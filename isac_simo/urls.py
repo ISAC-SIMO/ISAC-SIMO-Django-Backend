@@ -23,7 +23,7 @@ from rest_framework_simplejwt.views import (TokenObtainPairView,
                                             TokenRefreshView)
 
 from api import views as api
-from api.views import ClassifierView, ContributionView, FileUploadView, ImageView, ObjectTypeView, OfflineModelView, ProfileView, ProjectView, UserView, VideoFrameView, clean_temp_view, fetch_classifier_detail, fetch_object_type_detail, kobo, retrain_classifier, terminal_view, test_view
+from api.views import ClassifierView, ContributionView, FileUploadView, ImageView, ObjectTypeView, OfflineModelView, ProfileView, ProjectView, UserView, VideoFrameView, clean_temp_view, fetch_classifier_detail, fetch_object_type_detail, fulcrum, kobo, retrain_classifier, terminal_view, test_view
 from main import views
 from django.conf.urls.i18n import i18n_patterns
 
@@ -56,6 +56,7 @@ urlpatterns = [
     path('api/detail/object_type/', fetch_object_type_detail, name='fetch_object_type_detail'), # Object Type Detail Fetch API
     path('api/retrain/classifier/', retrain_classifier, name='retrain_classifier'), # Re-Train Classifier
     path('api/kobo/', kobo, name='kobo'), # Kobo Toolbox Webhook
+    path('api/fulcrum/', fulcrum, name='fulcrum'), # Fulcrum Webhook
     # WEB
     path('', views.index, name="index"),
     path('login/', views.login_user, name="login"),

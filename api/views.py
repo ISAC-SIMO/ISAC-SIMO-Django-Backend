@@ -31,6 +31,7 @@ from rest_framework.generics import get_object_or_404
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from django.core.cache import cache
 
 import isac_simo.classifier_list as classifier_list
 from api.forms import OfflineModelForm, FileUploadForm
@@ -2233,6 +2234,7 @@ def retrain_classifier(request):
 @authentication_classes([])
 @permission_classes([])
 def kobo(request):
+    print("KoboToolbox Webhook Received.")
     image_field_start_with = "isac_image"
     result_field_start_with = "isac_result"
     body = json.loads(request.body.decode('utf-8'))
@@ -2244,8 +2246,14 @@ def kobo(request):
     if token:
         isac_simo_api = isac_simo_api + "?token=" + "Token " + token
 
+    # Cache and Ignore the Duplicate request
+    if body.get("_id", None) and cache.get("kobo-"+str(body.get("_id"))):
+        return JsonResponse({"message":"Duplicate Request Ignored"}, status=200)
+
     # _attachments exists in POST body
     if body.get("_attachments") and object_type_id:
+        cache.set("kobo-"+str(body.get("_id")), True, 120)
+        print("KoboToolbox Webhook Is Valid. Continue...")
         # Loop through all key, value in POST content
         for key, value in body.items():
             # print(key, value)
@@ -2268,7 +2276,7 @@ def kobo(request):
                             "image_url": image_url,
                             "object_type_id": object_type_id
                         }, headers = {"Accept": "application/json"})
-                        if res.status_code == 201 or res.status_code == 200 or res.status_code == "200":
+                        if res.status_code == 201 or res.status_code == "201" or res.status_code == 200 or res.status_code == "200":
                             # SET Kobo result field if it exists
                             if body.get(result_field_start_with+isac_image_id):
                                 data = res.json()
@@ -2281,10 +2289,148 @@ def kobo(request):
 
                             total_sent_to_isac_simo += 1;
 
-            if total_sent_to_isac_simo > 0:
-                return JsonResponse({"message":"OK"}, status=200)
+        if total_sent_to_isac_simo > 0:
+            return JsonResponse({"message":"OK"}, status=200)
         
     return JsonResponse({"message":"No ISAC-SIMO Image Uploaded OR Object Type Id Provided"}, status=200)
+
+# FULCRUM WEBHOOK
+@api_view(http_method_names=["POST","OPTIONS"])
+@authentication_classes([])
+@permission_classes([])
+def fulcrum(request):
+    print("Fulcrum Webhook Received.")
+    image_field_start_with = "isac_image"
+    result_field_start_with = "isac_result"
+    hook_data = json.loads(request.body.decode('utf-8'))
+    event_type = hook_data.get("type", None)
+    body = hook_data.get("data", None)
+    # print(body)
+    object_type_id = request.GET.get("object_type_id", None)
+    token = request.GET.get("token", None) # Fulcrums Token
+    isac_token = request.GET.get("isac_token", None) # ISAC-SIMO JWT Token (Not Required if Global Guest Project)
+    total_sent_to_isac_simo = 0
+    isac_simo_api = "https://www.isac-simo.net/api/image/"
+
+    updated_form_values = {}
+    # body exists in webhook data + event type is create event
+    # + form_values exists in POST body + form_id (to fetch forms data) 
+    # + object_type_id + token (Needed to generate Public Image URL)
+    # print(hook_data)
+    # print(body)
+    # print(type(body))
+
+    # Cache and Ignore the Duplicate request
+    if body.get("id", None) and cache.get(body.get("id")):
+        return JsonResponse({"message":"Duplicate Request Ignored"}, status=200)
+
+    if body and event_type == "record.create" and body.get("form_values") and body.get("form_id") and object_type_id and token:
+        cache.set(body.get("id"), True, 120)
+        print("Fulcrum Webhook Is Valid. Continue...")
+        # Fetch the Single Form Metadata + Schema
+        url = "https://api.fulcrumapp.com/api/v2/forms/"+body.get("form_id")+".json"
+        querystring = {"schema":"true"}
+        headers = {
+            "Accept": "application/json",
+            "X-ApiToken": token
+        }
+        res = requests.request("GET", url, headers=headers, params=querystring)
+        # print(res)
+        if res.status_code == 200 or res.status_code == "200":
+            form = res.json() # Gets the Form Schema with "elements", "name", "image" etc.
+            # print(form)
+            if form and form.get("form") and form.get("form").get("elements"):
+                elements = form.get("form").get("elements")
+                # Loop through all key, value in elements array (contains keys like; type, key, label, data_name, required, hidden, disabled etc.)
+                for element in elements:
+                    # print(element)
+                    # If element.data_name field starts with isac_image_.... and element.type is PhotoField
+                    # Then, it probably is isac-simo testable uploaded image (So, we search for it in webhooks POST data form_values key)
+                    if element.get("data_name").startswith(image_field_start_with) and element.get("type") == "PhotoField":
+                        element_key = element.get("key")
+                        isac_image_id = element.get("data_name").replace(image_field_start_with, '') # END VALUE STRIP AND GET id (if exists)
+                        for key, value in body.get("form_values").items(): # Loop through all input form_values
+                            if key == element_key and len(value) > 0 and value[0].get("photo_id"): # If forms key matched webhooks values key then it is THE image
+                                photo_id = value[0].get("photo_id")
+                                # print(photo_id)
+                                # Generate Public Image from this photo_id
+                                url = 'https://api.fulcrumapp.com/api/v2/photos/'+photo_id+'.json'
+                                headers = {
+                                    "Accept": "application/json",
+                                    "X-ApiToken": token
+                                }
+                                img_res = requests.request("GET", url, headers=headers)
+                                if img_res.status_code == 200 or img_res.status_code == "200" or img_res.status_code == 201 or img_res.status_code == "201":
+                                    img_meta = img_res.json()
+                                    # print(img_meta)
+                                    # TODO: Later Update app to receive "image_urls" as array of multiple image url in ISAC-SIMO API. Then combine all in same image model (same row).
+                                    if img_meta and img_meta.get('photo') and img_meta.get('photo').get('original'):
+                                        # We GOT the uploaded image Public Signed S3 URL successfully
+                                        image_url = img_meta.get('photo').get('original')
+                                        lat = body.get("latitude", None) # From webhook POST data
+                                        lng = body.get("longitude", None) # From webhook POST data
+                                        description = "Fulcrum / " + str(body.get("id", "N/A")) # From webhook POST data
+                                        # Call ISAC-SIMO API with image url
+                                        headers = {
+                                            "Accept": "application/json"
+                                        }
+                                        if isac_token:
+                                            headers["Authorization"] = "Bearer " + isac_token
+                                        res = requests.post(isac_simo_api, data = {
+                                            "description": description,
+                                            "lat": lat,
+                                            "lng": lng,
+                                            "image_url": image_url,
+                                            "object_type_id": object_type_id
+                                        }, headers = headers)
+                                        # print(res)
+                                        # print(res.json())
+                                        if res.status_code == 201 or res.status_code == "201" or res.status_code == 200 or res.status_code == "200":
+                                            # SET FULCRUMS result field if it exists
+                                            # AGAIN, LOOP through all elements to find the isac_result_xxx field and get its key.
+                                            for result_element in elements:
+                                                # print(result_field_start_with+isac_image_id)
+                                                # print(result_element.get("data_name"))
+                                                if result_element.get("data_name") == (result_field_start_with+isac_image_id):
+                                                    element_key = result_element.get("key")
+
+                                                    data = res.json()
+                                                    if data.get("image_files") and len(data.get("image_files")) > 0:
+                                                        result = data.get("image_files")[0].get("result", "")
+                                                        score = data.get("image_files")[0].get("score", 0)
+                                                        # print(result, score)
+                                                        updated_form_values[element_key] = result # Assign key with isac-simo tesult (Note: updated_form_values is sent back to Fulcrum)
+                                                    
+                                            total_sent_to_isac_simo += 1;
+        
+        
+        if total_sent_to_isac_simo > 0:
+            # Combine Webhook form_values and updated_form_values
+            uploading_form_values = body.get("form_values")
+            uploading_form_values = {**uploading_form_values, **updated_form_values}
+            # print(updated_form_values)
+            # print(uploading_form_values)
+
+            # CALL FULCRUM API TO UPDATE id submission data
+            url = "https://api.fulcrumapp.com/api/v2/records/"+str(body.get("id",""))+".json"
+            payload = {
+                "record": {
+                    "form_id": body.get("form_id"),
+                    "latitude": body.get("latitude"),
+                    "longitude": body.get("longitude"),
+                    "form_values": uploading_form_values
+                }
+            }
+            headers = {
+                "Accept": "application/json",
+                "Content-Type": "application/json",
+                "X-ApiToken": token
+            }
+            response = requests.request("PUT", url, json=payload, headers=headers)
+            # print(response.text)
+            return JsonResponse({"message":"OK"}, status=200)
+        
+    return JsonResponse({"message":"No Image Uploaded OR Object Type Id Provided OR Token is invalid"}, status=200)
 
 # Contribution
 class ContributionView(viewsets.ModelViewSet):

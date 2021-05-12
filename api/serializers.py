@@ -141,7 +141,7 @@ class ImageSerializer(serializers.ModelSerializer):
             # print(e)
             raise serializers.ValidationError({"message":"Unable to read Image from provided URL"})
 
-        if (len(image_files) > 0 and len(image_files) < 8) or image_url: # Images count 1 to 7
+        if (len(image_files) > 0 and len(image_files) < 8): # Images count 1 to 7
             image = Image.objects.create(title=validated_data.get('title'),
                                         description=validated_data.get('description'),
                                         lat=validated_data.get('lat'),
