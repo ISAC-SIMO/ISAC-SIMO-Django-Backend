@@ -2215,9 +2215,11 @@ def retrain_classifier(request):
 
 # Setup Kobo Toolbox Guide:
 # In your Kobo Rest Service use Endpoint URL:
-# https://www.isac-simo.net/api/kobo/?object_type_id=<check_id>&token=<kobo_token>
+# https://www.isac-simo.net/api/kobo/?object_type_id=<check_id>&token=<kobo_token>&domain=<kobo_domain>
 # object_type_id = should be the ID of chosen check
 # token = should be the Kobo Toolbox token that can be found in Account Settings
+# domain = Domian that hosts kobo (defaults to https://kf.kobotoolbox.org/ with https://kc.kobotoolbox.org/ for update API)
+# The domain value must be the one that supports Update API for /submissions.json
 # ----------------
 # The Form can contain multiple ISAC-SIMO test able image upload fields with respective result holding field.
 # The Image Upload field that needs to be sent to ISAC-SIMO should have name is following format:
@@ -2239,12 +2241,15 @@ def kobo(request):
     result_field_start_with = "isac_result"
     body = json.loads(request.body.decode('utf-8'))
     # print(body)
+    domain = request.GET.get("domain", "https://kc.kobotoolbox.org")
     object_type_id = request.GET.get("object_type_id", None)
     token = request.GET.get("token", None)
     total_sent_to_isac_simo = 0
     isac_simo_api = "https://www.isac-simo.net/api/image/"
     if token:
         isac_simo_api = isac_simo_api + "?token=" + "Token " + token
+
+    updated_form_values = {}
 
     # Cache and Ignore the Duplicate request
     if body.get("_id", None) and cache.get("kobo-"+str(body.get("_id"))):
@@ -2283,13 +2288,68 @@ def kobo(request):
                                 if data.get("image_files") and len(data.get("image_files")) > 0:
                                     result = data.get("image_files")[0].get("result", "")
                                     score = data.get("image_files")[0].get("score", 0)
-                                    print(result, score)
-                                    # TODO: CALL KOBO API TO UPDATE _id submission
-                                    # Note: Does not seem to have this feature in Kobo new version as of now
+                                    # print(result, score)
+                                    updated_form_values[result_field_start_with+isac_image_id] = result # Assign result field with isac-simo result (Note: updated_form_values is sent back to Fulcrum)
 
                             total_sent_to_isac_simo += 1;
 
         if total_sent_to_isac_simo > 0:
+            # Combine Webhook form_values and updated_form_values
+            uploading_form_values = body
+            uploading_form_values = {**uploading_form_values, **updated_form_values}
+            meta = { 
+                "meta" : {
+                    "instanceID": "uuid:" + str(uuid.uuid4()),
+                    "deprecatedID": uploading_form_values.get("meta/instanceID")
+                }
+            }
+            uploading_form_values = {**uploading_form_values, **meta}
+
+            # print(updated_form_values)
+            # print(uploading_form_values)
+            
+            # Get x form id.
+            submission_id = uploading_form_values.get("_xform_id_string")
+            
+            # Delete Unwanted keys from submitting
+            # temp_uploading_form_values = list(uploading_form_values.keys())
+            # for k in temp_uploading_form_values:
+            #     if k.startswith('_'):
+            #         uploading_form_values.pop(k)
+            
+            # Delete Unwanted keys from submitting
+            uploading_form_values.pop("_id")
+            uploading_form_values.pop("_notes")
+            uploading_form_values.pop("_validation_status")
+            uploading_form_values.pop("_uuid")
+            uploading_form_values.pop("_tags")
+            uploading_form_values.pop("_submitted_by")
+            uploading_form_values.pop("_xform_id_string")
+            uploading_form_values.pop("_submission_time")
+            uploading_form_values.pop("_attachments")
+            uploading_form_values.pop("_geolocation")
+            uploading_form_values.pop("_status")
+            uploading_form_values.pop("__version__")
+            uploading_form_values.pop("start")
+            uploading_form_values.pop("end")
+            uploading_form_values.pop("formhub/uuid")
+            uploading_form_values.pop("meta/instanceID")
+
+            # print("---")
+            # print(uploading_form_values)
+
+            # CALL FULCRUM API TO UPDATE id submission data
+            url = domain + "/api/v1/submissions.json"
+            payload = {
+                "id": submission_id,
+                "submission": uploading_form_values
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": "Token " + token
+            }
+            response = requests.request("POST", url, json=payload, headers=headers)
+            # print(response.text)
             return JsonResponse({"message":"OK"}, status=200)
         
     return JsonResponse({"message":"No ISAC-SIMO Image Uploaded OR Object Type Id Provided"}, status=200)
@@ -2399,7 +2459,7 @@ def fulcrum(request):
                                                         result = data.get("image_files")[0].get("result", "")
                                                         score = data.get("image_files")[0].get("score", 0)
                                                         # print(result, score)
-                                                        updated_form_values[element_key] = result # Assign key with isac-simo tesult (Note: updated_form_values is sent back to Fulcrum)
+                                                        updated_form_values[element_key] = result # Assign key with isac-simo result (Note: updated_form_values is sent back to Fulcrum)
                                                     
                                             total_sent_to_isac_simo += 1;
         
