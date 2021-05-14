@@ -33,6 +33,7 @@ nav:
     - Developer Guide: developer-guide.md
     - Mobile API Guide: mobile-api-guide.md
     - Lite Dashboard: lite-dashboard.md
+    - External Integration: integration.md
 
 extra:
   generator: false

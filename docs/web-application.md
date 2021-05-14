@@ -262,30 +262,3 @@ Admin or Project Admin can also temporarily unmark Project as Public to stop rec
 <br>
 *Mark Contribution as helpful (By Admin or Project Admin)*.
 <br>
-
-## Integration with other Application
-ISAC-SIMO API is a fully featured rest service which allows other applications to use that public api to add, edit and manage data and records externally. This examples below shows a demonstration on how we can easily integrate ISAC-SIMO into different applications:
-
-### <span style="color:green">KoboToolbox</span>
-KoboToolbox (kf.kobotoolbox.org) has a feature called **Rest Services** which allows us to integrate ISAC-SIMO with which it calls our API on each new submission added to the kobo form.
-
-First, we need to make sure that the form contains **Photo** input with data column name set to “isac_image_xxxx” where “xxxx” can be a unique identifier. The Form can contain multiple ISAC-SIMO test-able image upload fields with “xxxx” being unique for each field. If you want to receive back the ISAC-SIMO test result and store in a field in kobo submission record, a read-only text input field with data column name “isac_result_xxxx” can be created. The "xxxx" value must be same as the image upload field.
-
-![](./assets/kobo/kobo-1.png)
-
-In the Kobo Rest Service we can then use the following endpoint.
-
-![](./assets/kobo/kobo-2.png)
-
-*https://www.isac-simo.net/api/kobo/?object_type_id=[check_id]&token=[kobo_token]&domain=[kobo_server_domain]*
-
-The **object_type_id** value should be the ID of the chosen check (can be found in isac-simo dashboard). And, the **token** should be the Kobo Toolbox auth token that can be found in Account Settings of Kobo user dashboard. Domain used by ISAC-SIMO for sending back the result, is `https://kc.kobotoolbox.org` by default. If, you want to change the domain and use your custom server then provide a domain query parameter. The domain in query parameter must NOT have ending slash.
-
-The test result can be viewed in ISAC-SIMO Dashboard with description set to “KoboToolbox / ID”. You can search by _id value here.
-
-![](./assets/kobo/kobo-3.png)
-
-And, if “isac_result_xxxx” is valid then result field will be set in kobo toolbox data also. It might take a few minute for it to update / sync.
-
-### <span style="color:green">Fulcrum</span>
-TODO
