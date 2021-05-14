@@ -1,5 +1,5 @@
 # Integration with other Application
-ISAC-SIMO API is a fully featured rest service which allows other applications to use the public api to add, edit and manage data and records externally. Learn more about the API provided by ISAC-SIMO in [Mobile Api Guide](/mobile-api-guide){target="_blank"}.
+ISAC-SIMO API is a fully featured rest service which allows other applications to use the public api to add, edit and manage data and records externally. Learn more about the API provided by ISAC-SIMO in [Mobile Api Guide](./mobile-api-guide.md){target="_blank"}.
 
 This examples below shows a demonstration on how we can easily integrate ISAC-SIMO into different applications specially the image testing:
 
@@ -53,4 +53,4 @@ If “isac_result_xxxx” is valid then the result field will be set in fulcrum 
 
 <hr/>
 
-Any other services can easily integrate ISAC-SIMO using our Restful API service. [Learn More](/mobile-api-guide){target="_blank"}.
+Any other services can easily integrate ISAC-SIMO using our Restful API service. [Learn More](./mobile-api-guide.md){target="_blank"}.
