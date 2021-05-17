@@ -24,7 +24,9 @@ The test result can be viewed in ISAC-SIMO Dashboard with description set to “
 
 ![](./assets/kobo/kobo-3.png)
 
-And, if “isac_result_xxxx” is valid then the result field will be set in kobo toolbox data also. It might take a few minutes for it to update / sync.
+If “isac_result_xxxx” is valid then the result field will be set in kobo toolbox data also. It might take a few minutes for it to update / sync.
+
+![](./assets/kobo/kobo-4.png)
 
 ## <span style="color:green">Fulcrum</span>
 Fulcrum is a popular Data Collection application that has a wide range of features. Integrating ISAC-SIMO into any Fulcrum project is pretty straight-forward. Most of the logic and standard are similar to that of the KoboToolbox method mentioned above.

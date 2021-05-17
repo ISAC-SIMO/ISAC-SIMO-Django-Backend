@@ -1,10 +1,10 @@
 site_name: ISAC-SIMO
 site_url: https://www.isac-simo.net/docs/
-site_description: Your Intelligent Supervision Assistant for Construction
+site_description: ISAC-SIMO is a system to validate that the intervention work done for homeowners has been done correctly and safely. It is a Build Change project supported by a grant from IBM. ISAC-SIMO is short for Intelligent Supervision Assistant for Construction - Sistema Inteligente de Monitoreo de Obra. It Checks your quality of house.
 
 repo_name: GitHub
-repo_url: https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend
-edit_uri: ""
+repo_url: https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend
+edit_uri: https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend/blob/master/docs
 
 theme:
     # name-options[ mkdocs, readthedocs]
