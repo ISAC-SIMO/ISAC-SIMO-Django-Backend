@@ -2237,6 +2237,7 @@ def retrain_classifier(request):
 @permission_classes([])
 def kobo(request):
     print("KoboToolbox Webhook Received.")
+    object_type_field_start_with = "isac_object"
     image_field_start_with = "isac_image"
     result_field_start_with = "isac_result"
     body = json.loads(request.body.decode('utf-8'))
@@ -2257,7 +2258,7 @@ def kobo(request):
         return JsonResponse({"message":"Duplicate Request Ignored"}, status=200)
 
     # _attachments exists in POST body
-    if body.get("_attachments") and object_type_id:
+    if body.get("_attachments"):
         cache.set("kobo-"+str(body.get("_id")), True, 120)
         print("KoboToolbox Webhook Is Valid. Continue...")
         # Loop through all key, value in POST content
@@ -2270,6 +2271,16 @@ def kobo(request):
                     if value in image.get("filename"): # If attachment filename contains value of key (i.e. file name)
                         image_url = image.get("download_url")
                         # image_url = urllib.parse.quote(image.get("download_url"), safe='~()*!.\'')
+
+                        # Check if Object Type ID has been provided from the Single Choice Field isac_object_xxx
+                        for _key, _value in body.items():
+                            if _key == (object_type_field_start_with+isac_image_id) and _value: # Matched the xxx and has value chosen
+                                object_type_id = _value
+                                break
+                        
+                        if not object_type_id: # If Still Object Type not found (did not came from webhook) Ignore the image.
+                            continue
+
                         geolocation = body.get("_geolocation", [None, None])
                         lat = geolocation[0]
                         lng = geolocation[1]
