@@ -2244,6 +2244,7 @@ def kobo(request):
     domain = request.GET.get("domain", "https://kc.kobotoolbox.org")
     object_type_id = request.GET.get("object_type_id", None)
     token = request.GET.get("token", None)
+    isac_token = request.GET.get("isac_token", None) # ISAC-SIMO JWT Token (Not Required if Global Guest Project)
     total_sent_to_isac_simo = 0
     isac_simo_api = "https://www.isac-simo.net/api/image/"
     if token:
@@ -2274,13 +2275,18 @@ def kobo(request):
                         lng = geolocation[1]
                         description = "KoboToolbox / " + str(body.get("_id", "N/A"))
                         # Call ISAC-SIMO API with image url
+                        headers = {
+                            "Accept": "application/json"
+                        }
+                        if isac_token:
+                            headers["Authorization"] = "Bearer " + isac_token
                         res = requests.post(isac_simo_api, data = {
                             "description": description,
                             "lat": lat,
                             "lng": lng,
                             "image_url": image_url,
                             "object_type_id": object_type_id
-                        }, headers = {"Accept": "application/json"})
+                        }, headers = headers)
                         if res.status_code == 201 or res.status_code == "201" or res.status_code == 200 or res.status_code == "200":
                             # SET Kobo result field if it exists
                             if body.get(result_field_start_with+isac_image_id):
@@ -2360,6 +2366,7 @@ def kobo(request):
 @permission_classes([])
 def fulcrum(request):
     print("Fulcrum Webhook Received.")
+    object_type_field_start_with = "isac_object"
     image_field_start_with = "isac_image"
     result_field_start_with = "isac_result"
     hook_data = json.loads(request.body.decode('utf-8'))
@@ -2375,7 +2382,8 @@ def fulcrum(request):
     updated_form_values = {}
     # body exists in webhook data + event type is create event
     # + form_values exists in POST body + form_id (to fetch forms data) 
-    # + object_type_id + token (Needed to generate Public Image URL)
+    # + token (Needed to generate Public Image URL)
+    # + isac_token (Not Required, But can be used to authorize ISAC-SIMO API using Bearer Token generated from profile page)
     # print(hook_data)
     # print(body)
     # print(type(body))
@@ -2384,7 +2392,7 @@ def fulcrum(request):
     if body.get("id", None) and cache.get(body.get("id")):
         return JsonResponse({"message":"Duplicate Request Ignored"}, status=200)
 
-    if body and event_type == "record.create" and body.get("form_values") and body.get("form_id") and object_type_id and token:
+    if body and event_type == "record.create" and body.get("form_values") and body.get("form_id") and token:
         cache.set(body.get("id"), True, 120)
         print("Fulcrum Webhook Is Valid. Continue...")
         # Fetch the Single Form Metadata + Schema
@@ -2409,6 +2417,20 @@ def fulcrum(request):
                     if element.get("data_name").startswith(image_field_start_with) and element.get("type") == "PhotoField":
                         element_key = element.get("key")
                         isac_image_id = element.get("data_name").replace(image_field_start_with, '') # END VALUE STRIP AND GET id (if exists)
+                        object_type_element_key = None
+                        # Try to Search for isac_object_xxx and if found test the image... else ignore.
+                        for object_type_element in elements:
+                            # Comes from choice field.
+                            if object_type_element.get("data_name") == (object_type_field_start_with+isac_image_id) and object_type_element.get("type") == "ChoiceField":
+                                object_type_element_key = object_type_element.get("key")
+                                for _key, _value in body.get("form_values").items():
+                                    if _key == object_type_element_key and _value.get("choice_values") and len(_value.get("choice_values")) > 0 and _value.get("choice_values")[0]:
+                                        object_type_id = _value.get("choice_values")[0]
+                                        break
+                        
+                        if not object_type_id: # If Still Object Type not found (did not came from webhook) Ignore the image.
+                            continue
+
                         for key, value in body.get("form_values").items(): # Loop through all input form_values
                             if key == element_key and len(value) > 0 and value[0].get("photo_id"): # If forms key matched webhooks values key then it is THE image
                                 photo_id = value[0].get("photo_id")

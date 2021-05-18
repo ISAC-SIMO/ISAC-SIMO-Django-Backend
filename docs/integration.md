@@ -31,9 +31,11 @@ If “isac_result_xxxx” is valid then the result field will be set in kobo too
 ## <span style="color:green">Fulcrum</span>
 Fulcrum is a popular Data Collection application that has a wide range of features. Integrating ISAC-SIMO into any Fulcrum project is pretty straight-forward. Most of the logic and standard are similar to that of the KoboToolbox method mentioned above.
 
-First, we need to make sure that the form contains a **Photos** field with the data name set to “isac_image_xxxx” where “xxxx” can be a unique identifier. The photo field for faster performance should have a single maximum photo allowed. The Form can contain multiple ISAC-SIMO test-able photo upload fields with “xxxx” being unique for each field. If you want to receive back the ISAC-SIMO test result and store it in a field in fulcrum record, a read-only or hidden **text** input field with data name “isac_result_xxxx” can be created. The "xxxx" value must be the same as the image upload field.
+First, we need to make sure that the form contains a **Photos** field with the data name set to “isac_image_xxxx” where “xxxx” can be a unique identifier. The photo field for faster performance should have a single maximum photo allowed. The Form can contain multiple ISAC-SIMO test-able photo upload fields with “xxxx” being unique for each field. Then, it is important to have a **Single Choice** field with the data name set to "isac_object_xxxx" (xxxx being the same as that of Photo field). There can be choices added to this field with Text Value and valid Check (Object Type) ID from ISAC-SIMO Dashboard. Users can choose the Check from this dropdown and upload the photo.
 
-Example we can have: "isac_image_1" as photo upload field and "isac_result_1" as the input field to store the result.
+If you want to receive back the ISAC-SIMO test result and store it in a field in fulcrum record, a read-only or hidden **text** input field with data name “isac_result_xxxx” can be created. The "xxxx" value must be the same as the image upload field.
+
+Example we can have: "isac_image_1" as photo upload field, "isac_object_1" as single choice field and "isac_result_1" as the input field to store the result.
 
 ![](./assets/fulcrum/fulcrum-1.png)
 
@@ -41,9 +43,9 @@ Fulcrum has a feature called "Webhook", with which on any event like; create, ed
 
 ![](./assets/fulcrum/fulcrum-2.png)
 
-*https://www.isac-simo.net/api/fulcrum/?object_type_id=[check_id]&token=[kobo_token]*
+*https://www.isac-simo.net/api/fulcrum/?token=[token]*
 
-The **object_type_id** value should be the ID of the chosen check (can be found in isac-simo dashboard). And, the **token** should be the Fulcrums API token that can be found in the Settings / API section of the dashboard.
+The **token** should be the Fulcrums API token that can be found in the Settings / API section of the dashboard. If you need to authenticate an ISAC-SIMO call (for example to call private check by ID) you can add another parameter "isac_token" with JWT token generated from ISAC-SIMO users profile page.
 
 The test result can be viewed in ISAC-SIMO Dashboard with description set to Fulcrum / ID”. You can search by id value here. Any recurring webhooks with the same ID are ignored by rate-limiting.
 
