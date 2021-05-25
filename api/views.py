@@ -2215,8 +2215,7 @@ def retrain_classifier(request):
 
 # Setup Kobo Toolbox Guide:
 # In your Kobo Rest Service use Endpoint URL:
-# https://www.isac-simo.net/api/kobo/?object_type_id=<check_id>&token=<kobo_token>&domain=<kobo_domain>
-# object_type_id = should be the ID of chosen check
+# https://www.isac-simo.net/api/kobo/?token=<kobo_token>&domain=<kobo_domain>
 # token = should be the Kobo Toolbox token that can be found in Account Settings
 # domain = Domian that hosts kobo (defaults to https://kf.kobotoolbox.org/ with https://kc.kobotoolbox.org/ for update API)
 # The domain value must be the one that supports Update API for /submissions.json
@@ -2226,9 +2225,12 @@ def retrain_classifier(request):
 # Data Column Name: isac_image_xxxx
 # Where xxxx should be unique identifier
 # ----------------
-# The Result holding input should have:
+# The Object Type / Check holding Select One Dropdown should have:
+# Data Column Name: isac_object_xxxx
+# ----------------
+# The Result holding hidden field should have:
 # Data Column Name: isac_result_xxxx
-# NOTE: xxxx in both field must be same. isac_result field can be made read-only if possible.
+# xxxx in all field must be same for related photo.
 # ----------------
 # The test result can also be viewed in ISAC-SIMO Dashboard
 # The Description field by default will be "KoboToolbox / ID"

@@ -3,6 +3,8 @@ This section provides a brief Guide on using the ISAC-SIMO Web Application. It g
 registration, project management, classifier/model creation, object types and more.
 
 ## Login & Register
+▶️ [Watch Video](https://www.youtube.com/watch?v=-hEAq4b0ZI8){target="_blank"}
+
 Login            |  Register
 :-------------------------:|:-------------------------:
 ![](./assets/image2.png)  | ![](./assets/image3.png)

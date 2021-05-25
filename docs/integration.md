@@ -4,6 +4,8 @@ ISAC-SIMO API is a fully featured rest service which allows other applications t
 This examples below shows a demonstration on how we can easily integrate ISAC-SIMO into different applications specially the image testing:
 
 ## <span style="color:green">KoboToolbox</span>
+▶️ [Watch Video](https://www.youtube.com/watch?v=yrza-cPK8sM){target="_blank"}
+
 KoboToolbox (kf.kobotoolbox.org) has a feature called **Rest Services** which allows us to integrate ISAC-SIMO with which it calls our API on each new submission added to the kobo form.
 
 First, we need to make sure that the form contains **Photo** input with the data column name set to “isac_image_xxxx” where “xxxx” can be a unique identifier. The Form can contain multiple ISAC-SIMO test-able image upload fields with “xxxx” being unique for each field. Then, it is important to have a **Select One** field with the data name set to "isac_object_xxxx" (xxxx being the same as that of Photo field). There can be choices added to this field with Text Value and valid XML value same as Check (Object Type) ID from ISAC-SIMO Dashboard. Users can choose the Check from this dropdown and upload the photo.
@@ -35,6 +37,8 @@ If “isac_result_xxxx” is valid then the result field will be set in kobo too
 ![](./assets/kobo/kobo-4.png)
 
 ## <span style="color:green">Fulcrum</span>
+▶️ [Watch Video](https://www.youtube.com/watch?v=MFAq_r7_e4E){target="_blank"}
+
 Fulcrum is a popular Data Collection application that has a wide range of features. Integrating ISAC-SIMO into any Fulcrum project is pretty straight-forward. Most of the logic and standard are similar to that of the KoboToolbox method mentioned above.
 
 First, we need to make sure that the form contains a **Photos** field with the data name set to “isac_image_xxxx” where “xxxx” can be a unique identifier. The photo field for faster performance should have a single maximum photo allowed. The Form can contain multiple ISAC-SIMO test-able photo upload fields with “xxxx” being unique for each field. Then, it is important to have a **Single Choice** field with the data name set to "isac_object_xxxx" (xxxx being the same as that of Photo field). There can be choices added to this field with Text Value and valid Check (Object Type) ID from ISAC-SIMO Dashboard. Users can choose the Check from this dropdown and upload the photo.

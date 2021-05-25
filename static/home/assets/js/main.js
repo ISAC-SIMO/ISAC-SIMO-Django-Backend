@@ -46,4 +46,16 @@
 		}
 	});
 
+	// IMG :)
+	$('.img-hidden-custom').mouseenter(function(event) {
+		var d = event.target.getAttribute("src-data");
+		if(d && !event.target.getAttribute("src")) {
+			event.target.setAttribute("src", d);
+		}
+	});
+
+	// Open-source
+	console.log("%cHey, we are open-source on GitHub. Feel free to Contribute there.", "background: #111; color: wheat; font-size: x-large");
+	console.log("%chttps://github.com/ISAC-SIMO/", "font-size: large");
+
 })(jQuery);

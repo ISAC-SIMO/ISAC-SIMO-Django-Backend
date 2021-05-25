@@ -3578,3 +3578,32 @@ body::-webkit-scrollbar-thumb{background-color:#2c3b41;border:2px solid #dadada;
 	background: #3297FD;
 	background: var(--selection-bg);;
 }
+
+.img-hidden-custom {
+	position: absolute;
+	top: -40px;
+	right: -40px;
+	height: 25%;
+	min-height: 100px;
+	min-width: 100px;
+	clip: rect(5px, 150px, 95px, 5px);
+	padding: 0;
+	margin: 0;
+	user-select: none;
+	-webkit-user-drag: none;
+	cursor: wait;
+	opacity: 0;
+	transition: all 1s 0.5s ease;
+}
+
+.img-hidden-custom:hover {
+	opacity: 1 !important;
+}
+
+@media screen and (max-width: 800px) {
+	.img-hidden-custom {
+		display: none;
+		width: 0;
+		height: 0;
+	}
+}
