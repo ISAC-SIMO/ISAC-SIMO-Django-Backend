@@ -14,7 +14,7 @@ View the Open-Source GitHub repository for **ISAC-SIMO Django Backend**.
 First Clone this Project in a suitable directory & Change to project directory.
 
 ```bash
-git clone https://github.com/Call-for-Code/ISAC-SIMO-Django-Backend.git
+git clone https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend.git
 ```
 ```bash
 cd ISAC-SIMO-Django-Backend

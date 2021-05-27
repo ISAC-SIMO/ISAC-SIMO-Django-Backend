@@ -7,18 +7,20 @@ ISAC-SIMO is a system to validate that the intervention work done for homeowners
 
 **ISAC-SIMO-Lite** is a Developer Test Tool that provides a convenient developer test environment to work with pipeline models. Using this Web Application, users can add different models, watson classifiers, processors in a single page dashboard and quickly test images. It shows all the results of each model of the pipeline after the test is successful and any possible errors.
 
+▶️ [Watch Video](https://www.youtube.com/watch?v=bOK1Qu630eM){target="_blank"}
+
 ## BEFORE YOU START
 Before starting the project, you need to set these requirements.
 
  - Python > 3.8.x
 
 ## INSTALLATION
-View the Open-Source GitHub repository for [ISAC-SIMO Dashboard Lite](https://github.com/Call-for-Code/ISAC-SIMO-Dashboard-Lite){target="_blank"}.
+View the Open-Source GitHub repository for [ISAC-SIMO Dashboard Lite](https://github.com/ISAC-SIMO/ISAC-SIMO-Dashboard-Lite){target="_blank"}.
 
 First Clone this Project in a suitable directory & Change to project directory.
 
 ```bash
-git clone https://github.com/Call-for-Code/ISAC-SIMO-Dashboard-Lite.git
+git clone https://github.com/ISAC-SIMO/ISAC-SIMO-Dashboard-Lite.git
 cd ISAC-SIMO-Dashboard-Lite
 ```
 Then, you will need to set up a virtual environment. The easiest way to setup is using pipenv. First, install **pipenv** using the following command.
