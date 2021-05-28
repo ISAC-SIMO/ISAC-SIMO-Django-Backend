@@ -34,6 +34,7 @@ nav:
     - Mobile API Guide: mobile-api-guide.md
     - Lite Dashboard: lite-dashboard.md
     - External Integration: integration.md
+    - Contribute: contribute.md
 
 extra:
   generator: false
