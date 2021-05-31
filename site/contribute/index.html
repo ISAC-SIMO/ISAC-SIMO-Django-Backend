@@ -312,8 +312,8 @@
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
-  <a href="#build-object-detection-models" class="md-nav__link">
-    Build object detection models:
+  <a href="#object-detection" class="md-nav__link">
+    Object Detection:
   </a>
   
 </li>
@@ -373,7 +373,7 @@
 <li>
 <p><strong>Auto-perspective fix of wall / facade images:</strong></p>
 <ul>
-<li>Support to automatically detect a skewed perspective in an image, and automatically fix the perspective of the image to front perspective. To detect the perspective, the segmentation mask obtained after passing the raw image through the unet model can be used instead of the raw image.</li>
+<li>Support to automatically detect a skewed perspective in an image, and automatically fix the perspective of the image to front perspective. To detect the perspective, the segmentation mask obtained after passing the raw image through the unet model can be used instead of the raw image to make it easier to detect a skewed perspective in an image.</li>
 </ul>
 <p><img alt="" src="../assets/contribute/perspective-raw.png" title="Perspective Raw" />
 <em>Figure :</em></p>
@@ -381,25 +381,56 @@
 <p><em>Bottom row - Images that don’t need a perspective fix</em></p>
 <hr />
 <p><img alt="" src="../assets/contribute/perspective-processed.png" title="Perspective Processed" />
-<em>Figure : Images obtained from segmentation model</em></p>
+<em>Figure : Segmentation mask obtained from trained Unet model</em></p>
 <p><em>Top row - Images needing perspective fix</em></p>
 <p><em>Bottom row - Images that don’t need perspective fix</em></p>
 <p><strong>To download these images for trial, <a href="../assets/contribute/perspective-raw.zip">click here</a>.</strong></p>
 </li>
 </ul>
 <h2 id="long-term-updates"><a class="toclink" href="#long-term-updates">Long term updates:</a></h2>
-<p>In the long term, we envision ISAC-SIMO to contain a wide catalogue of checks that can be deployed in multiple contexts around the world to help bridge the gap in technical support to homeowners, builders, and local authorities to assist with construction of disaster resilient confined masonry houses. In order to achieve that, we would need to develop models that can identify and assess the quality of a wide variety of construction elements.</p>
-<p>To implement the checks seamlessly, we can implement the following three-step pipeline in the backend for each check:</p>
-<p>1) <strong>Object Detection:</strong> Implement an object detection model to detect and extract the region of interest (section corresponding to the construction element being assessed) from an image of a construction site.</p>
-<p>2) <strong>Image Pre-processing:</strong> Implement an image processing script to pre-process the image using a python script or machine learning model if needed.</p>
-<p>3) <strong>Post-processing:</strong> Analyze the features of the pre-processed image or combine outputs of multiple ML models using a python script.</p>
-<p><img alt="" src="../assets/contribute/masonry-building.png" title="Masonry Building" /></p>
-<h3 id="build-object-detection-models"><a class="toclink" href="#build-object-detection-models">Build object detection models:</a></h3>
-<p><strong>Build Object Detection Models to detect following construction elements / constructions types:</strong></p>
+<p>In the long term, we envision ISAC-SIMO to contain a wide catalogue of checks that can be deployed in multiple contexts around the world to help bridge the gap in technical support to homeowners, builders, and local authorities to assist with the construction of disaster resilient confined masonry houses. To create a seamless experience for the users, we would need to be able to detect key construction elements from photos of construction sites taken at different stages of construction, and assess the detected elements for compliance or non-compliance. </p>
+<p>In order to achieve that, we would need to:</p>
+<p><strong>1)</strong> train a wide variety of models that can identify and extract key construction elements from construction site images, and</p>
+<p><strong>2)</strong> classify or process the images to assess the quality of the identified construction element as per the recommended guideline.</p>
+<p>We would like to invite interested developers and other supporters of this project to contribute to the development of more quality checks in the long term with the following activities:</p>
+<ul>
+<li>Crowd-source image dataset to train new models and create new checks</li>
+<li>Train object detection models to identify key construction components from construction site images</li>
+<li>Train new machine learning models or contribute python scripts to help extract key features in the images of construction elements and assess their quality as per the recommended guidelines</li>
+</ul>
+<p>To implement the checks, we can use a combination of machine learning models (such as object detection, segmentation, classification models) along with python scripts to carry out image processing and compute the final result of an assessment. </p>
+<p>We can thereby implement a three-step pipeline in the backend for each check:</p>
+<p>1) <strong>Object Detection:</strong> Implement an object detection model to detect the construction element of interest from an image of a construction site.</p>
+<p>2) <strong>Image Pre-processing:</strong> Implement a pre-processing python script to extract the bounding box corresponding to the detected construction element and pre-process the image using a pre-trained deep learning model or image processing functions, as appropriate for the check.</p>
+<p>3) <strong>Post-processing:</strong> Implement a post-processing python script to analyze the segmentation mask or the processed image to extract key features and compute compliance or non-compliance as per the check requirements using machine learning models or python.</p>
+<p>The list of construction elements to be detected and the catalogue of quality checks that can be implemented for confined masonry houses are detailed in the next section.</p>
+<h3 id="object-detection"><a class="toclink" href="#object-detection">Object Detection:</a></h3>
+<p>Given enough image dataset, we can train and deploy object detection models to identify key construction elements from construction site images. The key components of a confined masonry construction is shown in the figure below.</p>
+<p><img alt="" src="../assets/contribute/masonry-building-detail.png" title="Masonry Building" />
+<em>Figure: Key components and characteristics of a confined masonry building (Schacher 2015)</em></p>
+<p>Out of the confined masonry building components, we can train object detection models to identify the elements listed in the table below.</p>
+<table id="contribute-quality-checks">
+    <tr>
+      <th>#</th>
+      <th>Element to be detected</th>
+      <th>Example(s)</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><b>Facade</b></td>
+      <td>
+        <img src="../assets/contribute/facade.png" alt="Facade"/><br/>
+        <img src="../assets/contribute/facade-alt.png" alt="Facade Alt"/>
+      </td>
+      <td>Detect a facade of a building</td>
+    </tr>
+</table>
+
 <ul>
 <li>Identify type of construction / building (Concrete block construction, brick construction, clay or mud house, stone house, timber house etc.)</li>
 <li>Detect storeys / multiple floors </li>
-<li>Walls and type of walls (brick walls, plastered walls, concrete block walls etc. to identify the type of wall being assessed)</li>
+<li>Walls and type of walls (brick walls, plastered walls, concrete block walls etc. to identify the type of wall being assessed)<ul>
 <li>Identify different types of blocks or bricks (eg. solid concrete units, hollow concrete blocks, solid clay bricks, hollow clay brick, perforated clay brick, stone etc.)</li>
 <li>Detect doors, windows, and openings</li>
 <li>Confining beams and columns</li>
@@ -407,6 +438,8 @@
 <li>Rebar Stirrups</li>
 <li>Rebar Cage elements</li>
 <li>Detect roof and type of roof</li>
+</ul>
+</li>
 </ul>
 <h3 id="develop-more-quality-checks"><a class="toclink" href="#develop-more-quality-checks">Develop more quality checks:</a></h3>
 <table id="contribute-quality-checks">

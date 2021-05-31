@@ -11,7 +11,7 @@ We would like to invite developers and other interested folks to contribute to f
     - Contribute image dataset for different construction elements (eg. walls and type of walls, openings, rebar cages, rebar stirrups etc.) that can be used to train object detection or segmentation models to detect and extract key construction elements from a construction site image. To contribute image dataset of construction elements, both ISAC-SIMO mobile app or the dashboard can be used by [following these guidelines](https://www.isac-simo.net/docs/web-application/#crowdsource-image).
 
 - **Auto-perspective fix of wall / facade images:**
-    - Support to automatically detect a skewed perspective in an image, and automatically fix the perspective of the image to front perspective. To detect the perspective, the segmentation mask obtained after passing the raw image through the unet model can be used instead of the raw image.
+    - Support to automatically detect a skewed perspective in an image, and automatically fix the perspective of the image to front perspective. To detect the perspective, the segmentation mask obtained after passing the raw image through the unet model can be used instead of the raw image to make it easier to detect a skewed perspective in an image.
 
     ![](./assets/contribute/perspective-raw.png "Perspective Raw" )
     *Figure :*
@@ -23,7 +23,7 @@ We would like to invite developers and other interested folks to contribute to f
     ---
 
     ![](./assets/contribute/perspective-processed.png "Perspective Processed" )
-    *Figure : Images obtained from segmentation model*
+    *Figure : Segmentation mask obtained from trained Unet model*
 
     *Top row - Images needing perspective fix*
 
@@ -33,31 +33,68 @@ We would like to invite developers and other interested folks to contribute to f
 
 
 ## Long term updates:
-In the long term, we envision ISAC-SIMO to contain a wide catalogue of checks that can be deployed in multiple contexts around the world to help bridge the gap in technical support to homeowners, builders, and local authorities to assist with construction of disaster resilient confined masonry houses. In order to achieve that, we would need to develop models that can identify and assess the quality of a wide variety of construction elements.
+In the long term, we envision ISAC-SIMO to contain a wide catalogue of checks that can be deployed in multiple contexts around the world to help bridge the gap in technical support to homeowners, builders, and local authorities to assist with the construction of disaster resilient confined masonry houses. To create a seamless experience for the users, we would need to be able to detect key construction elements from photos of construction sites taken at different stages of construction, and assess the detected elements for compliance or non-compliance. 
 
-To implement the checks seamlessly, we can implement the following three-step pipeline in the backend for each check:
+In order to achieve that, we would need to:
 
-1) **Object Detection:** Implement an object detection model to detect and extract the region of interest (section corresponding to the construction element being assessed) from an image of a construction site.
+**1)** train a wide variety of models that can identify and extract key construction elements from construction site images, and
 
-2) **Image Pre-processing:** Implement an image processing script to pre-process the image using a python script or machine learning model if needed.
+**2)** classify or process the images to assess the quality of the identified construction element as per the recommended guideline.
 
-3) **Post-processing:** Analyze the features of the pre-processed image or combine outputs of multiple ML models using a python script.
+We would like to invite interested developers and other supporters of this project to contribute to the development of more quality checks in the long term with the following activities:
 
-![](./assets/contribute/masonry-building.png "Masonry Building" )
+  - Crowd-source image dataset to train new models and create new checks
+  - Train object detection models to identify key construction components from construction site images
+  - Train new machine learning models or contribute python scripts to help extract key features in the images of construction elements and assess their quality as per the recommended guidelines
 
-### Build object detection models:
-**Build Object Detection Models to detect following construction elements / constructions types:**
+To implement the checks, we can use a combination of machine learning models (such as object detection, segmentation, classification models) along with python scripts to carry out image processing and compute the final result of an assessment. 
+
+We can thereby implement a three-step pipeline in the backend for each check:
+
+1) **Object Detection:** Implement an object detection model to detect the construction element of interest from an image of a construction site.
+
+2) **Image Pre-processing:** Implement a pre-processing python script to extract the bounding box corresponding to the detected construction element and pre-process the image using a pre-trained deep learning model or image processing functions, as appropriate for the check.
+
+3) **Post-processing:** Implement a post-processing python script to analyze the segmentation mask or the processed image to extract key features and compute compliance or non-compliance as per the check requirements using machine learning models or python.
+
+The list of construction elements to be detected and the catalogue of quality checks that can be implemented for confined masonry houses are detailed in the next section.
+
+### Object Detection:
+Given enough image dataset, we can train and deploy object detection models to identify key construction elements from construction site images. The key components of a confined masonry construction is shown in the figure below.
+
+![](./assets/contribute/masonry-building-detail.png "Masonry Building" )
+*Figure: Key components and characteristics of a confined masonry building (Schacher 2015)*
+
+Out of the confined masonry building components, we can train object detection models to identify the elements listed in the table below.
+
+<table id="contribute-quality-checks">
+    <tr>
+      <th>#</th>
+      <th>Element to be detected</th>
+      <th>Example(s)</th>
+      <th>Description</th>
+    </tr>
+    <tr>
+      <td>1</td>
+      <td><b>Facade</b></td>
+      <td>
+        <img src="../assets/contribute/facade.png" alt="Facade"/><br/>
+        <img src="../assets/contribute/facade-alt.png" alt="Facade Alt"/>
+      </td>
+      <td>Detect a facade of a building</td>
+    </tr>
+</table>
 
   - Identify type of construction / building (Concrete block construction, brick construction, clay or mud house, stone house, timber house etc.)
   - Detect storeys / multiple floors 
   - Walls and type of walls (brick walls, plastered walls, concrete block walls etc. to identify the type of wall being assessed)
-  - Identify different types of blocks or bricks (eg. solid concrete units, hollow concrete blocks, solid clay bricks, hollow clay brick, perforated clay brick, stone etc.)
-  - Detect doors, windows, and openings
-  - Confining beams and columns
-  - Detect presence or absence of confining elements around openings (eg. sill & lintel bands)
-  - Rebar Stirrups
-  - Rebar Cage elements
-  - Detect roof and type of roof
+      - Identify different types of blocks or bricks (eg. solid concrete units, hollow concrete blocks, solid clay bricks, hollow clay brick, perforated clay brick, stone etc.)
+      - Detect doors, windows, and openings
+      - Confining beams and columns
+      - Detect presence or absence of confining elements around openings (eg. sill & lintel bands)
+      - Rebar Stirrups
+      - Rebar Cage elements
+      - Detect roof and type of roof
 
 ### Develop more quality checks:
 
