@@ -211,6 +211,8 @@ Details & Status and View Offline Model Details.
 Example Response for Fetch Classifier Details:
 ![](./assets/image29.png)
 ### <span style="color:green">Crowdsource Image</span>
+▶️ [Watch Video](https://www.youtube.com/watch?v=6v9f-Eh5oGs){target="_blank"}
+
 **Permissions**: Admin (All), Project Admin (All), User (Own)
 <br>
 The Crowdsource Feature allows anyone to upload multiple images of different Object Types. These uploaded Images can be used while Training different Models by the Admin or Project Admin. The User who uploaded the images, must confirm that they are willing to transfer the Copyright to ISAC-SIMO & agree that it can be used and shared freely.

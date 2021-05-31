@@ -4,7 +4,7 @@ from crowdsource.helpers import delete_object, get_object, move_object, upload_o
 from crowdsource.forms import CrowdsourceForm
 from crowdsource.models import Crowdsource
 from django.shortcuts import get_object_or_404, redirect, render
-from main.authorization import login_url, is_admin, is_admin_or_project_admin
+from main.authorization import login_url, is_admin_or_project_admin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core import serializers
 from django.contrib import messages
@@ -133,17 +133,22 @@ def crowdsource_images(request):
     return redirect("crowdsource")
 
 
-@user_passes_test(is_admin, login_url=login_url)
+@login_required(login_url=login_url)
 def crowdsource_images_delete(request, id):
     if request.method == "POST":
         try:
-            crowdsource_image = Crowdsource.objects.filter(id=id).get()
-            delete_object(crowdsource_image.bucket_key())
-            crowdsource_image.file.delete()
-            crowdsource_image.delete()
-            messages.success(
-                request, 'Crowdsource Image Deleted Successfully!')
-            return redirect("crowdsource")
+            if request.user.is_admin or request.user.is_project_admin:
+                crowdsource_image = Crowdsource.objects.filter(id=id).get()
+            else:
+                crowdsource_image = Crowdsource.objects.filter(created_by=request.user).filter(id=id).get()
+            
+            if crowdsource_image:
+                delete_object(crowdsource_image.bucket_key())
+                crowdsource_image.file.delete()
+                crowdsource_image.delete()
+                messages.success(
+                    request, 'Crowdsource Image Deleted Successfully!')
+                return redirect("crowdsource")
         except(Crowdsource.DoesNotExist):
             pass
 
