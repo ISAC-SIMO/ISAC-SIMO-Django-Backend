@@ -42,7 +42,8 @@ li.md-tabs__item:after {
 }
 
 #contribute-quality-checks tr td img {
-  width: 40%;
+  min-width: 200px;
+  max-width: 400px;
   display: block;
 }
 
