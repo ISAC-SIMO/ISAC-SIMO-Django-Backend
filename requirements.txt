@@ -89,7 +89,7 @@ tablib==1.1.0
 # tensorflow==2.4.1
 Theano==1.0.4
 uritemplate==3.0.1
-urllib3==1.25.8
+urllib3==1.26.5
 virtualenv-clone==0.5.3
 virtualenv==20.0.4
 watson-developer-cloud==2.10.1
