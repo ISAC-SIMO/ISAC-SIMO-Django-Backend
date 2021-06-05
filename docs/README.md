@@ -6,9 +6,10 @@ We use MkDocs for building and generating the documentations. MkDocs is a fast, 
 The Markdown files listed above are used for their specific documentation. They can be edited and built into HTML documentation pages.
 
 ## Building Documentation:
-MkDocs needs to be installed first using `pip`
+MkDocs and a template need to be installed first using `pip`
 ```sh
 pip install mkdocs
+pip install mkdocs-material
 ```
 
 From the root our repository, we need to run:
