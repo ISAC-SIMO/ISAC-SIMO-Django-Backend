@@ -23,7 +23,7 @@
   --md-footer-bg-color: #ffffff;
   --md-footer-bg-color--dark: hsla(0, 0%, 91%, 0.09);
   --md-footer-fg-color: hsla(231, 48%, 48%, 1);
-  --md-footer-fg-color--light: #6383a8;
+  --md-footer-fg-color--light: #183c66;
   --md-footer-fg-color--lighter: #6383a8;
 }
 
@@ -51,4 +51,20 @@ li.md-tabs__item:after {
   padding: 0.9375em 0.5em !important;
   margin: 0;
   min-width: 10px !important;
+}
+
+.md-footer-meta.md-typeset a {
+  transition: all 0.5s ease;
+  border-bottom: 1px dotted #183c66;
+}
+
+.md-footer-meta.md-typeset a:hover {
+  border-bottom: 1px dotted transparent;
+  color: var(--md-footer-fg-color);
+}
+
+@media screen and (min-width: 45em) {
+  .md-footer-nav__link {
+      width: auto;
+  }
 }
