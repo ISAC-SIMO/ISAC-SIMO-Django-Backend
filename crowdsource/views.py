@@ -7,6 +7,7 @@ from django.shortcuts import get_object_or_404, redirect, render
 from main.authorization import login_url, is_admin_or_project_admin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core import serializers
+from django.conf import settings
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -120,7 +121,7 @@ def crowdsource_images(request):
                     crowdsource_images.append({'id': instance.id, 'file': instance.file.url, 'object_type': instance.object_type, 'image_type': instance.image_type, 'username': instance.username})
                     request.session['crowdsource_images'] = crowdsource_images
 
-                    if request.user.is_authenticated:
+                    if request.user.is_authenticated and settings.PRODUCTION:
                         upload_object(instance.bucket_key(), instance.filepath())
                     total += 1
                     if total >= 5:
