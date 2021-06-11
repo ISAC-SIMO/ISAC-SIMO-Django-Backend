@@ -1,14 +1,17 @@
 # ISAC-SIMO
 
-[**View Documentation**](https://www.isac-simo.net/docs/)
->**New Upgrade requires minimum of Python 3.8.x**
+[![License](https://img.shields.io/badge/License-Apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0) [![Slack](https://img.shields.io/badge/Join-Slack-blue)](https://callforcode.org/slack) [![Python 3.8.x](https://img.shields.io/badge/python-v3.8-blue)](https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend)
 
-#### Django Backend Repository
+[![CircleCI](https://circleci.com/gh/buildchange/ISAC-SIMO_Django/tree/master.svg?style=shield)](https://circleci.com/gh/buildchange/ISAC-SIMO_Django/?branch=master) ![Website](https://img.shields.io/website?down_message=offline&up_message=online&url=https%3A%2F%2Fwww.isac-simo.net%2F)
+
+Intelligent Supervision Assistant for Construction - Sistema Inteligente de Monitoreo de Obra
+
+> [View documentation](https://www.isac-simo.net/docs/) at isac-simo.net
+
+### Django Backend Repository
 ---
-#### Bash Script:
+### Bash Script:
 ```sh
-pip3 install --user python-dotenv
-pip3 install --user django
 virtualenv -p python3 env
 source env/bin/activate
 pip install -r requirements.txt
@@ -17,15 +20,14 @@ pip install -r requirements.txt
 ```sh
 pipenv install
 ```
+>Setup Postgresql or desired Django supported database.
+>
+>Create ``` .env ``` file using ``` .env.example ``` and provide environment variables as required.
+>
+>``` database_settings.py ``` needs to be updated as per your database setup (or use DATABASE_URL in ``` .env ``` file)
 ```sh
 python manage.py migrate
 python manage.py createsuperuser
-```
-##### You can also use ``` bash pull.sh ``` script after updating the username inside the file to trigger reload
-
-#### Procfile to Run In Root Port:
-```sh
-web: python manage.py runserver 0.0.0.0:$PORT
 ```
 
 ### Details for Pythonanywhere:
@@ -129,13 +131,22 @@ def get_response(self, request):
 </details>
 
 ### Note:
-- Create ``` .env ``` file using ``` .env.example ``` and fill as required
-- ``` database_settings.py ``` needs to be updated (or use DATABASE_URL in ``` .env ``` file)
 - USER TYPES = "User", "Engineer", "Government", "Project Admin", "Admin"
-- Can only register as User or Project Admin.
-- Project Admin can only manage self projects and linked stuffs.
+- View detailed [Developer Guide](https://www.isac-simo.net/docs/developer-guide/) & [Web Application Guide](https://www.isac-simo.net/docs/web-application/)
 
+## Contributing
+Please read [our contributing guidelines](CONTRIBUTING.md) for details of how you can get involved and please abide by the [Code of Conduct](CONTRIBUTING.md#code-of-conduct).
 
+## Contributors
+<a href="https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend/graphs/contributors">
+  <img src="https://contributors-img.web.app/image?repo=ISAC-SIMO/ISAC-SIMO-Django-Backend" />
+</a>
+
+## License
+This project is licensed under the Apache Software License, Version 2, unless otherwise stated.  Separate third party code objects invoked within this project are licensed by their respective providers pursuant to their own separate licenses. Contributions are subject to the [Developer Certificate of Origin, Version 1.1 (DCO)](https://developercertificate.org/) and the [Apache Software License, Version 2](http://www.apache.org/licenses/LICENSE-2.0.txt).
+
+> A Call for Code with The Linux Foundation
+> 
 > Developed By: Build Change
-
+> 
 > Supported By: IBM
