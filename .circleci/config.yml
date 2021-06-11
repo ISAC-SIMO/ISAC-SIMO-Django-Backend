@@ -28,7 +28,9 @@ jobs:
           command: dockerize -wait tcp://localhost:5432 -timeout 2m
 
       - run:
-          name: Setup DATABASE_URL
+          name: Install global dotenv and Setup DATABASE_URL
+          command: |
+            pip3 install --user python-dotenv
           environment:
             # Note: Make sure to also set DATABASE_URL in circleci env variables
             DATABASE_URL: postgresql://root@localhost/isac?sslmode=disable
