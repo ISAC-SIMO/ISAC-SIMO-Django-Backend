@@ -12,7 +12,7 @@ from django.utils.translation import gettext_lazy as _
 class ProjectForm(forms.ModelForm):
     class Meta:
         model = Projects     
-        fields = ('project_name', 'project_desc', 'detect_model', 'ibm_api_key', 'offline_model', 'image', 'public')
+        fields = ('project_name', 'project_desc', 'detect_model', 'ibm_service_url', 'ibm_api_key', 'offline_model', 'image', 'public')
         labels = {
             'project_name': _('Project Name'),
             'project_desc': _('Description'),
@@ -20,12 +20,14 @@ class ProjectForm(forms.ModelForm):
             'detect_model': _("Online Object Detect Model"),
             'offline_model': _("Offline Object Detect Model"),
             'ibm_api_key': _("IBM API KEY"),
+            'ibm_service_url': _("IBM Service URL"),
             'public': _('Is Publicly Visible')
         }
         widgets = {
           'project_desc': Textarea(attrs={'rows':4, 'cols':20}),
           'detect_model': Textarea(attrs={'rows':1, 'cols':20, 'placeholder':'Default: '+detect_object_model_id}),
           'ibm_api_key': Input(attrs={'placeholder':'Enter your IBM Watson API Key'}),
+          'ibm_service_url': Input(attrs={'placeholder':'Enter a valid IBM Service URL'}),
           'offline_model': Select(attrs={'placeholder':'Select Offline Model'}),
         }
 
@@ -36,4 +38,5 @@ class ProjectForm(forms.ModelForm):
         self.fields['offline_model'].queryset = OfflineModel.objects.filter(model_type='OBJECT_DETECT')
         self.fields['offline_model'].empty_label = ''
         self.fields['ibm_api_key'].help_text = 'If Provided this Project will be use given Watson Service.'
+        self.fields['ibm_service_url'].initial = 'https://api.us-south.visual-recognition.watson.cloud.ibm.com'
         self.fields['public'].help_text = 'Choose if you want this Project to be Publicly Available to any user. Anyone can join the project or contribute.'

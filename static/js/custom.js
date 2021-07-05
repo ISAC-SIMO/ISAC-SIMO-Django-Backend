@@ -406,3 +406,7 @@ function idleDetect() {
     }
 }
 idleDetect();
+
+// Open-source
+console.log("%cHey, we are open-source on GitHub. Feel free to Contribute there.", "background: #111; color: wheat; font-size: x-large");
+console.log("%chttps://github.com/ISAC-SIMO/", "font-size: large");

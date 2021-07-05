@@ -81,6 +81,7 @@ class Classifier(models.Model):
     offline_model = models.ForeignKey('OfflineModel', on_delete=models.SET_NULL, verbose_name=_("Offline Model"), related_name='classifiers', blank=True, null=True)
     is_object_detection = models.BooleanField(_("Is Object Detection"), default=False)
     ibm_api_key = models.CharField(_("IBM API KEY"), max_length=200, blank=True, null=True)
+    ibm_service_url = models.CharField(_("IBM Service URL"), max_length=200, blank=True, null=True)
     created_by = models.ForeignKey("main.User", related_name='classifiers', verbose_name=_("Created By"), on_delete=models.SET_NULL, blank=True, null=True)
     created_at = models.DateTimeField(_("created_at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated_at"), auto_now=True)
@@ -100,6 +101,11 @@ class Classifier(models.Model):
             return self.project.ibm_api_key
         else:
             return str(settings.IBM_API_KEY)
+
+    def get_ibm_service_url(self):
+        if self.ibm_service_url:
+            return self.ibm_service_url
+        return "https://api.us-south.visual-recognition.watson.cloud.ibm.com"
 
     class Meta:
         ordering = ['order']  # order is the field holding the order

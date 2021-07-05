@@ -80,7 +80,7 @@ function handleCacheAndRequest(evt,clonedReq,cache_type,hours=24){
         caches.match(evt.request.clone()).then(function(cachedRes) {
             // If cache found
             if(cachedRes){
-                console.log('asset from cache...')
+                console.log('Asset loaded from cache...')
                 try{
                     let cached_at = new Date(cachedRes.clone().headers.get('date').replace(',','').split(/,/)[0])
                     let now = new Date()
