@@ -69,7 +69,7 @@ pipenv==2018.11.26
 # psycopg2==2.8.4
 pyfcm==1.4.5
 PyJWT==2.1.0
-pylint==2.7.0
+pylint==2.4.4
 python-dateutil==2.8.1
 python-dotenv==0.12.0
 pytz==2018.4
