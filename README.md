@@ -20,14 +20,23 @@ pip install -r requirements.txt
 ```sh
 pipenv install
 ```
->Setup Postgresql or desired Django supported database.
+>Setup Postgresql or any desired Django supported database.
 >
 >Create ``` .env ``` file using ``` .env.example ``` and provide environment variables as required.
 >
 >``` database_settings.py ``` needs to be updated as per your database setup (or use DATABASE_URL in ``` .env ``` file)
 ```sh
-python manage.py migrate
-python manage.py createsuperuser
+python3 manage.py migrate
+python3 manage.py createsuperuser
+```
+
+### Running Tests:
+```sh
+python3 manage.py test --debug-mode --debug-sql --parallel
+```
+OR simply run without any flags:
+```sh
+python3 manage.py test
 ```
 
 ### Details for Pythonanywhere:
