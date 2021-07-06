@@ -42,6 +42,7 @@ gunicorn==20.0.4
 # h5py==2.10.0
 html5lib==1.0.1
 ibm-cos-sdk==2.10.0
+ibm-watson>=5.1.0
 idna==2.8
 img2pdf==0.3.3
 importmagic==0.1.7
@@ -92,7 +93,6 @@ uritemplate==3.0.1
 urllib3==1.26.5
 virtualenv-clone==0.5.3
 virtualenv==20.0.4
-watson-developer-cloud==2.10.1
 webencodings==0.5.1
 websocket-client==0.48.0
 whitenoise==5.0.1
