@@ -1,5 +1,5 @@
 #!/bin/bash
-#cd /home/buildchange/isac
+# Change to your app directory
 cd /root/isac/ISAC-SIMO_Django/
 echo '==PULLING FROM MASTER=='
 git pull origin master
@@ -12,6 +12,8 @@ python manage.py migrate
 echo '==MIGRATE AND PULL DONE=='
 
 deactivate
+
+# FOR PYTHON ANYWHERE
 # touch /var/www/buildchange_pythonanywhere_com_wsgi.py
 #touch /var/www/www_isac-simo_net_wsgi.py
 #echo '==REQUESTED RELOAD=='

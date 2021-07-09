@@ -1,4 +1,5 @@
 from django.core.serializers import serialize
+from django.conf import settings
 from django.db.models.query import QuerySet
 from django.template import Library
 register = Library()
@@ -14,3 +15,9 @@ def json(toPrase):
     except Exception as e:
         print(e)
         return []
+
+
+
+@register.simple_tag
+def version():
+    return getattr(settings, "VERSION", "0.0.0")

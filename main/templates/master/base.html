@@ -1,4 +1,5 @@
 {% load static i18n %}
+{% load modif %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -94,7 +95,7 @@
         <!-- Messages Dropdown Menu -->
         {% if user.is_authenticated %}
         <li class="nav-item">
-        <a class="nav-link d-none d-md-block">V 1.3.1</a>
+        <a class="nav-link d-none d-md-block">V {% version %}</a>
         </li>
             {% get_current_language as LANGUAGE_CODE %}
             <li class="nav-item" style="display: flex;justify-content: center;align-items: center;">
@@ -516,7 +517,7 @@
       <strong>&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.isac-simo.net/" target="_blank" rel="noopener noreferrer"> ISAC-SIMO </a>| <a href="https://buildchange.org/" target="_blank" rel="noopener noreferrer"> Build Change </a>| <a href="https://www.ibm.com/" target="_blank" rel="noopener noreferrer"> IBM</a> |<a href="https://lfprojects.org/" target="_blank" rel="noopener noreferrer"> LF Projects</a> |</strong>
       All rights reserved.
       <div class="float-right d-none d-sm-inline-block">
-        <b>Version</b> 1.3.1
+        <b>Version</b> {% version %}
       </div>
     </footer>
 

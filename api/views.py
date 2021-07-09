@@ -95,9 +95,9 @@ def addImage(request, id = 0):
                 if object_type:
                     project = object_type.project
                     force_object_type = object_type.name.lower()
-            # Else check project_id
-            elif request.POST.get('project_id', None):
-                project = Projects.objects.filter(id=request.POST.get('project_id')).get()
+            # Else check project
+            elif request.POST.get('project', None):
+                project = Projects.objects.filter(id=request.POST.get('project')).get()
             
             if not project and not object_type:
                 messages.error(request, "Neither Project nor Object Type Were Valid")
@@ -127,7 +127,7 @@ def addImage(request, id = 0):
                 ################
                 ### RUN TEST ###
                 ################
-                test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
+                test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key, ibm_service_url=project.get_ibm_service_url())
                     
                 if(i>=8):
                     break
@@ -201,7 +201,7 @@ def testImage(request, id = 0):
             ################
             ### RUN TEST ###
             ################
-            test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
+            test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key, ibm_service_url=project.get_ibm_service_url())
                 
             if(i>=8):
                 break
@@ -294,7 +294,7 @@ def updateImage(request, id=0):
                     ################
                     ### RUN TEST ###
                     ################
-                    test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
+                    test_image(photo, request.POST.get('title'), request.POST.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key, ibm_service_url=project.get_ibm_service_url())
 
                     if(i>=8):
                         break
@@ -471,7 +471,7 @@ def retestImageFile(request, id):
             offline = False
         
         if not image_file.result or not image_file.score:
-            test_status = test_image(image_file, detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
+            test_status = test_image(image_file, detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key, ibm_service_url=project.get_ibm_service_url())
             if test_status:
                 messages.success(request, 'Image Tested Successfully.')
             else:
@@ -690,7 +690,7 @@ def watsonClassifierCreate(request):
         elif request.POST.get('source', False) == "ibm" and request.POST.get('name') and request.POST.get('trained') == "true":
             created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'classes':[]}}
         else:
-            created = create_classifier(request.FILES.getlist('zip'), request.FILES.get('negative', False), request.POST.get('name'), request.POST.get('object_type'), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False), ibm_api_key=request.POST.get('ibm_api_key',False), project=request.POST.get('project',False))
+            created = create_classifier(request.FILES.getlist('zip'), request.FILES.get('negative', False), request.POST.get('name'), request.POST.get('object_type'), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False), ibm_api_key=request.POST.get('ibm_api_key',False), project=request.POST.get('project',False), ibm_service_url=request.POST.get('ibm_service_url',''))
         
         bad_zip = 0
         if created:
@@ -723,6 +723,8 @@ def watsonClassifierCreate(request):
                     classifier.is_object_detection = True
                 if request.POST.get('ibm_api_key',False) and request.POST.get('source', "") == "ibm":
                     classifier.ibm_api_key = request.POST.get('ibm_api_key')
+                if request.POST.get('ibm_service_url',False) and request.POST.get('source', "") == "ibm":
+                    classifier.ibm_service_url = request.POST.get('ibm_service_url')
                 if request.POST.get('offlineModel',False):
                     offline_model = OfflineModel.objects.filter(id=request.POST.get('offlineModel')).get()
                     classifier.offline_model = offline_model
@@ -767,6 +769,7 @@ def watsonClassifierEdit(request, id):
             else:
                 classifier.is_object_detection = True if request.POST.get('is_object_detection', False) else False
                 classifier.ibm_api_key = request.POST.get('ibm_api_key','')
+                classifier.ibm_service_url = request.POST.get('ibm_service_url','')
             classifier.order = request.POST.get('order', 0)
             classifier.save()
             # And unverify the object type
@@ -855,7 +858,7 @@ def watsonClassifierTest(request, id):
                     project_folder = os.environ.get('PROJECT_FOLDER','') + '/'
                 else:
                     project_folder = ''
-                quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), classifier.name, offline=False, project_folder=project_folder, ibm_api_key=classifier.ibm_api_key)
+                quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), classifier.name, offline=False, project_folder=project_folder, ibm_api_key=classifier.ibm_api_key, ibm_service_url=classifier.get_ibm_service_url())
                 if quick_test_image_result:
                     if isinstance(quick_test_image_result, dict) and quick_test_image_result.get("error", False):
                         request.session['test_result'] = json.dumps(quick_test_image_result, indent=4)
@@ -936,12 +939,13 @@ def watsonObject(request):
         
         # If not offline model try online
         try:
-            detail = object_detail(project.detect_model, project.ibm_api_key)
+            detail = object_detail(project.detect_model, project.ibm_api_key, project.get_ibm_service_url())
             if detail:
                 detail = json.dumps(detail, indent=4)
             else:
                 detail = 'Could Not Fetch List Object Detail Metadata'
-        except:
+        except Exception as e:
+            print(e)
             detail = 'Could Not Fetch List Object Detail Metadata (Server Error or Object Not Found)'
         finally:
             return render(request, 'objects.html',{'detail':detail,'object_id':object_id})
@@ -1793,10 +1797,10 @@ class ProjectView(viewsets.ModelViewSet):
 
         # IF THIS PROJECT HAS OFFLINE MODEL THEN
         if project.offline_model:
-            quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.offline_model, offline=True, project_folder=project_folder, ibm_api_key=project.ibm_api_key)
+            quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.offline_model, offline=True, project_folder=project_folder, ibm_api_key=project.ibm_api_key, ibm_service_url=project.get_ibm_service_url())
         # ELSE ONLINE MODEL THEN
         else:
-            quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False, project_folder=project_folder, ibm_api_key=project.ibm_api_key)
+            quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), project.detect_model, offline=False, project_folder=project_folder, ibm_api_key=project.ibm_api_key, ibm_service_url=project.get_ibm_service_url())
         
         test_result = None
         if quick_test_image_result:
@@ -1983,7 +1987,7 @@ class ClassifierView(viewsets.ModelViewSet):
                     project_folder = os.environ.get('PROJECT_FOLDER','') + '/'
                 else:
                     project_folder = ''
-                quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), classifier.name, offline=False, project_folder=project_folder, ibm_api_key=classifier.ibm_api_key)
+                quick_test_image_result = quick_test_detect_image(request.FILES.get('file', False), classifier.name, offline=False, project_folder=project_folder, ibm_api_key=classifier.ibm_api_key, ibm_service_url=classifier.get_ibm_service_url())
                 if quick_test_image_result:
                     res['test_result'] = quick_test_image_result
                     return JsonResponse(res, status=200)
@@ -2139,7 +2143,7 @@ def fetch_object_type_detail(request):
         
         # If not offline model try online
         try:
-            detail = object_detail(project.detect_model, project.ibm_api_key)
+            detail = object_detail(project.detect_model, project.ibm_api_key, project.get_ibm_service_url())
             if detail:
                 return Response({'data':detail, 'object_id':object_id}, status=200)
             else:
