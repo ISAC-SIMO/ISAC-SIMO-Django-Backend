@@ -49,13 +49,9 @@ class ProfileRoute(TestCase):
         self.assertEqual(len(response.data.get('projects')), 1) # Has One Project (as we setUp as Global Project)
         self.assertEqual(response.data.get('projects')[0].get('id'), 1) # First Project (id = 1)
         self.assertEqual(len(response.data.get('object_types')), 0) # Has NO Object Types
-        self.assertEqual(response.data, {
-          'id': 0, 'full_name': 'Guest', 'email': 'Guest', 'user_type': 'Guest', 'image': 'http://www.isac-simo.net/media/user_images/default.png',
-          'projects': [
-            {'id': 1, 'project_name': 'First Global Project', 'project_desc': 'First Global Project Description'}
-          ],
-          'object_types': []
-        })
+        self.assertEqual(response.data.get('full_name'), 'Guest')
+        self.assertEqual(response.data.get('email'), 'Guest')
+        self.assertEqual(response.data.get('user_type'), 'Guest')
 
     def test_profile_api_works_for_logged_in_users_as_expected(self):
         """
@@ -66,13 +62,11 @@ class ProfileRoute(TestCase):
         # print(response.data)
         self.assertEqual(response.status_code, 200)
         self.assertEqual(len(response.data.get('projects')), 1) # Has One Project (as we setUp as Global Project)
-        self.assertEqual(response.data, {
-          'id': 1, 'full_name': 'user', 'email': 'user@example.com', 'user_type': 'user', 'image': 'http://www.isac-simo.net/media/user_images/default.png',
-          'projects': [
-            {'id': 1, 'project_name': 'First Global Project', 'project_desc': 'First Global Project Description'}
-          ],
-          'object_types': []
-        })
+        self.assertEqual(len(response.data.get('object_types')), 0) # Has NO Object Types
+        self.assertEqual(response.data.get('full_name'), 'user')
+        self.assertEqual(response.data.get('email'), 'user@example.com')
+        self.assertEqual(response.data.get('user_type'), 'user')
+        self.assertEqual(response.data.get('projects')[0].get('project_name'), 'First Global Project')
 
     def test_ping_route(self):
         """
