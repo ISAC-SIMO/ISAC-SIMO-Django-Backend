@@ -7,7 +7,7 @@ from rest_framework.test import APIClient, APITestCase
 from main.models import User
 
 
-class UserAccountAPITest(APITestCase):
+class TestUserAccountAPI(APITestCase):
 
     def setUp(self):
         User.objects.create_user(email="testuser@gmail.com", user_type="user", password="test@1234")
