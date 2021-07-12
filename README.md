@@ -20,15 +20,41 @@ pip install -r requirements.txt
 ```sh
 pipenv install
 ```
->Setup Postgresql or desired Django supported database.
+>Setup Postgresql or any desired Django supported database.
 >
 >Create ``` .env ``` file using ``` .env.example ``` and provide environment variables as required.
 >
 >``` database_settings.py ``` needs to be updated as per your database setup (or use DATABASE_URL in ``` .env ``` file)
 ```sh
-python manage.py migrate
-python manage.py createsuperuser
+python3 manage.py migrate
+python3 manage.py createsuperuser
 ```
+
+### Running Tests:
+```sh
+python3 manage.py test --debug-mode --debug-sql --parallel
+```
+OR simply run without any flags:
+```sh
+python3 manage.py test
+```
+
+### How to Bump Application Version?
+<details>
+    <summary>Click to view</summary>
+
+We use SemVer scheme to manage the version number. We have created a Django Command to upgrade the version in the settings file.
+
+#### Command Usage:
+- `python manage.py bump`              → Updates to Next Patch
+- `python manage.py bump --to=2.2.2`   → Updates Version Number to 2.2.2
+- `python manage.py bump --type=major` → Updates to Next Major
+- `python manage.py bump --type=minor` → Updates to Next Minor
+- `python manage.py bump --type=patch` → Updates to Next Patch
+
+Releases and Tags can then be created accordingly.
+
+</details>
 
 ### Details for Pythonanywhere:
 <details>

@@ -128,3 +128,28 @@ ul.navbar-nav form > div > div > button {
 .bootstrap-select {
     animation: 0.2s fader forwards;
 }
+
+.selectpicker-before img.media-object {
+    height: 25px;
+    margin-right: 5px;
+}
+
+.selectpicker-before img.media-object:hover {
+    height: 25px;
+}
+
+.selectpicker-before li {
+    transition: all 0.3s ease;
+}
+
+.selectpicker-before li:hover {
+    background: #eee;
+}
+
+.selectpicker-before li.selected {
+    background: #ddd;
+}
+
+.selectpicker-before button.dropdown-toggle {
+    outline: 0 !important;
+}

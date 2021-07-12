@@ -9,6 +9,7 @@ class Projects(models.Model):
     offline_model = models.ForeignKey('api.OfflineModel', on_delete=models.SET_NULL, related_name='projects', blank=True, null=True)
     guest = models.BooleanField(default=False) # Guest=True for Global project
     ibm_api_key = models.CharField(max_length=200, blank=True, null=True)
+    ibm_service_url = models.CharField(max_length=200, blank=True, null=True)
     public = models.BooleanField(default=False) # Is this Project Publically Visible
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
@@ -21,3 +22,8 @@ class Projects(models.Model):
 
     def unique_name(self):
         return self.project_name.lower() + '-' + str(self.id)
+
+    def get_ibm_service_url(self):
+        if self.ibm_service_url:
+            return self.ibm_service_url
+        return "https://api.us-south.visual-recognition.watson.cloud.ibm.com"

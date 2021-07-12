@@ -1,4 +1,5 @@
 {% load static i18n %}
+{% load modif %}
 <!DOCTYPE html>
 <html>
 <head>
@@ -31,9 +32,7 @@
   <link rel="stylesheet" href="{% static 'plugins/select2/css/select2.min.css' %}">
   <link rel="stylesheet" href="{% static 'plugins/select2-bootstrap4-theme/select2-bootstrap4.min.css' %}">
   <!-- Leaflet Map -->
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-   integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-   crossorigin=""/>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"/>
   <!-- Ionicons -->
   <link rel="stylesheet" href="https://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css">
   <!-- Tempusdominus Bbootstrap 4 -->
@@ -96,11 +95,11 @@
         <!-- Messages Dropdown Menu -->
         {% if user.is_authenticated %}
         <li class="nav-item">
-        <a class="nav-link d-none d-md-block">V 1.3.0</a>
+        <a class="nav-link d-none d-md-block">V {% version %}</a>
         </li>
             {% get_current_language as LANGUAGE_CODE %}
-            <li class="nav-item" style="display: flex">
-            <img src="{% static 'home/images/flags/'|add:LANGUAGE_CODE|add:'.png' %}" class="d-none d-md-block" width="50px" height="40px" alt="Flag" style="margin-right:.5rem; ">
+            <li class="nav-item" style="display: flex;justify-content: center;align-items: center;">
+            <img src="{% static 'home/images/flags/'|add:LANGUAGE_CODE|add:'.png' %}" class="d-none d-md-block" width="30px" height="30px" alt="Flag" style="margin-right:.5rem; ">
           {% get_available_languages as LANGUAGES %}
           {% get_language_info_list for LANGUAGES as languages %}
           <form action="{% url 'set_language' %}" class="selectpicker-before" method="post">{% csrf_token %}
@@ -167,10 +166,10 @@
         <div class="user-panel mt-3 pb-3 mb-3 d-flex">
           <div class="image">
             <img src="{% if user.image %}{{ user.image.url }}{% else %}{% static 'dist/img/avatar5.png' %}{% endif %}" class="img-circle elevation-3"
-              alt="User Image">
+              alt="User Image" style="height: 30px;width: 30px;object-fit: cover;">
           </div>
           <div class="info">
-            <a href="{% url 'profile' %}" class="d-block">{{ user.get_full_name|default:"User" }}</a>
+            <a href="{% url 'profile' %}" class="d-block" style="text-overflow: ellipsis;overflow: hidden;">{{ user.get_full_name|default:"User" }}</a>
           </div>
         </div>
 
@@ -518,7 +517,7 @@
       <strong>&copy; <script>document.write(new Date().getFullYear())</script> <a href="https://www.isac-simo.net/" target="_blank" rel="noopener noreferrer"> ISAC-SIMO </a>| <a href="https://buildchange.org/" target="_blank" rel="noopener noreferrer"> Build Change </a>| <a href="https://www.ibm.com/" target="_blank" rel="noopener noreferrer"> IBM</a> |<a href="https://lfprojects.org/" target="_blank" rel="noopener noreferrer"> LF Projects</a> |</strong>
       All rights reserved.
       <div class="float-right d-none d-sm-inline-block">
-        <b>Version</b> 1.3.0
+        <b>Version</b> {% version %}
       </div>
     </footer>
 
@@ -594,9 +593,7 @@
   <script src="{% static '/js/custom.js' %}"></script>
   <script src="{% static 'js/bootstrap-select.min.js' %}"></script>
   <!-- Leaflet Map -->
-  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"
-   integrity="sha512-gZwIG9x3wUXg2hdXF6+rVkLF/0Vi9U8D2Ntg4Ga5I5BZpVkVxlJWbSQtXPSiUTtC0TjtGOmxa1AJPuV0CPthew=="
-   crossorigin=""></script>
+  <script src="https://unpkg.com/leaflet@1.6.0/dist/leaflet.js"></script>
   <link rel="stylesheet" href="https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.css" />
 	<link rel="stylesheet" href="https://leaflet.github.io/Leaflet.markercluster/dist/MarkerCluster.Default.css" />
 	<script src="https://leaflet.github.io/Leaflet.markercluster/dist/leaflet.markercluster-src.js"></script>
@@ -604,13 +601,13 @@
   {% comment %} <script src="{% static 'dist/js/demo.js' %}"></script> {% endcomment %}
   {% block script %}{% endblock script %}
   {% if debug %}<script>var allowdrop = true;</script>{% endif %}
-  <script>
+  {% comment %} <script>
       if($('.dropdown-menu').hasClass('show')){
-
-   {#$('.dropdown-menu').removeClass('')#}
-}else{
-  $('.dropdown-menu').addClass('rotated')
-}
+        $('.dropdown-menu').removeClass('')
+      } else{
+        $('.dropdown-menu').addClass('rotated')
+      }
+  </script> {% endcomment %}
   </script>
 </body>
 

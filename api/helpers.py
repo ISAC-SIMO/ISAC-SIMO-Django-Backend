@@ -16,7 +16,6 @@ import numpy as np
 import tensorflow as tf
 from keras import backend as K
 # import keras
-from watson_developer_cloud import VisualRecognitionV3
 
 import isac_simo.classifier_list as classifier_list
 import cv2
@@ -31,6 +30,10 @@ from django.shortcuts import redirect
 from operator import itemgetter
 import io
 import sys
+
+from ibm_watson import VisualRecognitionV3, ApiException, VisualRecognitionV4
+from ibm_cloud_sdk_core.authenticators import IAMAuthenticator
+from ibm_watson.visual_recognition_v4 import AnalyzeEnums, FileWithMetadata
 
 PIPELINE_CONTINUE_ON = ("go","gos","nogo","nogos")
 def shouldContinue(res): 
@@ -200,7 +203,7 @@ def test_offline_image(image_file, offline_model):
 ###################
 ## Detect Object ##
 ###################
-def detect_image(image_file, detect_model, offline=False, no_temp=False, ibm_api_key=False):
+def detect_image(image_file, detect_model, offline=False, no_temp=False, ibm_api_key=False, ibm_service_url=None):
     MIN_SCORE_REQUIRED = 0.1
     # Find Image Path (used to open)
     file_url = str(os.path.abspath(os.path.dirname(__name__))) + image_file.file.url
@@ -302,18 +305,18 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False, ibm_api
             return False
     else:
         # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
-        if os.path.exists(file_url) and (ibm_api_key or settings.IBM_API_KEY) and (classifier_list.detect_object_model_id or detect_model):
+        if os.path.exists(file_url) and (ibm_api_key or settings.IBM_API_KEY) and (classifier_list.detect_object_model_id or detect_model) and ibm_service_url:
             object_id = classifier_list.detect_object_model_id
             if detect_model:
                 object_id = detect_model
 
             # Authenticate the IBM Watson API
             api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
-            post_data = {'collection_ids': object_id, 'features':'objects', 'threshold':'0.15'} # 'threshold': '0.15 -1'
-            auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-            print(auth_base)
+            # post_data = {'collection_ids': object_id, 'features':'objects', 'threshold':'0.15'} # 'threshold': '0.15 -1'
+            # auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+            # print(auth_base)
 
-            post_header = {'Accept':'application/json','Authorization':auth_base}
+            # post_header = {'Accept':'application/json','Authorization':auth_base}
             
             # Temporary Resized Image (basewidth x calcheight)(save_to_path from param comes if looped through)
             basewidth = 300
@@ -334,19 +337,43 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False, ibm_api
             temp.save(saveto)
             resized_image_open = open(saveto, 'rb')
             
-            post_files = {
-                'images_file': resized_image_open,
-            }
+            # post_files = {
+            #     'images_file': resized_image_open,
+            # }
 
-            # Call the API
-            response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v4/analyze?version=2019-02-11', files=post_files, headers=post_header, data=post_data)
-            status = response.status_code
+            # UPDATED WATSON API
+            authenticator = IAMAuthenticator(api_token)
+            visual_recognition = VisualRecognitionV4(
+                version='2019-02-11',
+                authenticator=authenticator
+            )
+
+            visual_recognition.set_service_url(ibm_service_url)
+
             try:
-                content = response.json()
-            except ValueError:
-                # IBM Response is BAD
+                response = visual_recognition.analyze(
+                    collection_ids=[object_id],
+                    features=[AnalyzeEnums.Features.OBJECTS.value],
+                    images_file=[
+                        FileWithMetadata(resized_image_open)
+                    ])
+                content = response.get_result()
+                status = response.get_status_code()
+            except ApiException as ex:
                 print('IBM Response was BAD (During Detect) - (e.g. image too large)')
+                print(ex.message)
                 return False
+
+            # DEPRECATED API
+            # # Call the API
+            # response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v4/analyze?version=2019-02-11', files=post_files, headers=post_header, data=post_data)
+            # status = response.status_code
+            # try:
+            #     content = response.json()
+            # except ValueError:
+            #     # IBM Response is BAD
+            #     print('IBM Response was BAD (During Detect) - (e.g. image too large)')
+            #     return False
             
             print(status)
             print(content)
@@ -471,7 +498,7 @@ def detect_image(image_file, detect_model, offline=False, no_temp=False, ibm_api
 ####################
 # Default on 1st Image Test check Classifier Ids 1
 # If result is shouldContinue function passed then run test again with classifier ids 2 (in case of preprocess etc it will go next anyway)
-def test_image(image_file, title=None, description=None, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False, force_object_type=None, ibm_api_key=False):
+def test_image(image_file, title=None, description=None, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False, force_object_type=None, ibm_api_key=False, ibm_service_url=None):
     if force_object_type and not detected_as: # Force object Type by api
         try:
             pipeline_status = {}
@@ -508,7 +535,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
             return False
     else:
         if not detected_as:
-            detected_as = detect_image(image_file, detect_model, offline=offline, ibm_api_key=ibm_api_key)
+            detected_as = detect_image(image_file, detect_model, offline=offline, ibm_api_key=ibm_api_key, ibm_service_url=ibm_service_url)
         
         if not detected_as or len(detected_as) <= 0:
             if save_to_path:
@@ -560,7 +587,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     # In preprocess continue to next classifier pipeline if it exists of course
                     print('PREPROCESS OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                     if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                        test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key) #save_to_path=temp file
+                        test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key, ibm_service_url) #save_to_path=temp file
                     else:
                         print('No more pipeline')
                 except Exception as e:
@@ -602,7 +629,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     if not result.get('break', False) or shouldContinue(result.get('result','')):
                         print('PostProcess OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key) #save_to_path=temp file
+                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key, ibm_service_url) #save_to_path=temp file
                         else:
                             print('No more pipeline')
                 except Exception as e:
@@ -633,7 +660,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                     if shouldContinue(result.get('result','')):
                         print('OFFLINE CLASSIFIER NORMAL OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                         if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key) #save_to_path=temp file
+                            test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key, ibm_service_url) #save_to_path=temp file
                         else:
                             print('No more pipeline')
 
@@ -656,37 +683,60 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
             if not classifier.is_object_detection:
                 # Authenticate the IBM Watson API
                 api_token = classifier.best_ibm_api_key()
-                post_data = {'classifier_ids': classifier_ids} # 'threshold': '0.15 -1'
-                auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-                print(auth_base)
+                # post_data = {'classifier_ids': classifier_ids} # 'threshold': '0.15 -1'
+                # auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+                # print(auth_base)
 
-                post_header = {'Accept':'application/json','Authorization':auth_base}
+                # post_header = {'Accept':'application/json','Authorization':auth_base}
                 
                 # Open the Temporarily Resized Image (save_to_path from param comes if looped through - NOTE: now comes from detected_at directly)
                 if save_to_path: # Comes from param on next recursion
                     resized_image_open = open(save_to_path, 'rb')
                 
-                post_files = {
-                    'images_file': resized_image_open,
-                }
+                # post_files = {
+                #     'images_file': resized_image_open,
+                # }
 
-                # Call the API
-                response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classify?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
-                status = response.status_code
+                # UPDATED WATSON API
+                authenticator = IAMAuthenticator(api_token)
+                visual_recognition = VisualRecognitionV3(
+                    version='2018-03-19',
+                    authenticator=authenticator
+                )
+
+                visual_recognition.set_service_url(classifier.get_ibm_service_url())
+
                 try:
-                    content = response.json()
-                except ValueError:
-                    # IBM Response is BAD
-                    print('IBM Response was BAD - (e.g. image too large)')
-                    # return False
+                    response = visual_recognition.classify(
+                        images_file=resized_image_open,
+                        classifier_ids=[classifier_ids])
+                    content = response.get_result()
+                    status = response.get_status_code()
+                except ApiException as ex:
+                    status = False
+                    print('IBM Response was BAD - (e.g. image too large - INFO BELOW)')
+                    print(ex.message)
                     failed += 1
                     continue
+
+                # DEPRECATED API
+                # # Call the API
+                # response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classify?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
+                # status = response.status_code
+                # try:
+                #     content = response.json()
+                # except ValueError:
+                #     # IBM Response is BAD
+                #     print('IBM Response was BAD - (e.g. image too large)')
+                #     # return False
+                #     failed += 1
+                #     continue
                 
                 print(status)
                 print(content)
                 # If success save the data
                 if(status == 200 or status == '200' or status == 201 or status == '201'):
-                    if(content['images'][0]['classifiers'][0]['classes']):
+                    if(content and content['images'][0]['classifiers'][0]['classes']):
                         sorted_by_score = sorted(content['images'][0]['classifiers'][0]['classes'], key=lambda k: k['score'], reverse=True)
                         print(sorted_by_score)
 
@@ -712,7 +762,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                         if shouldContinue(sorted_by_score[0]['class']):
                             print('CLASSIFIER ONLINE OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
                             if classifier_index + 1 < classifier_list.lenList(project,object_type):
-                                test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key) #save_to_path=temp file
+                                test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key, ibm_service_url) #save_to_path=temp file
                             else:
                                 print('No more pipeline')
 
@@ -722,7 +772,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                         passed += 1
                         continue
             elif status == 404 or classifier.is_object_detection: # Assume Detect Model
-                res = detect_image(image_file, classifier_ids, offline=False, no_temp=True, ibm_api_key=classifier.ibm_api_key) # Note: Detect_Model is classifier ids (if 404 condition i.e. 2nd parameter)
+                res = detect_image(image_file, classifier_ids, offline=False, no_temp=True, ibm_api_key=classifier.ibm_api_key, ibm_service_url=classifier.get_ibm_service_url()) # Note: Detect_Model is classifier ids (if 404 condition i.e. 2nd parameter)
                 # print(res)
                 if resized_image_open:
                     resized_image_open.close()
@@ -754,7 +804,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                 
                 if classifier_index + 1 < classifier_list.lenList(project,object_type):
                     print('CLASSIFIER ONLINE [Detect Model Acting as Classifier] OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                    test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key) #save_to_path=temp file
+                    test_image(image_file, title, description, save_to_path, classifier_index + 1, [single_detected_as], detect_model, project, offline, force_object_type, ibm_api_key, ibm_service_url) #save_to_path=temp file
                 else:
                     print('No more pipeline')
 
@@ -787,41 +837,35 @@ def quick_test_image(image_file, classifier_ids, classifier=False):
     image_file_path = None
     ibm_api_key = classifier.best_ibm_api_key() if classifier else ''
     if ( (settings.IBM_API_KEY or ibm_api_key) and classifier_ids and image_file):
-        # Authenticate the IBM Watson API
-        api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
-        post_data = {'classifier_ids': classifier_ids} # 'threshold': '0.15 -1'
-        auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-        print(auth_base)
+        # UPDATED WATSON API
+        authenticator = IAMAuthenticator(ibm_api_key)
+        visual_recognition = VisualRecognitionV3(
+            version='2018-03-19',
+            authenticator=authenticator
+        )
 
-        post_header = {'Accept':'application/json','Authorization':auth_base}
-        
+        visual_recognition.set_service_url(classifier.get_ibm_service_url())
+
         if type(image_file) is InMemoryUploadedFile:
             image_file_path = image_file.open()
         else:
             image_file_path = open(image_file.temporary_file_path(), 'rb')
 
         print(image_file_path)
-        
-        post_files = {
-            'images_file': image_file_path,
-        }
 
-        # Call the API
-        response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classify?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
-        status = response.status_code
         try:
-            content = response.json()
-        except ValueError:
-            # IBM Response is BAD
-            print('IBM Response was BAD - (e.g. image too large)')
+            response = visual_recognition.classify(
+                images_file=image_file_path,
+                classifier_ids=[classifier_ids])
+            content = response.get_result()
+            status = response.get_status_code()
+        except ApiException as ex:
+            print(ex.message)
             image_file_path.close()
             return False
-        
-        print(status)
-        print(content)
-        # If success save the data
+
         if(status == 200 or status == '200' or status == 201 or status == '201'):
-            if(content['images'][0]['classifiers'][0]['classes']):
+            if(content and content['images'][0]['classifiers'][0]['classes']):
                 sorted_by_score = sorted(content['images'][0]['classifiers'][0]['classes'], key=lambda k: k['score'], reverse=True)
                 print(sorted_by_score)
                 image_file_path.close()
@@ -830,6 +874,54 @@ def quick_test_image(image_file, classifier_ids, classifier=False):
                 print('NO DATA')
                 image_file_path.close()
                 return False
+        else:
+            return False
+
+
+        # DEPRECATED API
+        # # Authenticate the IBM Watson API
+        # api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
+        # post_data = {'classifier_ids': classifier_ids} # 'threshold': '0.15 -1'
+        # auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+        # print(auth_base)
+
+        # post_header = {'Accept':'application/json','Authorization':auth_base}
+        
+        # if type(image_file) is InMemoryUploadedFile:
+        #     image_file_path = image_file.open()
+        # else:
+        #     image_file_path = open(image_file.temporary_file_path(), 'rb')
+
+        # print(image_file_path)
+        
+        # post_files = {
+        #     'images_file': image_file_path,
+        # }
+
+        # # Call the API
+        # response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classify?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
+        # status = response.status_code
+        # try:
+        #     content = response.json()
+        # except ValueError:
+        #     # IBM Response is BAD
+        #     print('IBM Response was BAD - (e.g. image too large)')
+        #     image_file_path.close()
+        #     return False
+        
+        # print(status)
+        # print(content)
+        # # If success save the data
+        # if(status == 200 or status == '200' or status == 201 or status == '201'):
+        #     if(content['images'][0]['classifiers'][0]['classes']):
+        #         sorted_by_score = sorted(content['images'][0]['classifiers'][0]['classes'], key=lambda k: k['score'], reverse=True)
+        #         print(sorted_by_score)
+        #         image_file_path.close()
+        #         return {'data':sorted_by_score, 'score':sorted_by_score[0]['score'], 'result':sorted_by_score[0]['class']}
+        #     else:
+        #         print('NO DATA')
+        #         image_file_path.close()
+        #         return False
     else:
         print('FAILED TO TEST CLASSIFIER by Admin - Check Token, Classifier ids is ready and file existence is upload temp file.')
         return False
@@ -974,7 +1066,7 @@ def quick_test_offline_image_pre_post(image_file, classifier, request, fake_scor
         return False
 
 # QUICK TEST DETECT MODE:
-def quick_test_detect_image(image_file, detect_model, offline=False, project_folder='', ibm_api_key=False):
+def quick_test_detect_image(image_file, detect_model, offline=False, project_folder='', ibm_api_key=False, ibm_service_url=None):
     MIN_SCORE_REQUIRED = 0.1
     # Find Image Path (used to open)
     file_url = None
@@ -1047,31 +1139,55 @@ def quick_test_detect_image(image_file, detect_model, offline=False, project_fol
             return False
     else:
         # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
-        if file_url and (ibm_api_key or settings.IBM_API_KEY) and (classifier_list.detect_object_model_id or detect_model):
+        if file_url and (ibm_api_key or settings.IBM_API_KEY) and (classifier_list.detect_object_model_id or detect_model) and ibm_service_url:
             object_id = classifier_list.detect_object_model_id
             if detect_model:
                 object_id = detect_model
 
             # Authenticate the IBM Watson API
             api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
-            post_data = {'collection_ids': object_id, 'features':'objects', 'threshold':'0.15'} # 'threshold': '0.15 -1'
-            auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-            post_header = {'Accept':'application/json','Authorization':auth_base}
+            # post_data = {'collection_ids': object_id, 'features':'objects', 'threshold':'0.15'} # 'threshold': '0.15 -1'
+            # auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+            # post_header = {'Accept':'application/json','Authorization':auth_base}
             resized_image_open = file_url
             
-            post_files = {
-                'images_file': resized_image_open,
-            }
+            # post_files = {
+            #     'images_file': resized_image_open,
+            # }
 
-            # Call the API
-            response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v4/analyze?version=2019-02-11', files=post_files, headers=post_header, data=post_data)
-            status = response.status_code
+            # UPDATED WATSON API
+            authenticator = IAMAuthenticator(api_token)
+            visual_recognition = VisualRecognitionV4(
+                version='2019-02-11',
+                authenticator=authenticator
+            )
+
+            visual_recognition.set_service_url(ibm_service_url)
+
             try:
-                content = response.json()
-            except ValueError:
-                # IBM Response is BAD
+                response = visual_recognition.analyze(
+                    collection_ids=[object_id],
+                    features=[AnalyzeEnums.Features.OBJECTS.value],
+                    images_file=[
+                        FileWithMetadata(resized_image_open)
+                    ])
+                content = response.get_result()
+                status = response.get_status_code()
+            except ApiException as ex:
                 print('IBM Response was BAD (During Detect) - (e.g. image too large)')
+                print(ex.message)
                 return False
+
+            # DEPRECATED API
+            # # Call the API
+            # response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v4/analyze?version=2019-02-11', files=post_files, headers=post_header, data=post_data)
+            # status = response.status_code
+            # try:
+            #     content = response.json()
+            # except ValueError:
+            #     # IBM Response is BAD
+            #     print('IBM Response was BAD (During Detect) - (e.g. image too large)')
+            #     return False
             
             print(status)
             print(content)
@@ -1147,7 +1263,7 @@ def quick_test_detect_image(image_file, detect_model, offline=False, project_fol
             print('Object Detect False, either bad response, no index, bad format array, sorted score empty etc.')
             return {"data": content, "error": True, 'temp_image': saveto.replace(project_folder,'')+'?1'}
         else:
-            print('FAILED TO Detect Object - Check Token, Object Detect Model id and file existence.')
+            print('FAILED TO Detect Object - Check Token, Object Detect Model id, IBM Service URL and file existence.')
             return False
 
 #################################################
@@ -1214,14 +1330,13 @@ def retrain_image(image_file_list, project, object_type, result, media_folder='i
 
         zipObj = open(zipPath, 'rb')
         post_files = {}
+        negative_post_files = None
 
         if result.lower() == 'negative':
-            post_files = {
-                'negative_examples': zipObj,
-            }
+            negative_post_files = zipObj
         else:
             post_files = {
-                result+'_positive_examples': zipObj,
+                result: zipObj,
             }
 
         passed = 0
@@ -1233,29 +1348,50 @@ def retrain_image(image_file_list, project, object_type, result, media_folder='i
             if this_classifier.offline_model:
                 offline += 1
             
-            # Authenticate the IBM Watson API
             api_token = this_classifier.best_ibm_api_key()
-            auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-            print(auth_base)
-            post_header = {'Accept':'application/json','Authorization':auth_base}
+            # # Authenticate the IBM Watson API
+            # auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+            # print(auth_base)
+            # post_header = {'Accept':'application/json','Authorization':auth_base}
 
             # Check if specific classifier to re-train on (and continue if not equal to it)
             if(classifier and classifier != 'all'):
                 if(classifier_ids != classifier):
                     continue
 
-            # Call the API
-            response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classifiers/'+classifier_ids+'?version=2018-03-19', files=post_files, headers=post_header)
-            status = response.status_code
+            # UPDATED WATSON API
+            authenticator = IAMAuthenticator(api_token)
+            visual_recognition = VisualRecognitionV3(
+                version='2018-03-19',
+                authenticator=authenticator
+            )
+
+            visual_recognition.set_service_url(this_classifier.get_ibm_service_url())
+
             try:
-                content = response.json()
-            except ValueError:
-                # IBM Response is BAD
-                print(response)
-                print('IBM Response was BAD - (e.g. zip might be too large)')
+                response = visual_recognition.update_classifier(classifier_id=classifier_ids,
+                    positive_examples=post_files,
+                    negative_examples=negative_post_files)
+                content = response.get_result()
+                print(json.dump(content), indent=2)
+                status = response.get_status_code()
+            except ApiException as ex:
+                print(ex.message)
+                status = False
+
+            # DEPRECATED API
+            # # Call the API
+            # response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classifiers/'+classifier_ids+'?version=2018-03-19', files=post_files, headers=post_header)
+            # status = response.status_code
+            # try:
+            #     content = response.json()
+            # except ValueError:
+            #     # IBM Response is BAD
+            #     print(response)
+            #     print('IBM Response was BAD - (e.g. zip might be too large)')
             
-            print(status)
-            print(content)
+            # print(status)
+            # print(content)
             # If success save the data
             if(status == 200 or status == '200' or status == 201 or status == '201'):
                 passed += 1
@@ -1275,25 +1411,26 @@ def retrain_image(image_file_list, project, object_type, result, media_folder='i
         else:
             return False
     else:
-        print('FAILED TO TEST - Check Token, Classifier ids and file existence.')
+        print('FAILED TO TEST - Check Token, Classifier ids, Watson Service URL and file existence.')
         return False
 
 #################################################
 # Create New classifier
 # User uploades proper zip file with classifier name
-def create_classifier(zip_file_list, negative_zip=False, name=False, object_type=False, process=False, rotate=False, warp=False, inverse=False, ibm_api_key=False, project=False):
+def create_classifier(zip_file_list, negative_zip=False, name=False, object_type=False, process=False, rotate=False, warp=False, inverse=False, ibm_api_key=False, project=False, ibm_service_url=None):
     # IF IBM KEY is provided (also check zip_file_list is ok)
-    if ( (ibm_api_key or settings.IBM_API_KEY) and zip_file_list and name and object_type ):
+    if ( (ibm_api_key or settings.IBM_API_KEY) and zip_file_list and name and object_type and ibm_service_url ):
         # Authenticate the IBM Watson API
         if not ibm_api_key and project:
             project = Projects.objects.get(id=project)
             ibm_api_key = project.ibm_api_key
 
         api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
-        auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-        print(auth_base)
-        post_header = {'Accept':'application/json','Authorization':auth_base}
+        # auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+        # print(auth_base)
+        # post_header = {'Accept':'application/json','Authorization':auth_base}
         post_files = {}
+        negative_post_files = None
         bad_zip = 0
         all_unzipped_images = []
         all_zipped_image = []
@@ -1371,7 +1508,8 @@ def create_classifier(zip_file_list, negative_zip=False, name=False, object_type
                                 x = open(zipPath, 'rb')
                                 all_custom_zip.append(zipPath) # add zip to array (used later to delete from temp)
                                 # add image to post files
-                                post_files[zip_file.name.replace('.zip','')+'_positive_examples'] = x
+                                # post_files[zip_file.name.replace('.zip','')+'_positive_examples'] = x # Deprecated
+                                post_files[zip_file.name.replace('.zip','')] = x
                                 files_left_to_close.append(x) # add files left to close to array (used later to close before deleting)
                             except Exception as e:
                                 print(e)
@@ -1393,7 +1531,8 @@ def create_classifier(zip_file_list, negative_zip=False, name=False, object_type
 
                             all_zipped_image = all_zipped_image + all_unzipped_images
                     else: # If process is not provided via admin just upload the zip given by user
-                        post_files[zip_file.name.replace('.zip','')+'_positive_examples'] = x
+                        # post_files[zip_file.name.replace('.zip','')+'_positive_examples'] = x # Deprecated
+                        post_files[zip_file.name.replace('.zip','')] = x
         
         print(post_files)
 
@@ -1415,24 +1554,45 @@ def create_classifier(zip_file_list, negative_zip=False, name=False, object_type
             else:
                 x = open(negative_zip.temporary_file_path(), 'rb')
             
-            post_files['negative_examples'] = x
+            # post_files['negative_examples'] = x # Deprecated
+            negative_post_files = x
+            print(negative_post_files)
 
-        print(post_files)
+        # post_data = {'name': name}
 
-        post_data = {'name': name}
+        # UPDATED WATSON API
+        authenticator = IAMAuthenticator(api_token)
+        visual_recognition = VisualRecognitionV3(
+            version='2018-03-19',
+            authenticator=authenticator
+        )
 
-        # Call the API
-        response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classifiers?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
-        status = response.status_code
+        visual_recognition.set_service_url(ibm_service_url)
+
         try:
-            content = response.json()
-        except ValueError:
-            # IBM Response is BAD
-            print(response)
-            print('IBM Response was BAD - (e.g. zip might be too large or similar problem)')
+            response = visual_recognition.create_classifier(name,
+                positive_examples=post_files,
+                negative_examples=negative_post_files)
+            content = response.get_result()
+            status = response.get_status_code()
+        except ApiException as ex:
+            print(ex.message)
+            status = False
+
+
+        # DEPRECATED API
+        # # Call the API
+        # response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classifiers?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
+        # status = response.status_code
+        # try:
+        #     content = response.json()
+        # except ValueError:
+        #     # IBM Response is BAD
+        #     print(response)
+        #     print('IBM Response was BAD - (e.g. zip might be too large or similar problem)')
         
-        print(status)
-        print(content)
+        # print(status)
+        # print(content)
 
         x.close()
         for f in files_left_to_close:
@@ -1449,7 +1609,7 @@ def create_classifier(zip_file_list, negative_zip=False, name=False, object_type
         
         return False
     else:
-        print('FAILED TO TEST - Check Token, Classifier Name, Zip files etc. exists or not')
+        print('FAILED TO TEST - Check Token, Classifier Name, Zip files, IBM Service URL etc. exists or not')
         return False
 
 # Fetch Classifier Details #
@@ -1460,7 +1620,7 @@ def classifier_detail(project, object_type, model):
         classifier = Classifier.objects.filter(name=model).all().first()
         # IF IS OBJECT DETECTION ACTING AS CLASSIFER:
         if classifier.is_object_detection:
-            detail = object_detail(classifier.name, classifier.best_ibm_api_key())
+            detail = object_detail(classifier.name, classifier.best_ibm_api_key(), classifier.get_ibm_service_url())
             if detail:
                 return detail
             else:
@@ -1480,101 +1640,148 @@ def classifier_detail(project, object_type, model):
                 'url': classifier.offline_model.file.url
             }
 
-        # Authenticate the IBM Watson API
-        api_token = classifier.best_ibm_api_key()
-        auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-        print(auth_base)
-        post_header = {'Accept':'application/json','Authorization':auth_base}
+        # UPDATED WATSON API
+        authenticator = IAMAuthenticator(classifier.best_ibm_api_key())
+        visual_recognition = VisualRecognitionV3(
+            version='2018-03-19',
+            authenticator=authenticator
+        )
 
-        # Call the API
+        visual_recognition.set_service_url(classifier.get_ibm_service_url())
+
         try:
-            response = requests.get('https://gateway.watsonplatform.net/visual-recognition/api/v3/classifiers/'+model+'?version=2018-03-19', headers=post_header)
-            status = response.status_code
-        except Exception as e:
-            print(e)
-            response = {}
+            response = visual_recognition.get_classifier(classifier_id=model)
+            content = response.get_result()
+            status = response.get_status_code()
+        except ApiException as ex:
+            print(ex.message)
             status = False
-        
-        try:
-            content = response.json()
-        except ValueError:
-            # IBM Response is BAD
-            print('IBM Response was BAD')
-        
-        print(status)
-        print(content)
-        # If success save the data
+
         if(status == 200 or status == '200' or status == 201 or status == '201'):
             return content
         else:
             return False
 
+        # DEPRECATED API
+        # # Authenticate the IBM Watson API
+        # api_token = classifier.best_ibm_api_key()
+        # auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+        # print(auth_base)
+        # post_header = {'Accept':'application/json','Authorization':auth_base}
+
+        # # Call the API
+        # try:
+        #     response = requests.get('https://gateway.watsonplatform.net/visual-recognition/api/v3/classifiers/'+model+'?version=2018-03-19', headers=post_header)
+        #     status = response.status_code
+        # except Exception as e:
+        #     print(e)
+        #     response = {}
+        #     status = False
+        
+        # try:
+        #     content = response.json()
+        # except ValueError:
+        #     # IBM Response is BAD
+        #     print('IBM Response was BAD')
+        
+        # print(status)
+        # print(content)
+        # # If success save the data
+        # if(status == 200 or status == '200' or status == 201 or status == '201'):
+        #     return content
+        # else:
+        #     return False
+
 # Fetch Object Detection Metadata Details #
-def object_detail(object_id, ibm_api_key=False):
+def object_detail(object_id, ibm_api_key=False, ibm_service_url=None):
     # IF IBM KEY is provided + classifier list exists
     if ( (ibm_api_key or settings.IBM_API_KEY)
-        and (classifier_list.detect_object_model_id or object_id) ):
+        and (classifier_list.detect_object_model_id or object_id) and ibm_service_url ):
         
         if not object_id:
             object_id = classifier_list.detect_object_model_id
 
         # Authenticate the IBM Watson API
         api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
-        auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-        print(auth_base)
-        post_header = {'Accept':'application/json','Authorization':auth_base}
-        content = {}
+        # auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+        # print(auth_base)
+        # post_header = {'Accept':'application/json','Authorization':auth_base}
+        data = {}
 
-        # Call the API
+        # UPDATED WATSON API
+        authenticator = IAMAuthenticator(api_token)
+        visual_recognition = VisualRecognitionV4(
+            version='2019-02-11',
+            authenticator=authenticator
+        )
+
+        visual_recognition.set_service_url(ibm_service_url)
+
+        # GET Collection Detail
         try:
-            response = requests.get('https://gateway.watsonplatform.net/visual-recognition/api/v4/collections/'+object_id+'?version=2019-02-11', headers=post_header)
-            status = response.status_code
-        except Exception as e:
-            print(e)
-            response = {}
+            response = visual_recognition.get_collection(collection_id=object_id)
+            content = response.get_result()
+            print(content)
+            status = response.get_status_code()
+        except ApiException as ex:
+            print(ex.message)
+            content = {}
             status = False
 
-        try:
-            content.update(response.json())
-        except ValueError:
-            # IBM Response is BAD
-            print('IBM Response was BAD for collection info')
+        data.update(content)
 
-        # Call the API
+        # GET Objects List
         try:
-            response = requests.get('https://gateway.watsonplatform.net/visual-recognition/api/v4/collections/'+object_id+'/objects?version=2019-02-11', headers=post_header)
-            status = response.status_code
-        except Exception as e:
-            print(e)
-            response = {}
+            response = visual_recognition.list_object_metadata(collection_id=object_id)
+            content = response.get_result()
+            status = response.get_status_code()
+        except ApiException as ex:
+            print(ex.message)
+            content = {}
             status = False
+        
+        data.update(content)
+        print(data)
 
-        try:
-            content.update(response.json())
-        except ValueError:
-            # IBM Response is BAD
-            print('IBM Response was BAD for objects')
+        # Deprecated API
+        # # Call the API
+        # try:
+        #     response = requests.get('https://gateway.watsonplatform.net/visual-recognition/api/v4/collections/'+object_id+'?version=2019-02-11', headers=post_header)
+        #     status = response.status_code
+        # except Exception as e:
+        #     print(e)
+        #     response = {}
+        #     status = False
 
-        # Call the API for Images
-        # response = requests.get('https://gateway.watsonplatform.net/visual-recognition/api/v4/collections/'+object_id+'/images?version=2019-02-11', headers=post_header)
-        # status = response.status_code
         # try:
         #     content.update(response.json())
         # except ValueError:
         #     # IBM Response is BAD
-        #     print('IBM Response was BAD for images')
-        
-        print(status)
-        print(content)
+        #     print('IBM Response was BAD for collection info')
+
+        # Call the API
+        # try:
+        #     response = requests.get('https://gateway.watsonplatform.net/visual-recognition/api/v4/collections/'+object_id+'/objects?version=2019-02-11', headers=post_header)
+        #     status = response.status_code
+        # except Exception as e:
+        #     print(e)
+        #     response = {}
+        #     status = False
+
+        # try:
+        #     content.update(response.json())
+        # except ValueError:
+        #     # IBM Response is BAD
+        #     print('IBM Response was BAD for objects')
 
         # If success save the data
-        if(status == 200 or status == '200' or status == 201 or status == '201'):
-            return content
+        if(data and status == 200 or status == '200' or status == 201 or status == '201'):
+            return data
             
     return False
 
 # Similar to detect_image but from temp no need to deal with image_file model (used in e.g. google map image test detect)
-def detect_temp_image(file_url, detect_model, offline=False, ibm_api_key=False):
+def detect_temp_image(file_url, detect_model, offline=False, ibm_api_key=False, ibm_service_url=None):
     # IF Is offline Model and detect model is given (detect_model = offline_model object)
     if offline and detect_model and os.path.exists(file_url):
         print('Detecting Image Object [Offline Model] [TEMP Google Street Images]...')
@@ -1602,17 +1809,17 @@ def detect_temp_image(file_url, detect_model, offline=False, ibm_api_key=False):
         # IF OS Path to Image exists + IBM KEY is provided + classifier list exists
         print('Detecting Image Object [TEMP Google Street Images]...')
         saveto = None
-        if os.path.exists(file_url) and (ibm_api_key or settings.IBM_API_KEY) and (classifier_list.detect_object_model_id or detect_model):
+        if os.path.exists(file_url) and (ibm_api_key or settings.IBM_API_KEY) and (classifier_list.detect_object_model_id or detect_model) and ibm_service_url:
             object_id = classifier_list.detect_object_model_id
             if detect_model:
                 object_id = detect_model
             # Authenticate the IBM Watson API
             api_token = ibm_api_key if ibm_api_key else str(settings.IBM_API_KEY)
-            post_data = {'collection_ids': object_id, 'features':'objects', 'threshold':'0.15'} # 'threshold': '0.15 -1'
-            auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-            print(auth_base)
+            # post_data = {'collection_ids': object_id, 'features':'objects', 'threshold':'0.15'} # 'threshold': '0.15 -1'
+            # auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+            # print(auth_base)
 
-            post_header = {'Accept':'application/json','Authorization':auth_base}
+            # post_header = {'Accept':'application/json','Authorization':auth_base}
             
             # Temporary Resized Image (basewidth x calcheight)(save_to_path from param comes if looped through)
             basewidth = 500
@@ -1633,19 +1840,43 @@ def detect_temp_image(file_url, detect_model, offline=False, ibm_api_key=False):
             temp.save(saveto)
             resized_image_open = open(saveto, 'rb')
             
-            post_files = {
-                'images_file': resized_image_open,
-            }
+            # post_files = {
+            #     'images_file': resized_image_open,
+            # }
 
-            # Call the API
-            response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v4/analyze?version=2019-02-11', files=post_files, headers=post_header, data=post_data)
-            status = response.status_code
+            # UPDATED WATSON API
+            authenticator = IAMAuthenticator(api_token)
+            visual_recognition = VisualRecognitionV4(
+                version='2019-02-11',
+                authenticator=authenticator
+            )
+
+            visual_recognition.set_service_url(ibm_service_url)
+
             try:
-                content = response.json()
-            except ValueError:
-                # IBM Response is BAD
-                print('IBM Response was BAD (During Detect) - (e.g. image too large)')
+                response = visual_recognition.analyze(
+                    collection_ids=[object_id],
+                    features=[AnalyzeEnums.Features.OBJECTS.value],
+                    images_file=[
+                        FileWithMetadata(resized_image_open)
+                    ])
+                content = response.get_result()
+                status = response.get_status_code()
+            except ApiException as ex:
+                print('IBM Response was BAD (During Detect in GOOGLE MAP) - (e.g. image too large)')
+                print(ex.message)
                 return False
+
+            # DEPRECATED API
+            # # Call the API
+            # response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v4/analyze?version=2019-02-11', files=post_files, headers=post_header, data=post_data)
+            # status = response.status_code
+            # try:
+            #     content = response.json()
+            # except ValueError:
+            #     # IBM Response is BAD
+            #     print('IBM Response was BAD (During Detect) - (e.g. image too large)')
+            #     return False
             
             print(status)
             print(content)
@@ -1708,10 +1939,10 @@ pipeline_status = {}
 # }
 ### SAME AS test_image BUT FOR TEMP IMAGES (no need to deal with models and other stuffs (used for e.g. in google map images testing))
 # Note not added preprocess postprocess codes
-def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False, ibm_api_key=False):
+def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected_as=None, detect_model=None, project=None, offline=False, ibm_api_key=False, ibm_service_url=None):
     global score, result, pipeline_status
     if not detected_as:
-        detected_as = detect_temp_image(image_file, detect_model, offline=offline, ibm_api_key=ibm_api_key)
+        detected_as = detect_temp_image(image_file, detect_model, offline=offline, ibm_api_key=ibm_api_key, ibm_service_url=ibm_service_url)
         print(detected_as)
     
     if not detected_as or len(detected_as) <= 0:
@@ -1736,7 +1967,7 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
         if classifier.offline_model.preprocess or classifier.offline_model.postprocess:
             if classifier_index + 1 < classifier_list.lenList(project,object_type):
                 print('TEMP: FOR PRE/POST PROCESSOR - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline, ibm_api_key) #save_to_path=temp file
+                test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline, ibm_api_key, ibm_service_url) #save_to_path=temp file
             else:
                 print('No more pipeline (offline model)')
             return False
@@ -1761,7 +1992,7 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
             if shouldContinue(res.get('result','')):
                 if classifier_index + 1 < classifier_list.lenList(project,object_type):
                     print('TEMP: OFFLINE CLASSIFIER OK  - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                    test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline, ibm_api_key) #save_to_path=temp file
+                    test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline, ibm_api_key, ibm_service_url) #save_to_path=temp file
                 else:
                     print('No more pipeline (offline model)')
 
@@ -1783,29 +2014,51 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
         # Authenticate the IBM Watson API
         api_token = classifier.best_ibm_api_key()
         classifier_ids = check_and_get_classifier_ids
-        post_data = {'classifier_ids': classifier_ids} # 'threshold': '0.15 -1'
-        auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
-        print(auth_base)
+        # post_data = {'classifier_ids': classifier_ids} # 'threshold': '0.15 -1'
+        # auth_base = 'Basic '+str(base64.b64encode(bytes('apikey:'+api_token, 'utf-8')).decode('utf-8'))
+        # print(auth_base)
 
-        post_header = {'Accept':'application/json','Authorization':auth_base}
+        # post_header = {'Accept':'application/json','Authorization':auth_base}
         
         # Open the Temporarily Resized Image (save_to_path from param comes if looped through - NOTE: now comes from detected_at directly)
         if save_to_path: # Comes from param on next recursion
             resized_image_open = open(save_to_path, 'rb')
         
-        post_files = {
-            'images_file': resized_image_open,
-        }
+        # post_files = {
+        #     'images_file': resized_image_open,
+        # }
 
-        # Call the API
-        response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classify?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
-        status = response.status_code
+        # UPDATED WATSON API
+        authenticator = IAMAuthenticator(api_token)
+        visual_recognition = VisualRecognitionV3(
+            version='2018-03-19',
+            authenticator=authenticator
+        )
+
+        visual_recognition.set_service_url(classifier.get_ibm_service_url())
+
         try:
-            content = response.json()
-        except ValueError:
-            # IBM Response is BAD
-            print('IBM Response was BAD - (e.g. image too large)')
+            response = visual_recognition.classify(
+                images_file=resized_image_open,
+                classifier_ids=[classifier_ids])
+            content = response.get_result()
+            status = response.get_status_code()
+        except ApiException as ex:
+            status = False
+            print('IBM Response was BAD in GOOGLE MAP - (e.g. image too large - INFO BELOW)')
+            print(ex.message)
             return False
+
+        # DEPRECATED API
+        # # Call the API
+        # response = requests.post('https://gateway.watsonplatform.net/visual-recognition/api/v3/classify?version=2018-03-19', files=post_files, headers=post_header, data=post_data)
+        # status = response.status_code
+        # try:
+        #     content = response.json()
+        # except ValueError:
+        #     # IBM Response is BAD
+        #     print('IBM Response was BAD - (e.g. image too large)')
+        #     return False
         
         print(status)
         print(content)
@@ -1834,7 +2087,7 @@ def test_temp_images(image_file, save_to_path=None, classifier_index=0, detected
                 if shouldContinue(sorted_by_score[0]['class']):
                     if classifier_index + 1 < classifier_list.lenList(project,object_type):
                         print('TEMP: ONLINE CLASSIFIER OK - PASSING THROUGH NEW MODEL CLASSIFIER #'+str(classifier_index + 1))
-                        test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline, ibm_api_key) #save_to_path=temp file
+                        test_temp_images(image_file, save_to_path, classifier_index + 1, detected_as, detect_model, project, offline, ibm_api_key, ibm_service_url) #save_to_path=temp file
                     else:
                         print('No more pipeline')
 

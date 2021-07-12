@@ -28,19 +28,19 @@
                     {% else %}
                         <div class="form-group">
                             <label for="source" class="col-sm-12 col-md-6 col-form-label">{% trans "Source of the Model" %}*</label>
-                            <div class="col-sm-12 col-md-4">
+                            <div class="col-sm-12 col-md-5">
                                 <select class="form-control" name="source" id="source">
                                     <option value="ibm">{% trans "IBM Watson" %}</option>
                                     <option value="offline">{% trans "Offline Model" %}</option>
                                 </select>
                             </div>
                             <small class="col-sm-12 form-text text-muted">
-                                {% trans "Choose the Source of Model. IBM Watson for adding trained/pretrained classifier or object detection.<br/>Offline Model to add Offline Model/Pre/Post/Processor.
+                                {% trans "Choose the Source of Model. IBM Watson for adding trained/pretrained classifier or object detection.<br/>Offline Model to add Offline Model/Pre/Post/Processor." %}
                             </small>
                         </div>
                         <div class="form-group" id="trained-group">
                             <label for="trained" class="col-sm-12 col-md-6 col-form-label">{% trans "Would you like to Train Model or Add Pre-Trained Model" %}?*</label>
-                            <div class="col-sm-12 col-md-4">
+                            <div class="col-sm-12 col-md-5">
                                 <select class="form-control" name="trained" id="trained">
                                     {% comment %} {% if not user.is_project_admin %} {% endcomment %}
                                     <option value="false">{% trans "Train New Model" %}</option>
@@ -51,7 +51,7 @@
                         </div>
                         <div class="form-group" id="zip-group">
                             <label for="zip" class="col-sm-12 col-md-6 col-form-label">{% trans "Zip Files" %}*</label>
-                            <div class="col-sm-12 col-md-4">
+                            <div class="col-sm-12 col-md-5">
                                 <input type="file" name="zip" id="zip" accept=".zip" multiple required aria-describedby="fileHelp">
                             </div>
                             <small id="fileHelp" class="col-sm-12 form-text text-muted">
@@ -61,7 +61,7 @@
                         </div>
                         <div class="form-group" id="negative-group">
                             <label for="negative" class="col-sm-12 col-md-6 col-form-label">{% trans "Negative Zip Files" %}</label>
-                            <div class="col-sm-12 col-md-4">
+                            <div class="col-sm-12 col-md-5">
                                 <input type="file" name="negative" id="negative" accept=".zip" aria-describedby="negativeHelp">
                             </div>
                             <small id="negativeHelp" class="col-sm-12 form-text text-muted">
@@ -114,8 +114,8 @@
                             </small>
                         </div>
                         <div class="form-group animated fast fadeIn" id="offline-model-group" style="display:none;">
-                            <label for="offlineModel" class="col-sm-5 col-md-4 col-form-label">{% trans "Offline Model" %}</label>
-                            <div class="col-sm-12 col-md-4">
+                            <label for="offlineModel" class="col-sm-5 col-md-5 col-form-label">{% trans "Offline Model" %}</label>
+                            <div class="col-sm-12 col-md-5">
                                 <select name="offlineModel" id="offlineModel" class="form-control">
                                     <option></option>
                                     {% for offlineModel in offlineModels %}
@@ -128,8 +128,8 @@
                             </small>
                         </div>
                         <div class="form-group">
-                            <label for="name" class="col-sm-5 col-md-4 col-form-label">{% trans "Classifier Name" %}*</label>
-                            <div class="col-sm-12 col-md-4">
+                            <label for="name" class="col-sm-5 col-md-5 col-form-label">{% trans "Classifier Name" %}*</label>
+                            <div class="col-sm-12 col-md-5">
                                 <input type="text" placeholder="The name of the new classifier" class="form-control" id="name" name="name" required/>
                             </div>
                             <small id="model_id_msg" class="col-sm-12 form-text text-muted">
@@ -145,9 +145,18 @@
                                 {% trans "Check this if you are using IBM Watson Object Detection Model to act as Classifier" %}.
                             </small>
                         </div>
+                        <div class="form-group" id="ibm_service_url_group">
+                            <label for="name" class="col-sm-5 col-md-5 col-form-label">{% trans "IBM Service URL" %}*</label>
+                            <div class="col-sm-12 col-md-5">
+                                <input type="text" placeholder="https://api.us-south.visual-recognition.watson.cloud.ibm.com" class="form-control" id="ibm_service_url" name="ibm_service_url" value="https://api.us-south.visual-recognition.watson.cloud.ibm.com" required/>
+                            </div>
+                            <small class="col-sm-12 form-text text-muted">
+                                {% trans "Enter a valid IBM Service URL" %}
+                            </small>
+                        </div>
                         <div class="form-group" id="ibm_api_key_group">
-                            <label for="ibm_api_key" class="col-sm-5 col-md-4 col-form-label">{% trans "IBM API KEY" %}</label>
-                            <div class="col-sm-12 col-md-4">
+                            <label for="ibm_api_key" class="col-sm-5 col-md-5 col-form-label">{% trans "IBM API KEY" %}</label>
+                            <div class="col-sm-12 col-md-5">
                                 <input type="text" placeholder="Enter your IBM Watson API KEY" class="form-control" id="ibm_api_key" name="ibm_api_key"/>
                             </div>
                             <small class="col-sm-12 form-text text-muted">
@@ -155,8 +164,8 @@
                             </small>
                         </div>
                         <div class="form-group">
-                            <label for="project" class="col-sm-5 col-md-4 col-form-label">{% trans "Project" %}*</label>
-                            <div class="col-sm-12 col-md-4">
+                            <label for="project" class="col-sm-5 col-md-5 col-form-label">{% trans "Project" %}*</label>
+                            <div class="col-sm-12 col-md-5">
                                 <select name="project" id="project" class="form-control" required>
                                     <option></option>
                                     {% for project in projects %}
@@ -169,8 +178,8 @@
                             </small>
                         </div>
                         <div class="form-group">
-                            <label for="object_type" class="col-sm-5 col-md-4 col-form-label">{% trans "Check" %}*</label>
-                            <div class="col-sm-12 col-md-4">
+                            <label for="object_type" class="col-sm-5 col-md-5 col-form-label">{% trans "Check" %}*</label>
+                            <div class="col-sm-12 col-md-5">
                                 <select name="object_type" id="object_type" class="form-control" required>
                                     <option></option>
                                     {% for object_type in object_types %}
@@ -184,8 +193,8 @@
                             </small>
                         </div>
                         <div class="form-group">
-                            <label for="order" class="col-sm-5 col-md-4 col-form-label">{% trans "Order" %}*</label>
-                            <div class="col-sm-12 col-md-4">
+                            <label for="order" class="col-sm-5 col-md-5 col-form-label">{% trans "Order" %}*</label>
+                            <div class="col-sm-12 col-md-5">
                                 <input type="number" min="0" max="500" placeholder="Order in which training is done. Check and use carefully" class="form-control" id="order" name="order" value="0" required/>
                             </div>
                         </div>
@@ -245,6 +254,7 @@
                 $('#inverse-group').slideUp();
                 $('#model_id_msg').hide();
                 $('#ibm_api_key_group').hide();
+                $('#ibm_service_url_group').hide();
                 $('#ibm_api_key').val('');
                 $('#is_object_detection_group').hide();
                 $('#offline-model-group').slideDown(); // make offline add able
@@ -257,6 +267,7 @@
                 $('#trained-group').slideDown();
                 $('#trained').trigger('change');
                 $('#ibm_api_key_group').show();
+                $('#ibm_service_url_group').show();
             }
         })
 

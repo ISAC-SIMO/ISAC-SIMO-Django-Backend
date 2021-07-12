@@ -154,7 +154,7 @@ def test(request):
         offline = False
     
     for image in image_list:
-        response = test_temp_images(image, detect_model=detect_model, project=project.unique_name(), offline=offline, ibm_api_key=project.ibm_api_key)
+        response = test_temp_images(image, detect_model=detect_model, project=project.unique_name(), offline=offline, ibm_api_key=project.ibm_api_key, ibm_service_url=project.get_ibm_service_url())
         if not response:
             data.append({
                 'image': image,

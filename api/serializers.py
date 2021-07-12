@@ -188,7 +188,7 @@ class ImageSerializer(serializers.ModelSerializer):
                     ################
                     ### RUN TEST ###
                     ################
-                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
+                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key, ibm_service_url=project.get_ibm_service_url())
 
                     u = u + 1
                 except Exception as err:
@@ -273,7 +273,7 @@ class ImageSerializer(serializers.ModelSerializer):
                     ################
                     ### RUN TEST ###
                     ################
-                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
+                    test_image(image_obj, validated_data.get('title'), validated_data.get('description'), detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key, ibm_service_url=project.get_ibm_service_url())
                     u = u + 1
                 except Exception as err:
                     print(err)
@@ -343,7 +343,7 @@ class VideoFrameSerializer(serializers.ModelSerializer):
             ################
             ### RUN TEST ###
             ################
-            test = test_image(image_obj, image_model.title, image_model.description, detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key)
+            test = test_image(image_obj, image_model.title, image_model.description, detect_model=detect_model, project=project.unique_name(), offline=offline, force_object_type=force_object_type, ibm_api_key=project.ibm_api_key, ibm_service_url=project.get_ibm_service_url())
         return hasFrames
 
     def create(self, validated_data):
@@ -472,7 +472,7 @@ class ProjectSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Projects
-        fields = ('id','project_name','image','project_desc','unique_name','detect_model','ibm_api_key','offline_model','guest','public','created_at','updated_at')
+        fields = ('id','project_name','image','project_desc','unique_name','detect_model','ibm_api_key','ibm_service_url','offline_model','guest','public','created_at','updated_at')
         read_only_fields = ('id','unique_name','detect_model','created_at', 'updated_at')
 
     def update(self, instance, validated_data):
@@ -599,7 +599,7 @@ class ClassifierSerializer(serializers.ModelSerializer):
         # inverse = inverse images
         # is_object_detection = "true" # If Watson Classifier is Object Detection type
         # ibm_api_key = "watson service api key"
-        fields = ('id','name','given_name','classes','order','project','project_id','object_type','object_type_id','offline_model','offline_model_id','is_object_detection','ibm_api_key','created_by','created_at','updated_at')
+        fields = ('id','name','given_name','classes','order','project','project_id','object_type','object_type_id','offline_model','offline_model_id','is_object_detection','ibm_api_key','ibm_service_url','created_by','created_at','updated_at')
         read_only_fields = ('id','given_name','is_object_detection','created_by','created_at', 'updated_at')
 
     def create(self, validated_data):
@@ -614,7 +614,7 @@ class ClassifierSerializer(serializers.ModelSerializer):
         elif request.POST.get('source', False) == "ibm" and request.POST.get('name') and request.POST.get('trained') == "true":
             created = {'data':{'classifier_id':request.POST.get('name'),'name':request.POST.get('name'),'classes':[]}}
         else:
-            created = create_classifier(request.FILES.getlist('zip'), request.FILES.get('negative', False), request.POST.get('name'), request.POST.get('object_type_id'), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False), ibm_api_key=request.POST.get('ibm_api_key',False), project=request.POST.get('project_id',False))
+            created = create_classifier(request.FILES.getlist('zip'), request.FILES.get('negative', False), request.POST.get('name'), request.POST.get('object_type_id'), request.POST.get('process', False), request.POST.get('rotate', False), request.POST.get('warp', False), request.POST.get('inverse', False), ibm_api_key=request.POST.get('ibm_api_key',False), project=request.POST.get('project_id',False), ibm_service_url=request.POST.get('ibm_service_url',''))
         
         classifier = None
         bad_zip = 0
