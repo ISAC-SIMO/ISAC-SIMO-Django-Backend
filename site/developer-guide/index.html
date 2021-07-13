@@ -336,8 +336,8 @@
 </li>
       
         <li class="md-nav__item">
-  <a href="#write-running-unit-testcase" class="md-nav__link">
-    Write &amp; Running Unit TestCase
+  <a href="#write-running-unit-test-case" class="md-nav__link">
+    Write &amp; Running Unit Test Case
   </a>
   
 </li>
@@ -392,10 +392,10 @@
       
         <li class="md-nav__item">
   <a href="#how-to-deploy-manage-isac-simo-in-a-vpc-basics" class="md-nav__link">
-    How tO Deploy &amp; Manage ISAC-SIMO in a VPC (Basics)
+    How to Deploy &amp; Manage ISAC-SIMO in a VPC (Basics)
   </a>
   
-    <nav class="md-nav" aria-label="How tO Deploy &amp; Manage ISAC-SIMO in a VPC (Basics)">
+    <nav class="md-nav" aria-label="How to Deploy &amp; Manage ISAC-SIMO in a VPC (Basics)">
       <ul class="md-nav__list">
         
           <li class="md-nav__item">
@@ -492,18 +492,21 @@ First Clone this Project in a suitable directory &amp; Change to project directo
 </code></pre>
 <p>And visit <a href="http://127.0.0.1:8000/" target="_blank">http://127.0.0.1:8000/</a> in any modern browsers to open the application.</p>
 <p><strong>Note</strong>: <strong>/static/</strong> and <strong>/media/</strong> are the static files and media files location respectively.</p>
-<h2 id="write-running-unit-testcase"><a class="toclink" href="#write-running-unit-testcase">Write &amp; Running Unit TestCase</a></h2>
-<p>if the migration run properly.</p>
-<p>Run TestCase</p>
-<pre><code class="language-bash">python manage.py test
+<h2 id="write-running-unit-test-case"><a class="toclink" href="#write-running-unit-test-case">Write &amp; Running Unit Test Case</a></h2>
+<p>If the check &amp; migration ran properly.</p>
+<p>Run Test Case with:</p>
+<pre><code class="language-sh">python manage.py test --debug-mode --debug-sql --parallel
 </code></pre>
+<p>OR simply run without any flags:</p>
+<pre><code class="language-sh">python manage.py test
+</code></pre>
+<p><strong>Learn how to write Django Test Cases in the <a href="https://docs.djangoproject.com/en/3.0/topics/testing/overview/" target="_blank">Django Official Documentation</a>.</strong></p>
 <ul>
 <li><strong>Example Model TestCase</strong>:</li>
 </ul>
 <pre><code class="language-python">from django.test import TestCase
 from api.models import Image
 from main.models import User
-
 
 class TestImageFileTest(TestCase):
     def setUp(self):
@@ -520,9 +523,7 @@ class TestImageFileTest(TestCase):
 from django.urls import resolve, reverse
 from api import views
 
-
 class TestImageRelatedUrl(TestCase):
-
     def test_images_resloved(self):
         url = reverse('images')
         self.assertEqual(resolve(url).func, views.images)
@@ -533,12 +534,9 @@ class TestImageRelatedUrl(TestCase):
 <pre><code class="language-python">from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
 from main.models import User
 
-
 class TestUserAccountAPI(APITestCase):
-
     def setUp(self):
         User.objects.create_user(email=&quot;testuser@gmail.com&quot;, user_type=&quot;user&quot;, password=&quot;test@1234&quot;)
 
@@ -601,7 +599,7 @@ As per the Model/Classifier added by <strong>ISAC-SIMO</strong> users, it can de
 <p><img alt="" src="../assets/image61.png" /></p>
 <p>Programmatically, we use recursion techniques to run pipelines in order. The <code>api/helpers.py</code> file has a function named test_image which runs the test on uploaded images and recursively passes the model response to the next model in the pipeline.
 If it is a preprocessor model, it sends the image and expects an image to be returned in opencv format. Similarly, postprocessors should return their own standard response. If the model is watson classifier or object detection then it is sent via api and parses the response as required. For More information refer to even more detailed <a href="../web-application/" target="_blank">Documentation Here</a> which also shows examples of offline/local models.</p>
-<h2 id="how-to-deploy-manage-isac-simo-in-a-vpc-basics"><a class="toclink" href="#how-to-deploy-manage-isac-simo-in-a-vpc-basics">How tO Deploy &amp; Manage ISAC-SIMO in a VPC (Basics)</a></h2>
+<h2 id="how-to-deploy-manage-isac-simo-in-a-vpc-basics"><a class="toclink" href="#how-to-deploy-manage-isac-simo-in-a-vpc-basics">How to Deploy &amp; Manage ISAC-SIMO in a VPC (Basics)</a></h2>
 <p>This section only explains the basics, on how to deploy ISAC-SIMO Django Application to a fresh VPC.</p>
 <h3 id="create-virtual-private-cloud-with-ibm-cloud"><a class="toclink" href="#create-virtual-private-cloud-with-ibm-cloud"><span style="color:green">Create Virtual Private Cloud with IBM Cloud:</span></a></h3>
 <p>You can get started with <a href="https://cloud.ibm.com/vpc-ext/overview" target="_blank">IBM VPC Here</a></p>

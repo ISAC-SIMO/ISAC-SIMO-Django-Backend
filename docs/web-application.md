@@ -26,6 +26,8 @@ After logging into the web application, the user is presented with a dashboard. 
 <br>
 **Example**: Colombia Project, Bisaya Region Rebar Quality Verify Project etc.
 <br>
+> **Update:** IBM Watson API not requires **IBM Service URL**. This field needs to be filled appropriately, and the value can be found at watson dashboard.
+
 ### <span style="color:green">Create Project</span>
 ![dashboard-sidebar](./assets/image7.png)
 <br>
@@ -69,6 +71,8 @@ against this Object Type and more. Not shown in the picture below: Admin can als
 <li>IBM Watson add Pre-Trained Model</li>
 <li>Offline Model (Classifier, Pre/Post Processor)</li>
 </ul>
+
+> **Update:** IBM Watson API not requires **IBM Service URL**. This field needs to be filled appropriately, and the value can be found at watson dashboard.
 
 ### <span style="color:green">Create Models</span>
 Admin or Project Admin can add a new Model. A new model can be trained by uploading zipped images and choosing to process it or not. Users can also add Pre-Trained Model by specifying the Classifier Name and IBM Watson API Key. Also, users can add and link Offline Model / Script that can be used either as a Classifier or Pre/Post Processor.

@@ -26,17 +26,17 @@ pipenv install
 >
 >``` database_settings.py ``` needs to be updated as per your database setup (or use DATABASE_URL in ``` .env ``` file)
 ```sh
-python3 manage.py migrate
-python3 manage.py createsuperuser
+python manage.py migrate
+python manage.py createsuperuser
 ```
 
 ### Running Tests:
 ```sh
-python3 manage.py test --debug-mode --debug-sql --parallel
+python manage.py test --debug-mode --debug-sql --parallel
 ```
 OR simply run without any flags:
 ```sh
-python3 manage.py test
+python manage.py test
 ```
 
 ### How to Bump Application Version?

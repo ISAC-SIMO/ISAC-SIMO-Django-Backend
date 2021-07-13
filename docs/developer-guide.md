@@ -1,15 +1,15 @@
-##Introduction
+## Introduction
 
 Intelligent Supervision Assistant for Construction - Sistema Inteligente de Monitoreo de Obra
 ISAC-SIMO is a system to validate that the intervention work done for homeowners has been done correctly and safely. It is a Build Change project supported by a grant from IBM.
 
-###BEFORE YOU START
+### BEFORE YOU START
 Before starting the project, you need to set these requirements.
 
  - Python > 3.8.x
  - PostgreSQL > 13.x
  
-##Installation
+## Installation
 View the Open-Source GitHub repository for **ISAC-SIMO Django Backend**.
 First Clone this Project in a suitable directory & Change to project directory.
 
@@ -80,19 +80,26 @@ python manage.py runserver
 And visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/){target="_blank"} in any modern browsers to open the application.
 
 **Note**: **/static/** and **/media/** are the static files and media files location respectively.
-##Write & Running Unit TestCase
-if the migration run properly.
 
-Run TestCase
-```bash
+## Write & Running Unit Test Case
+If the check & migration ran properly.
+
+Run Test Case with:
+```sh
+python manage.py test --debug-mode --debug-sql --parallel
+```
+OR simply run without any flags:
+```sh
 python manage.py test
 ```
+
+**Learn how to write Django Test Cases in the [Django Official Documentation](https://docs.djangoproject.com/en/3.0/topics/testing/overview/){target="_blank"}.**
+
 - **Example Model TestCase**:
 ```python
 from django.test import TestCase
 from api.models import Image
 from main.models import User
-
 
 class TestImageFileTest(TestCase):
     def setUp(self):
@@ -108,9 +115,7 @@ from django.test import TestCase
 from django.urls import resolve, reverse
 from api import views
 
-
 class TestImageRelatedUrl(TestCase):
-
     def test_images_resloved(self):
         url = reverse('images')
         self.assertEqual(resolve(url).func, views.images)
@@ -120,12 +125,9 @@ class TestImageRelatedUrl(TestCase):
 from django.urls import reverse
 from rest_framework import status
 from rest_framework.test import APITestCase
-
 from main.models import User
 
-
 class TestUserAccountAPI(APITestCase):
-
     def setUp(self):
         User.objects.create_user(email="testuser@gmail.com", user_type="user", password="test@1234")
 
@@ -133,7 +135,8 @@ class TestUserAccountAPI(APITestCase):
         response = self.client.post(reverse('auth'), {"email": "testuser@gmail.com", "password": "test@1234"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 ```
-##Database
+
+## Database
 ![](./assets/image58.png )
 
 *Above is a rough Database Table Relationship Diagram.*
@@ -151,7 +154,7 @@ The Tables and their purpose are described below. Here, Django Model is represen
 - **Crowdsource**: Stores Images uploaded in Crowdsource by users with different information.
 - **Contribution**: Stores Contribution files and information for specific Object Type of a Project
 
-##Django Apps
+## Django Apps
 The Installed Apps used in this project can be found inside **“main”**, **”projects”**, **“api”**, **“map”**, **“crowdsource”** directories. These apps have their own purposes. These directories contain their own templates, models, forms, serializers, urls, views etc.
 The **“main”** app mostly handles User Model, Registration, Login and User Management by Admin.
 The **“projects”** app handles Project Model and its CRUD, Public Projects & Contributions.
@@ -170,7 +173,7 @@ The **“api”** app is the largest among all, which handles all remaining mode
 - `migrations/*` - Contains all Database Migrations.
 - `templates/*.html` - Contains Django Web Templates & Master wrapper.
 
-##Getting started with IBM Watson
+## Getting started with IBM Watson
 You know that, with **ISAC-SIMO** you can create a model pipeline to test provided images. These models/classifiers can be local offline models like h5, python script etc. Or, you can also use IBM Watson Classifier and Object Detection Model, as in a lot of cases this can be convenient and even better. 
 To create your own IBM Watson Classifiers and Object Detection Model, you should first register and create your account. Visit here to learn more about Watson [https://www.ibm.com/watson](https://www.ibm.com/watson){target="_blank"}
 After registering, you can create a new Watson Studio here, [https://cloud.ibm.com/catalog/services/watson-studio](https://cloud.ibm.com/catalog/services/watson-studio){target="_blank"}
@@ -194,7 +197,7 @@ Most of all API calls are handled by `api/helpers.py` file. It uses requests lib
 As per the Model/Classifier added by **ISAC-SIMO** users, it can determine whether to call Watson API or run Pre/Post Processor or Python Scripts from the pipeline.
 
 
-##How ISAC-SIMO Runs the Model Pipeline
+## How ISAC-SIMO Runs the Model Pipeline
 As we know, different Object Types can have different pipelines of classifiers that are run when testing user uploaded images. When creating these classifiers/models for any object type, admin or project-admin can provide the order in which the model runs.
 
 ![](./assets/image61.png )
@@ -202,7 +205,7 @@ As we know, different Object Types can have different pipelines of classifiers t
 Programmatically, we use recursion techniques to run pipelines in order. The `api/helpers.py` file has a function named test_image which runs the test on uploaded images and recursively passes the model response to the next model in the pipeline.
 If it is a preprocessor model, it sends the image and expects an image to be returned in opencv format. Similarly, postprocessors should return their own standard response. If the model is watson classifier or object detection then it is sent via api and parses the response as required. For More information refer to even more detailed [Documentation Here](./web-application.md){target="_blank"} which also shows examples of offline/local models.
 
-##How tO Deploy & Manage ISAC-SIMO in a VPC (Basics)
+##How to Deploy & Manage ISAC-SIMO in a VPC (Basics)
 This section only explains the basics, on how to deploy ISAC-SIMO Django Application to a fresh VPC.
 
 ### <span style="color:green">Create Virtual Private Cloud with IBM Cloud:</span>
