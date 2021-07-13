@@ -1,12 +1,12 @@
 import os
 
 from django.conf import settings
+from django.shortcuts import render
 from django.http import HttpResponse, JsonResponse
-from django.template.loader import get_template
-from django.template.response import SimpleTemplateResponse
 from django.urls import resolve
 import datetime
 
+# Check for Maintenance Mode
 class MaintenanceMode(object):
     def __init__(self, get_response):
         self.get_response = get_response
@@ -20,16 +20,10 @@ class MaintenanceMode(object):
             if '/api/' in str(request.build_absolute_uri()):
                 return JsonResponse({'status':'false','message':'Maintenance Mode is active. Try later.','time':datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")}, status=503)
             else:
-                return SimpleTemplateResponse(get_template('master/maintenance.html'), status=503)
-
-        # QUICKLY CHECK IF USER has active=False
-        # if request.user and not request.user.is_anonymous and not request.user.active:
-        #     logout(request)
-        #     messages.success(request, 'User Account has been Disabled. Please contact Admin.')
-        #     return redirect('login')
+                return render(request, 'master/maintenance.html', status=503)
 
         return self.get_response(request)
 
-    # To ignore and throw default exception for any errpr
+    # To ignore and throw default exception for any error
     # def process_exception(self, request, exception):
     #     return HttpResponse(exception)
