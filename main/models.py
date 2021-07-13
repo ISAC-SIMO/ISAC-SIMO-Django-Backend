@@ -2,6 +2,9 @@ import os
 import uuid
 
 from django.conf import settings
+from django.contrib.auth.signals import user_logged_out
+from django.dispatch import receiver
+from django.contrib import messages
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.db import models
 from django.utils.deconstruct import deconstructible
@@ -42,6 +45,12 @@ class PathAndRename(object):
         return os.path.join(self.path, filename)
 
 path_and_rename = PathAndRename("user_images")
+
+# USER LOGOUT SIGNAL (Shows is_active=False users a special message)
+@receiver(user_logged_out)
+def post_logout(sender, user, request, **kwargs):
+    if not user.is_anonymous and not user.active:
+        messages.success(request, 'User Account has been Disabled. Please contact ISAC-SIMO Admin.')
 
 class UserManager(BaseUserManager):
     def create_user(self, email,  password=None, user_type='user', is_active=True):
