@@ -80,6 +80,59 @@ python manage.py runserver
 And visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/){target="_blank"} in any modern browsers to open the application.
 
 **Note**: **/static/** and **/media/** are the static files and media files location respectively.
+##Write & Running Unit TestCase
+if the migration run properly.
+
+Run TestCase
+```bash
+python manage.py test
+```
+- **Example Model TestCase**:
+```python
+from django.test import TestCase
+from api.models import Image
+from main.models import User
+
+
+class TestImageFileTest(TestCase):
+    def setUp(self):
+        user = User.objects.create_user(email="testuser@gmail.com", user_type="user", password="test@1234")
+        Image.objects.create(title="test title", description="test desc", user=user, lat=26, lng=84)
+
+    def test_image_created(self):
+        self.assertEqual(Image.objects.count(), 1)
+```
+- **Example URL TestCase**:
+```python
+from django.test import TestCase
+from django.urls import resolve, reverse
+from api import views
+
+
+class TestImageRelatedUrl(TestCase):
+
+    def test_images_resloved(self):
+        url = reverse('images')
+        self.assertEqual(resolve(url).func, views.images)
+```
+- **Example API Token TestCase**:
+```python
+from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+from main.models import User
+
+
+class TestUserAccountAPI(APITestCase):
+
+    def setUp(self):
+        User.objects.create_user(email="testuser@gmail.com", user_type="user", password="test@1234")
+
+    def test_get_token(self):
+        response = self.client.post(reverse('auth'), {"email": "testuser@gmail.com", "password": "test@1234"})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+```
 ##Database
 ![](./assets/image58.png )
 
