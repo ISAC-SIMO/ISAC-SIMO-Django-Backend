@@ -49,7 +49,7 @@ path_and_rename = PathAndRename("user_images")
 # USER LOGOUT SIGNAL (Shows is_active=False users a special message)
 @receiver(user_logged_out)
 def post_logout(sender, user, request, **kwargs):
-    if not user.is_anonymous and not user.active:
+    if user and not user.is_anonymous and not user.active and not settings.TESTING:
         messages.success(request, 'User Account has been Disabled. Please contact ISAC-SIMO Admin.')
 
 class UserManager(BaseUserManager):

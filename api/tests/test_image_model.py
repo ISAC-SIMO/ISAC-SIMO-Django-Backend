@@ -15,5 +15,4 @@ class TestImageFileTest(TestCase):
         self.assertEqual(Image.objects.count(), 1)
 
     def test_image_file_created(self):
-        print("image file test pass")
         self.assertEqual(ImageFile.objects.count(), 1)

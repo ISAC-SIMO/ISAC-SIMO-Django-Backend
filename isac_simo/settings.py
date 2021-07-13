@@ -14,6 +14,7 @@ import os
 from datetime import timedelta
 import dj_database_url
 import environ
+import sys
 from isac_simo.database_settings import database_config
 
 env = environ.Env()
@@ -21,6 +22,8 @@ env.read_env(env.str('ENV_PATH', '.env'))
 from django.utils.translation import gettext_lazy as _
 
 VERSION = '1.3.2'
+
+TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
