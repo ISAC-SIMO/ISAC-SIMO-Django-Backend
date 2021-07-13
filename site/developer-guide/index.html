@@ -336,6 +336,13 @@
 </li>
       
         <li class="md-nav__item">
+  <a href="#write-running-unit-testcase" class="md-nav__link">
+    Write &amp; Running Unit TestCase
+  </a>
+  
+</li>
+      
+        <li class="md-nav__item">
   <a href="#database" class="md-nav__link">
     Database
   </a>
@@ -485,6 +492,60 @@ First Clone this Project in a suitable directory &amp; Change to project directo
 </code></pre>
 <p>And visit <a href="http://127.0.0.1:8000/" target="_blank">http://127.0.0.1:8000/</a> in any modern browsers to open the application.</p>
 <p><strong>Note</strong>: <strong>/static/</strong> and <strong>/media/</strong> are the static files and media files location respectively.</p>
+<h2 id="write-running-unit-testcase"><a class="toclink" href="#write-running-unit-testcase">Write &amp; Running Unit TestCase</a></h2>
+<p>if the migration run properly.</p>
+<p>Run TestCase</p>
+<pre><code class="language-bash">python manage.py test
+</code></pre>
+<ul>
+<li><strong>Example Model TestCase</strong>:</li>
+</ul>
+<pre><code class="language-python">from django.test import TestCase
+from api.models import Image
+from main.models import User
+
+
+class TestImageFileTest(TestCase):
+    def setUp(self):
+        user = User.objects.create_user(email=&quot;testuser@gmail.com&quot;, user_type=&quot;user&quot;, password=&quot;test@1234&quot;)
+        Image.objects.create(title=&quot;test title&quot;, description=&quot;test desc&quot;, user=user, lat=26, lng=84)
+
+    def test_image_created(self):
+        self.assertEqual(Image.objects.count(), 1)
+</code></pre>
+<ul>
+<li><strong>Example URL TestCase</strong>:</li>
+</ul>
+<pre><code class="language-python">from django.test import TestCase
+from django.urls import resolve, reverse
+from api import views
+
+
+class TestImageRelatedUrl(TestCase):
+
+    def test_images_resloved(self):
+        url = reverse('images')
+        self.assertEqual(resolve(url).func, views.images)
+</code></pre>
+<ul>
+<li><strong>Example API Token TestCase</strong>:</li>
+</ul>
+<pre><code class="language-python">from django.urls import reverse
+from rest_framework import status
+from rest_framework.test import APITestCase
+
+from main.models import User
+
+
+class TestUserAccountAPI(APITestCase):
+
+    def setUp(self):
+        User.objects.create_user(email=&quot;testuser@gmail.com&quot;, user_type=&quot;user&quot;, password=&quot;test@1234&quot;)
+
+    def test_get_token(self):
+        response = self.client.post(reverse('auth'), {&quot;email&quot;: &quot;testuser@gmail.com&quot;, &quot;password&quot;: &quot;test@1234&quot;})
+        self.assertEqual(response.status_code, status.HTTP_200_OK)
+</code></pre>
 <h2 id="database"><a class="toclink" href="#database">Database</a></h2>
 <p><img alt="" src="../assets/image58.png" /></p>
 <p><em>Above is a rough Database Table Relationship Diagram.</em></p>
