@@ -1,5 +1,6 @@
 # UPLOAD & Manage Objects in IBM CLOUD STORAGE via http
 import base64
+import re
 from isac_simo.settings import IBM_BUCKET
 from isac_simo import settings
 import requests
@@ -83,17 +84,23 @@ def get_object(object_key):
     return False
 
 # Generate list of all files/images in a chosen COS bucket folder (directory named as object_type)
-def get_object_list(object_type, limit=10000):
+def get_object_list(object_type, limit=5000):
   try:
+    i = 0
     image_list = [];
     if settings.IBM_BUCKET_PUBLIC_ENDPOINT:
       bucket = cos.Bucket(settings.IBM_BUCKET)
-      for obj in bucket.objects.filter(Prefix = str(object_type)+"/"):
+      for idx,obj in enumerate(bucket.objects.filter(Prefix = str(object_type)+"/")):
         url = (settings.IBM_BUCKET_PUBLIC_ENDPOINT + obj.key) if settings.IBM_BUCKET_PUBLIC_ENDPOINT.endswith("/") else (settings.IBM_BUCKET_PUBLIC_ENDPOINT + "/" + obj.key)
         image_list.append({
-          "key": obj.key,
+          "key": re.sub(r".*?/([a-z0-9]+)\.[a-z0-9]+", r"\1", obj.key), # Convert folder link key to unique file name only
           "url": url
         })
+
+        # LIMIT MAX IMAGE LIST
+        if idx + 1 >= limit:
+          break
+
         # url = client.generate_presigned_url('get_object', ExpiresIn=0, Params={'Bucket': settings.IBM_BUCKET, 'Key': obj.key})
 
     return image_list
