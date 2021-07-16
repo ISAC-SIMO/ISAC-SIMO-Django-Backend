@@ -2,9 +2,9 @@ from api.models import ObjectType
 from django.core.cache import cache
 from crowdsource.helpers import delete_object, get_object, move_object, upload_object
 from crowdsource.forms import CrowdsourceForm
-from crowdsource.models import Crowdsource
+from crowdsource.models import Crowdsource, ImageShare
 from django.shortcuts import get_object_or_404, redirect, render
-from main.authorization import login_url, is_admin_or_project_admin
+from main.authorization import login_url, is_admin_or_project_admin, is_admin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core import serializers
 from django.conf import settings
@@ -17,6 +17,7 @@ from .serializers import CrowdsourceSerializer
 from rest_framework.response import Response
 import uuid
 
+
 # View All Crowdsource Images + Update/Create
 
 def crowdsource_images(request):
@@ -28,18 +29,19 @@ def crowdsource_images(request):
 
     if request.method == "GET":
         crowdsource_images = []
-        query = request.GET.get('q','')
+        query = request.GET.get('q', '')
         if request.user and not request.user.is_anonymous:
-            if(is_admin_or_project_admin(request.user)):
+            if (is_admin_or_project_admin(request.user)):
                 crowdsource_images = Crowdsource.objects.order_by(
                     '-created_at').filter(Q(object_type__icontains=query) |
-                                        Q(image_type__icontains=query) |
-                                        Q(username__icontains=query)).distinct().all()
+                                          Q(image_type__icontains=query) |
+                                          Q(username__icontains=query)).distinct().all()
             else:
                 crowdsource_images = Crowdsource.objects.filter(
                     created_by=request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
-                                        Q(image_type__icontains=query) |
-                                        Q(username__icontains=query)).distinct().all()
+                                                                            Q(image_type__icontains=query) |
+                                                                            Q(
+                                                                                username__icontains=query)).distinct().all()
 
             paginator = Paginator(crowdsource_images, 50)  # Show 50
             page_number = request.GET.get('page', '1')
@@ -49,12 +51,13 @@ def crowdsource_images(request):
 
         form = CrowdsourceForm()
 
-        return render(request, 'crowdsource_images.html', {'crowdsources': crowdsources, 'form': form, 'query': query, 'dash': dash})
+        return render(request, 'crowdsource_images.html',
+                      {'crowdsources': crowdsources, 'form': form, 'query': query, 'dash': dash})
     elif request.method == "POST":
         if request.POST.get('id', False) and request.POST.get('id') != "0":
             # EDIT
             try:
-                if(is_admin_or_project_admin(request.user)):
+                if (is_admin_or_project_admin(request.user)):
                     crowdsource_image = Crowdsource.objects.filter(
                         id=request.POST.get('id')).get()
                 elif request.user.is_authenticated:
@@ -83,9 +86,11 @@ def crowdsource_images(request):
 
                     for idx, val in enumerate(crowdsource_images):
                         if str(val.get("id")) == str(instance.id):
-                            crowdsource_images[idx] = {'id': instance.id, 'file': instance.file.url, 'object_type': instance.object_type, 'image_type': instance.image_type, 'username': instance.username}
+                            crowdsource_images[idx] = {'id': instance.id, 'file': instance.file.url,
+                                                       'object_type': instance.object_type,
+                                                       'image_type': instance.image_type, 'username': instance.username}
                     request.session['crowdsource_images'] = crowdsource_images
-                    
+
                     if request.user.is_authenticated and old_object_key != instance.bucket_key():
                         move_object(instance.bucket_key(), old_object_key)
                     messages.success(
@@ -96,11 +101,11 @@ def crowdsource_images(request):
         else:
             # TODO: FOR NOW LIMIT 5 TOTAL UPLOADS BY SAME USER ( SAME BELOW )
             if request.user.is_authenticated:
-                if(Crowdsource.objects.filter(created_by=request.user).count() >= 5):
+                if (Crowdsource.objects.filter(created_by=request.user).count() >= 5):
                     messages.error(request, "Currently you can only upload 5 images. More will be enabled later.")
                     return redirect("crowdsource")
             else:
-                if(len(request.session.get('crowdsource_images', [])) >= 5):
+                if (len(request.session.get('crowdsource_images', [])) >= 5):
                     messages.error(request, "Currently you can only upload 5 images. More will be enabled later.")
                     return redirect("crowdsource")
 
@@ -118,16 +123,18 @@ def crowdsource_images(request):
                     else:
                         instance.username = "Anonymous User - " + uuid.uuid4().hex[:6].upper()
                     instance.save()
-                    crowdsource_images.append({'id': instance.id, 'file': instance.file.url, 'object_type': instance.object_type, 'image_type': instance.image_type, 'username': instance.username})
+                    crowdsource_images.append(
+                        {'id': instance.id, 'file': instance.file.url, 'object_type': instance.object_type,
+                         'image_type': instance.image_type, 'username': instance.username})
                     request.session['crowdsource_images'] = crowdsource_images
 
                     if request.user.is_authenticated and settings.PRODUCTION:
                         upload_object(instance.bucket_key(), instance.filepath())
                     total += 1
                     if total >= 5:
-                        break; # TODO: FOR NOW LIMIT 5 TOTAL UPLOADS BY SAME USER
+                        break;  # TODO: FOR NOW LIMIT 5 TOTAL UPLOADS BY SAME USER
 
-            messages.success(request, "Yay, " +str(total)+ " New Image(s) Contributed to Crowdsource.")
+            messages.success(request, "Yay, " + str(total) + " New Image(s) Contributed to Crowdsource.")
             return redirect("crowdsource")
 
     messages.error(request, "Invalid Request")
@@ -142,7 +149,7 @@ def crowdsource_images_delete(request, id):
                 crowdsource_image = Crowdsource.objects.filter(id=id).get()
             else:
                 crowdsource_image = Crowdsource.objects.filter(created_by=request.user).filter(id=id).get()
-            
+
             if crowdsource_image:
                 delete_object(crowdsource_image.bucket_key())
                 crowdsource_image.file.delete()
@@ -156,6 +163,7 @@ def crowdsource_images_delete(request, id):
     messages.error(request, "Invalid Request")
     return redirect("crowdsource")
 
+
 #######
 # API #
 #######
@@ -165,8 +173,9 @@ class ResponseInfo(object):
         self.response = {
             "data": args.get('data', []),
             "page": args.get('message', '1'),
-            "object_types": args.get('object_types',[])
+            "object_types": args.get('object_types', [])
         }
+
 
 # Crowdsource Image API
 class CrowdsourceView(viewsets.ModelViewSet):
@@ -184,19 +193,21 @@ class CrowdsourceView(viewsets.ModelViewSet):
             offset = 100 * (page - 1)
             limit = 100
             offsetPlusLimit = offset + limit
-            query = self.request.GET.get('q','')
+            query = self.request.GET.get('q', '')
             if self.request.user.is_authenticated:
                 # ALL FOR ADMIN / PA
                 if self.request.user.is_admin or self.request.user.is_project_admin:
                     ids = Crowdsource.objects.order_by('-created_at').filter(Q(object_type__icontains=query) |
-                                                                            Q(image_type__icontains=query) |
-                                                                            Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 100
+                                                                             Q(image_type__icontains=query) |
+                                                                             Q(username__icontains=query)).values_list(
+                        'pk', flat=True)[offset:offsetPlusLimit]  # Latest 100
                     return Crowdsource.objects.filter(pk__in=list(ids)).order_by('-created_at')
                 # OWN FOR OTHER
                 else:
-                    ids = Crowdsource.objects.order_by('-created_at').filter(created_by=self.request.user).filter(Q(object_type__icontains=query) |
-                                                                            Q(image_type__icontains=query) |
-                                                                            Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit] # Latest 100
+                    ids = Crowdsource.objects.order_by('-created_at').filter(created_by=self.request.user).filter(
+                        Q(object_type__icontains=query) |
+                        Q(image_type__icontains=query) |
+                        Q(username__icontains=query)).values_list('pk', flat=True)[offset:offsetPlusLimit]  # Latest 100
                     return Crowdsource.objects.filter(pk__in=list(ids)).order_by('-created_at')
             else:
                 return []
@@ -217,19 +228,19 @@ class CrowdsourceView(viewsets.ModelViewSet):
 
         page = str(abs(int(self.request.GET.get('page', 1))))
         self.response_format["page"] = page
-        
-        OBJECT_TYPE = cache.get('all_object_type_choices_json',[])
-        if not OBJECT_TYPE:
-          OBJECT_TYPE = [
-            {"value":"other", "title":"Other"}
-          ]
 
-          all_object_types = ObjectType.objects.order_by('name').values_list('name', flat=True).distinct()
-          for o in all_object_types:
-            OBJECT_TYPE.append({"value":o, "title":o.title()})
-          cache.set('all_object_type_choices_json', OBJECT_TYPE)
+        OBJECT_TYPE = cache.get('all_object_type_choices_json', [])
+        if not OBJECT_TYPE:
+            OBJECT_TYPE = [
+                {"value": "other", "title": "Other"}
+            ]
+
+            all_object_types = ObjectType.objects.order_by('name').values_list('name', flat=True).distinct()
+            for o in all_object_types:
+                OBJECT_TYPE.append({"value": o, "title": o.title()})
+            cache.set('all_object_type_choices_json', OBJECT_TYPE)
         self.response_format["object_types"] = OBJECT_TYPE
-        
+
         return Response(self.response_format)
 
     def destroy(self, request, *args, **kwargs):
@@ -237,3 +248,35 @@ class CrowdsourceView(viewsets.ModelViewSet):
         delete_object(crowdsource_image.bucket_key())
         crowdsource_image.file.delete()
         return super().destroy(request, *args, **kwargs)
+
+
+# Image Share Views
+def images_share(request):
+    dash = request.user and not request.user.is_anonymous
+    if dash:
+        dash = "master/base.html"
+    else:
+        dash = "master/blank.html"
+
+    if request.method == "GET":
+        images_share = []
+        query = request.GET.get('q', '')
+        if request.user and not request.user.is_anonymous:
+            if (is_admin(request.user)):
+                images_share = ImageShare.objects.order_by(
+                    '-created_at').filter(Q(object_type__icontains=query)).distinct().all()
+            else:
+                images_share = ImageShare.objects.filter(
+                    created_by=request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
+                                                                            Q(remarks__icontains=query)).distinct().all()
+
+            paginator = Paginator(images_share, 50)  # Show 50
+            page_number = request.GET.get('page', '1')
+            images = paginator.get_page(page_number)
+        else:
+            images = False
+
+        form = CrowdsourceForm()
+
+        return render(request, 'images_share.html',
+                      {'crowdsources': images, 'form': form, 'query': query, 'dash': dash})

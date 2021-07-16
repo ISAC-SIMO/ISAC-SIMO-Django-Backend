@@ -5,4 +5,7 @@ urlpatterns = [
     # Image & Image Files
     path('image', views.crowdsource_images, name="crowdsource"),
     path('image/delete/<int:id>', views.crowdsource_images_delete, name="crowdsource.delete"),
+
+    #Image Share
+    path('images-share', views.images_share, name="images_share"),
 ]
