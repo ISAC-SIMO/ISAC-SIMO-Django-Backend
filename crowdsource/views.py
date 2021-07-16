@@ -1,6 +1,7 @@
+from django.http.response import HttpResponseRedirect
 from api.models import ObjectType
 from django.core.cache import cache
-from crowdsource.helpers import delete_object, get_object, move_object, upload_object
+from crowdsource.helpers import delete_object, get_object, get_object_list, move_object, upload_object
 from crowdsource.forms import CrowdsourceForm
 from crowdsource.models import Crowdsource
 from django.shortcuts import get_object_or_404, redirect, render
@@ -8,6 +9,7 @@ from main.authorization import login_url, is_admin_or_project_admin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core import serializers
 from django.conf import settings
+from django.http import HttpResponse
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -16,6 +18,7 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from .serializers import CrowdsourceSerializer
 from rest_framework.response import Response
 import uuid
+import json
 
 # View All Crowdsource Images + Update/Create
 
@@ -155,6 +158,20 @@ def crowdsource_images_delete(request, id):
 
     messages.error(request, "Invalid Request")
     return redirect("crowdsource")
+
+@login_required(login_url=login_url)
+def image_request_download(request, id):
+    # TODO: if ImageRequest / ImageShare Model status is accepted. and created_at is not too much PAST (> 30 days)
+    # Allow user to download the file of object type they had chosen to
+    images = get_object_list('wall') # Of the object type
+    if images:
+        dump = json.dumps(images)
+        response = HttpResponse(dump, content_type='application/json')
+        response['Content-Disposition'] = 'attachment; filename=wall.json' # file name as object type
+        return response
+    else:
+        messages.error(request, "Unable to Download Image List at the moment.")
+        return HttpResponseRedirect(request.META.get('HTTP_REFERER','/'))
 
 #######
 # API #

@@ -20,6 +20,8 @@ cos = ibm_boto3.resource("s3",
     endpoint_url=COS_ENDPOINT
 )
 
+# client = cos.meta.client
+
 # UPLOAD
 def upload_object(object_key, path):
   try:
@@ -76,6 +78,25 @@ def get_object(object_key):
     file = cos.Object(settings.IBM_BUCKET, object_key).get()
     # file["Body"].read() # ContentType, ETag, ContentLength, LastModified
     return file
+  except Exception as e:
+    print(e)
+    return False
+
+# Generate list of all files/images in a chosen COS bucket folder (directory named as object_type)
+def get_object_list(object_type, limit=10000):
+  try:
+    image_list = [];
+    if settings.IBM_BUCKET_PUBLIC_ENDPOINT:
+      bucket = cos.Bucket(settings.IBM_BUCKET)
+      for obj in bucket.objects.filter(Prefix = str(object_type)+"/"):
+        url = (settings.IBM_BUCKET_PUBLIC_ENDPOINT + obj.key) if settings.IBM_BUCKET_PUBLIC_ENDPOINT.endswith("/") else (settings.IBM_BUCKET_PUBLIC_ENDPOINT + "/" + obj.key)
+        image_list.append({
+          "key": obj.key,
+          "url": url
+        })
+        # url = client.generate_presigned_url('get_object', ExpiresIn=0, Params={'Bucket': settings.IBM_BUCKET, 'Key': obj.key})
+
+    return image_list
   except Exception as e:
     print(e)
     return False
