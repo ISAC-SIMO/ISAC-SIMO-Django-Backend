@@ -1,13 +1,15 @@
-from crowdsource.models import Crowdsource
+from crowdsource.models import Crowdsource, ImageShare
 from django import forms
 from api.models import ObjectType
 from django.core.cache import cache
 from django.utils.translation import gettext_lazy as _
 
+
 class CrowdsourceForm(forms.ModelForm):
     file = forms.ImageField(widget=forms.ClearableFileInput(attrs={'multiple': True}))
+
     class Meta:
-        model = Crowdsource     
+        model = Crowdsource
         fields = ('object_type', 'image_type', 'file', 'username')
 
     def __init__(self, *args, **kwargs):
@@ -16,16 +18,30 @@ class CrowdsourceForm(forms.ModelForm):
         # CACHE HANDLE ALL OBJECT TYPE CHOICE
         OBJECT_TYPE = cache.get('all_object_type_choices')
         if not OBJECT_TYPE:
-          OBJECT_TYPE = [
-            ('other', 'Other')
-          ]
+            OBJECT_TYPE = [
+                ('other', 'Other')
+            ]
 
-          all_object_types = ObjectType.objects.order_by('name').values_list('name', flat=True).distinct()
-          for o in all_object_types:
-            OBJECT_TYPE.append((o, o.title()))
-          cache.set('all_object_type_choices', OBJECT_TYPE)
-          
+            all_object_types = ObjectType.objects.order_by('name').values_list('name', flat=True).distinct()
+            for o in all_object_types:
+                OBJECT_TYPE.append((o, o.title()))
+            cache.set('all_object_type_choices', OBJECT_TYPE)
+
         self.fields['file'].help_text = _('Only Upload Files of Chosen Object Type and Image Type.')
-        self.fields['file'].label =  _('Multiple Files')
+        self.fields['file'].label = _('Multiple Files')
         self.fields['object_type'].widget = forms.Select(choices=OBJECT_TYPE)
         self.fields['username'].widget = forms.HiddenInput()
+
+
+class ImageShareForm(forms.ModelForm):
+
+    class Meta:
+        model = ImageShare
+        fields = ('object_type', 'remarks')
+
+
+class AdminImageShareForm(forms.ModelForm):
+
+    class Meta:
+        model = ImageShare
+        fields = ('object_type', 'status', 'remarks')

@@ -19,30 +19,33 @@
                               <tr>
                                   <th></th>
                                   <th>{% trans "Object Type" %}</th>
-                                  <th>{% trans "Image Type" %}</th>
-                                  <th>{% trans "Attribution" %}</th>
+                                  {% if user.is_admin %}
+                                  <th>{% trans "User" %}</th>
+                                      {% endif %}
+                                  <th>{% trans "Status" %}</th>
+                                  <th>{% trans "Remarks" %}</th>
                                   <th style="width:110px;">{% trans "Actions" %}</th>
                               </tr>
                           </thead>
                           <tbody>
-                              {% for crowdsource in crowdsources %}
-                                  <tr data-object="{{crowdsource.object_type}}" data-id="{{crowdsource.id}}" data-url="{{crowdsource.file.url}}">
+                              {% for imgshare in images_share %}
+                                  <tr >
                                       <td></td>
-                                      <td>{{crowdsource.object_type|title}}</td>
-                                      <td>{{crowdsource.image_type|title|default:'Raw'}}</td>
-                                      <td>{% if crowdsource.created_by %} {{crowdsource.created_by.full_name}} {% else %} {{crowdsource.username|default:'N/A'}} {% endif %}</td>
+                                      <td>{{imgshare.object_type|title}}</td>
+                                        {% if user.is_admin %}
+                                      <td>{% if imgshare.user.full_name %} {{imgshare.user.full_name}} {% else %} {{imgshare.user.user_type|default:'N/A'}} {% endif %}</td>
+                                        {% endif %}
+                                      <td>{{imgshare.status}}</td>
+                                      <td>{{imgshare.remarks|default:'N/A'}}</td>
                                       <td class="table-options" style="min-width: 110px;">
-                                          <a title="{% trans 'View Image' %}" data-toggle="tooltip" data-placement="left" target="_blank" rel="noopener noreferrer" onclick="showImagePop(event,'{{crowdsource.file.url}}')" href="{{crowdsource.file.url}}" class="btn text-primary px-0" style="margin: 0 3px !important;">
-                                              <i class="fa fa-file-image"></i>
-                                          </a>
-                                          <a onclick="editForm('{{crowdsource.id}}','{{crowdsource.name}}','{{crowdsource.file.url}}','{{crowdsource.object_type}}','{{crowdsource.image_type}}','{{crowdsource.username}}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                          <a onclick="editForm('{{imgshare.id}}', '{{imgshare.object_type}}', '{{imgshare.status}}', '{{imgshare.remarks}}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                               <i class="fa fa-edit"></i>
                                           </a>
-                                          {% if user.is_admin or crowdsource.created_by and user.id == crowdsource.created_by.id %}
-                                          <a onclick="deleteData(event, 'form-{{ crowdsource.id }}', 'Uploaded File')" title="{% trans 'Delete' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                          {% if user.is_admin or imgshare.user and user.id == imgshare.user.id %}
+                                          <a onclick="deleteData(event, 'form-{{ imgshare.id }}', 'Uploaded File')" title="{% trans 'Delete' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                               <i class="fa fa-trash text-danger"></i>
                                           </a>
-                                          <form action="{% url 'crowdsource.delete' crowdsource.id %}" id="form-{{ crowdsource.id }}" method="POST" class="d-inline">
+                                          <form action="{% url 'images_share_delete' imgshare.id %}" id="form-{{ imgshare.id }}" method="POST" class="d-inline">
                                               {% csrf_token %}
                                           </form>
                                           {% endif %}
@@ -54,26 +57,26 @@
                       <div class="row custom-paginate-row">
                         <div>
                           <span class="current">
-                            Page {{ crowdsources.number }} of {{ crowdsources.paginator.num_pages }} (Total {% if query %}Filtered{% endif %} Items {{crowdsources.paginator.count}})
+                            Page {{ imgshare.number }} of {{ imgshare.paginator.num_pages }} (Total {% if query %}Filtered{% endif %} Items {{imgshare.paginator.count}})
                           </span>
                         </div>
                         <div>
                           <ul class="pagination">
-                            {% if crowdsources.has_previous %}
-                              <li class="paginate_button page-item previous"><a class="page-link" href="?page={{ crowdsources.previous_page_number }}">Previous</a></li>
+                            {% if imgshare.has_previous %}
+                              <li class="paginate_button page-item previous"><a class="page-link" href="?page={{ imgshare.previous_page_number }}">Previous</a></li>
                             {% else %}
                               <li class="paginate_button page-item previous disabled"><a class="page-link" href="#">Previous</a></li>
                             {% endif %}
 
-                            {% for num in crowdsources.paginator.page_range %}
-                              {% ifequal num crowdsources.number %}
+                            {% for num in imgshare.paginator.page_range %}
+                              {% ifequal num imgshare.number %}
                                 <li class="paginate_button page-item active"><a href="#" class="page-link">{{num}}</a></li>
                               {% else %}
                                 <li class="paginate_button page-item"><a href="?page={{ num }}" class="page-link">{{num}}</a></li>
                               {% endifequal %}
                             {% endfor %}
 
-                            {% if crowdsources.has_next %}
+                            {% if imgshare.has_next %}
                               <li class="paginate_button page-item next"><a class="page-link" href="?page={{ crowdsources.next_page_number }}">Next</a></li>
                             {% else %}
                               <li class="paginate_button page-item next disabled"><a class="page-link" href="#">Next</a></li>
@@ -84,53 +87,43 @@
                   </div>
               </div>
           </div>
-        {% else %}
-          {% comment %} FOR NON-LOGGED IN USERS - SHOW LATEST UPLOADED IMAGE FROM SESSION {% endcomment %}
-          <div class="col-sm-12 col-md-8">
-            <div class="card">
-                <div class="card-body">
-                  {% if request.session.crowdsource_images %}
-                    <div style="display:flex;flex-wrap:wrap;">
-                      {% for img in request.session.crowdsource_images %}
-                        <div style="width: 200px;height:200px;margin-right:8px;position: relative;border:1px solid #ddd;display:flex;">
-                          <img src="{{img.file}}" alt="UID-{{img.id}}" style="width: 200px;object-fit: contain;">
-                          <i style="position:absolute;right:7px;top:7px;cursor:pointer;" title="Edit" class="fa fa-edit" onclick="editForm('{{img.id}}','{{img.id}}','{{img.file}}','{{img.object_type}}','{{img.image_type}}','{{img.username}}')"></i>
-                        </div>
-                      {% endfor %}
-                    </div>
-                    <br/>
-                    <h5><a href="{% url 'login' %}"><b>Login</b></a> to link these images to your account.</h5>
-                  {% else %}
-                    <h5>You have Zero Crowdsource Contributions.</h5>
-                    <p>You can <a href="{% url 'login' %}"><b>Login</b></a> to view and manage your images.</p>
-                  {% endif %}
-                </div>
-            </div>
-          </div>
         {% endif %}
         <div class="col-sm-12 col-md-4">
             <div class="card">
-                <div class="card-title ml-3 mt-3">
-                    <h5 id="file_title_status">{% trans "Contribute to Crowdsource" %}</h5>
-                </div>
                 <hr style="margin:0.5rem;"/>
                 <div class="card-body pt-0">
                     {% load crispy_forms_tags %}
-                    <form action="{% url 'crowdsource' %}" method="POST" id="file_upload_create_form" class="d-inline" enctype="multipart/form-data">
+                    <form action="{% url 'images_share' %}" method="POST" id="images_share_form" class="d-inline">
                         {% csrf_token %}
                         <input type="hidden" value="0" id="id_field" name="id"/>
                         {{ form|crispy }}
-                        <p style="display:none;font-size:0.7em;" id="file_path"></p>
                         <div class="form-group">
                             <div class="col-sm-12" style="display: flex;justify-content: space-between;align-items: center;">
-                                <button class="btn btn-sm btn-primary" id="upload_btn" type="submit">{% trans "Upload" %} <i class="fa fa-upload ml-1" style="font-size: 80%;"></i></button>
+                                <button class="btn btn-sm btn-primary" id="upload_btn" type="submit">{% trans "Submit" %}</button>
                                 <button class="btn btn-sm btn-outline-secondary" onclick="createForm(event)" type="reset">{% trans "Clear" %} <i class="fa fa-backspace ml-1" style="font-size: 80%;"></i></button>
                             </div>
                         </div>
                     </form>
-                  <small><b><i class="far fa-check-circle"></i> {% trans "All Images Copyright will be transferred to ISAC-SIMO" %}.<br/><i class="far fa-check-circle"></i> You agree that it can be used and shared freely.</b></small>
                 </div>
             </div>
         </div>
     </div>
 {% endblock content %}
+{% block script %}
+    <script>
+    function editForm(id, object_type, status, remarks){
+          $('#id_field').val(id);
+          $('#id_object_type').val(object_type).trigger('change');
+          $('#div_id_object_type label p').remove();
+          if(!$('#id_remarks').val()){
+            $('#id_remarks').val('pending');
+          }
+          else {
+              $('#id_remarks').val(remarks);
+          }
+          $('#id_status').val(status);
+
+          $('#upload_btn').text("Edit Detail");
+        }
+    </script>
+{% endblock %}

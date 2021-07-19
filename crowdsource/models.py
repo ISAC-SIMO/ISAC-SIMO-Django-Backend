@@ -78,7 +78,7 @@ class ImageShare(models.Model):
                              related_name='image_share')
     object_type = models.CharField(_("Object Type"), max_length=255, blank=True, null=True)
     status = models.CharField(_("ImageShare Status"), max_length=20, choices=IMAGE_SHARE_STATUS, default='pending')
-    remarks = models.CharField(_("Remarks"), max_length=250)
+    remarks = models.CharField(_("Remarks"), max_length=250, null=True, blank=True)
     created_at = models.DateTimeField(_("created_at"), auto_now_add=True)
     updated_at = models.DateTimeField(_("updated_at"), auto_now=True)
 

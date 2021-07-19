@@ -1,7 +1,7 @@
 from api.models import ObjectType
 from django.core.cache import cache
 from crowdsource.helpers import delete_object, get_object, move_object, upload_object
-from crowdsource.forms import CrowdsourceForm
+from crowdsource.forms import CrowdsourceForm, ImageShareForm, AdminImageShareForm
 from crowdsource.models import Crowdsource, ImageShare
 from django.shortcuts import get_object_or_404, redirect, render
 from main.authorization import login_url, is_admin_or_project_admin, is_admin
@@ -267,16 +267,67 @@ def images_share(request):
                     '-created_at').filter(Q(object_type__icontains=query)).distinct().all()
             else:
                 images_share = ImageShare.objects.filter(
-                    created_by=request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
-                                                                            Q(remarks__icontains=query)).distinct().all()
+                    user=request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
+                                                                      Q(remarks__icontains=query)).distinct().all()
 
             paginator = Paginator(images_share, 50)  # Show 50
             page_number = request.GET.get('page', '1')
             images = paginator.get_page(page_number)
         else:
             images = False
+        if request.user.user_type == "admin":
+            form = AdminImageShareForm()
 
-        form = CrowdsourceForm()
-
+        else:
+            form = ImageShareForm()
         return render(request, 'images_share.html',
-                      {'crowdsources': images, 'form': form, 'query': query, 'dash': dash})
+                      {'images_share': images, 'form': form, 'query': query, 'dash': dash})
+    elif request.method == "POST":
+        if request.POST.get('id', False) and request.POST.get('id') != "0":
+            # EDIT
+            try:
+                share_image = ImageShare.objects.filter(id=request.POST.get('id')).get()
+                form = ImageShareForm(
+                    request.POST or None, instance=share_image)
+                if form.is_valid():
+                    form.save()
+                    messages.success(
+                        request, "Image Request Updated Successfully")
+                    return redirect("images_share")
+                else:
+                    print(form)
+                    print("not valid")
+            except ImageShare.DoesNotExist:
+                pass
+        else:
+            form = ImageShareForm(request.POST or None)
+            if form.is_valid():
+                instance = form.save(commit=False)
+                instance.user = request.user
+                instance.save()
+                messages.success(
+                    request, "Image Request Created Successfully")
+                return redirect("images_share")
+            else:
+                print(form)
+                print("not valid")
+
+
+def images_share_delete(request, id):
+    if request.method == "POST":
+        try:
+            if request.user.is_admin:
+                image = ImageShare.objects.filter(id=id).get()
+            else:
+                image = ImageShare.objects.filter(user=request.user).filter(id=id).get()
+
+            if image:
+                image.delete()
+                messages.success(
+                    request, 'ImageShare  Deleted Successfully!')
+                return redirect("images_share")
+        except ImageShare.DoesNotExist:
+            pass
+
+    messages.error(request, "Invalid Request")
+    return redirect("images_share")

@@ -438,9 +438,18 @@
             <li class="nav-item">
               <a href="{% url 'crowdsource' %}"
                 class="nav-link {% if request.resolver_match.url_name == 'crowdsource' %} active {% endif %}">
-                <i class="nav-icon fas fa-child"></i>
+                <i class="nav-icon fas fa-share"></i>
                 <p>
                   {% trans "Crowdsource" %}
+                </p>
+              </a>
+            </li>
+          <li class="nav-item">
+              <a href="{% url 'images_share' %}"
+                class="nav-link {% if request.resolver_match.url_name == 'images_share' %} active {% endif %}">
+                <i class="nav-icon fas fa-child"></i>
+                <p>
+                  {% trans "Image Share" %}
                 </p>
               </a>
             </li>

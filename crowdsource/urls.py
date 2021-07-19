@@ -8,4 +8,5 @@ urlpatterns = [
 
     #Image Share
     path('images-share', views.images_share, name="images_share"),
+    path('images-share/delete/<int:id>', views.images_share_delete, name="images_share_delete"),
 ]
