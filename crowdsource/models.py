@@ -1,5 +1,6 @@
 import os
 import uuid
+from django.utils import timezone
 
 from django.db import models
 from django.utils.deconstruct import deconstructible
@@ -84,3 +85,10 @@ class ImageShare(models.Model):
 
     def __str__(self):
         return self.object_type
+
+    @property
+    def is_expired(self):
+        if self.created_at:
+            return (timezone.now() - self.created_at).days > 30
+        else:
+            return True

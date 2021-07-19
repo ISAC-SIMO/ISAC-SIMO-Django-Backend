@@ -1,7 +1,7 @@
 from django.http.response import HttpResponseRedirect
 from api.models import ObjectType
 from django.core.cache import cache
-from crowdsource.forms import CrowdsourceForm, ImageShareForm, AdminImageShareForm
+from crowdsource.forms import CrowdsourceForm, ImageShareForm
 from crowdsource.helpers import delete_object, get_object, get_object_list, move_object, upload_object
 from crowdsource.models import Crowdsource, ImageShare
 from django.shortcuts import get_object_or_404, redirect, render
@@ -20,6 +20,7 @@ from rest_framework.response import Response
 import uuid
 import json
 from django.utils import timezone
+from datetime import timedelta
 
 
 # View All Crowdsource Images + Update/Create
@@ -189,7 +190,7 @@ def image_share_download(request, id):
                         messages.error(request, "Unable to Download Image List at the moment. Might be empty.")
                         return HttpResponseRedirect(request.META.get('HTTP_REFERER','/'))
                 else:
-                    messages.error(request, "Image Share Request has expired. Please send another request.")
+                    messages.error(request, "Image Share Request has expired (older then 30 days). Please send another request.")
             else:
                 messages.error(request, "Image Share Request has not been accepted.")
         else:
@@ -271,7 +272,7 @@ class CrowdsourceView(viewsets.ModelViewSet):
             all_object_types = ObjectType.objects.order_by('name').values_list('name', flat=True).distinct()
             for o in all_object_types:
                 OBJECT_TYPE.append({"value": o, "title": o.title()})
-            cache.set('all_object_type_choices_json', OBJECT_TYPE)
+            cache.set('all_object_type_choices_json', OBJECT_TYPE, 3600)
         self.response_format["object_types"] = OBJECT_TYPE
 
         return Response(self.response_format)
@@ -282,59 +283,64 @@ class CrowdsourceView(viewsets.ModelViewSet):
         crowdsource_image.file.delete()
         return super().destroy(request, *args, **kwargs)
 
+# PRUNE old ImageShare requests (check and remove old > 60 days requests)
+def prune_old_image_share():
+    if not cache.get('prune_image_share'):
+        ImageShare.objects.filter(created_at__lte=timezone.now()-timedelta(days=60)).delete()
+        cache.set("prune_image_share", True, 86400) # Prune every 24 hours
 
 # Image Share Views
 @login_required(login_url=login_url)
 def images_share(request):
-    dash = request.user and not request.user.is_anonymous
-    if dash:
-        dash = "master/base.html"
-    else:
-        dash = "master/blank.html"
-
+    prune_old_image_share();
     if request.method == "GET":
         images_share = []
         query = request.GET.get('q', '')
         if request.user and not request.user.is_anonymous:
             if (is_admin(request.user)):
                 images_share = ImageShare.objects.order_by(
-                    '-created_at').filter(Q(object_type__icontains=query)).distinct().all()
+                    '-created_at').filter(Q(object_type__icontains=query) |
+                                        Q(remarks__icontains=query) |
+                                        Q(status__icontains=query)).distinct().all()
             else:
                 images_share = ImageShare.objects.filter(
                     user=request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
-                                            Q(remarks__icontains=query)).distinct().all()
+                                            Q(remarks__icontains=query) |
+                                            Q(status__icontains=query)).distinct().all()
 
             paginator = Paginator(images_share, 50)  # Show 50
             page_number = request.GET.get('page', '1')
             images = paginator.get_page(page_number)
         else:
             images = False
-        if request.user.user_type == "admin":
-            form = AdminImageShareForm()
 
-        else:
-            form = ImageShareForm()
+        form = ImageShareForm(request=request)
         return render(request, 'images_share.html',
-                      {'images_share': images, 'form': form, 'query': query, 'dash': dash})
+                      {'images_share': images, 'form': form, 'query': query})
     elif request.method == "POST":
         if request.POST.get('id', False) and request.POST.get('id') != "0":
             # EDIT
             try:
-                share_image = ImageShare.objects.filter(id=request.POST.get('id')).get()
+                if (is_admin(request.user)):
+                    share_image = ImageShare.objects.filter(id=request.POST.get('id')).get()
+                else:
+                    share_image = ImageShare.objects.filter(user=request.user).filter(id=request.POST.get('id')).get()
+                    if not share_image.status == "pending":
+                        messages.error(request, "Image Request has already been " + share_image.status.title() + ". It cannot be edited now.")
+                        return redirect("images_share")
+
                 form = ImageShareForm(
-                    request.POST or None, instance=share_image)
+                    request.POST or None, instance=share_image, request=request)
                 if form.is_valid():
                     form.save()
                     messages.success(
                         request, "Image Request Updated Successfully")
                     return redirect("images_share")
-                else:
-                    print(form)
-                    print("not valid")
             except ImageShare.DoesNotExist:
                 pass
         else:
-            form = ImageShareForm(request.POST or None)
+            # CREATE
+            form = ImageShareForm(request.POST or None, request=request)
             if form.is_valid():
                 instance = form.save(commit=False)
                 instance.user = request.user
@@ -342,9 +348,9 @@ def images_share(request):
                 messages.success(
                     request, "Image Request Created Successfully")
                 return redirect("images_share")
-            else:
-                print(form)
-                print("not valid")
+        
+        messages.error(request, "Invalid Request")
+        return redirect("images_share")
 
 
 def images_share_delete(request, id):
@@ -358,7 +364,7 @@ def images_share_delete(request, id):
             if image:
                 image.delete()
                 messages.success(
-                    request, 'ImageShare  Deleted Successfully!')
+                    request, 'Image Request Deleted Successfully!')
                 return redirect("images_share")
         except ImageShare.DoesNotExist:
             pass
