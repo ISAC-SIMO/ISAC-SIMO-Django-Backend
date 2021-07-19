@@ -1,13 +1,15 @@
+from django.http.response import HttpResponseRedirect
 from api.models import ObjectType
 from django.core.cache import cache
-from crowdsource.helpers import delete_object, get_object, move_object, upload_object
 from crowdsource.forms import CrowdsourceForm, ImageShareForm, AdminImageShareForm
+from crowdsource.helpers import delete_object, get_object, get_object_list, move_object, upload_object
 from crowdsource.models import Crowdsource, ImageShare
 from django.shortcuts import get_object_or_404, redirect, render
 from main.authorization import login_url, is_admin_or_project_admin, is_admin
 from django.contrib.auth.decorators import login_required, user_passes_test
 from django.core import serializers
 from django.conf import settings
+from django.http import HttpResponse
 from django.contrib import messages
 from django.core.paginator import Paginator
 from django.db.models import Q
@@ -16,6 +18,8 @@ from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
 from .serializers import CrowdsourceSerializer
 from rest_framework.response import Response
 import uuid
+import json
+from django.utils import timezone
 
 
 # View All Crowdsource Images + Update/Create
@@ -163,6 +167,35 @@ def crowdsource_images_delete(request, id):
     messages.error(request, "Invalid Request")
     return redirect("crowdsource")
 
+@login_required(login_url=login_url)
+def image_share_download(request, id):
+    # Allow user to download the file of object type they had chosen to
+    if request.method == "POST":
+        if request.user.is_admin:
+            image_share = ImageShare.objects.filter(id=id).get()
+        else:
+            image_share = ImageShare.objects.filter(user=request.user).filter(id=id).get()
+        
+        if image_share and image_share.object_type:
+            if image_share.status == "accepted": # If request was accepted
+                if ( (timezone.now() - image_share.created_at).days < 30 ): # If created_at is not older then 30 days. Allow to download.
+                    images = get_object_list(image_share.object_type) # Download image of the chosen object type
+                    if images:
+                        dump = json.dumps(images)
+                        response = HttpResponse(dump, content_type='application/json')
+                        response['Content-Disposition'] = 'attachment; filename='+image_share.object_type+'.json' # file name as object type
+                        return response
+                    else:
+                        messages.error(request, "Unable to Download Image List at the moment. Might be empty.")
+                        return HttpResponseRedirect(request.META.get('HTTP_REFERER','/'))
+                else:
+                    messages.error(request, "Image Share Request has expired. Please send another request.")
+            else:
+                messages.error(request, "Image Share Request has not been accepted.")
+        else:
+            messages.error(request, "Invalid Request")
+    
+    return redirect("images_share")
 
 #######
 # API #
@@ -251,6 +284,7 @@ class CrowdsourceView(viewsets.ModelViewSet):
 
 
 # Image Share Views
+@login_required(login_url=login_url)
 def images_share(request):
     dash = request.user and not request.user.is_anonymous
     if dash:
@@ -268,7 +302,7 @@ def images_share(request):
             else:
                 images_share = ImageShare.objects.filter(
                     user=request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
-                                                                      Q(remarks__icontains=query)).distinct().all()
+                                            Q(remarks__icontains=query)).distinct().all()
 
             paginator = Paginator(images_share, 50)  # Show 50
             page_number = request.GET.get('page', '1')

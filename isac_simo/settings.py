@@ -260,6 +260,7 @@ IBM_BUCKET_ENDPOINT = os.getenv('IBM_BUCKET_ENDPOINT', '')
 IBM_BUCKET = os.getenv('IBM_BUCKET', '')
 IBM_BUCKET_TOKEN = os.getenv('IBM_BUCKET_TOKEN', '')
 IBM_BUCKET_CRN = os.getenv('IBM_BUCKET_CRN', '')
+IBM_BUCKET_PUBLIC_ENDPOINT = os.getenv('IBM_BUCKET_PUBLIC_ENDPOINT', '')
 
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, "locale"),)
