@@ -29,7 +29,7 @@
                           </thead>
                           <tbody>
                               {% for imgshare in images_share %}
-                                  <tr >
+                                  <tr id="img-share-tr-{{imgshare.id}}">
                                       <td>{{imgshare.object_type|title}}</td>
                                       {% if user.is_admin %}
                                       <td>{% if imgshare.user %} {{imgshare.user}} {% else %} N/A {% endif %}</td>
@@ -47,10 +47,10 @@
                                         <span class="badge badge-sm badge-warning">EXPIRED</span>
                                       {% endif %}
                                       </td>
-                                      <td>{{imgshare.remarks|truncatechars:25|default:'N/A'}}</td>
+                                      <td>{{imgshare.remarks|default:'N/A'|truncatechars:25}}</td>
                                       <td class="table-options" style="min-width: 110px;">
                                           {% if user.is_admin or imgshare.status == "pending" %}
-                                          <a onclick="editForm('{{imgshare.id}}', '{{imgshare.object_type}}', '{{imgshare.status}}', '{{imgshare.remarks}}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
+                                          <a onclick="editForm('{{imgshare.id}}', '{{imgshare.object_type}}', '{{imgshare.status}}', '{{imgshare.remarks|default:''}}')" title="{% trans 'Edit' %}" data-toggle="tooltip" data-placement="left" href="#" class="btn text-secondary px-0" style="margin: 0 3px !important;">
                                               <i class="fa fa-edit"></i>
                                           </a>
                                           {% endif %}
@@ -176,6 +176,7 @@
         `);
       });
 
+      var lastSelectedId = null;
       function editForm(id, object_type, status, remarks){
         $('#id_field').val(id);
         $('#id_object_type').val(object_type).trigger('change');
@@ -189,6 +190,9 @@
         $('#id_status').val(status);
 
         $('#upload_btn').text("Edit Detail");
+        clearLastSelectedId();
+        lastSelectedId = id;
+        $('#img-share-tr-'+id).css("box-shadow","inset 0 0 0 100px #c8e67f");
       }
 
       function createForm(){
@@ -196,6 +200,14 @@
         $('#id_object_type').prop("selectedIndex", 0).trigger('change');
         $('#div_id_object_type label p').remove();
         $('#upload_btn').html('Submit');
+        clearLastSelectedId();
+        lastSelectedId = null;
+      }
+
+      function clearLastSelectedId() {
+        if(lastSelectedId) {
+          $('#img-share-tr-'+lastSelectedId).css("box-shadow","unset");
+        }
       }
     </script>
 {% endblock %}

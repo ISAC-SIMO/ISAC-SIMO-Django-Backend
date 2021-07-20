@@ -309,7 +309,7 @@ $(function () {
     if('serviceWorker' in navigator){
         navigator.serviceWorker.getRegistration()
             .then(r => {
-                if(r.active && r.active.state == 'activated'){
+                if(r && r.active && r.active.state == 'activated'){
                     r.update() // Force Update
                 }
                 
@@ -319,9 +319,16 @@ $(function () {
                         if(swInstalling.state == 'installed'){
                             console.log('new sw version found and installed')
                             if(localStorage.getItem('not-first-dashboard')){
-                                localStorage.setItem('not-first-dashboard', new Date().toLocaleString())
-                                if(confirm('New Version Available for this application.\nDo you want to reload now?')){
-                                    location.reload()
+                                if ( ((new Date() - new Date(localStorage.getItem('not-first-dashboard'))) / 1000 / 60 / 60) >= 24 ) {
+                                    localStorage.setItem('not-first-dashboard', new Date().toLocaleString())
+                                    $(document).Toasts('create', {
+                                        title: 'New Version Available',
+                                        autohide: true,
+                                        class: 'bg-info',
+                                        position: 'bottomRight',
+                                        delay: 5000,
+                                        body: '<button onclick="location.reload()" class="btn btn-sm btn-success">Reload Page Now</button>'
+                                    })
                                 }
                             }else{
                                 localStorage.setItem('not-first-dashboard', new Date().toLocaleString())

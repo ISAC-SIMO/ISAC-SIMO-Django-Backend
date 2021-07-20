@@ -1,3 +1,4 @@
+from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http.response import HttpResponseRedirect
 from api.models import ObjectType
 from django.core.cache import cache
@@ -36,7 +37,7 @@ def crowdsource_images(request):
         crowdsource_images = []
         query = request.GET.get('q', '')
         if request.user and not request.user.is_anonymous:
-            if (is_admin_or_project_admin(request.user)):
+            if (is_admin(request.user)):
                 crowdsource_images = Crowdsource.objects.order_by(
                     '-created_at').filter(Q(object_type__icontains=query) |
                                           Q(image_type__icontains=query) |
@@ -54,7 +55,7 @@ def crowdsource_images(request):
         else:
             crowdsources = False
 
-        form = CrowdsourceForm()
+        form = CrowdsourceForm(request=request)
 
         return render(request, 'crowdsource_images.html',
                       {'crowdsources': crowdsources, 'form': form, 'query': query, 'dash': dash})
@@ -62,13 +63,14 @@ def crowdsource_images(request):
         if request.POST.get('id', False) and request.POST.get('id') != "0":
             # EDIT
             try:
-                if (is_admin_or_project_admin(request.user)):
+                if (is_admin(request.user)):
                     crowdsource_image = Crowdsource.objects.filter(
                         id=request.POST.get('id')).get()
                 elif request.user.is_authenticated:
                     crowdsource_image = Crowdsource.objects.filter(
                         created_by=request.user).filter(id=request.POST.get('id')).get()
                 else:
+                    # Check if Session has that image
                     crowdsource_images = request.session.get('crowdsource_images', [])
                     crowdsource_image = False
                     for img in crowdsource_images:
@@ -79,7 +81,7 @@ def crowdsource_images(request):
                         return redirect("crowdsource")
 
                 form = CrowdsourceForm(
-                    request.POST or None, instance=crowdsource_image)
+                    request.POST or None, instance=crowdsource_image, request=request)
                 old_object_key = crowdsource_image.bucket_key()
                 crowdsource_images = request.session.get('crowdsource_images', [])
                 if form.is_valid():
@@ -89,6 +91,7 @@ def crowdsource_images(request):
                             instance.username = "Anonymous User - " + uuid.uuid4().hex[:6].upper()
                     instance.save()
 
+                    # Updating the Session
                     for idx, val in enumerate(crowdsource_images):
                         if str(val.get("id")) == str(instance.id):
                             crowdsource_images[idx] = {'id': instance.id, 'file': instance.file.url,
@@ -105,11 +108,11 @@ def crowdsource_images(request):
                 pass
         else:
             # TODO: FOR NOW LIMIT 5 TOTAL UPLOADS BY SAME USER ( SAME BELOW )
-            if request.user.is_authenticated:
+            if request.user.is_authenticated and not is_admin(request.user):
                 if (Crowdsource.objects.filter(created_by=request.user).count() >= 5):
                     messages.error(request, "Currently you can only upload 5 images. More will be enabled later.")
                     return redirect("crowdsource")
-            else:
+            elif not request.user.is_authenticated:
                 if (len(request.session.get('crowdsource_images', [])) >= 5):
                     messages.error(request, "Currently you can only upload 5 images. More will be enabled later.")
                     return redirect("crowdsource")
@@ -119,23 +122,40 @@ def crowdsource_images(request):
             crowdsource_images = request.session.get('crowdsource_images', [])
             for _file in request.FILES.getlist('file'):
                 request.FILES['file'] = _file
-                form = CrowdsourceForm(
-                    request.POST or None, request.FILES or None)
-                if form.is_valid():
-                    instance = form.save(commit=False)
-                    if request.user.is_authenticated:
-                        instance.created_by = request.user
-                    else:
-                        instance.username = "Anonymous User - " + uuid.uuid4().hex[:6].upper()
-                    instance.save()
-                    crowdsource_images.append(
-                        {'id': instance.id, 'file': instance.file.url, 'object_type': instance.object_type,
-                         'image_type': instance.image_type, 'username': instance.username})
-                    request.session['crowdsource_images'] = crowdsource_images
 
-                    if request.user.is_authenticated and settings.PRODUCTION:
-                        upload_object(instance.bucket_key(), instance.filepath())
+                # If direct_upload is chosen by Admin. Upload directly to IBM BUCKET
+                if request.POST.get('direct_upload') and is_admin(request.user):
+                    if type(_file) is InMemoryUploadedFile:
+                        image_file_path = _file.open()
+                    else:
+                        image_file_path = open(_file.temporary_file_path(), 'rb')
+
+                    ext = image_file_path.__str__().split('.')[-1]
+                    filename = '{}.{}'.format(uuid.uuid4().hex, ext)
+                    key = request.POST.get('object_type', 'error') + '/' + filename
+                    upload_object(key, image_file_path, opened=True)
                     total += 1
+                    print(key + " Uploaded as DIRECT-UPLOAD to IBM COS Bucket")
+                else:
+                    form = CrowdsourceForm(
+                        request.POST or None, request.FILES or None, request=request)
+                    if form.is_valid():
+                        instance = form.save(commit=False)
+                        if request.user.is_authenticated:
+                            instance.created_by = request.user
+                        else:
+                            instance.username = "Anonymous User - " + uuid.uuid4().hex[:6].upper()
+                        instance.save()
+                        crowdsource_images.append(
+                            {'id': instance.id, 'file': instance.file.url, 'object_type': instance.object_type,
+                             'image_type': instance.image_type, 'username': instance.username})
+                        request.session['crowdsource_images'] = crowdsource_images
+
+                        if request.user.is_authenticated and settings.PRODUCTION:
+                            upload_object(instance.bucket_key(), instance.filepath())
+                        total += 1
+
+                if not request.user.is_authenticated or not is_admin(request.user):
                     if total >= 5:
                         break;  # TODO: FOR NOW LIMIT 5 TOTAL UPLOADS BY SAME USER
 
@@ -150,13 +170,17 @@ def crowdsource_images(request):
 def crowdsource_images_delete(request, id):
     if request.method == "POST":
         try:
-            if request.user.is_admin or request.user.is_project_admin:
+            if request.user.is_admin:
                 crowdsource_image = Crowdsource.objects.filter(id=id).get()
             else:
                 crowdsource_image = Crowdsource.objects.filter(created_by=request.user).filter(id=id).get()
 
             if crowdsource_image:
-                delete_object(crowdsource_image.bucket_key())
+                if not request.user.is_admin:
+                    delete_object(crowdsource_image.bucket_key())
+                elif request.GET.get('bucket', '') != 'no':
+                    delete_object(crowdsource_image.bucket_key())
+
                 crowdsource_image.file.delete()
                 crowdsource_image.delete()
                 messages.success(
@@ -229,8 +253,8 @@ class CrowdsourceView(viewsets.ModelViewSet):
             offsetPlusLimit = offset + limit
             query = self.request.GET.get('q', '')
             if self.request.user.is_authenticated:
-                # ALL FOR ADMIN / PA
-                if self.request.user.is_admin or self.request.user.is_project_admin:
+                # ALL FOR ADMIN
+                if self.request.user.is_admin:
                     ids = Crowdsource.objects.order_by('-created_at').filter(Q(object_type__icontains=query) |
                                                                              Q(image_type__icontains=query) |
                                                                              Q(username__icontains=query)).values_list(
@@ -247,8 +271,8 @@ class CrowdsourceView(viewsets.ModelViewSet):
                 return []
         else:
             if self.request.user.is_authenticated:
-                # ALL FOR ADMIN / PA
-                if self.request.user.is_admin or self.request.user.is_project_admin:
+                # ALL FOR ADMIN
+                if self.request.user.is_admin:
                     return Crowdsource.objects.order_by('-created_at')
                 # OWN FOR OTHER
                 else:

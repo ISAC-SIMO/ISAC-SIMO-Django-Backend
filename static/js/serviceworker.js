@@ -1,5 +1,5 @@
 /**
- * Version: 0.0.0.12
+ * Version: 0.0.0.13
  * Author: Niush Sitaula
  */
 
@@ -31,7 +31,7 @@ const assets = [
     'https://cdn.datatables.net/select/1.3.1/js/dataTables.select.min.js', 'https://cdn.datatables.net/buttons/1.6.4/js/dataTables.buttons.min.js',
     'https://cdnjs.cloudflare.com/ajax/libs/jszip/3.5.0/jszip.min.js', 'https://cdn.jsdelivr.net/npm/file-saver@2.0.2/dist/FileSaver.min.js'
 ]
-console.log('Service Wokrer First Installation Initialized')
+console.log('Service Worker First Installation Initialized')
 
 self.addEventListener('install', evt => {
     // Precache static asset files

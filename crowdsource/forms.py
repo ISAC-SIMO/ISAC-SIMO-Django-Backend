@@ -31,10 +31,14 @@ class CrowdsourceForm(forms.ModelForm):
         # CACHE HANDLE ALL OBJECT TYPE CHOICE
         OBJECT_TYPE = get_object_types()
 
-        self.fields['file'].help_text = _('Only Upload Files of Chosen Object Type and Image Type.')
+        self.fields['file'].help_text = _('Please, Only Upload Files of Chosen Object Type and Image Type.')
         self.fields['file'].label = _('Multiple Files')
         self.fields['object_type'].widget = forms.Select(choices=OBJECT_TYPE)
         self.fields['username'].widget = forms.HiddenInput()
+
+        # ADMIN feature to directly upload to IBM COS
+        if self.request and self.request.user.is_authenticated and self.request.user.user_type == 'admin':
+            self.fields['direct_upload'] = forms.BooleanField(required=False, label="Direct Upload to Bucket without storing in Database & locally")
 
 class ImageShareForm(forms.ModelForm):
     class Meta:
@@ -51,7 +55,7 @@ class ImageShareForm(forms.ModelForm):
         OBJECT_TYPE = get_object_types()
         self.fields['object_type'].widget = forms.Select(choices=OBJECT_TYPE)
         self.fields['object_type'].required = True
-        if not self.request.user.user_type == 'admin':
-            del self.fields['status'] # Allow only Admin to change status
-        else:
+        if self.request and self.request.user.is_authenticated and self.request.user.user_type == 'admin':
             self.fields['status'].label = "Status"
+        else:
+            del self.fields['status'] # Allow only Admin to change status

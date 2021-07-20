@@ -23,7 +23,7 @@
                         </thead>
                         <tbody>
                             {% for file_upload in file_uploads %}
-                                <tr>
+                                <tr id="file-upload-tr-{{file_upload.id}}">
                                     <td>{{file_upload.name|title}}</td>
                                     <td>{{file_upload.created_by.full_name|default:'Anonymous'}}</td>
                                     {% if user.is_admin %}
@@ -94,7 +94,8 @@
             }
           });
         });
-
+        
+        var lastSelectedId = null;
         function editForm(id, name, url){
           $('#id_field').val(id);
           $('#id_name').val(name);
@@ -104,6 +105,9 @@
           $('#upload_btn').text("Update File");
           $('#div_id_file label span').css('display','none');
           $('#id_file').attr('required',false);
+          clearLastSelectedId();
+          lastSelectedId = id;
+          $('#file-upload-tr-'+id).css("box-shadow","inset 0 0 0 100px #c8e67f");
         }
 
         function createForm(event){
@@ -113,9 +117,17 @@
           $('#file_path').css("display","none");
           $('#file_path').html('');
           $('#file_title_status').text('Upload File');
-          $('#upload_btn').text("Upload");
+          $('#upload_btn').html('Upload <i class="fa fa-upload ml-1" style="font-size: 80%;"></i>');
           $('#div_id_file label span').css('display','inline');
           $('#id_file').attr('required',true);
+          clearLastSelectedId();
+          lastSelectedId = null;
+        }
+
+        function clearLastSelectedId() {
+            if(lastSelectedId) {
+                $('#file-upload-tr-'+lastSelectedId).css("box-shadow","unset");
+            }
         }
     </script>
 {% endblock script %}

@@ -1,3 +1,4 @@
+from crowdsource.helpers import upload_object
 from crowdsource.models import Crowdsource
 from datetime import timedelta
 import os
@@ -149,6 +150,7 @@ def login_user(request):
                         crowdsource_image.created_by_id = user.id
                         crowdsource_image.username = user.full_name
                         crowdsource_image.save()
+                        upload_object(crowdsource_image.bucket_key(), crowdsource_image.filepath())
                         crowdsource_images_linked += 1
             if crowdsource_images_linked and crowdsource_images_linked > 0:
                 messages.info(request, str(crowdsource_images_linked) + ' Crowdsource Image has been linked to your account.')

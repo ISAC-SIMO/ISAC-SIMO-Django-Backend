@@ -24,7 +24,7 @@ cos = ibm_boto3.resource("s3",
 # client = cos.meta.client
 
 # UPLOAD
-def upload_object(object_key, path):
+def upload_object(object_key, path, opened=False):
   try:
     # set 5 MB chunks
     part_size = 1024 * 1024 * 5
@@ -33,11 +33,19 @@ def upload_object(object_key, path):
         multipart_threshold=file_threshold,
         multipart_chunksize=part_size
     )
-    with open(path, "rb") as file_data:
-        cos.Object(settings.IBM_BUCKET, object_key).upload_fileobj(
-            Fileobj=file_data,
-            Config=transfer_config
-        )
+
+    if opened:
+      cos.Object(settings.IBM_BUCKET, object_key).upload_fileobj(
+          Fileobj=path,
+          Config=transfer_config
+      )
+      path.close()
+    else:
+      with open(path, "rb") as file_data:
+          cos.Object(settings.IBM_BUCKET, object_key).upload_fileobj(
+              Fileobj=file_data,
+              Config=transfer_config
+          )
     return True
   except Exception as e:
     print(e)
