@@ -1,6 +1,6 @@
+# Requirements.txt is in process on Deprecation in ISAC-SIMO
 appdirs==1.4.3
 asgiref==3.3.4
-astroid==2.3.3
 Babel==2.9.1
 beautifulsoup4==4.8.2
 certifi==2019.11.28

@@ -1,0 +1,45 @@
+[[source]]
+url = "https://pypi.org/simple"
+verify_ssl = true
+name = "pypi"
+
+[packages]
+django = "*"
+django-cors-headers = "*"
+django-crispy-forms = "*"
+djangorestframework = "*"
+django-countries = "*"
+djangorestframework-simplejwt = "*"
+django-honeypot = "*"
+django-rosetta = "*"
+dj-database-url = "*"
+django-environ = "*"
+streetview = {git = "https://github.com/robolyst/streetview"}
+gunicorn = "*"
+tensorflow = "*"
+ibm-cos-sdk = "*"
+ibm-watson = "*"
+jinja2 = "*"
+keras = "*"
+mistune = "*"
+mkdocs = "*"
+numpy = "*"
+opencv-python = "*"
+pillow = "*"
+pipenv = "*"
+requests = "*"
+virtualenv = "*"
+whitenoise = "*"
+mkdocs-material = "*"
+psycopg2 = "*"
+geopy = "*"
+filetype = "*"
+requests-toolbelt = "*"
+
+[dev-packages]
+
+[requires]
+python_version = "3.9"
+
+[pipenv]
+allow_prereleases = true

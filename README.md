@@ -1,6 +1,6 @@
 # ISAC-SIMO
 
-[![License](https://img.shields.io/badge/License-Apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0) [![Slack](https://img.shields.io/badge/Join-Slack-blue)](https://callforcode.org/slack) [![Python 3.8.x](https://img.shields.io/badge/python-v3.8-blue)](https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend)
+[![License](https://img.shields.io/badge/License-Apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0) [![Slack](https://img.shields.io/badge/Join-Slack-blue)](https://callforcode.org/slack) [![Python 3.9](https://img.shields.io/badge/python-v3.9-blue)](https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend)
 
 [![CircleCI](https://circleci.com/gh/buildchange/ISAC-SIMO_Django/tree/master.svg?style=shield)](https://circleci.com/gh/buildchange/ISAC-SIMO_Django/?branch=master) ![Website](https://img.shields.io/website?down_message=offline&up_message=online&url=https%3A%2F%2Fwww.isac-simo.net%2F)
 
@@ -12,31 +12,28 @@ Intelligent Supervision Assistant for Construction - Sistema Inteligente de Moni
 ---
 ### Bash Script:
 ```sh
-virtualenv -p python3 env
-source env/bin/activate
-pip install -r requirements.txt
-```
->If using pipenv (e.g. for windows) then use this:
-```sh
+pip install --upgrade pip
+pip install pipenv
 pipenv install
 ```
+
 >Setup Postgresql or any desired Django supported database.
 >
 >Create ``` .env ``` file using ``` .env.example ``` and provide environment variables as required.
 >
 >``` database_settings.py ``` needs to be updated as per your database setup (or use DATABASE_URL in ``` .env ``` file)
 ```sh
-python manage.py migrate
-python manage.py createsuperuser
+pipenv run python manage.py migrate
+pipenv run python manage.py createsuperuser
 ```
 
 ### Running Tests:
 ```sh
-python manage.py test --debug-mode --debug-sql --parallel
+pipenv run python manage.py test --debug-mode --debug-sql --parallel
 ```
 OR simply run without any flags:
 ```sh
-python manage.py test
+pipenv run python manage.py test
 ```
 
 ### How to Bump Application Version?
@@ -46,11 +43,11 @@ python manage.py test
 We use SemVer scheme to manage the version number. We have created a Django Command to upgrade the version in the settings file.
 
 #### Command Usage:
-- `python manage.py bump`              → Updates to Next Patch
-- `python manage.py bump --to=2.2.2`   → Updates Version Number to 2.2.2
-- `python manage.py bump --type=major` → Updates to Next Major
-- `python manage.py bump --type=minor` → Updates to Next Minor
-- `python manage.py bump --type=patch` → Updates to Next Patch
+- `pipenv run python manage.py bump`              → Updates to Next Patch
+- `pipenv run python manage.py bump --to=2.2.2`   → Updates Version Number to 2.2.2
+- `pipenv run python manage.py bump --type=major` → Updates to Next Major
+- `pipenv run python manage.py bump --type=minor` → Updates to Next Minor
+- `pipenv run python manage.py bump --type=patch` → Updates to Next Patch
 
 Releases and Tags can then be created accordingly.
 
