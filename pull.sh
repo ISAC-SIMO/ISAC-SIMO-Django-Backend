@@ -5,6 +5,7 @@ echo '==PULLING FROM MASTER=='
 git pull origin master
 
 pipenv install
+pipenv run install-server
 
 pipenv run python manage.py migrate
 echo '==MIGRATE AND PULL DONE=='

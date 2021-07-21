@@ -15,6 +15,12 @@ Intelligent Supervision Assistant for Construction - Sistema Inteligente de Moni
 pip install --upgrade pip
 pip install pipenv
 pipenv install
+pipenv run install-client
+```
+
+>For CentOS and other cloud servers that only support **psycopg2-binary**, use this instead:
+```sh
+pipenv run install-server
 ```
 
 >Setup Postgresql or any desired Django supported database.

@@ -43,6 +43,7 @@ jobs:
           name: Install & setup pipenv packages
           command: |
             pipenv install
+            pipenv run install-client
 
       - save_cache:
           key: deps1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
