@@ -21,7 +21,7 @@ env = environ.Env()
 env.read_env(env.str('ENV_PATH', '.env'))
 from django.utils.translation import gettext_lazy as _
 
-VERSION = '1.3.2'
+VERSION = '1.3.3'
 
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 
@@ -83,16 +83,21 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'crispy_forms',
     'corsheaders',
+    'crispy_forms',
+    'django_countries',
+    'rest_framework',
+    'rosetta',
+
+    # Custom Apps
     'main',
     'projects',
     'api',
     'map',
     'crowdsource',
-    'rest_framework',
-    'rosetta',
-    'django_countries'
+
+    # Load at last (To render custom error template)
+    'honeypot',
 ]
 
 AUTH_USER_MODEL = 'main.User'  # changes the built-in user model to ours
@@ -108,10 +113,11 @@ MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
+    # 'honeypot.middleware.HoneypotMiddleware', # NOT WORKING WELL WITH REST API - WE USE DECORATERS
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    'whitenoise.middleware.WhiteNoiseMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware'
 ]
 
 ROOT_URLCONF = 'isac_simo.urls'
@@ -271,3 +277,5 @@ LANGUAGES = [
     ('fr', _('French ')),
     # ('hi', _('Hindi')),
 ]
+
+HONEYPOT_FIELD_NAME = "phonenumber"

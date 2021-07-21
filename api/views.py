@@ -46,6 +46,7 @@ from projects.models import Projects
 
 from .forms import ImageForm
 from .models import Contribution, Image, ImageFile
+from honeypot.decorators import check_honeypot
 
 
 def reload_classifier_list():
@@ -142,6 +143,7 @@ def addImage(request, id = 0):
     return redirect("images")
 
 # Test Image for ANYONE Guest or Logged In
+@check_honeypot
 def testImage(request, id = 0):
     dash = request.user and not request.user.is_anonymous
     if dash:

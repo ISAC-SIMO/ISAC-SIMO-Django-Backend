@@ -3,6 +3,7 @@
 
 <head>
   {% load static %}
+  {% load honeypot %}
   <meta charset="utf-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <title>ISAC-SIMO | Log in</title>
@@ -58,6 +59,7 @@
         {% load crispy_forms_tags %}
         <form action="{% url 'login' %}" method="post">
           {% csrf_token %}
+          {% render_honeypot_field %}
           {% if next %}
           <input type="hidden" value="{{next}}" name="next"/>
           {% endif %}

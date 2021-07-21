@@ -23,7 +23,19 @@
   <link rel="stylesheet" href="{% static 'plugins/sweetalert2-theme-bootstrap-4/bootstrap-4.min.css' %}">
   <!-- Theme style -->
   <link rel="stylesheet" href="{% static 'dist/css/adminlte.min.css' %}">
-  <style>.flash{animation:flash 0.8s ease infinite alternate;}@keyframes flash{0%{opacity:0.2;} 100%{opacity:1;}}</style>
+  <style>
+    .flash{animation:flash 0.8s ease infinite alternate;}@keyframes flash{0%{opacity:0.2;} 100%{opacity:1;}}
+    .error-page{margin-top: -50px;display: flex !important;justify-content: center;align-items: center;}
+    .error-content{height: 125px;display: flex !important;flex-wrap: wrap;flex-flow: column;justify-content: center;margin: 0 !important;padding: 10px 0 0 10px;border-left: 1px solid #4a4a4a;}
+    .error-page>.headline{padding-right: 10px;}
+    .error-page>.error-content>h3{text-align: left !important;}
+    .error-page>.error-content>p{text-align: left !important;}
+    @media (max-width: 767.98px) {
+        .error-page>.headline{font-size: 2em !important;}
+        .error-page>.error-content>h3{font-size: 1em !important;}
+        .error-page>.error-content>p{font-size: 0.7em !important;}
+    }
+  </style>
   {% block style %}{% endblock style %}
 </head>
 <body>
@@ -40,15 +52,15 @@
             {% endfor %}
         {% endif %}
 
-        <div class="error-page" style="margin-top: -50px;">
+        <div class="error-page">
             <h2 class="headline text-warning">{% block code %}400{% endblock %}</h2>
 
-            <div class="error-content" style="height: 125px;display: flex;flex-flow: wrap;align-items: center;"> <!--justify-content:center;margin:0;-->
+            <div class="error-content">
                 <h3><i class="fas fa-exclamation-triangle text-warning flash" style="font-size: 0.66em;display: inline-block;transform: translate(0,-2px);"></i> {% block message %}Unable to handle{% endblock %}</h3>
 
                 {% block no_sub_msg %}
                 <p>
-                    Head back to <a style="color:goldenrod;text-decoration: underline;" href="{% url 'dashboard' %}">dashboard</a>.
+                    Head back to <a style="color:goldenrod;text-decoration: underline;" href="{% url 'dashboard' %}">Dashboard</a>
                 </p>
                 {% endblock %}
             </div>
@@ -69,5 +81,6 @@
     <script src="{% static 'plugins/bootstrap/js/bootstrap.bundle.min.js' %}"></script>
     <!-- AdminLTE App -->
     <script src="{% static 'dist/js/adminlte.js' %}"></script>
+    {% block script %}{% endblock %}
 </body>
 </html>

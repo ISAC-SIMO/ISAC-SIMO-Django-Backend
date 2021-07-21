@@ -4,6 +4,7 @@
 {% block dashboard_title1 %} {% trans "Image Share Request" %} {% endblock dashboard_title1 %}
 {% block dashboard_title2 %} {% trans "Crowdsource Image Share Request" %} {% endblock dashboard_title2 %}
 {% load static %}
+{% load honeypot %}
 
 {% block content %}
 
@@ -118,6 +119,7 @@
                     {% load crispy_forms_tags %}
                     <form action="{% url 'images_share' %}" method="POST" id="images_share_form" class="d-inline">
                         {% csrf_token %}
+                        {% render_honeypot_field %}
                         <input type="hidden" value="0" id="id_field" name="id"/>
                         {{ form|crispy }}
                         <div class="form-group">

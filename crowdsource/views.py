@@ -22,10 +22,12 @@ import uuid
 import json
 from django.utils import timezone
 from datetime import timedelta
+from honeypot.decorators import check_honeypot
 
 
 # View All Crowdsource Images + Update/Create
 
+@check_honeypot
 def crowdsource_images(request):
     dash = request.user and not request.user.is_anonymous
     if dash:
@@ -314,6 +316,7 @@ def prune_old_image_share():
         cache.set("prune_image_share", True, 86400) # Prune every 24 hours
 
 # Image Share Views
+@check_honeypot
 @login_required(login_url=login_url)
 def images_share(request):
     prune_old_image_share();

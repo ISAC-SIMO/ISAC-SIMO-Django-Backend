@@ -13,6 +13,7 @@
 {% endblock dashboard_title2 %}
 
 {% load static %}
+{% load honeypot %}
 
 {% block content %}
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">
@@ -20,6 +21,7 @@
   <div id="result-container">
   <form id="check-form" onsubmit="verify(event)" action="{% url 'images.test' %}" method="POST" class="form-group" enctype="multipart/form-data">
     {% csrf_token %}
+    {% render_honeypot_field %}
     <div class="row m-0">
         <div class="col-sm-12 col-md-6">
             <div class="card">

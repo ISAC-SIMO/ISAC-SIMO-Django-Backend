@@ -4,6 +4,7 @@
 {% block dashboard_title1 %} {% if own %}Your{% endif %} Contributions for {{object_type.name|title}} - {{project.project_name}} {% endblock dashboard_title1 %}
 {% block dashboard_title2 %} {% if own %}Your{% endif %} Contributions {% endblock dashboard_title2 %}
 {% load static %}
+{% load honeypot %}
 
 {% block content %}
     <style>
@@ -111,6 +112,7 @@
                 <div class="card-body pt-0">
                     <form action="{% url 'contribution' project.id object_type.id %}" method="POST" id="file_upload_create_form" class="d-inline" enctype="multipart/form-data">
                         {% csrf_token %}
+                        {% render_honeypot_field %}
                         <input type="hidden" value="0" id="id_field" name="id"/>
                         <div class="form-group mb-0">
                             <label for="title" class="col-12 col-form-label">Title*</label>

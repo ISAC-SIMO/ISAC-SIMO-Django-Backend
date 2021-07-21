@@ -4,6 +4,7 @@
 {% block dashboard_title1 %} {% trans "Crowdsource Image Contributions" %} {% endblock dashboard_title1 %}
 {% block dashboard_title2 %} {% trans "Crowdsource Image" %} {% endblock dashboard_title2 %}
 {% load static %}
+{% load honeypot %}
 
 {% block content %}
     <style>
@@ -131,6 +132,7 @@
                     {% load crispy_forms_tags %}
                     <form action="{% url 'crowdsource' %}" method="POST" id="file_upload_create_form" class="d-inline" enctype="multipart/form-data">
                         {% csrf_token %}
+                        {% render_honeypot_field %}
                         <input type="hidden" value="0" id="id_field" name="id"/>
                         {{ form|crispy }}
                         <p style="display:none;font-size:0.7em;" id="file_path"></p>

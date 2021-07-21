@@ -28,6 +28,7 @@ from .forms import (AdminEditForm, AdminRegisterForm, LoginForm, ProfileForm,
                     RegisterForm)
 from .models import User
 from rest_framework_simplejwt.tokens import RefreshToken
+from honeypot.decorators import check_honeypot
 
 
 def reload_classifier_list():
@@ -125,6 +126,7 @@ def generate_token(request):
     
     return JsonResponse({'message':'Invalid Request Sent'}, status=404)
 
+@check_honeypot
 @user_passes_test(is_guest, login_url=dashboard_url)
 def login_user(request):
     if request.method == "POST":
@@ -182,6 +184,7 @@ def login_user(request):
                 messages.error(request, 'Unauthorized Access was denied.')
             return redirect('dashboard')
 
+@check_honeypot
 @user_passes_test(is_guest, login_url=dashboard_url)
 def register(request):
     registerForm = RegisterForm(request.POST or None, request.FILES or None)
