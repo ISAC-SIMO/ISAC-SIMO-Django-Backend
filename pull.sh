@@ -11,8 +11,8 @@ pipenv run python manage.py migrate
 echo '==MIGRATE AND PULL DONE=='
 
 echo '==RESTARTING=='
-systemctl restart nginx
 systemctl restart gunicorn
+systemctl reload nginx
 echo '==DONE=='
 
 # Notes Theano:

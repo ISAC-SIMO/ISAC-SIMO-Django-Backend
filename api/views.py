@@ -1445,7 +1445,7 @@ def terminal(request):
         # Special Commands
         original_cmd = cmd
         if cmd == 'server.log':
-            cmd = 'tail -n 250 /var/log/messages | grep gunicorn'
+            cmd = "tail -n 250 /var/log/messages | grep 'gunicorn\|python3'"
 
         res = ''
         err = ''
