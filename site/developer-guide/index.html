@@ -13,8 +13,8 @@
       
         <link rel="canonical" href="https://www.isac-simo.net/docs/developer-guide/">
       
-      <link rel="shortcut icon" href="../favicon.png">
-      <meta name="generator" content="mkdocs-1.1.2, mkdocs-material-6.2.8">
+      <link rel="icon" href="../favicon.png">
+      <meta name="generator" content="mkdocs-1.2.2, mkdocs-material-7.2.0">
     
     
       
@@ -22,10 +22,10 @@
       
     
     
-      <link rel="stylesheet" href="../assets/stylesheets/main.cb6bc1d0.min.css">
+      <link rel="stylesheet" href="../assets/stylesheets/main.fe914879.min.css">
       
         
-        <link rel="stylesheet" href="../assets/stylesheets/palette.39b8e14a.min.css">
+        <link rel="stylesheet" href="../assets/stylesheets/palette.ba0d045b.min.css">
         
           
           
@@ -39,7 +39,7 @@
         
         <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
         <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,400i,700%7CRoboto+Mono&display=fallback">
-        <style>body,input{font-family:"Roboto",-apple-system,BlinkMacSystemFont,Helvetica,Arial,sans-serif}code,kbd,pre{font-family:"Roboto Mono",SFMono-Regular,Consolas,Menlo,monospace}</style>
+        <style>:root{--md-text-font-family:"Roboto";--md-code-font-family:"Roboto Mono"}</style>
       
     
     
@@ -48,6 +48,8 @@
     
     
       
+
+
     
     
   </head>
@@ -59,8 +61,9 @@
     
     
     <body dir="ltr" data-md-color-scheme="" data-md-color-primary="white" data-md-color-accent="">
-      
   
+    
+    <script>function __prefix(e){return new URL("..",location).pathname+"."+e}function __get(e,t=localStorage){return JSON.parse(t.getItem(__prefix(e)))}</script>
     
     <input class="md-toggle" data-md-toggle="drawer" type="checkbox" id="__drawer" autocomplete="off">
     <input class="md-toggle" data-md-toggle="search" type="checkbox" id="__search" autocomplete="off">
@@ -77,26 +80,24 @@
       
     </div>
     
-      
-
-<header class="md-header" data-md-component="header">
-  <nav class="md-header-nav md-grid" aria-label="Header">
-    <a href="https://www.isac-simo.net/docs/" title="ISAC-SIMO" class="md-header-nav__button md-logo" aria-label="ISAC-SIMO">
+      <header class="md-header" data-md-component="header">
+  <nav class="md-header__inner md-grid" aria-label="Header">
+    <a href=".." title="ISAC-SIMO" class="md-header__button md-logo" aria-label="ISAC-SIMO" data-md-component="logo">
       
   <img src="../logo.png" alt="logo">
 
     </a>
-    <label class="md-header-nav__button md-icon" for="__drawer">
+    <label class="md-header__button md-icon" for="__drawer">
       <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M3 6h18v2H3V6m0 5h18v2H3v-2m0 5h18v2H3v-2z"/></svg>
     </label>
-    <div class="md-header-nav__title" data-md-component="header-title">
-      <div class="md-header-nav__ellipsis">
-        <div class="md-header-nav__topic">
+    <div class="md-header__title" data-md-component="header-title">
+      <div class="md-header__ellipsis">
+        <div class="md-header__topic">
           <span class="md-ellipsis">
             ISAC-SIMO
           </span>
         </div>
-        <div class="md-header-nav__topic">
+        <div class="md-header__topic" data-md-component="header-topic">
           <span class="md-ellipsis">
             
               Developer Guide
@@ -106,22 +107,28 @@
       </div>
     </div>
     
-      <label class="md-header-nav__button md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+    
+    
+      <label class="md-header__button md-icon" for="__search">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
       </label>
       
 <div class="md-search" data-md-component="search" role="dialog">
   <label class="md-search__overlay" for="__search"></label>
   <div class="md-search__inner" role="search">
     <form class="md-search__form" name="search">
-      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" data-md-state="active" required>
+      <input type="text" class="md-search__input" name="query" aria-label="Search" placeholder="Search" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" data-md-component="search-query" required>
       <label class="md-search__icon md-icon" for="__search">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0116 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 019.5 16 6.5 6.5 0 013 9.5 6.5 6.5 0 019.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M9.5 3A6.5 6.5 0 0 1 16 9.5c0 1.61-.59 3.09-1.56 4.23l.27.27h.79l5 5-1.5 1.5-5-5v-.79l-.27-.27A6.516 6.516 0 0 1 9.5 16 6.5 6.5 0 0 1 3 9.5 6.5 6.5 0 0 1 9.5 3m0 2C7 5 5 7 5 9.5S7 14 9.5 14 14 12 14 9.5 12 5 9.5 5z"/></svg>
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M20 11v2H8l5.5 5.5-1.42 1.42L4.16 12l7.92-7.92L13.5 5.5 8 11h12z"/></svg>
       </label>
-      <button type="reset" class="md-search__icon md-icon" aria-label="Clear" data-md-component="search-reset" tabindex="-1">
-        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
-      </button>
+      <nav class="md-search__options" aria-label="Search">
+        
+        <button type="reset" class="md-search__icon md-icon" aria-label="Clear" tabindex="-1">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><path d="M19 6.41 17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>
+        </button>
+      </nav>
+      
     </form>
     <div class="md-search__output">
       <div class="md-search__scrollwrap" data-md-scrollfix>
@@ -137,12 +144,12 @@
 </div>
     
     
-      <div class="md-header-nav__source">
+      <div class="md-header__source">
         
-<a href="https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend/" title="Go to repository" class="md-source">
+<a href="https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend/" title="Go to repository" class="md-source" data-md-component="source">
   <div class="md-source__icon md-icon">
     
-    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05L244 40.45a28.87 28.87 0 00-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 01-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 000 40.81l195.61 195.6a28.86 28.86 0 0040.8 0l194.69-194.69a28.86 28.86 0 000-40.81z"/></svg>
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path d="M439.55 236.05 244 40.45a28.87 28.87 0 0 0-40.81 0l-40.66 40.63 51.52 51.52c27.06-9.14 52.68 16.77 43.39 43.68l49.66 49.66c34.23-11.8 61.18 31 35.47 56.69-26.49 26.49-70.21-2.87-56-37.34L240.22 199v121.85c25.3 12.54 22.26 41.85 9.08 55a34.34 34.34 0 0 1-48.55 0c-17.57-17.6-11.07-46.91 11.25-56v-123c-20.8-8.51-24.6-30.74-18.64-45L142.57 101 8.45 235.14a28.86 28.86 0 0 0 0 40.81l195.61 195.6a28.86 28.86 0 0 0 40.8 0l194.69-194.69a28.86 28.86 0 0 0 0-40.81z"/></svg>
   </div>
   <div class="md-source__repository">
     GitHub
@@ -288,11 +295,12 @@
   
   
   
+  
     <label class="md-nav__title" for="__toc">
       <span class="md-nav__icon md-icon"></span>
       Table of contents
     </label>
-    <ul class="md-nav__list" data-md-scrollfix>
+    <ul class="md-nav__list" data-md-component="toc" data-md-scrollfix>
       
         <li class="md-nav__item">
   <a href="#introduction" class="md-nav__link">
@@ -417,7 +425,7 @@
     </div>
   </div>
 
-          <div class="md-content">
+          <div class="md-content" data-md-component="content">
             <article class="md-content__inner md-typeset">
               
                 
@@ -434,7 +442,7 @@ ISAC-SIMO is a system to validate that the intervention work done for homeowners
 <h3 id="before-you-start"><a class="toclink" href="#before-you-start">BEFORE YOU START</a></h3>
 <p>Before starting the project, you need to set these requirements.</p>
 <ul>
-<li>Python &gt; 3.8.x</li>
+<li>Python = 3.9</li>
 <li>PostgreSQL &gt; 13.x</li>
 </ul>
 <h2 id="installation"><a class="toclink" href="#installation">Installation</a></h2>
@@ -444,20 +452,24 @@ First Clone this Project in a suitable directory &amp; Change to project directo
 </code></pre>
 <pre><code class="language-bash">cd ISAC-SIMO-Django-Backend
 </code></pre>
-<p>Although <strong>not required</strong>, for the Development Environment in Linux / MacOS, it is recommended to set up a virtual environment. <strong>For Windows users, we suggest working without virtual env</strong>.</p>
-<pre><code class="language-bash">virtualenv -p python env
+<p>We use <strong>Pipenv</strong> for managing the dependencies. These are the steps to install &amp; setup <code>pipenv</code>. </p>
+<pre><code class="language-bash">pip install --upgrade pip
+pip install pipenv
+pipenv install
+pipenv run install-client
 </code></pre>
-<pre><code class="language-bash">source env/bin/activate
+<p>It will setup a virtual environment, installs correct python version using <code>pyenv</code>, installs all required packages and libraries. It might take some time on first setup.</p>
+<p>For CentOS and other cloud servers that only support <strong>psycopg2-binary</strong>, use this instead:</p>
+<pre><code class="language-sh">pipenv run install-server
 </code></pre>
-<p>Now, inside the Project Root (either virtualenv or not) install all required packages using:</p>
-<pre><code class="language-bash">pip install -r requirements.txt
+<p>Further more packages might need to be installed so that your custom python scripts pre/post processors and offline model work properly. You can install pip packages using:</p>
+<pre><code class="language-sh">pipenv run pip install &lt;package_name&gt;
 </code></pre>
-<p>It will install all required packages and libraries. It might take some time.
-(You might have noticed Pipfile used by pipenv, ignore that for the time being.)</p>
-<p>There are furthermore packages that are required to be installed. The versions of these packages must be compatible with your systems Python version. So, you might need to verify and install them manually.
-<strong>Example</strong>: tensorflow might not have released their package for the Python version or the OS you are using, so you might need to verify this and install appropriate versions or update the Python itself.</p>
-<p>These are the Packages, that you need to verify: <a href="https://pypi.org/project/psycopg2/" target="_blank">psycopg2</a>, <a href="https://www.tensorflow.org/" target="_blank">tensorflow</a></p>
-<p>You can use <code>python manage.py</code> check to verify if they run successfully or not.</p>
+<p>To enter into virtual environment shell <code>pipenv</code> provides this command:</p>
+<pre><code class="language-sh">pipenv shell
+</code></pre>
+<p>Inside the shell you can run <code>pip</code>, <code>python</code> or any other command directly.</p>
+<p>You can use <code>pipenv run python manage.py check</code> to verify if the app runs successfully or not.</p>
 <h2 id="configuration"><a class="toclink" href="#configuration">Configuration</a></h2>
 <p>You will need to set up a <code>.env</code> file with required configurations before starting the application. First, make a copy of <code>.env.example</code></p>
 <pre><code class="language-bash">cp .env.example .env
@@ -473,6 +485,7 @@ First Clone this Project in a suitable directory &amp; Change to project directo
 <li>IBM_BUCKET = COS Bucket Name</li>
 <li>IBM_BUCKET_TOKEN = COS Key/Token</li>
 <li>IBM_BUCKET_CRN = COS Bucket CRN</li>
+<li>IBM_BUCKET_PUBLIC_ENDPOINT = COS Bucket Public Endpoint (Bucket access policies should have "Public Access" enabled as an "Object Reader")</li>
 <li>PROJECT_FOLDER = Specify the Relative Path to Project Folder (e.g. /home/username/isac). Do not end the path with closing front or back slash ('/' or '\')</li>
 <li>MAINTENANCE = Enable or Disable Maintenance Mode</li>
 <li>PASSWORD = A Secret Password used for Webhook Requests</li>
@@ -482,23 +495,24 @@ First Clone this Project in a suitable directory &amp; Change to project directo
 </ul>
 <h2 id="migrating-running"><a class="toclink" href="#migrating-running">Migrating &amp; Running</a></h2>
 <p>Now, if the environment is set up properly, you can migrate the tables to your database.</p>
-<pre><code class="language-bash">python manage.py migrate
+<p><strong>Note:</strong> that if you are inside <code>pipenv shell</code> you do not need to specify <code>pipenv run</code> everytime.</p>
+<pre><code class="language-bash">pipenv run python manage.py migrate
 </code></pre>
 <p>And, Create a Super-User to get started.</p>
-<pre><code class="language-bash">python manage.py createsuperuser
+<pre><code class="language-bash">pipenv run python manage.py createsuperuser
 </code></pre>
 <p>Now, start the Application with:</p>
-<pre><code class="language-bash">python manage.py runserver
+<pre><code class="language-bash">pipenv run python manage.py runserver
 </code></pre>
 <p>And visit <a href="http://127.0.0.1:8000/" target="_blank">http://127.0.0.1:8000/</a> in any modern browsers to open the application.</p>
 <p><strong>Note</strong>: <strong>/static/</strong> and <strong>/media/</strong> are the static files and media files location respectively.</p>
 <h2 id="write-running-unit-test-case"><a class="toclink" href="#write-running-unit-test-case">Write &amp; Running Unit Test Case</a></h2>
 <p>If the check &amp; migration ran properly.</p>
 <p>Run Test Case with:</p>
-<pre><code class="language-sh">python manage.py test --debug-mode --debug-sql --parallel
+<pre><code class="language-sh">pipenv run python manage.py test --debug-mode --debug-sql --parallel
 </code></pre>
 <p>OR simply run without any flags:</p>
-<pre><code class="language-sh">python manage.py test
+<pre><code class="language-sh">pipenv run python manage.py test
 </code></pre>
 <p><strong>Learn how to write Django Test Cases in the <a href="https://docs.djangoproject.com/en/3.0/topics/testing/overview/" target="_blank">Django Official Documentation</a>.</strong></p>
 <ul>
@@ -636,6 +650,7 @@ As most of the VPC will be a fresh installation, you might need to install <code
             </article>
           </div>
         </div>
+        
       </main>
       
 
@@ -699,19 +714,13 @@ As most of the VPC will be a fresh installation, you might need to install <code
 </style>
 
     </div>
+    <div class="md-dialog" data-md-component="dialog">
+      <div class="md-dialog__inner md-typeset"></div>
+    </div>
+    <script id="__config" type="application/json">{"base": "..", "features": ["navigation.instant", "navigation.tabs"], "translations": {"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing", "select.version.title": "Select version"}, "search": "../assets/javascripts/workers/search.53c85856.min.js", "version": null}</script>
     
-      <script src="../assets/javascripts/vendor.18f0862e.min.js"></script>
-      <script src="../assets/javascripts/bundle.994580cf.min.js"></script><script id="__lang" type="application/json">{"clipboard.copy": "Copy to clipboard", "clipboard.copied": "Copied to clipboard", "search.config.lang": "en", "search.config.pipeline": "trimmer, stopWordFilter", "search.config.separator": "[\\s\\-]+", "search.placeholder": "Search", "search.result.placeholder": "Type to start searching", "search.result.none": "No matching documents", "search.result.one": "1 matching document", "search.result.other": "# matching documents", "search.result.more.one": "1 more on this page", "search.result.more.other": "# more on this page", "search.result.term.missing": "Missing"}</script>
-      
-      <script>
-        app = initialize({
-          base: "..",
-          features: ['navigation.instant', 'navigation.tabs'],
-          search: Object.assign({
-            worker: "../assets/javascripts/worker/search.9c0e82ba.min.js"
-          }, typeof search !== "undefined" && search)
-        })
-      </script>
+    
+      <script src="../assets/javascripts/bundle.716f8af4.min.js"></script>
       
     
   </body>

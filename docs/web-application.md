@@ -231,6 +231,35 @@ The Crowdsource Feature allows anyone to upload multiple images of different Obj
 <br>
 Images can be uploaded from the ISAC-SIMO Mobile Application. Similarly, any application can implement the API to integrate crowdsource functionality.
 
+### <span style="color:green">Image Share</span>
+
+**Permissions**: Admin (All), Project Admin (Own), User (Own)
+<br>
+The Image Share/Request Feature allows anyone to request image access of certain object type to Admin. The Admin can either accept or decline the image request and provide remarks if required. When the request is accepted, users who requested it are then able to download a ``JSON`` file which contains list (array) of image urls. These image url are public and can be used to download the images directly or through python scripts or notebooks.
+<br>
+![](./assets/image-share-form.png)
+<br>
+*Requesting Image of chosen object type*.
+<br>
+![](./assets/image-share-list.png)
+<br>
+*View / Manage Image Requests*.
+<br>
+Image Share when accepted allows users to download the ``JSON`` file for 30 days, then it is expired. After 60 days, the old expired image requests are purged.
+
+The Downloaded JSON file sample is as below:
+```json
+[
+  {
+    "key": "<unique_identifer>",
+    "url": "https://isac-simo-storage.s3.us-east.cloud-object-storage.appdomain.cloud/<folder>/<image_name>"
+  },
+  ...
+  ...
+]
+```
+
+From this page, users can also open Google Colab Notebook and create a clone of sample notebook created by ISAC-SIMO.
 
 ### <span style="color:green">Public Projects</span>
 **Permissions**: Admin (All), Project Admin (Own), User (View/Join/Contribute)

@@ -6,7 +6,7 @@ ISAC-SIMO is a system to validate that the intervention work done for homeowners
 ### BEFORE YOU START
 Before starting the project, you need to set these requirements.
 
- - Python > 3.8.x
+ - Python = 3.9
  - PostgreSQL > 13.x
  
 ## Installation
@@ -19,28 +19,37 @@ git clone https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend.git
 ```bash
 cd ISAC-SIMO-Django-Backend
 ```
-Although **not required**, for the Development Environment in Linux / MacOS, it is recommended to set up a virtual environment. **For Windows users, we suggest working without virtual env**.
+We use **Pipenv** for managing the dependencies. These are the steps to install & setup ``pipenv``. 
 
 ```bash
-virtualenv -p python env
+pip install --upgrade pip
+pip install pipenv
+pipenv install
+pipenv run install-client
 ```
-```bash
-source env/bin/activate
+
+It will setup a virtual environment, installs correct python version using ``pyenv``, installs all required packages and libraries. It might take some time on first setup.
+
+For CentOS and other cloud servers that only support **psycopg2-binary**, use this instead:
+```sh
+pipenv run install-server
 ```
-Now, inside the Project Root (either virtualenv or not) install all required packages using:
-```bash
-pip install -r requirements.txt
+
+Further more packages might need to be installed so that your custom python scripts pre/post processors and offline model work properly. You can install pip packages using:
+```sh
+pipenv run pip install <package_name>
 ```
-It will install all required packages and libraries. It might take some time.
-(You might have noticed Pipfile used by pipenv, ignore that for the time being.)
 
-There are furthermore packages that are required to be installed. The versions of these packages must be compatible with your systems Python version. So, you might need to verify and install them manually.
-**Example**: tensorflow might not have released their package for the Python version or the OS you are using, so you might need to verify this and install appropriate versions or update the Python itself.
+To enter into virtual environment shell ``pipenv`` provides this command:
+```sh
+pipenv shell
+```
 
-These are the Packages, that you need to verify: [psycopg2](https://pypi.org/project/psycopg2/){target="_blank"}, [tensorflow](https://www.tensorflow.org/){target="_blank"}
+Inside the shell you can run ``pip``, ``python`` or any other command directly.
 
-You can use `python manage.py` check to verify if they run successfully or not.
-##Configuration
+You can use ``pipenv run python manage.py check`` to verify if the app runs successfully or not.
+
+## Configuration
 You will need to set up a `.env` file with required configurations before starting the application. First, make a copy of `.env.example`
 ```bash
 cp .env.example .env
@@ -57,6 +66,7 @@ Modify the `.env` file as required
 - IBM_BUCKET = COS Bucket Name
 - IBM_BUCKET_TOKEN = COS Key/Token
 - IBM_BUCKET_CRN = COS Bucket CRN
+- IBM_BUCKET_PUBLIC_ENDPOINT = COS Bucket Public Endpoint (Bucket access policies should have "Public Access" enabled as an "Object Reader")
 - PROJECT_FOLDER = Specify the Relative Path to Project Folder (e.g. /home/username/isac). Do not end the path with closing front or back slash ('/' or '\')
 - MAINTENANCE = Enable or Disable Maintenance Mode
 - PASSWORD = A Secret Password used for Webhook Requests
@@ -64,18 +74,20 @@ Modify the `.env` file as required
 - GOOGLE_MAP_API = API Key for Google Map Web
 - CACHE_LOCATION = Relative Path to Store Cache, And also used to Sync Data between Threads (e.g. /var/tmp/django_cache Make sure the Path exists)
 
-##Migrating & Running
+## Migrating & Running
 Now, if the environment is set up properly, you can migrate the tables to your database.
+
+**Note:** that if you are inside ``pipenv shell`` you do not need to specify ``pipenv run`` everytime.
 ```bash
-python manage.py migrate
+pipenv run python manage.py migrate
 ```
 And, Create a Super-User to get started.
 ```bash
-python manage.py createsuperuser
+pipenv run python manage.py createsuperuser
 ```
 Now, start the Application with:
 ```bash
-python manage.py runserver
+pipenv run python manage.py runserver
 ```
 And visit [http://127.0.0.1:8000/](http://127.0.0.1:8000/){target="_blank"} in any modern browsers to open the application.
 
@@ -86,11 +98,11 @@ If the check & migration ran properly.
 
 Run Test Case with:
 ```sh
-python manage.py test --debug-mode --debug-sql --parallel
+pipenv run python manage.py test --debug-mode --debug-sql --parallel
 ```
 OR simply run without any flags:
 ```sh
-python manage.py test
+pipenv run python manage.py test
 ```
 
 **Learn how to write Django Test Cases in the [Django Official Documentation](https://docs.djangoproject.com/en/3.0/topics/testing/overview/){target="_blank"}.**
