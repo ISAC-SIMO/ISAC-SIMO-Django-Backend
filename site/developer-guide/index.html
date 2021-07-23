@@ -452,10 +452,12 @@ First Clone this Project in a suitable directory &amp; Change to project directo
 </code></pre>
 <pre><code class="language-bash">cd ISAC-SIMO-Django-Backend
 </code></pre>
+<p>Make sure you have installed <strong>Python 3.9.0</strong></p>
+<p>To manage multiple Python installation use <a href="https://github.com/pyenv/pyenv-installer" target="_blank"><strong>pyenv</strong></a> or <a href="https://github.com/pyenv-win/pyenv-win" target="_blank"><strong>pyenv-win</strong></a> (for windows). Then, <code>pipenv</code> should be able to automatically install required python.</p>
 <p>We use <strong>Pipenv</strong> for managing the dependencies. These are the steps to install &amp; setup <code>pipenv</code>. </p>
 <pre><code class="language-bash">pip install --upgrade pip
 pip install pipenv
-pipenv install
+pipenv install --python 3.9
 pipenv run install-client
 </code></pre>
 <p>It will setup a virtual environment, installs correct python version using <code>pyenv</code>, installs all required packages and libraries. It might take some time on first setup.</p>

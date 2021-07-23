@@ -19,12 +19,17 @@ git clone https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend.git
 ```bash
 cd ISAC-SIMO-Django-Backend
 ```
+
+Make sure you have installed **Python 3.9.0**
+
+To manage multiple Python installation use [**pyenv**](https://github.com/pyenv/pyenv-installer){target="_blank"} or [**pyenv-win**](https://github.com/pyenv-win/pyenv-win){target="_blank"} (for windows). Then, ``pipenv`` should be able to automatically install required python.
+
 We use **Pipenv** for managing the dependencies. These are the steps to install & setup ``pipenv``. 
 
 ```bash
 pip install --upgrade pip
 pip install pipenv
-pipenv install
+pipenv install --python 3.9
 pipenv run install-client
 ```
 

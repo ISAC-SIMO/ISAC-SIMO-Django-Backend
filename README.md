@@ -11,10 +11,13 @@ Intelligent Supervision Assistant for Construction - Sistema Inteligente de Moni
 ### Django Backend Repository
 ---
 ### Bash Script:
+> Make sure you have installed **Python 3.9.0**
+
+> To manage multiple Python installation use [**pyenv**](https://github.com/pyenv/pyenv-installer) or [**pyenv-win**](https://github.com/pyenv-win/pyenv-win) (for windows). Then, ``pipenv`` should be able to automatically install required python.
 ```sh
 pip install --upgrade pip
 pip install pipenv
-pipenv install
+pipenv install --python 3.9
 pipenv run install-client
 ```
 
