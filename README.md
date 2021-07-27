@@ -72,7 +72,7 @@ Releases and Tags can then be created accordingly.
     <summary>Click to view</summary>
 
 ```sh
-alias toenv="cd /home/{{username}}/isac && source env/bin/activate"
+alias toenv="cd /home/{{username}}/isac && pipenv shell"
 
 alias server.log="cd /var/log && tail -f {{username}}.pythonanywhere.com.server.log"
 alias error.log="cd /var/log && tail -f {{username}}.pythonanywhere.com.error.log"

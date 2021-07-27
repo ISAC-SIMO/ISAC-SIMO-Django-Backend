@@ -17,7 +17,9 @@ jobs:
       - run: sudo chown -R circleci:circleci /usr/local/bin
       - run: sudo chown -R circleci:circleci /usr/local/lib/python3.9/site-packages
       - restore_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          keys: 
+            - dep1-{{ checksum "Pipfile.lock" }}
+            - dep1-
 
       - run:
           name: install dockerize 
@@ -38,6 +40,7 @@ jobs:
           environment:
             # Note: Make sure to also set DATABASE_URL in circleci env variables
             DATABASE_URL: postgresql://root@localhost/isac?sslmode=disable
+            PIPENV_VENV_IN_PROJECT: 1
 
       - run:
           name: Install & setup pipenv packages
@@ -46,7 +49,7 @@ jobs:
             pipenv run install-client
 
       - save_cache:
-          key: deps1-{{ .Branch }}-{{ checksum "Pipfile.lock" }}
+          key: dep1-{{ checksum "Pipfile.lock" }}
           paths:
             - ".venv"
             - "/usr/local/bin"

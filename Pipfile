@@ -34,6 +34,10 @@ mkdocs-material = "*"
 geopy = "*"
 filetype = "*"
 requests-toolbelt = "*"
+pandas = "*"
+matplotlib = "*"
+scipy = "*"
+scikit-image = "*"
 
 [dev-packages]
 

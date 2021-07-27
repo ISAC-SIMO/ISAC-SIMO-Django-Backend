@@ -1239,6 +1239,7 @@ def offlineModelDependencies(request, id):
     except(OfflineModel.DoesNotExist):
         return JsonResponse({'message':'Offline Model Not Found'}, status=404)
     except Exception as e:
+        print(e)
         return JsonResponse({'message':'Failed to Check Dependencies'}, status=500)
 
 ########################
@@ -1453,11 +1454,11 @@ def terminal(request):
             try:
                 if not settings.PRODUCTION:
                     output = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True)
-                else: # GO INTO THE vitual env and call cmd
+                else: # Pipenv run a command
                     project_root = os.environ.get('PROJECT_FOLDER','/')
-                    output = subprocess.run(('cd ' + project_root + ' && . env/bin/activate && '+cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True, cwd='/')
+                    output = subprocess.run(('cd ' + project_root + ' && pipenv run '+cmd), stdout=subprocess.PIPE, stderr=subprocess.PIPE, universal_newlines=True, shell=True, cwd='/')
                 
-                res = re.sub("(.+)( [^ ]+ gunicorn)", r"<b>\1</b>", str(output.stdout))
+                res = re.sub("(.+)( [^ ]+ gunicorn|python.+?:)( - - )?(.+)", r"<b>\4</b>", str(output.stdout))
                 err = str(output.stderr)
             except Exception as e:
                 print('-FAILURE RUNNING TERMINAL COMMAND-')
