@@ -13,7 +13,7 @@ Including another URLconf
     1. Import the include() function: from django.urls import include, path
     2. Add a URL to urlpatterns:  path('blog/', include('blog.urls'))
 """
-from crowdsource.views import CrowdsourceView
+from crowdsource.views import CrowdsourceView, ImageShareView
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
@@ -40,6 +40,7 @@ router.register('classifier', ClassifierView)
 router.register('offline_model', OfflineModelView)
 router.register('file', FileUploadView)
 router.register('crowdsource', CrowdsourceView)
+router.register('images-share', ImageShareView)
 router.register(r'object/(?P<object_id>.+)/contribution', ContributionView)
 
 urlpatterns = [

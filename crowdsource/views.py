@@ -1,5 +1,6 @@
 from django.core.files.uploadedfile import InMemoryUploadedFile
-from django.http.response import HttpResponseRedirect
+from django.http.response import HttpResponseRedirect, JsonResponse
+from rest_framework.decorators import action
 from api.models import ObjectType
 from django.core.cache import cache
 from crowdsource.forms import CrowdsourceForm, ImageShareForm
@@ -16,7 +17,7 @@ from django.core.paginator import Paginator
 from django.db.models import Q
 from rest_framework import generics, mixins, viewsets
 from rest_framework.permissions import AllowAny, IsAdminUser, IsAuthenticated
-from .serializers import CrowdsourceSerializer
+from .serializers import CrowdsourceSerializer, ImageShareSerializer
 from rest_framework.response import Response
 import uuid
 import json
@@ -316,7 +317,6 @@ def prune_old_image_share():
         cache.set("prune_image_share", True, 86400) # Prune every 24 hours
 
 # Image Share Views
-@check_honeypot
 @login_required(login_url=login_url)
 def images_share(request):
     prune_old_image_share();
@@ -398,3 +398,95 @@ def images_share_delete(request, id):
 
     messages.error(request, "Invalid Request")
     return redirect("images_share")
+
+# Image Share API
+class ImageShareView(viewsets.ModelViewSet):
+    queryset = ImageShare.objects.all()
+    serializer_class = ImageShareSerializer
+    permission_classes = [IsAuthenticated]
+
+    def __init__(self, **kwargs):
+        self.response_format = ResponseInfo().response
+        super(ImageShareView, self).__init__(**kwargs)
+
+    def get_queryset(self):
+        if self.action == 'list':
+            page = abs(int(self.request.GET.get('page', 1)))
+            offset = 100 * (page - 1)
+            limit = 100
+            offsetPlusLimit = offset + limit
+            query = self.request.GET.get('q', '')
+            if self.request.user.is_authenticated:
+                # ALL FOR ADMIN
+                if self.request.user.is_admin:
+                    ids = ImageShare.objects.order_by(
+                            '-created_at').filter(Q(object_type__icontains=query) |
+                            Q(remarks__icontains=query) |
+                            Q(status__icontains=query)).distinct().values_list(
+                            'pk', flat=True)[offset:offsetPlusLimit]
+
+                    return ImageShare.objects.filter(pk__in=list(ids)).order_by('-created_at')
+                # OWN FOR OTHER
+                else:
+                    ids = ImageShare.objects.filter(
+                            user=self.request.user).order_by('-created_at').filter(Q(object_type__icontains=query) |
+                            Q(remarks__icontains=query) |
+                            Q(status__icontains=query)).distinct().values_list('pk', flat=True)[offset:offsetPlusLimit]
+                            
+                    return ImageShare.objects.filter(pk__in=list(ids)).order_by('-created_at')
+            else:
+                return []
+        else:
+            if self.request.user.is_authenticated:
+                # ALL FOR ADMIN
+                if self.request.user.is_admin:
+                    return ImageShare.objects.order_by('-created_at')
+                # OWN FOR OTHER
+                else:
+                    return ImageShare.objects.filter(user=self.request.user).order_by('-created_at')
+            else:
+                return []
+
+    def list(self, request, *args, **kwargs):
+        response_data = super(ImageShareView, self).list(request, *args, **kwargs)
+        self.response_format["data"] = response_data.data
+
+        page = str(abs(int(self.request.GET.get('page', 1))))
+        self.response_format["page"] = page
+
+        OBJECT_TYPE = cache.get('all_object_type_choices_json', [])
+        if not OBJECT_TYPE:
+            OBJECT_TYPE = [
+                {"value": "other", "title": "Other"}
+            ]
+
+            all_object_types = ObjectType.objects.order_by('name').values_list('name', flat=True).distinct()
+            for o in all_object_types:
+                OBJECT_TYPE.append({"value": o, "title": o.title()})
+            cache.set('all_object_type_choices_json', OBJECT_TYPE, 3600)
+        self.response_format["object_types"] = OBJECT_TYPE
+
+        return Response(self.response_format)
+    
+    @action(detail=True, methods=['POST'])
+    def download(self, request, pk=None, *args, **kwargs):
+        if request.user.is_admin:
+            image_share = ImageShare.objects.filter(id=pk).get()
+        else:
+            image_share = ImageShare.objects.filter(user=request.user).filter(id=pk).get()
+        
+        if image_share and image_share.object_type:
+            if image_share.status == "accepted": # If request was accepted
+                if ( (timezone.now() - image_share.created_at).days < 30 ): # If created_at is not older then 30 days. Allow to download.
+                    images = get_object_list(image_share.object_type) # Download image of the chosen object type
+                    if images:
+                        dump = json.dumps(images)
+                        return HttpResponse(dump, content_type='application/json')
+                    else:
+                        return JsonResponse({'message': 'Unable to Download Image List at the moment. Might be empty.'}, status=404)
+                else:
+                    return JsonResponse({'message': 'Image Share Request has expired (older then 30 days). Please send another request.'}, status=404)
+            else:
+                return JsonResponse({'message': 'Image Share Request has not been accepted.'}, status=404)
+        
+        return JsonResponse({'message': 'Invalid Request'}, status=404)

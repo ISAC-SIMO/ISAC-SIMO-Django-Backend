@@ -1,7 +1,7 @@
 from crowdsource.helpers import move_object, upload_object
 from rest_framework import serializers
 from api.serializers import UserMinimalSerializer
-from .models import Crowdsource
+from .models import Crowdsource, ImageShare
 import uuid
 
 class CrowdsourceSerializer(serializers.ModelSerializer):
@@ -46,4 +46,36 @@ class CrowdsourceSerializer(serializers.ModelSerializer):
 
         if old_object_key != instance.bucket_key():
             move_object(instance.bucket_key(), old_object_key)
+        return instance
+
+class ImageShareSerializer(serializers.ModelSerializer):
+    user = UserMinimalSerializer(many=False, read_only=True)
+    
+    class Meta:
+        model = ImageShare
+        fields = ('id','user','object_type','status','remarks','created_at','updated_at')
+        read_only_fields = ('user','created_at', 'updated_at')
+
+    def create(self, validated_data):
+        request = self.context.get("request")
+        user = request.user
+        status = "pending"
+        if user.is_admin and validated_data.get('status', None) and validated_data.get('status') in ['pending','accepted','rejected']:
+            status = validated_data.get('status')
+
+        image_share = ImageShare.objects.create(object_type=validated_data.get('object_type'),
+                                    remarks=validated_data.get('remarks'),
+                                    user=user,
+                                    status=status)
+        return image_share
+
+    def update(self, instance, validated_data):
+        request = self.context.get("request")
+        instance.object_type = validated_data.get('object_type', instance.object_type)
+        instance.remarks = validated_data.get('remarks', instance.remarks)
+
+        if request.user.is_admin and validated_data.get('status', None) and validated_data.get('status') in ['pending','accepted','rejected']:
+            instance.status = validated_data.get('status')
+
+        instance.save()
         return instance
