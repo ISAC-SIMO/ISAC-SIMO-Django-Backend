@@ -55,3 +55,7 @@ class TestMainAccountUrl(TestCase):
     def test_dashboard_page_resloved(self):
         url = reverse('dashboard')
         self.assertEqual(resolve(url).func, views.home)
+
+class TestLoginAndLogout(TestCase):
+    # TODO
+    pass

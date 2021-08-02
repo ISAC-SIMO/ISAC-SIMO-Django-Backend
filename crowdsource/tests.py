@@ -1,10 +1,14 @@
-from crowdsource.models import ImageShare
+from django.contrib.messages.api import get_messages
+from django.contrib.staticfiles import finders
+from crowdsource.models import Crowdsource, ImageShare
 from django.test import Client
 from main.models import User
 from django.test import TestCase
 from django.urls import resolve, reverse
 from unittest.mock import patch
 from . import views
+from django.core.paginator import Page
+from crowdsource.forms import CrowdsourceForm, ImageShareForm
 
 
 class TestCrowdsourceImageUrl(TestCase):
@@ -37,27 +41,125 @@ class TestImageShare(TestCase):
         self.client = Client(HTTP_HOST='www.isac-simo.net')
         self.user = TestImageShare.user
         self.admin = TestImageShare.admin
-
-    def test_image_share_creation(self):
-        with patch.object(views, 'prune_old_image_share') as mock_prune_old_image_share:
-            # Login as Normal user
-            self.client.force_login(self.user)
-            response = self.client.post('/crowdsource/images-share', {'object_type': 'wall', 'status': 'accepted', 'remarks': 'I am requesting images.'})
-            self.assertEqual(response.status_code, 302)
-            self.assertTrue(ImageShare.objects.filter(object_type='wall', status='pending', user=self.user).exists())
-            # Here, status should be pending (Only admin can change it to accepted or rejected)
-
-            # Login as Admin
-            self.client.force_login(self.admin)
-            image_share = ImageShare.objects.filter(user=self.user).order_by('-created_at').first();
-            response = self.client.post('/crowdsource/images-share', {'id': image_share.id, 'object_type': 'wall', 'status': 'accepted', 'remarks': 'I am requesting images.'})
-            self.assertEqual(response.status_code, 302)
-            self.assertTrue(ImageShare.objects.filter(object_type='wall', status='accepted', user=self.user).exists())
-            # Here, status should be accepted (As admin can change it to accepted or rejected)
         
+        # ANOTHER WAY TO RUN or START PATCHER INSTEAD MANUALLY
+        # self.patcher = patch('crowdsource.views.prune_old_image_share')
+        # self.mock_prune_old_image_share = self.patcher.start()
+        # self.addCleanup(self.patcher.stop)
+
+    @patch('crowdsource.views.prune_old_image_share')
+    def test_image_share_creation(self, mock_prune_old_image_share):
+        # Login as Normal user
+        self.client.force_login(self.user)
+        response = self.client.post(reverse('images_share'), {'object_type': 'wall', 'status': 'accepted', 'remarks': 'I am requesting images.'})
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(ImageShare.objects.filter(object_type='wall', status='pending', user=self.user).exists())
+        # Here, status should be pending (Only admin can change it to accepted or rejected)
+
+        # Login as Admin
+        self.client.force_login(self.admin)
+        image_share = ImageShare.objects.filter(user=self.user).order_by('-created_at').first();
+        response = self.client.post(reverse('images_share'), {'id': image_share.id, 'object_type': 'wall', 'status': 'accepted', 'remarks': 'I am requesting images.'})
+        self.assertEqual(response.status_code, 302)
+        self.assertTrue(ImageShare.objects.filter(object_type='wall', status='accepted', user=self.user).exists())
+        # Here, status should be accepted (As admin can change it to accepted or rejected)
+    
         # Validate that Prune Old Image Share was called
         mock_prune_old_image_share.assert_called()
 
         # Downloading view called
         url = reverse('image_share_download', args=[image_share.id])
         self.assertEqual(resolve(url).func, views.image_share_download)
+
+        # Deleting Image Share Request
+        response = self.client.post(reverse('images_share_delete', args=[image_share.id]))
+        self.assertEqual(response.status_code, 302)
+        self.assertFalse(ImageShare.objects.filter(id=image_share.id).exists())
+
+        # List Image Share Page
+        response = self.client.get(reverse('images_share')+"?q=test") # Load Image Share List
+        self.assertIsInstance(response.context['form'], ImageShareForm) # ImageShareForm is sent in render
+        self.assertIsInstance(response.context['images_share'], Page) # Page (Paginator specific page) is sent in render
+        self.assertEqual(response.context['query'], "test") # Query parameteter value (q) is sent back
+        self.assertTemplateUsed(response, 'images_share.html') # Returns correct template
+        self.assertContains(response, 'Image Share Request') # Has certain text in rendered view
+
+class TestCrowdSource(TestCase):
+    @classmethod
+    def setUpClass(cls):
+        super(TestCrowdSource, cls).setUpClass()
+        # USER
+        cls.user = User.objects.create_user(
+          full_name='user', email='user@example.com',
+          password='secret', user_type='user', is_active=True
+        )
+
+        # ADMIN
+        cls.admin = User.objects.create(
+          full_name='admin', email='admin@example.com',
+          password='secret', user_type='admin', is_staff=True, active=True
+        )
+
+    def setUp(self):
+        self.client = Client(HTTP_HOST='www.isac-simo.net')
+        self.user = TestCrowdSource.user
+        self.admin = TestCrowdSource.admin
+
+    @patch('django.db.models.fields.files.FieldFile.delete')
+    @patch('django.db.models.fields.files.FieldFile.save')
+    @patch('crowdsource.views.move_object')
+    @patch('crowdsource.views.upload_object')
+    @patch('crowdsource.views.delete_object')
+    @patch('main.views.upload_object')
+    def test_crowd_source_crud(self, mock_upload_object_while_loggin_in, mock_delete_object, mock_upload_object, mock_move_object, mock_save_image_file, mock_delete_image_file):
+        with open(finders.find('dist/img/avatar.png'), 'rb') as image:
+            # Guest User
+            response = self.client.post(reverse('crowdsource'), {'object_type': 'wall', 'image_type': 'raw', 'file': image})
+            self.assertEqual(response.status_code, 302)
+            # print([msg.message for msg in get_messages(response.wsgi_request)]) # Sample: Get Message from response
+            # print(Crowdsource.objects.values())
+            self.assertTrue(Crowdsource.objects.filter(object_type='wall', image_type='raw').exists())
+            mock_save_image_file.assert_called()
+            
+            # Session stores guest users crowdsource contributions (And if logged in, it is linked to them)
+            session = self.client.session
+            self.assertEqual(len(session["crowdsource_images"]), 1)
+
+            # Manually Login User
+            response = self.client.post(reverse('login'), {'email':'user@example.com', 'password':'secret'})
+            # This should link current session crowdsource images to this user automatically.
+            self.assertEqual(Crowdsource.objects.filter(created_by=self.user).count(), 1)
+            mock_upload_object_while_loggin_in.assert_called()
+
+            # Login as Admin
+            self.client.force_login(self.admin)
+            crowdsource = Crowdsource.objects.filter(object_type='wall', image_type='raw').order_by('-created_at').first()
+            response = self.client.post(reverse('crowdsource'), {'id': crowdsource.id, 'object_type': 'facade', 'image_type': 'raw'})
+            self.assertEqual(response.status_code, 302)
+            self.assertTrue(Crowdsource.objects.filter(object_type='facade', image_type='raw').exists())
+            # Here, Admin user can update and make changes
+            # Validate that move_object was called (because the object_type changes, thus folder in bucket must change)
+            mock_move_object.assert_called()
+
+            # Admin can also PERFORM DIRECT UPLOAD TO IBM COS BUCKET
+            response = self.client.post(reverse('crowdsource'), {'object_type': 'test', 'image_type': 'raw', 'file': image, 'direct_upload': True})
+            self.assertEqual(response.status_code, 302)
+            self.assertEqual(Crowdsource.objects.count(), 1) # Do not add in database
+            # Validate that upload_object was called
+            mock_upload_object.assert_called()
+
+            # Deleting Crowdsource Request
+            response = self.client.post(reverse('crowdsource.delete', args=[crowdsource.id]))
+            self.assertEqual(response.status_code, 302)
+            self.assertFalse(Crowdsource.objects.filter(id=crowdsource.id).exists())
+            mock_delete_object.assert_called()
+            mock_delete_image_file.assert_called()
+
+        # List Crowdsource Page
+        response = self.client.get(reverse('crowdsource')+"?q=test") # Load Crowdsource List
+        self.assertIsInstance(response.context['form'], CrowdsourceForm) # CrowdsourceForm is sent in render
+        self.assertIsInstance(response.context['crowdsources'], Page) # Page (Paginator specific page) is sent in render
+        self.assertEqual(response.context['query'], "test") # Query parameteter value (q) is sent back
+        self.assertEqual(response.context['dash'], "master/base.html") # base.html is dash context value (If logged in)
+        self.assertTemplateUsed(response, 'crowdsource_images.html') # Returns correct template
+        self.assertContains(response, 'Total Crowdsource Images: 0') # Has certain text in rendered view

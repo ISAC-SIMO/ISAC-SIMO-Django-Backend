@@ -1,3 +1,4 @@
+from main.customdecorators import check_honeypot_conditional
 from django.core.files.uploadedfile import InMemoryUploadedFile
 from django.http.response import HttpResponseRedirect, JsonResponse
 from rest_framework.decorators import action
@@ -23,12 +24,11 @@ import uuid
 import json
 from django.utils import timezone
 from datetime import timedelta
-from honeypot.decorators import check_honeypot
 
 
 # View All Crowdsource Images + Update/Create
 
-@check_honeypot
+@check_honeypot_conditional
 def crowdsource_images(request):
     dash = request.user and not request.user.is_anonymous
     if dash:
@@ -317,6 +317,7 @@ def prune_old_image_share():
         cache.set("prune_image_share", True, 86400) # Prune every 24 hours
 
 # Image Share Views
+@check_honeypot_conditional
 @login_required(login_url=login_url)
 def images_share(request):
     prune_old_image_share();

@@ -1,3 +1,4 @@
+from main.customdecorators import check_honeypot_conditional
 from api.models import Contribution, ObjectType
 from django.contrib import messages
 from django.core.files.storage import FileSystemStorage
@@ -17,7 +18,6 @@ from api.helpers import quick_test_detect_image
 import json
 import os
 from django.db.models import Q
-from honeypot.decorators import check_honeypot
 
 
 def reload_classifier_list():
@@ -256,7 +256,7 @@ def publicProjectInfo(request, id):
         return redirect('public_projects')
 
 # Add Contribution
-@check_honeypot
+@check_honeypot_conditional
 @login_required(login_url=login_url)
 def addContribution(request, id, object_id):
     try:

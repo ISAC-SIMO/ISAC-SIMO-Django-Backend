@@ -103,7 +103,11 @@ If the check & migration ran properly.
 
 Run Test Case with:
 ```sh
-pipenv run python manage.py test --debug-mode --debug-sql --parallel
+pipenv run python manage.py test --debug-mode --debug-sql --parallel --buffer
+```
+OR
+```sh
+pipenv run test
 ```
 OR simply run without any flags:
 ```sh

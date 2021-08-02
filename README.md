@@ -38,7 +38,7 @@ pipenv run python manage.py createsuperuser
 
 ### Running Tests:
 ```sh
-pipenv run python manage.py test --debug-mode --debug-sql --parallel
+pipenv run python manage.py test --debug-mode --debug-sql --parallel --buffer
 ```
 OR simply run without any flags:
 ```sh

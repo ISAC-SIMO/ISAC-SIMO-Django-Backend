@@ -53,7 +53,7 @@ def post_logout(sender, user, request, **kwargs):
         messages.success(request, 'User Account has been Disabled. Please contact ISAC-SIMO Admin.')
 
 class UserManager(BaseUserManager):
-    def create_user(self, email,  password=None, user_type='user', is_active=True):
+    def create_user(self, email,  password=None, user_type='user', is_active=True, full_name=None):
         if not email:
             raise ValueError(_("Users must have email address"))
         if not password:
@@ -65,6 +65,7 @@ class UserManager(BaseUserManager):
             user_obj.set_password(password) #change password
             user_obj.user_type = user_type
             user_obj.active = is_active
+            user_obj.full_name = full_name if full_name else email
             user_obj.save(using = self._db)
             return user_obj
 
