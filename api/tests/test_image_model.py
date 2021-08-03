@@ -6,7 +6,7 @@ from main.models import User
 
 class TestImageFileTest(TestCase):
     def setUp(self):
-        user = User.objects.create_user(email="testuser@gmail.com", user_type="user", password="test@1234")
+        user = User.objects.create_user(email="testuser@example.com", user_type="user", password="test@1234")
         image = Image.objects.create(title="test title", description="test desc", user=user, lat=26, lng=84)
         file = finders.find('dist/img/avatar.png')
         ImageFile.objects.create(image=image, file=file)

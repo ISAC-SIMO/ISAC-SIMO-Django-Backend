@@ -1,14 +1,18 @@
+from django.conf import settings
 from django.contrib.messages.api import get_messages
 from django.contrib.staticfiles import finders
+from django.core.files.uploadedfile import SimpleUploadedFile
 from crowdsource.models import Crowdsource, ImageShare
 from django.test import Client
 from main.models import User
 from django.test import TestCase
 from django.urls import resolve, reverse
 from unittest.mock import patch
+from unittest import skipUnless
 from . import views
 from django.core.paginator import Page
 from crowdsource.forms import CrowdsourceForm, ImageShareForm
+from crowdsource.helpers import delete_object, get_object, get_object_list, move_object, upload_object
 
 
 class TestCrowdsourceImageUrl(TestCase):
@@ -163,3 +167,41 @@ class TestCrowdSource(TestCase):
         self.assertEqual(response.context['dash'], "master/base.html") # base.html is dash context value (If logged in)
         self.assertTemplateUsed(response, 'crowdsource_images.html') # Returns correct template
         self.assertContains(response, 'Total Crowdsource Images: 0') # Has certain text in rendered view
+
+@skipUnless(settings.PRODUCTION, "Ignore Test for Uploading Images to IBM COS")
+class TestCrowdSourceImageUrl(TestCase):
+
+    def test_ibm_cos_upload_move_delete_helper(self):
+        # Upload a sample file
+        image = SimpleUploadedFile("test.png", b"file_content", content_type="image/png")
+        success = upload_object("test/test.png", image.open(), True)
+        self.assertEqual(success, True)
+        
+        # Check if that file exists in COS
+        file = get_object("test/test.png")
+        self.assertNotEqual(file, False)
+        self.assertEqual(file["ContentType"], "image/png")
+
+        # Move that sample file
+        success = move_object("test/test-moved.png", "test/test.png")
+        self.assertEqual(success, True)
+
+        # Check if that moved file exists in COS
+        file = get_object("test/test-moved.png")
+        self.assertNotEqual(file, False)
+
+        # Check if that moved file does not exist in old path
+        file = get_object("test/test.png")
+        self.assertEqual(file, False)
+
+        # get_object_list should return Array when length > 1 (at least this one)
+        file_list = get_object_list("test")
+        self.assertGreaterEqual(len(file_list), 1)
+
+        # Delete that sample file
+        success = delete_object("test/test-moved.png")
+        self.assertEqual(success, True)
+
+        # Check if that deleted file (moved location) does not exist anymore
+        file = get_object("test/test-moved.png")
+        self.assertEqual(file, False)
