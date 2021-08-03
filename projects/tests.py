@@ -1,6 +1,8 @@
 from django.test import TestCase
 from django.urls import resolve, reverse
 from . import views
+from django.contrib.staticfiles import finders
+from .models import Projects
 
 
 class TestProjectsUrl(TestCase):
@@ -34,9 +36,19 @@ class TestProjectsUrl(TestCase):
         self.assertEqual(resolve(url).func, views.publicProjectInfo)
 
     def test_contribution_resloved(self):
-        url = reverse('contribution', args=[7,9])
+        url = reverse('contribution', args=[7, 9])
         self.assertEqual(resolve(url).func, views.addContribution)
 
     def test_delete_contribution_resloved(self):
-        url = reverse('delete.contribution', args=[7,9,3])
+        url = reverse('delete.contribution', args=[7, 9, 3])
         self.assertEqual(resolve(url).func, views.deleteContribution)
+
+
+class TestProjectsModel(TestCase):
+    def setUp(self):
+        file = finders.find('dist/img/avatar.png')
+        Projects.objects.create(project_name="test name", image=file, project_desc="some description", guest=True, detect_model="lorem",
+                                ibm_api_key="HEEDS-GARTH&-HNKJH",ibm_service_url="https://example.com", public=True)
+
+    def test_project_created(self):
+        self.assertEqual(Projects.objects.count(), 1)

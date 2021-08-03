@@ -1,16 +1,18 @@
 from django.db import models
 
+
 # Create your models here.
 class Projects(models.Model):
     project_name = models.CharField(max_length=100)
     image = models.ImageField(upload_to='project_images')
     project_desc = models.TextField()
     detect_model = models.TextField(blank=True, null=True)
-    offline_model = models.ForeignKey('api.OfflineModel', on_delete=models.SET_NULL, related_name='projects', blank=True, null=True)
-    guest = models.BooleanField(default=False) # Guest=True for Global project
+    offline_model = models.ForeignKey('api.OfflineModel', on_delete=models.SET_NULL, related_name='projects',
+                                      blank=True, null=True)
+    guest = models.BooleanField(default=False)  # Guest=True for Global project
     ibm_api_key = models.CharField(max_length=200, blank=True, null=True)
     ibm_service_url = models.CharField(max_length=200, blank=True, null=True)
-    public = models.BooleanField(default=False) # Is this Project Publically Visible
+    public = models.BooleanField(default=False)  # Is this Project Publically Visible
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     updated_at = models.DateTimeField(auto_now=True, blank=True, null=True)
 
