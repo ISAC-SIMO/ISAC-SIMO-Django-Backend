@@ -3,6 +3,8 @@ from django.urls import resolve, reverse
 from . import views
 from django.contrib.staticfiles import finders
 from .models import Projects
+from .forms import ProjectForm
+from django.core.files.uploadedfile import SimpleUploadedFile
 
 
 class TestProjectsUrl(TestCase):
@@ -47,8 +49,29 @@ class TestProjectsUrl(TestCase):
 class TestProjectsModel(TestCase):
     def setUp(self):
         file = finders.find('dist/img/avatar.png')
-        Projects.objects.create(project_name="test name", image=file, project_desc="some description", guest=True, detect_model="lorem",
-                                ibm_api_key="HEEDS-GARTH&-HNKJH",ibm_service_url="https://example.com", public=True)
+        Projects.objects.create(project_name="test name", image=file, project_desc="some description", guest=True,
+                                detect_model="lorem",
+                                ibm_api_key="HEEDS-GARTH&-HNKJH", ibm_service_url="https://example.com", public=True)
 
     def test_project_created(self):
         self.assertEqual(Projects.objects.count(), 1)
+
+
+class TestProjectForms(TestCase):
+    def test_project_form(self):
+        f = open(finders.find('dist/img/avatar.png'), 'rb').read()
+        upload_file={
+            "image": SimpleUploadedFile(name='avatar.png', content=f, content_type='image/png')
+        }
+        form_data = {
+            "project_name": "test name",
+            "project_desc": "This is test project",
+            "detect_model": "development",
+            "ibm_service_url": "https://example.com",
+            "ibm_api_key": "HEEDS-GARTH&-HNKJH",
+            "public": True
+
+        }
+
+        form = ProjectForm(data=form_data, files=upload_file)
+        self.assertTrue(form.is_valid())
