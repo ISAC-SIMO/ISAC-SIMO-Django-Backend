@@ -10,14 +10,14 @@ from main.models import User
 class TestUserAccountAPI(APITestCase):
 
     def setUp(self):
-        User.objects.create_user(email="testuser@gmail.com", user_type="user", password="test@1234")
+        User.objects.create_user(email="testuser@example.com", user_type="user", password="test@1234")
 
     def test_get_token(self):
-        response = self.client.post(reverse('auth'), {"email": "testuser@gmail.com", "password": "test@1234"})
+        response = self.client.post(reverse('auth'), {"email": "testuser@example.com", "password": "test@1234"})
         self.assertEqual(response.status_code, status.HTTP_200_OK)
 
     def test_refresh_token(self):
-        user = self.client.post(reverse('auth'), {"email": "testuser@gmail.com", "password": "test@1234"})
+        user = self.client.post(reverse('auth'), {"email": "testuser@example.com", "password": "test@1234"})
         refresh_token = user.data["refresh"]
         response = self.client.post(reverse('auth_refresh'), {"refresh": refresh_token})
         self.assertEqual(response.status_code, status.HTTP_200_OK)

@@ -203,14 +203,19 @@ def test_offline_image(image_file, offline_model):
 ###################
 ## Detect Object ##
 ###################
-def detect_image(image_file, detect_model, offline=False, no_temp=False, ibm_api_key=False, ibm_service_url=None):
+def detect_image(image_file, detect_model, offline=False, no_temp=False, ibm_api_key=False, ibm_service_url=None, save_to_path=None):
     MIN_SCORE_REQUIRED = 0.1
-    # Find Image Path (used to open)
-    file_url = str(os.path.abspath(os.path.dirname(__name__))) + image_file.file.url
-    if not os.path.exists(file_url):
-        file_url = os.environ.get('PROJECT_FOLDER','') + image_file.file.url
-    print('Detecting Image Object...')
-    saveto = None
+
+    # IF Save To Path is sent in parameter. Use that instead. Could be pre-processed image you know.
+    if save_to_path:
+        file_url = save_to_path
+    else:
+        # Find Image Path (used to open)
+        file_url = str(os.path.abspath(os.path.dirname(__name__))) + image_file.file.url
+        if not os.path.exists(file_url):
+            file_url = os.environ.get('PROJECT_FOLDER','') + image_file.file.url
+        print('Detecting Image Object...')
+        saveto = None
 
     # IF Is offline Model and detect model is given (detect_model = offline_model object)
     if offline and detect_model and os.path.exists(file_url):
@@ -772,7 +777,7 @@ def test_image(image_file, title=None, description=None, save_to_path=None, clas
                         passed += 1
                         continue
             elif status == 404 or classifier.is_object_detection: # Assume Detect Model
-                res = detect_image(image_file, classifier_ids, offline=False, no_temp=True, ibm_api_key=classifier.ibm_api_key, ibm_service_url=classifier.get_ibm_service_url()) # Note: Detect_Model is classifier ids (if 404 condition i.e. 2nd parameter)
+                res = detect_image(image_file, classifier_ids, offline=False, no_temp=True, ibm_api_key=classifier.ibm_api_key, ibm_service_url=classifier.get_ibm_service_url(), save_to_path=save_to_path) # Note: Detect_Model is classifier ids (if 404 condition i.e. 2nd parameter)
                 # print(res)
                 if resized_image_open:
                     resized_image_open.close()

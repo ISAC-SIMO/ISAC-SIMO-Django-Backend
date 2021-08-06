@@ -13,7 +13,7 @@ class TestApiModel(TestCase):
     def setUpClass(cls):
         super(TestApiModel, cls).setUpClass()
         # USER
-        cls.user = User.objects.create_user(email="testuser@gmail.com", user_type="user", password="test@1234")
+        cls.user = User.objects.create_user(email="testuser@example.com", user_type="user", password="test@1234")
 
         # image and Image File
         cls.image = Image.objects.create(title="test title", description="test desc", user=cls.user, lat=26, lng=84)

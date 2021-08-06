@@ -143,6 +143,17 @@ def run(img, labels=[]):
                 'break': False,
             }
         ```
+
+> **REMINDER:** The ``img`` parameter is cv2 instance created with ``cv2.imread(path)``. If the image should have been read with additional parameters (flags) e.g. ``cv2.IMREAD_GRAYSCALE``, you have to instead write this function in your python script manually. Or else, CV2 might fail parsing it. Use something like this:
+
+```python
+def run(img, pipeline_status, score, result):
+    # img is imread without additional parameters (flags)
+    # Convert it to required format
+    img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    # Other code as usual
+```
+
 ---
 
 <div id="object-detect"></div>

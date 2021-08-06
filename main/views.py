@@ -200,7 +200,7 @@ def register(request):
             storage = messages.get_messages(request)
             storage.used = True
             if request.POST.get('type', False) and request.POST.get('type') == 'project_admin':
-                messages.info(request, 'You have been registered as Project Admin. But, you cannot login immediently. Please contact Admin to enable your account. Thank You.')
+                messages.info(request, 'You have been registered as Project Admin. But, you cannot login immediately. Please contact Admin to enable your account. Thank You.')
             else:
                 messages.success(request, 'Registration Success. Login Now.')
             return redirect('login')

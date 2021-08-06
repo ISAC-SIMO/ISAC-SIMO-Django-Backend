@@ -193,28 +193,23 @@ class User(AbstractBaseUser):
 
     @property
     def is_admin(self):
-        if self.user_type == 'admin':
-            return True
+        return self.user_type == 'admin'
 
     @property
     def is_project_admin(self):
-        if self.user_type == 'project_admin':
-            return True
+        return self.user_type == 'project_admin'
 
     @property
     def is_engineer(self):
-        if self.user_type == 'engineer':
-            return True
+        return self.user_type == 'engineer'
 
     @property
     def is_government(self):
-        if self.user_type == 'government':
-            return True
+        return self.user_type == 'government'
 
     @property
     def is_user(self):
-        if self.user_type == 'user':
-            return True
+        return self.user_type == 'user'
 
     @property
     def is_active(self):
