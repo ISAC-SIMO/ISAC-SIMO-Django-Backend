@@ -1,4 +1,5 @@
 import json
+from django.conf import settings
 
 from django.db.models import Prefetch
 from django.core.cache import cache
@@ -42,14 +43,16 @@ def data():
                 classifier_list[project.unique_name()] = {}
 
             if not project.object_types.all().count():
-                print('WARNING: No Object Type for ' + project.project_name)
+                if not settings.TESTING:
+                    print('WARNING: No Object Type for ' + project.project_name)
             else:
                 for object_type in project.object_types.all():
                     if object_type.name.lower() not in classifier_list.get(project.unique_name(),[]):
                         classifier_list[project.unique_name()][object_type.name.lower()] = []
                     
                     if not object_type.classifiers.all().count():
-                        print('WARNING: No Classifiers for ' + object_type.name + ' in ' + project.project_name)
+                        if not settings.TESTING:
+                            print('WARNING: No Classifiers for ' + object_type.name + ' in ' + project.project_name)
                     else:
                         for classifier in object_type.classifiers.all():
                             if classifier.name not in classifier_list.get(project.unique_name(),[]).get(object_type.name.lower(),[]):
@@ -81,8 +84,14 @@ def value():
     global data_val
     return cache.get('classifier_cache', data_val)
 
-# Returns the length of data specific object
 def lenList(project, object_type):
+    """
+    Returns the length of data specific object (i.e. total pipeline steps)
+
+    project = Project model instance .unique_name() property
+
+    object_type = Lower cased ObjectType model .name property
+    """
     global data_val
     content = cache.get('classifier_cache', data_val)
     if project and object_type and content.get(project, False):
@@ -92,6 +101,17 @@ def lenList(project, object_type):
     return 0
 
 def searchList(project, object_type, model=None, index=-1):
+    """
+    Returns model name if provided model or index exists in that project's object_type pipelines (else return False)
+
+    project = Project model instance .unique_name() property
+
+    object_type = Lower cased ObjectType model .name property
+
+    model = Classifier model (or Model) instance .name property
+
+    index = Pipeline Number starting from 0 (Get that specific order classifier/model)
+    """
     global data_val
     content = cache.get('classifier_cache', data_val)
     if project and object_type and content.get(project, False):

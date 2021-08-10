@@ -212,16 +212,25 @@ if DEBUG:
         'rest_framework.renderers.BrowsableAPIRenderer',
     )
 
-CACHES = {
-    'default': {
-        'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
-        'LOCATION': os.getenv('CACHE_LOCATION', '/var/tmp/django_cache'),
-        'TIMEOUT': 3600,
-        'OPTIONS': {
-            'MAX_ENTRIES': 5000
+# USE DUMMY CACHE FOR TESTING
+if TESTING:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.dummy.DummyCache',
         }
     }
-}
+
+else:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.filebased.FileBasedCache',
+            'LOCATION': os.getenv('CACHE_LOCATION', '/var/tmp/django_cache'),
+            'TIMEOUT': 3600,
+            'OPTIONS': {
+                'MAX_ENTRIES': 5000
+            }
+        }
+    }
 
 REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (

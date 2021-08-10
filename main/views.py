@@ -354,3 +354,6 @@ def serviceworker(request):
 
 def offline(request):
     return render(request, 'offline.html')
+
+def privacy_policy(request):
+    return render(request, 'privacy-policy.html')

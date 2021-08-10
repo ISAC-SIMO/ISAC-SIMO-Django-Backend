@@ -19,7 +19,7 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.css">
   <script src="https://cdn.jsdelivr.net/npm/cropme@latest/dist/cropme.min.js"></script>
   <div id="result-container">
-  <form id="check-form" onsubmit="verify(event)" action="{% url 'images.test' %}" method="POST" class="form-group" enctype="multipart/form-data">
+  <form id="check-form" onsubmit="verifySimple(event)" action="{% url 'images.test' %}" method="POST" class="form-group" enctype="multipart/form-data">
     {% csrf_token %}
     {% render_honeypot_field %}
     <div class="row m-0">
@@ -53,7 +53,7 @@
                 <span id="check-image"></span>
                 <b>Instruction: </b><span id="check-instruction"></span>
               </p>
-              <input class="mb-2" type="file" onchange="addImage(event)" accept="image/x-png,image/jpeg" />
+              <input class="mb-2" type="file" id="file" onchange="addImageSimple(event)" accept="image/x-png,image/jpeg" />
               <div id="image-dropper"></div>
               <layer id="disabled-layer" style="display:block;position:absolute;top:0;left:0;right:0;bottom:0;"></layer>
               <br/>
@@ -140,6 +140,18 @@
       })
     }
 
+    {% comment %} Without Crop Feature {% endcomment %}
+    function addImageSimple(event) {
+      var file = event.target.files[0];
+      if(file) {
+        $('#image-dropper').html("");
+        getBase64(file, function(result) {
+          $('#image-dropper').append("<img src='"+result+"' class='img-thumbnail' alt='Uploaded Image cannot be loaded.'>")
+        });
+        $('#submit-btn').css("display","inline-block");
+      }
+    }
+
     function getBase64(file, callback) {
       var reader = new FileReader();
       reader.readAsDataURL(file);
@@ -198,6 +210,43 @@
               }
           });
         })
+      }
+    }
+
+    {% comment %} Without Crop Feature {% endcomment %}
+    function verifySimple(event) {
+      event.preventDefault();
+      var file = document.getElementById("file").files[0];
+      if(file) {
+        $('#submit-btn').css("display","none");
+        $("#msg-txt").css("display","inline-block");
+
+        var form = $('#check-form')[0];
+        var formData = new FormData(form);
+        formData.append('image', file);
+        
+        $.ajax({
+            url: '{% url 'images.test' %}',
+            data: formData,
+            type: 'POST',
+            contentType: false,
+            processData: false,
+            success: function(res) {
+              $("#result-container").html(res);
+              $("#msg-txt").css("display","none");
+            },
+            error: function(err) {
+              resText = err.responseText;
+              try{
+                resText = JSON.parse(resText)
+                alert(resText.message)
+              } catch(e) {
+                alert("Failed to Test Image")
+              }
+              $('#submit-btn').css("display","inline-block");
+              $("#msg-txt").css("display","none");
+            }
+        });
       }
     }
   </script>
