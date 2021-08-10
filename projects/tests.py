@@ -56,11 +56,21 @@ class TestProjectsModel(TestCase):
     def test_project_created(self):
         self.assertEqual(Projects.objects.count(), 1)
 
+    def test_project_update(self):
+        project = Projects.objects.first()
+        project.project_name = "name"
+        self.assertFalse(Projects.objects.filter(project_name="name").count(), 1)
+
+    def test_project_delete(self):
+        project = Projects.objects.first()
+        project.delete()
+        self.assertFalse(Projects.objects.count(), 1)
+
 
 class TestProjectForms(TestCase):
     def test_project_form(self):
         f = open(finders.find('dist/img/avatar.png'), 'rb').read()
-        upload_file={
+        upload_file = {
             "image": SimpleUploadedFile(name='avatar.png', content=f, content_type='image/png')
         }
         form_data = {
