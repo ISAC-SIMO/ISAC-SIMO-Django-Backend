@@ -280,7 +280,7 @@ IBM_BUCKET_PUBLIC_ENDPOINT = os.getenv('IBM_BUCKET_PUBLIC_ENDPOINT', '')
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, "locale"),)
 SYSLOG_PATHS = (
-    os.path.join(BASE_DIR, "syslog"),)
+    os.path.join(BASE_DIR, "syslg"),)
 
 LANGUAGES = [
     ('en', _('English')),
@@ -308,7 +308,7 @@ LOGGING = {
         'error_file': {
             'level': 'DEBUG',
             'class': 'logging.FileHandler',
-            'filename': 'syslog/errors.log',
+            'filename': 'syslg/errors.log',
             "formatter": "verbose",
         },
         'mail_admins': {
@@ -325,3 +325,5 @@ LOGGING = {
         },
     },
 }
+
+ADMINS = [('Admin', 'admin@gmail.com')]
