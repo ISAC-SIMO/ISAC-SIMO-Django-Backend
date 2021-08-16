@@ -279,6 +279,8 @@ IBM_BUCKET_PUBLIC_ENDPOINT = os.getenv('IBM_BUCKET_PUBLIC_ENDPOINT', '')
 
 LOCALE_PATHS = (
     os.path.join(BASE_DIR, "locale"),)
+SYSLOG_PATHS = (
+    os.path.join(BASE_DIR, "syslog"),)
 
 LANGUAGES = [
     ('en', _('English')),
@@ -288,3 +290,38 @@ LANGUAGES = [
 ]
 
 HONEYPOT_FIELD_NAME = "phonenumber"
+
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {
+        'verbose': {
+            'format': '{levelname} {asctime} {module} {process:d} {thread:d} {message}',
+            'style': '{',
+        },
+        'simple': {
+            'format': '{levelname} {message}',
+            'style': '{',
+        },
+    },
+    'handlers': {
+        'error_file': {
+            'level': 'DEBUG',
+            'class': 'logging.FileHandler',
+            'filename': 'syslog/errors.log',
+            "formatter": "verbose",
+        },
+        'mail_admins': {
+            'level': 'ERROR',
+            'class': 'django.utils.log.AdminEmailHandler',
+            "formatter": "verbose",
+        }
+    },
+    'loggers': {
+        'django': {
+            'handlers': ['error_file', 'mail_admins'],
+            'level': 'ERROR',
+            'propagate': True,
+        },
+    },
+}

@@ -462,6 +462,36 @@
                 </p>
               </a>
             </li>
+          <hr style="margin:0.5em 0;border-top:1px solid #9ec54d;"/>
+          {% if user.is_admin %}
+            <li
+              class="nav-item has-treeview {% if request.resolver_match.url_name == 'error_log' %} menu-open {% endif %}">
+              <a href="#"
+                class="nav-link {% if request.resolver_match.url_name == 'error_log' %} active {% endif %}">
+                <i class="nav-icon fa fa-book-dead"></i>
+                <p>
+                  {% trans "Logs" %}
+                  <i class="fas fa-angle-left right"></i>
+                </p>
+              </a>
+              <ul class="nav nav-treeview">
+                <li class="nav-item">
+                  <a href="{% url 'error_log' %}"
+                    class="nav-link {% if request.resolver_match.url_name == 'error_log' %} active {% endif %}">
+                    <i class="nav-icon far fa-circle text-info"></i>
+                    <p>{% trans "View Logs" %}</p>
+                  </a>
+                </li>
+                <li class="nav-item">
+                  <a href="{% url 'error_log_clear' %}"
+                    class="nav-link">
+                    <i class="nav-icon far fa-circle text-success"></i>
+                    <p>{% trans "Clear Logs" %}</p>
+                  </a>
+                </li>
+              </ul>
+            </li>
+          {% endif %}
             {% if user.is_admin %}
             <hr style="margin:0.5em 0;border-top:1px solid #9ec54d;"/>
             <li class="nav-item">

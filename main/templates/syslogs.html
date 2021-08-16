@@ -1,0 +1,26 @@
+{% extends 'master/base.html' %}
+{% load i18n %}
+
+{% block title %} {% trans "Logs" %} {% endblock title %}
+
+{% block dashboard_title1 %} {% trans "Logs" %} {% endblock dashboard_title1 %}
+
+{% block dashboard_title2 %} {% trans "Logs" %} {% endblock dashboard_title2 %}
+
+{% block content %}
+    {% load static %}
+        <!-- Main content -->
+        <section class="content">
+            <div class="container-fluid">
+                {% for error in result reversed %}
+                    <div class="timeline-item">
+                        <div class="timeline-body">{{ error }}</div></div>
+                    <hr>
+                {% endfor %}
+            </div>
+        </section>
+
+{% endblock content %}
+
+{% block script %}
+{% endblock script %}

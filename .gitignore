@@ -9,6 +9,7 @@
 !.gitignore
 env
 venv
+.venv
 .vscode
 .idea/
 isac_simo/settings.py.bak

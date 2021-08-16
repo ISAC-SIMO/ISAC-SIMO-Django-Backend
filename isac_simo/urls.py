@@ -75,6 +75,7 @@ urlpatterns = [
     path('serviceworker.js', views.serviceworker, name="serviceworker"),
     path('offline', views.offline, name="offline"),
     path('translator/', include('main.translator.urls')),
+    path('logs/', include('main.syslogger.urls')),
     path('privacy-policy/', views.privacy_policy, name="privacy_policy"),
 ]
 # This is for further model field translation and other..
