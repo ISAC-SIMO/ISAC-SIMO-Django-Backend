@@ -9,7 +9,7 @@ from django.conf import settings
 def error_dashboard(request):
     file = settings.SYSLOG_PATHS
     f = open('{}/errors.log'.format(file[0]), "r")
-    list_items = f.read().split('\nERROR')
+    list_items = f.read().split('\nERROR ')
     args = {'result': list_items}
     return render(request, "syslogs.html", args)
 

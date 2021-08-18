@@ -306,7 +306,7 @@ LOGGING = {
     },
     'handlers': {
         'error_file': {
-            'level': 'DEBUG',
+            'level': 'ERROR',
             'class': 'logging.FileHandler',
             'filename': 'syslg/errors.log',
             "formatter": "verbose",
@@ -314,16 +314,22 @@ LOGGING = {
         'mail_admins': {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
-            "formatter": "verbose",
+            'include_html': True,
         }
     },
     'loggers': {
         'django': {
-            'handlers': ['error_file', 'mail_admins'],
+            'handlers': ['error_file', 'mail_admins'] if PRODUCTION else ['error_file'],
             'level': 'ERROR',
             'propagate': True,
         },
     },
 }
 
-ADMINS = [('Admin', 'admin@gmail.com')]
+ADMINS = [tuple(i.split(":")) for i in os.getenv('ADMINS', '').split(",")]
+
+EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
+EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", True)
+EMAIL_PORT = os.getenv("EMAIL_PORT", 587)
+EMAIL_HOST_USER = os.getenv("EMAIL_HOST_USER")
+EMAIL_HOST_PASSWORD = os.getenv("EMAIL_HOST_PASSWORD")

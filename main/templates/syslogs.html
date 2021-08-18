@@ -14,8 +14,9 @@
             <div class="container-fluid">
                 {% for error in result reversed %}
                     <div class="timeline-item">
-                        <div class="timeline-body">{{ error }}</div></div>
-                    <hr>
+                        <pre class="timeline-body" style="padding:0;">{{ error }}</pre>
+                    </div>
+                    <hr style="border-color: #111;"/>
                 {% endfor %}
             </div>
         </section>
