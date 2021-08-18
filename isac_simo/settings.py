@@ -326,7 +326,7 @@ LOGGING = {
     },
 }
 
-ADMINS = [tuple(i.split(":")) for i in os.getenv('ADMINS', '').split(",")]
+ADMINS = [tuple(i.split(":")) for i in os.getenv('ADMINS', '').split(",")] if os.getenv('ADMINS') else []
 
 EMAIL_HOST = os.getenv("EMAIL_HOST", "smtp.gmail.com")
 EMAIL_USE_TLS = os.getenv("EMAIL_USE_TLS", True)
