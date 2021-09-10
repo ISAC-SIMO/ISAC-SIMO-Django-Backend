@@ -110,6 +110,18 @@ class AdminEditForm(UserCreationForm):
             self.fields['user_type'].choices = PROJECT_ADMIN_ADDABLE_USER_TYPE
             if self.instance and self.instance.user_type == 'admin':
                 del self.fields['active'] # Do Not Allow Project Admin to change active status of other Admin
+            
+            if self.instance and (self.instance.created_by != self.request.user and self.instance.id != self.request.user.id): 
+                # User was not created by this project admin. Then, give no edit access for user details.
+                # Only Allow changing Project links.
+                self.initial['email'] = self.instance.get_hidden_email
+                self.fields['email'].widget.attrs['readonly'] = True
+                self.fields['full_name'].widget.attrs['readonly'] = True
+                del self.fields['image']
+                del self.fields['password1']
+                del self.fields['password2']
+                del self.fields['user_type']
+                del self.fields['active']
 
 class ProfileForm(UserCreationForm):
     email = forms.EmailField()

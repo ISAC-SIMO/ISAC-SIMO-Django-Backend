@@ -60,6 +60,9 @@ class UserSerializer(serializers.ModelSerializer):
 
     def update(self, instance, validated_data):
         request = self.context.get("request")
+        if request.user.is_project_admin and (instance.created_by != request.user and instance.id != request.user.id): # If Project admin cannot update this user.
+            return instance
+
         if(validated_data.get('image')):
             if(instance.image != 'user_images/default.png'):
                 instance.image.delete()
@@ -459,6 +462,17 @@ class TestSerializer(serializers.Serializer):
    ping = serializers.CharField(required=False)
 
 class UserMinimalSerializer(serializers.ModelSerializer):
+    email = serializers.SerializerMethodField()
+
+    def get_email(self, obj):
+        request = self.context.get("request")
+        if obj.id == request.user.id or request.user.is_admin:
+            return obj.email
+        elif request.user.is_project_admin and obj.created_by == request.user:
+            return obj.email
+        else:
+            return obj.get_hidden_email()
+
     class Meta:
         model = User
         fields = ('id', 'email','full_name','user_type','image')
@@ -481,8 +495,14 @@ class ProjectSerializer(serializers.ModelSerializer):
             instance.image.delete()
         return super().update(instance, validated_data)
 
+class ProjectMinimalWithInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Projects
+        fields = ('id','project_name','image','project_desc','unique_name','guest','public','created_at','updated_at')
+        read_only = ('id','project_name','image','project_desc','unique_name','guest','public','created_at','updated_at')
+
 class ObjectTypeSerializer(CountryFieldMixin, serializers.ModelSerializer):
-    project = ProjectSerializer(many=False, read_only=True)
+    project = ProjectMinimalSerializer(many=False, read_only=True)
     project_id = serializers.CharField(write_only=True)
     created_by = UserMinimalSerializer(many=False, read_only=True)
     total_classifiers = serializers.SerializerMethodField(read_only=True)

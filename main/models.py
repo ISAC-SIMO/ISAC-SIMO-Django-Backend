@@ -14,6 +14,7 @@ from projects.models import Projects
 from api.models import ObjectType
 from django.utils.translation import gettext_lazy as _
 from geopy.geocoders import Nominatim
+import re
 
 USER_TYPE = [
     ('user', "User"),
@@ -96,6 +97,8 @@ class User(AbstractBaseUser):
     projects = models.ManyToManyField('projects.Projects', verbose_name=_("Projects"), blank=True, related_name='users')
     # USER IS LINKED TO PROJECT WITH m2m AND USER CAN UPLOAD IMAGE FOR SPECIFIC PROJECT
     # AND VIEW THE IMAGES EITHER ADDED BY THIS USER -OR- BELONGS TO THIS USERS m2m PROJECTS
+    created_by = models.ForeignKey("main.User", related_name='children', verbose_name=_("Created By"),
+                                   on_delete=models.SET_NULL, blank=True, null=True)
 
     USERNAME_FIELD='email'
     REQUIRED_FIELDS = []
@@ -184,6 +187,13 @@ class User(AbstractBaseUser):
                 'project': o.project.project_name,
             }]
         return objects
+
+    def get_hidden_email(self):
+        email = self.email
+        if(len(email.split('@')[0]) >= 3):
+            return email[0:3] + re.sub(r'[^@.]', '*', email)[2:-3] + email[-3:]
+        else:
+            return re.sub(r'[^@.]', '*', email)[2:-3] + email[-3:]
 
     def has_perm(self, perm, obj=None):
         return True

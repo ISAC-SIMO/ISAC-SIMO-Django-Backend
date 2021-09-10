@@ -1625,13 +1625,16 @@ class UserView(viewsets.ModelViewSet):
                 )
             )
         elif self.request.user.is_project_admin:
-            return User.objects.exclude(user_type='admin').order_by('-timestamp', '-active').prefetch_related(
+            users = User.objects.exclude(user_type='admin').order_by('-timestamp', '-active').prefetch_related(
                 Prefetch(
                     "projects",
                     queryset=Projects.objects.filter(users__id=self.request.user.id).distinct(),
                     to_attr="visible_projects"
                 )
             )
+            for i in users:
+                i.email = i.get_hidden_email()
+            return users
         else:
             return User.objects.filter(id=self.request.user.id).prefetch_related(
                 Prefetch(

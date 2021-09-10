@@ -32,7 +32,7 @@
                                     <tr>
                                         <td style="width:15px;">{{forloop.counter}}</td>
                                         <td>{{u.full_name|default:"-"}} {% if u.id == user.id %}<b>(You)</b>{% endif %} {% if not u.active %}<i class="fa fa-times-circle text-danger ml-1" title="NOT ACTIVE"></i>{% endif %}</td>
-                                        <td>{{u.email}}</td>
+                                        <td>{% if user.is_admin %} {{u.email }} {% else %} {{ u.get_hidden_email }} {% endif %}</td>
                                         <td>{{u.user_type|title}}</td>
                                         <td>{{u.get_project_list|default:'<div title="Global Project" data-toggle="tooltip" data-placement="left"><i class="fa fa-globe text-success ml-1"></i></div>'|safe}}</td>
                                         <td>
@@ -40,7 +40,7 @@
                                         </td>
                                         <td class="table-options">
                                             <a title="{% trans 'Edit'%}" data-toggle="tooltip" data-placement="left" href="{% url 'update_user' u.id %}" class="btn text-secondary px-0">
-                                                <i class="fa fa-edit"></i>
+                                                <i class="fa fa-edit" {% if u.created_by_id == user.id or u.id == user.id %} style="color:#0014ff;" {% endif %} ></i>
                                             </a>
                                             {% if user.is_admin %}
                                             <a onclick="deleteDataWriteConfirm(event, 'form-{{ u.id }}', 'User')" title="{% trans 'Delete'%}" data-toggle="tooltip" data-placement="left" href="{% url 'admin_deleteuser' u.id %}" class="btn text-secondary px-0">

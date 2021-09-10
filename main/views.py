@@ -258,6 +258,7 @@ def admin_userAddForm(request, id=0):
 
             if form.is_valid():
                 instance = form.save(commit=False)
+                instance.created_by = request.user
                 instance.save()
                 form.save_m2m()
                 messages.success(request, "User Added Successfully!")
@@ -269,42 +270,53 @@ def admin_userAddForm(request, id=0):
                 messages.error(request, 'Cannot Update Higher Authorized User')
                 return redirect('allusers')
 
-            updateUser.email = request.POST.get('email')
-            updateUser.full_name = request.POST.get('full_name')
-            updateUser.user_type = request.POST.get('user_type')
             if request and request.user.is_project_admin:
-                updateUser.projects.add(*Projects.objects.filter(users__id=request.user.id).filter(id__in=request.POST.getlist('projects')))
+                # previous_projects_linked = list(updateUser.projects.all())
+                for project in Projects.objects.filter(users__id=request.user.id):
+                    if str(project.id) in request.POST.getlist('projects'):
+                        updateUser.projects.add(project.id)
+                    else:
+                        updateUser.projects.remove(project.id)
             else:
                 updateUser.projects.set(Projects.objects.filter(id__in=request.POST.getlist('projects')))
 
-            password1 = request.POST.get('password1') 
-            password2 = request.POST.get('password2')
+            if request.user.is_project_admin and (updateUser.created_by != request.user and updateUser.id != request.user.id):
+                # User was not created by this project admin. Then, give no edit access for user details.
+                # Only Allow changing Project links.
+                updateUser.save()
+                messages.info(request,"User Assigned to selected Projects Successfully. User Name: "+updateUser.full_name)
+            else:
+                updateUser.email = request.POST.get('email')
+                updateUser.full_name = request.POST.get('full_name')
+                updateUser.user_type = request.POST.get('user_type')
+                password1 = request.POST.get('password1') 
+                password2 = request.POST.get('password2')
 
-            if request.FILES.get('image'):
-                if(updateUser.image != 'user_images/default.png'):
-                    updateUser.image.delete()
-                myFile = request.FILES.get('image')
-                updateUser.image = myFile
-                # fs = FileSystemStorage(location="mainApp/media/user_images")
-                # filename = fs.save(myFile.name, myFile)
-                # updateUser.image = 'user_images/'  + myFile.name
-            if password1 and password2:
-                if password1 != password2:
-                    messages.info(request, "Password Mismatch")
-                    return redirect(request.META['HTTP_REFERER'])
+                if request.FILES.get('image'):
+                    if(updateUser.image != 'user_images/default.png'):
+                        updateUser.image.delete()
+                    myFile = request.FILES.get('image')
+                    updateUser.image = myFile
+                    # fs = FileSystemStorage(location="mainApp/media/user_images")
+                    # filename = fs.save(myFile.name, myFile)
+                    # updateUser.image = 'user_images/'  + myFile.name
+                if password1 and password2:
+                    if password1 != password2:
+                        messages.info(request, "Password Mismatch")
+                        return redirect(request.META['HTTP_REFERER'])
+                    else:
+                        updateUser.set_password(password1)
                 else:
-                    updateUser.set_password(password1)
-            else:
-                if password1 or password2:
-                    messages.info(request, "Fill up password in both the fields")
-                    return redirect(request.META['HTTP_REFERER'])
+                    if password1 or password2:
+                        messages.info(request, "Fill up password in both the fields")
+                        return redirect(request.META['HTTP_REFERER'])
 
-            if request.POST.get('active', False):
-                updateUser.active = True
-            else:
-                updateUser.active = False
-            updateUser.save()
-            messages.info(request,"User Record Updated Successfully for "+updateUser.full_name+"!")
+                if request.POST.get('active', False):
+                    updateUser.active = True
+                else:
+                    updateUser.active = False
+                updateUser.save()
+                messages.info(request,"User Record Updated Successfully for "+updateUser.full_name+" !")
 
         return redirect("allusers")
 
