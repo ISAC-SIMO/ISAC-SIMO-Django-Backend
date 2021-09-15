@@ -1650,23 +1650,23 @@ class UserView(viewsets.ModelViewSet):
         elif self.action == 'retrieve':
             self.permission_classes = [IsAuthenticated]
         elif self.action == 'create':
-            if self.request.user.is_project_admin:
+            if self.request.user.is_authenticated and self.request.user.is_project_admin:
                 self.permission_classes = [HasProjectAdminPermission]
-            elif self.request.user.is_admin:
+            elif self.request.user.is_authenticated and self.request.user.is_admin:
                 self.permission_classes = [HasAdminPermission]
             else:
                 self.permission_classes = [HasGuestPermission]
         elif self.action == 'update':
-            if self.request.user.is_project_admin:
+            if self.request.user.is_authenticated and self.request.user.is_project_admin:
                 self.permission_classes = [HasProjectAdminPermission]
-            elif self.request.user.is_admin:
+            elif self.request.user.is_authenticated and self.request.user.is_admin:
                 self.permission_classes = [HasAdminPermission]
             else:
                 self.permission_classes = [IsAuthenticated]
         elif self.action == 'partial_update':
-            if self.request.user.is_project_admin:
+            if self.request.user.is_authenticated and self.request.user.is_project_admin:
                 self.permission_classes = [HasProjectAdminPermission]
-            elif self.request.user.is_admin:
+            elif self.request.user.is_authenticated and self.request.user.is_admin:
                 self.permission_classes = [HasAdminPermission]
             else:
                 self.permission_classes = [IsAuthenticated]

@@ -334,20 +334,35 @@ def deleteUserByAdmin(request, id):
         messages.error(request, 'Failed to Delete!')
         return redirect('allusers')
 
+class PullInBackground(JsonResponse):
+    def close(self):
+        super(PullInBackground, self).close()
+        if self.status_code == 200:
+            import platform
+            plt = platform.system()
+            filename = "pull.sh"
+
+            if plt == "Windows":
+                filename = 'pull.bat'
+            elif plt == "Linux":
+                filename = 'pull.sh'
+            else:
+                print("Unidentified System. Unable to trigger pull.")
+                return
+
+            name = os.environ.get('PROJECT_FOLDER','') + '/' + filename
+            print(filename + ' exists: '+ str(os.path.exists(name)))
+            path = os.path.join(name)
+            if not os.path.exists(name):
+                path = './' + filename
+            print(path)
+
+            subprocess.call(path, shell=True)
+
 # Pull From Git Master via Route
 def pull(request):
     if os.getenv('PASSWORD', False) and os.getenv('PASSWORD', False) == request.GET.get('password', ''):
-        name = os.environ.get('PROJECT_FOLDER','') + '/pull.sh'
-        print('pull.sh exists: '+ str(os.path.exists(name)))
-        path = os.path.join(name)
-
-        if not os.path.exists(name):
-            path = './pull.sh'
-
-        print(path)
-
-        subprocess.call(path, shell=True)
-        return JsonResponse({'status':'ok'}, status=200)
+        return PullInBackground({'status':'ok'}, status=200)
 
     print('--~~ PULL FAILED ~~--')
     return JsonResponse({'status':'bad'}, status=404)
