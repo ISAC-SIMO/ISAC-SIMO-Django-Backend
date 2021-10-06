@@ -291,6 +291,11 @@ LANGUAGES = [
 
 HONEYPOT_FIELD_NAME = "phonenumber"
 
+# Create the syslg/errors.log
+# if PRODUCTION:
+#     if not os.path.exists('syslg/errors.log'):
+#         with open('syslg/errors.log', 'w'): pass
+
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': False,
@@ -315,11 +320,16 @@ LOGGING = {
             'level': 'ERROR',
             'class': 'django.utils.log.AdminEmailHandler',
             'include_html': True,
-        }
+        },
+        'console': {
+            'level': 'WARNING',
+            'class': 'logging.StreamHandler',
+            'formatter': 'simple'
+        },
     },
     'loggers': {
         'django': {
-            'handlers': ['error_file', 'mail_admins'] if PRODUCTION else ['error_file'],
+            'handlers': ['error_file', 'mail_admins'] if PRODUCTION else ['console'],
             'level': 'ERROR',
             'propagate': True,
         },
