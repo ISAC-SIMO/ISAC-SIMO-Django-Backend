@@ -14,7 +14,7 @@ from django.core.files.uploadedfile import InMemoryUploadedFile
 from PIL import Image
 import numpy as np
 import tensorflow as tf
-from keras import backend as K
+# from keras import backend as K
 # import keras
 
 import isac_simo.classifier_list as classifier_list

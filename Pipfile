@@ -38,6 +38,7 @@ pandas = "*"
 matplotlib = "*"
 scipy = "*"
 scikit-image = "*"
+semantic-version = "*"
 
 [dev-packages]
 
