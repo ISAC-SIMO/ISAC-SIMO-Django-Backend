@@ -80,11 +80,11 @@
                             {% endif %}
 
                             {% for num in crowdsources.paginator.page_range %}
-                              {% ifequal num crowdsources.number %}
+                              {% if num == crowdsources.number %}
                                 <li class="paginate_button page-item active"><a href="#" class="page-link">{{num}}</a></li>
                               {% else %}
                                 <li class="paginate_button page-item"><a href="?page={{ num }}" class="page-link">{{num}}</a></li>
-                              {% endifequal %}
+                              {% endif %}
                             {% endfor %}
 
                             {% if crowdsources.has_next %}

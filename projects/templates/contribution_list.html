@@ -76,11 +76,11 @@
                           {% endif %}
 
                           {% for num in contributions.paginator.page_range %}
-                            {% ifequal num contributions.number %}
+                            {% if num == contributions.number %}
                               <li class="paginate_button page-item active"><a href="#" class="page-link">{{num}}</a></li>
                             {% else %}
                               <li class="paginate_button page-item"><a href="?page={{ num }}" class="page-link">{{num}}</a></li>
-                            {% endifequal %}
+                            {% endif %}
                           {% endfor %}
 
                           {% if contributions.has_next %}

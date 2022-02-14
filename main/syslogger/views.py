@@ -11,6 +11,7 @@ def error_dashboard(request):
     f = open('{}/errors.log'.format(file[0]), "r")
     list_items = f.read().split('\nERROR ')
     args = {'result': list_items}
+    f.close();
     return render(request, "syslogs.html", args)
 
 

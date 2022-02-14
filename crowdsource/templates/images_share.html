@@ -93,11 +93,11 @@
                             {% endif %}
 
                             {% for num in images_share.paginator.page_range %}
-                              {% ifequal num images_share.number %}
+                              {% if num == images_share.number %}
                                 <li class="paginate_button page-item active"><a href="#" class="page-link">{{num}}</a></li>
                               {% else %}
                                 <li class="paginate_button page-item"><a href="?page={{ num }}" class="page-link">{{num}}</a></li>
-                              {% endifequal %}
+                              {% endif %}
                             {% endfor %}
 
                             {% if images_share.has_next %}
