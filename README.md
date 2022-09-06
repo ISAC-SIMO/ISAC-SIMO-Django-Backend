@@ -1,6 +1,6 @@
 # ISAC-SIMO
 
-[![License](https://img.shields.io/badge/License-Apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0) [![Slack](https://img.shields.io/badge/Join-Slack-blue)](https://callforcode.org/slack) [![Python 3.9](https://img.shields.io/badge/python-v3.9-blue)](https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend)
+[![License](https://img.shields.io/badge/License-Apache2-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0) [![Slack](https://img.shields.io/badge/Join-Slack-blue)](https://callforcode.org/slack) [![Python 3.9](https://img.shields.io/badge/python-v3.9-blue)](https://github.com/ISAC-SIMO/ISAC-SIMO-Django-Backend) [![CII Best Practices](https://bestpractices.coreinfrastructure.org/projects/6410/badge)](https://bestpractices.coreinfrastructure.org/projects/6410)
 
 [![CircleCI](https://circleci.com/gh/buildchange/ISAC-SIMO_Django/tree/master.svg?style=shield)](https://circleci.com/gh/buildchange/ISAC-SIMO_Django/?branch=master) ![Website](https://img.shields.io/website?down_message=offline&up_message=online&url=https%3A%2F%2Fwww.isac-simo.net%2F)
 
