@@ -39,6 +39,7 @@ matplotlib = "*"
 scipy = "*"
 scikit-image = "*"
 semantic-version = "*"
+flake8-django = "*"
 
 [dev-packages]
 

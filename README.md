@@ -45,6 +45,11 @@ OR simply run without any flags:
 pipenv run python manage.py test
 ```
 
+### Running Flake8 Static Analysis:
+```sh
+flake8
+```
+
 ### How to Bump Application Version?
 <details>
     <summary>Click to view</summary>
