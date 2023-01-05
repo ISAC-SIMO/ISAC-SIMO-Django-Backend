@@ -21,7 +21,7 @@ env = environ.Env()
 env.read_env(env.str('ENV_PATH', '.env'))
 from django.utils.translation import gettext_lazy as _
 
-VERSION = '1.4.1'
+VERSION = '1.4.2'
 
 TESTING = len(sys.argv) > 1 and sys.argv[1] == 'test'
 
